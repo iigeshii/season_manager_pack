@@ -51,7 +51,18 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
-const CLEANUP_ITEMS = ["elytra", "hopper", "hopper_minecart"];
+const CLEANUP_ITEMS = [
+  "elytra",
+  "hopper",
+  "hopper_minecart",
+  "piston",
+  "sticky_piston",
+  "dispenser",
+  "dropper",
+  "observer",
+  "slime",
+  "honey_block",
+];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
 
