@@ -3,6 +3,9 @@
 A Minecraft Bedrock Edition behavior pack for customizing and managing a
 season of play, built on `@minecraft/server` and `@minecraft/server-ui`.
 
+By [Gesh Giezel](https://github.com/iigeshii/season_manager_pack). Licensed
+under the [MIT License](LICENSE).
+
 ## Layout
 
 - `season_manager/season_pack/` — the behavior pack itself
