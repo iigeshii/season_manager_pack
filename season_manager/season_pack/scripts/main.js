@@ -110,17 +110,59 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
 //  DIMENSION BOUNCE-BACK
 //  Fallback for any way into a disabled dimension the portal lock doesn't
 //  catch (pre-lit ruined portals, bastion remnants, etc.) — teleports the
-//  player straight back to where they left from.
+//  player straight back to where they left from, and destroys the portal
+//  that let them through so it can't fire again.
+//
+//  fromLocation is exactly the spot that triggered the portal, so landing
+//  back on it re-triggers it unless the portal block itself is gone first
+//  — an already-active end portal bounced a player straight back in.
+//  Destroying it before the teleport fixes that at the source; the
+//  recently-bounced check is just a backstop for a portal larger than
+//  DESTROY_RADIUS.
 // ─────────────────────────────────────────────
 
 const DISABLED_DIMENSIONS = new Set(["minecraft:nether", "minecraft:the_end"]);
+const PORTAL_BLOCKS = {
+  "minecraft:nether": { block: "minecraft:portal", radius: 10 },
+  "minecraft:the_end": { block: "minecraft:end_portal", radius: 3 },
+};
+const BOUNCE_COOLDOWN_TICKS = 40; // 2 seconds
+const recentlyBounced = new Set();
+
+function destroyPortalNear(dimension, location, blockType, radius) {
+  const x = Math.floor(location.x);
+  const y = Math.floor(location.y);
+  const z = Math.floor(location.z);
+  try {
+    dimension.runCommand(
+      `fill ${x - radius} ${y - radius} ${z - radius} ${x + radius} ${y + radius} ${z + radius} air replace ${blockType}`
+    );
+  } catch {
+    // fill throws if nothing matched — not worth surfacing
+  }
+}
 
 world.afterEvents.playerDimensionChange.subscribe((event) => {
   if (!enabled) return;
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
+
+  const looping = recentlyBounced.has(player.id);
+  recentlyBounced.add(player.id);
+  system.runTimeout(() => recentlyBounced.delete(player.id), BOUNCE_COOLDOWN_TICKS);
+
   system.run(() => {
+    if (looping) {
+      player.teleport(world.getDefaultSpawnLocation(), { dimension: world.getDimension("overworld") });
+      player.sendMessage("§cThat portal isn't safe to return through — sent you to spawn instead.");
+      return;
+    }
+
+    const portalInfo = PORTAL_BLOCKS[toDimension.id];
+    if (portalInfo) {
+      destroyPortalNear(fromDimension, fromLocation, portalInfo.block, portalInfo.radius);
+    }
     player.teleport(fromLocation, { dimension: fromDimension });
-    player.sendMessage("§cYou entered a forbidden dimension and were sent back.");
+    player.sendMessage("§cYou entered a forbidden dimension. The portal has been destroyed.");
   });
 });
