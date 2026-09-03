@@ -110,20 +110,22 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
 //  DIMENSION BOUNCE-BACK
 //  Fallback for any way into a disabled dimension the portal lock doesn't
 //  catch (pre-lit ruined portals, bastion remnants, etc.) — teleports the
-//  player straight back to where they left from, and destroys the portal
-//  that let them through so it can't fire again.
+//  player straight back to where they left from, then best-effort destroys
+//  the portal that let them through so it can't fire again.
 //
-//  fromLocation is exactly the spot that triggered the portal, so landing
-//  back on it re-triggers it unless the portal block itself is gone first
-//  — an already-active end portal bounced a player straight back in.
-//  Destroying it before the teleport fixes that at the source; the
-//  recently-bounced check is just a backstop for a portal larger than
-//  DESTROY_RADIUS.
+//  The teleport always happens first: fromLocation is exactly the spot
+//  that triggered the portal, so if it's still there when the player lands
+//  it just re-triggers — but the send-back itself must never be blocked on
+//  cleanup succeeding (or taking a while, for the Nether's block-by-block
+//  scan). The recently-bounced check is the backstop for that case: a
+//  portal that's still live (bigger than its configured radius, or the
+//  cleanup hasn't caught up yet) sends the second bounce to world spawn
+//  instead of back onto it.
 // ─────────────────────────────────────────────
 
 const DISABLED_DIMENSIONS = new Set(["minecraft:nether", "minecraft:the_end"]);
 const PORTAL_BLOCKS = {
-  "minecraft:nether": { block: "minecraft:portal", radius: 10 },
+  "minecraft:nether": { block: "minecraft:portal", radius: 4 },
   "minecraft:the_end": { block: "minecraft:end_portal", radius: 3 },
 };
 const BOUNCE_COOLDOWN_TICKS = 40; // 2 seconds
@@ -180,11 +182,14 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
       return;
     }
 
+    // Teleport back first — this must always happen regardless of whether
+    // the portal cleanup below succeeds or runs long.
+    player.teleport(fromLocation, { dimension: fromDimension });
+    player.sendMessage("§cYou entered a forbidden dimension and were sent back.");
+
     const portalInfo = PORTAL_BLOCKS[toDimension.id];
     if (portalInfo) {
       destroyPortalNear(fromDimension, fromLocation, portalInfo.block, portalInfo.radius);
     }
-    player.teleport(fromLocation, { dimension: fromDimension });
-    player.sendMessage("§cYou entered a forbidden dimension. The portal has been destroyed.");
   });
 });
