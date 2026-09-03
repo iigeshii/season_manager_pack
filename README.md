@@ -28,15 +28,16 @@ install.
 ### Cleanup sequence
 
 The pack automatically sweeps every online player every
-`CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and runs the
-`CLEANUP_COMMANDS` sequence in
+`CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
+in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`clear @a elytra` followed by `clear @a hopper` — to keep those items out
-of players' hands. No command block or redstone clock needed; it starts as
-soon as the pack loads.
+`elytra` and `hopper` — to keep those items out of players' hands. When an
+item is actually removed from a player, that player gets a chat message
+telling them it isn't permitted this season. No command block or redstone
+clock needed; it starts as soon as the pack loads.
 
-To ban more items, add commands to the `CLEANUP_COMMANDS` array. To change
-how often the sweep runs, adjust `CLEANUP_INTERVAL_TICKS`.
+To ban more items, add their item IDs to the `CLEANUP_ITEMS` array. To
+change how often the sweep runs, adjust `CLEANUP_INTERVAL_TICKS`.
 
 For manual testing you can also trigger a single sweep on demand from a
 command block (no leading slash needed inside a command block):

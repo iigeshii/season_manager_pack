@@ -25,20 +25,21 @@ system.run(() => {
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
-const CLEANUP_COMMANDS = [
-  "clear @a elytra",
-  "clear @a hopper",
-];
+const CLEANUP_ITEMS = ["elytra", "hopper"];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
 
 function runCleanup() {
-  const overworld = world.getDimension("overworld");
-  for (const cmd of CLEANUP_COMMANDS) {
-    try {
-      overworld.runCommand(cmd);
-    } catch {
-      // /clear throws when nothing matched — not worth surfacing
+  for (const player of world.getPlayers()) {
+    for (const item of CLEANUP_ITEMS) {
+      try {
+        const result = player.runCommand(`clear @s ${item}`);
+        if (result.successCount > 0) {
+          player.sendMessage(`§c${item} removed — not permitted this season.`);
+        }
+      } catch {
+        // /clear throws when the player has none of that item — nothing to report
+      }
     }
   }
 }
