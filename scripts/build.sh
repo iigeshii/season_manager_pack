@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Packages season_pack/ into a .mcpack (a renamed .zip) under dist/.
-# Stamps the placeholder __BUILD_SHA__ in main.js with the current short git
-# SHA (only in the staged copy — the tracked source file is left untouched).
+# Stamps the placeholder __BUILD_SHA__ in main.js and manifest.json with the
+# current short git SHA (only in the staged copy — tracked source is left
+# untouched).
 # Run from anywhere; paths are resolved relative to this script.
 set -euo pipefail
 
@@ -30,7 +31,7 @@ rm -f "$ZIP_PATH" "$MCPACK_PATH"
 # Stage a copy so we can stamp the build SHA without touching tracked source
 mkdir -p "$STAGE_DIR"
 cp -r "$PACK_DIR/." "$STAGE_DIR/"
-sed -i "s/__BUILD_SHA__/${GIT_SHA}/g" "$STAGE_DIR/scripts/main.js"
+sed -i "s/__BUILD_SHA__/${GIT_SHA}/g" "$STAGE_DIR/scripts/main.js" "$STAGE_DIR/manifest.json"
 
 # Use PowerShell's Compress-Archive so the build has no extra dependencies
 # (no zip/7z required in Git Bash). manifest.json must sit at the archive
