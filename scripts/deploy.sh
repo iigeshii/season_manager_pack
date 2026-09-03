@@ -7,8 +7,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACK_DIR="$ROOT_DIR/custom_manager/custom_pack"
-PACK_NAME="custom_manager"
+PACK_DIR="$ROOT_DIR/season_manager/season_pack"
+PACK_NAME="season_manager"
 
 if [ ! -f "$PACK_DIR/manifest.json" ]; then
   echo "error: manifest.json not found in $PACK_DIR" >&2

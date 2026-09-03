@@ -1,8 +1,8 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Custom Manager",
-    "description": "Boilerplate behavior pack scaffold for Custom Manager.",
+    "name": "Season Manager",
+    "description": "Tools for customizing and managing a season of play.",
     "uuid": "3712a2a7-b912-4be1-871d-57fa9c984a6a",
     "version": [1, 0, 0],
     "min_engine_version": [1, 21, 0]

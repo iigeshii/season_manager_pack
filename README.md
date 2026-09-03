@@ -1,11 +1,11 @@
 # Custom Manager
 
-A Minecraft Bedrock Edition behavior pack scaffold, built on
-`@minecraft/server` and `@minecraft/server-ui`.
+A Minecraft Bedrock Edition behavior pack for customizing and managing a
+season of play, built on `@minecraft/server` and `@minecraft/server-ui`.
 
 ## Layout
 
-- `custom_manager/custom_pack/` — the behavior pack itself
+- `season_manager/season_pack/` — the behavior pack itself
   (`manifest.json`, `scripts/main.js`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
 - `scripts/deploy.sh` — installs the pack into Minecraft's
@@ -18,7 +18,7 @@ A Minecraft Bedrock Edition behavior pack scaffold, built on
 ./scripts/build.sh
 ```
 
-Produces `dist/custom_manager.mcpack`. Double-click it (with Minecraft
+Produces `dist/season_manager.mcpack`. Double-click it (with Minecraft
 installed) or copy it into your `development_behavior_packs` folder to
 install.
 
@@ -38,7 +38,7 @@ iteration — reload the world in-game to pick up changes.
 The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and runs the
 `CLEANUP_COMMANDS` sequence in
-[`main.js`](custom_manager/custom_pack/scripts/main.js) — currently
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently
 `clear @a elytra` followed by `clear @a hopper` — to keep those items out
 of players' hands. No command block or redstone clock needed; it starts as
 soon as the pack loads.
@@ -50,7 +50,7 @@ For manual testing you can also trigger a single sweep on demand from a
 command block (no leading slash needed inside a command block):
 
 ```
-scriptevent custom:cleanup
+scriptevent season:cleanup
 ```
 
 This requires cheats to be enabled in the world settings.

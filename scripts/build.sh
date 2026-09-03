@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Packages custom_pack/ into a .mcpack (a renamed .zip) under dist/.
+# Packages season_pack/ into a .mcpack (a renamed .zip) under dist/.
 # Stamps the placeholder __BUILD_SHA__ in main.js with the current short git
 # SHA (only in the staged copy — the tracked source file is left untouched).
 # Run from anywhere; paths are resolved relative to this script.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACK_DIR="$ROOT_DIR/custom_manager/custom_pack"
+PACK_DIR="$ROOT_DIR/season_manager/season_pack"
 DIST_DIR="$ROOT_DIR/dist"
-PACK_NAME="custom_manager"
+PACK_NAME="season_manager"
 ZIP_PATH="$DIST_DIR/${PACK_NAME}.zip"
 MCPACK_PATH="$DIST_DIR/${PACK_NAME}.mcpack"
 STAGE_DIR="$DIST_DIR/_stage"

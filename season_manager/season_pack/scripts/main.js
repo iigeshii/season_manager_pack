@@ -7,7 +7,7 @@ import { world, system } from "@minecraft/server";
 // ─────────────────────────────────────────────
 
 const BUILD_SHA = "__BUILD_SHA__";
-const BUILD_INFO_TEXT = `Custom Manager Loaded (${BUILD_SHA})`;
+const BUILD_INFO_TEXT = `Season Manager Loaded (${BUILD_SHA})`;
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   if (!initialSpawn) return;
@@ -46,8 +46,8 @@ function runCleanup() {
 system.runInterval(runCleanup, CLEANUP_INTERVAL_TICKS);
 
 // Manual trigger, still handy for testing:
-//   scriptevent custom:cleanup
+//   scriptevent season:cleanup
 system.afterEvents.scriptEventReceive.subscribe((event) => {
-  if (event.id !== "custom:cleanup") return;
+  if (event.id !== "season:cleanup") return;
   runCleanup();
 });
