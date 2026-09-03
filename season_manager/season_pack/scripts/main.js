@@ -130,16 +130,36 @@ const BOUNCE_COOLDOWN_TICKS = 40; // 2 seconds
 const recentlyBounced = new Set();
 
 function destroyPortalNear(dimension, location, blockType, radius) {
-  const x = Math.floor(location.x);
-  const y = Math.floor(location.y);
-  const z = Math.floor(location.z);
-  try {
-    dimension.runCommand(
-      `fill ${x - radius} ${y - radius} ${z - radius} ${x + radius} ${y + radius} ${z + radius} air replace ${blockType}`
-    );
-  } catch {
-    // fill throws if nothing matched — not worth surfacing
+  const cx = Math.floor(location.x);
+  const cy = Math.floor(location.y);
+  const cz = Math.floor(location.z);
+  for (let x = cx - radius; x <= cx + radius; x++) {
+    for (let y = cy - radius; y <= cy + radius; y++) {
+      for (let z = cz - radius; z <= cz + radius; z++) {
+        try {
+          const block = dimension.getBlock({ x, y, z });
+          if (block?.typeId === blockType) {
+            block.setType("minecraft:air");
+          }
+        } catch {
+          // unloaded chunk at the edge of the radius — skip it
+        }
+      }
+    }
   }
+}
+
+// world.getDefaultSpawnLocation()'s Y can be a bogus placeholder if the
+// world spawn point was never explicitly set (seen returning ~32000) —
+// its X/Z are fine, but find real ground instead of trusting its Y.
+function findSurfaceNear(dimension, x, z) {
+  for (let y = 319; y >= -64; y--) {
+    const block = dimension.getBlock({ x, y, z });
+    if (block && !block.isAir && block.typeId !== "minecraft:lava" && block.typeId !== "minecraft:flowing_lava") {
+      return { x: x + 0.5, y: y + 1, z: z + 0.5 };
+    }
+  }
+  return { x: x + 0.5, y: 100, z: z + 0.5 };
 }
 
 world.afterEvents.playerDimensionChange.subscribe((event) => {
@@ -153,7 +173,9 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
 
   system.run(() => {
     if (looping) {
-      player.teleport(world.getDefaultSpawnLocation(), { dimension: world.getDimension("overworld") });
+      const overworld = world.getDimension("overworld");
+      const spawn = world.getDefaultSpawnLocation();
+      player.teleport(findSurfaceNear(overworld, Math.floor(spawn.x), Math.floor(spawn.z)), { dimension: overworld });
       player.sendMessage("§cThat portal isn't safe to return through — sent you to spawn instead.");
       return;
     }

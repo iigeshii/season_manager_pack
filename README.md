@@ -83,8 +83,9 @@ that case.
 Any player who ends up in a dimension listed in `DISABLED_DIMENSIONS` in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently the
 Nether and The End — has the portal that let them through destroyed
-(`fill`ed with air, within `PORTAL_BLOCKS`' configured radius) and is
-immediately teleported back to exactly where they left from, with a chat
+(every matching block within `PORTAL_BLOCKS`' configured radius is set to
+air directly, not via a command) and is immediately teleported back to
+exactly where they left from, with a chat
 message telling them they entered a forbidden dimension. This is the
 fallback for anything the portal lock doesn't catch (pre-lit ruined
 portals, bastion remnants, or any other way in), since it reacts to the
@@ -95,7 +96,9 @@ sending the player right back in — `fromLocation` is exactly the spot
 that triggered it, so without that the player would land back on a
 still-active portal and bounce forever. As a backstop for a portal bigger than
 its configured radius, a player who still bounces twice in a row within
-`BOUNCE_COOLDOWN_TICKS` is sent to world spawn instead.
+`BOUNCE_COOLDOWN_TICKS` is sent to world spawn instead — dropped onto the
+ground nearest spawn's X/Z rather than its raw Y, since a world spawn
+point that was never explicitly set can report a nonsensical height.
 
 To ban/unban a dimension, add or remove its ID in `DISABLED_DIMENSIONS`.
 
