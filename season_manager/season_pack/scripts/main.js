@@ -52,3 +52,17 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
   if (event.id !== "season:cleanup") return;
   runCleanup();
 });
+
+// ─────────────────────────────────────────────
+//  BANNED MOBS
+//  Despawns banned mobs the instant they spawn — natural or player-built.
+//  entity.remove() deletes the entity outright rather than killing it, so
+//  no death event fires and no loot drops.
+// ─────────────────────────────────────────────
+
+const BANNED_MOBS = new Set(["minecraft:iron_golem"]);
+
+world.afterEvents.entitySpawn.subscribe(({ entity }) => {
+  if (!BANNED_MOBS.has(entity.typeId)) return;
+  entity.remove();
+});

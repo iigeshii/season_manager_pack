@@ -47,3 +47,14 @@ scriptevent season:cleanup
 ```
 
 This requires cheats to be enabled in the world settings.
+
+### Banned mobs
+
+Any mob in the `BANNED_MOBS` set in
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently just
+`minecraft:iron_golem` — is removed the instant it spawns, whether it
+appears naturally or gets built (e.g. pumpkin + iron blocks). It's
+despawned outright rather than killed, so no death event fires and it
+drops no loot.
+
+To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
