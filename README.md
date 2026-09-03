@@ -9,7 +9,7 @@ under the [MIT License](LICENSE).
 ## Layout
 
 - `season_manager/season_pack/` — the behavior pack itself
-  (`manifest.json`, `scripts/main.js`, `functions/`)
+  (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
 - `dist/` — build output (git-ignored)
 
@@ -64,6 +64,20 @@ despawned outright rather than killed, so no death event fires and it
 drops no loot.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
+
+### Librarian trades
+
+Librarians no longer offer enchanted books at any trading tier.
+[`trading/economy_trades/librarian_trades.json`](season_manager/season_pack/trading/economy_trades/librarian_trades.json)
+overrides the vanilla file at that same path — same file, same location,
+just with every trade using the `enchant_book_for_trading` function
+removed. Every other librarian trade (paper, bookshelves, lanterns,
+compasses, clocks, candles, etc.) is untouched.
+
+This is data, not script — it isn't gated by `enabled` and can't be
+toggled off with `scriptevent season:toggle`. To restore enchanted books,
+delete the file (or restore the trade entries in it from the vanilla
+version).
 
 ### Portal lock
 
