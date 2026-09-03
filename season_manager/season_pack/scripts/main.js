@@ -1,6 +1,17 @@
 import { world, system } from "@minecraft/server";
 
 // ─────────────────────────────────────────────
+//  MESSAGES
+//  Shared wording for anything this pack blocks. Phrased as temporary
+//  ("not yet available") rather than permanent, since these restrictions
+//  are meant to be lifted piece by piece as the season progresses.
+// ─────────────────────────────────────────────
+
+function notYetAvailable(thing) {
+  return `§cThis ${thing} is not yet available this season.`;
+}
+
+// ─────────────────────────────────────────────
 //  BUILD INFO
 //  Stamped with the short git SHA at package time — see scripts/build.sh.
 //  Left as a placeholder if loaded unstamped.
@@ -51,7 +62,7 @@ function runCleanup() {
       try {
         const result = player.runCommand(`clear @s ${item}`);
         if (result.successCount > 0) {
-          player.sendMessage(`§c${item} removed — not permitted this season.`);
+          player.sendMessage(notYetAvailable(item.replace(/_/g, " ")));
         }
       } catch {
         // /clear throws when the player has none of that item — nothing to report
@@ -92,8 +103,8 @@ world.afterEvents.entitySpawn.subscribe(({ entity }) => {
 // ─────────────────────────────────────────────
 
 const PORTAL_IGNITERS = [
-  { item: "minecraft:flint_and_steel", block: "minecraft:obsidian", label: "Nether portals" },
-  { item: "minecraft:ender_eye", block: "minecraft:end_portal_frame", label: "The End" },
+  { item: "minecraft:flint_and_steel", block: "minecraft:obsidian", label: "Nether portal" },
+  { item: "minecraft:ender_eye", block: "minecraft:end_portal_frame", label: "End portal" },
 ];
 
 world.beforeEvents.itemUseOn.subscribe((event) => {
@@ -103,7 +114,7 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
   );
   if (!match) return;
   event.cancel = true;
-  event.source.sendMessage(`§c${match.label} are disabled this season.`);
+  event.source.sendMessage(notYetAvailable(match.label));
 });
 
 // ─────────────────────────────────────────────
@@ -151,11 +162,11 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
       const overworld = world.getDimension("overworld");
       const spawn = world.getDefaultSpawnLocation();
       player.teleport(findSurfaceNear(overworld, Math.floor(spawn.x), Math.floor(spawn.z)), { dimension: overworld });
-      player.sendMessage("§cThat portal isn't safe to return through — sent you to spawn instead.");
+      player.sendMessage(`${notYetAvailable("dimension")} That portal isn't safe to return through — sent you to spawn instead.`);
       return;
     }
 
     player.teleport(fromLocation, { dimension: fromDimension });
-    player.sendMessage("§cYou entered a forbidden dimension and were sent back.");
+    player.sendMessage(notYetAvailable("dimension"));
   });
 });
