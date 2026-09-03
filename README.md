@@ -34,9 +34,9 @@ in the `CLEANUP_ITEMS` list in
 `elytra`, `hopper`, `hopper_minecart`, `piston`, `sticky_piston`,
 `dispenser`, `dropper`, `observer`, `slime`, and `honey_block` — to keep
 those items out of players' hands. When an item is actually removed from a
-player, that player gets a chat message telling them it isn't available
-yet this season. No command block or redstone clock needed; it starts as
-soon as the pack loads.
+player, that player gets a chat message telling them it's currently
+disabled. No command block or redstone clock needed; it starts as soon as
+the pack loads.
 
 To ban more items, add their item IDs to the `CLEANUP_ITEMS` array. To
 change how often the sweep runs, adjust `CLEANUP_INTERVAL_TICKS`.
@@ -92,7 +92,7 @@ before the removal.
 
 Nether portals and the End portal are blocked from being activated: using
 flint and steel on obsidian, or an eye of ender on an end portal frame,
-does nothing and tells the player it's disabled this season. Configured
+does nothing and tells the player it's currently disabled. Configured
 via the `PORTAL_IGNITERS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js).
 
