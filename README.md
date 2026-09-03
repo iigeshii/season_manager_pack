@@ -65,11 +65,38 @@ drops no loot.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
 
+### Portal lock
+
+Nether portals and the End portal are blocked from being activated: using
+flint and steel on obsidian, or an eye of ender on an end portal frame,
+does nothing and tells the player it's disabled this season. Configured
+via the `PORTAL_IGNITERS` list in
+[`main.js`](season_manager/season_pack/scripts/main.js).
+
+This only stops *ignition* — a ruined portal or bastion remnant that
+already generates lit is unaffected, since there's no ignition action to
+intercept. See dimension bounce-back below for the fallback that covers
+that case.
+
+### Dimension bounce-back
+
+Any player who ends up in a dimension listed in `DISABLED_DIMENSIONS` in
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently the
+Nether and The End — is immediately teleported back to exactly where they
+left from, with a chat message telling them they entered a forbidden
+dimension. This is the fallback for anything the portal lock doesn't
+catch (pre-lit ruined portals, bastion remnants, or any other way in),
+since it reacts to the dimension change itself rather than the portal
+that caused it.
+
+To ban/unban a dimension, add or remove its ID in `DISABLED_DIMENSIONS`.
+
 ### Pausing/resuming
 
-Both the cleanup sweep and banned-mob despawning can be toggled off without
-uninstalling the pack — handy for testing or if you need banned items/mobs
-back temporarily. Toggle from a command block (no leading slash needed):
+The cleanup sweep, banned-mob despawning, portal lock, and dimension
+bounce-back can all be toggled off without uninstalling the pack — handy
+for testing or if you need any of them back temporarily. Toggle from a
+command block (no leading slash needed):
 
 ```
 scriptevent season:toggle
