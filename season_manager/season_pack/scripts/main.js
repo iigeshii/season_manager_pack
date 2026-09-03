@@ -19,17 +19,33 @@ system.run(() => {
 });
 
 // ─────────────────────────────────────────────
+//  PACK TOGGLE
+//  Pauses/resumes the cleanup sweep and banned-mob despawning without
+//  needing to remove the pack. Trigger from a command block:
+//    scriptevent season:toggle
+// ─────────────────────────────────────────────
+
+let enabled = true;
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:toggle") return;
+  enabled = !enabled;
+  world.sendMessage(`§6Season Manager ${enabled ? "resumed" : "paused"}.`);
+});
+
+// ─────────────────────────────────────────────
 //  CLEANUP SEQUENCE
 //  Runs automatically on an interval to keep banned items out of players'
 //  hands — no command block or redstone clock needed.
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
-const CLEANUP_ITEMS = ["elytra", "hopper"];
+const CLEANUP_ITEMS = ["elytra", "hopper", "hopper_minecart"];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
 
 function runCleanup() {
+  if (!enabled) return;
   for (const player of world.getPlayers()) {
     for (const item of CLEANUP_ITEMS) {
       try {
@@ -63,6 +79,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 const BANNED_MOBS = new Set(["minecraft:iron_golem"]);
 
 world.afterEvents.entitySpawn.subscribe(({ entity }) => {
+  if (!enabled) return;
   if (!BANNED_MOBS.has(entity.typeId)) return;
   entity.remove();
 });

@@ -9,7 +9,7 @@ under the [MIT License](LICENSE).
 ## Layout
 
 - `season_manager/season_pack/` — the behavior pack itself
-  (`manifest.json`, `scripts/main.js`)
+  (`manifest.json`, `scripts/main.js`, `functions/`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
 - `dist/` — build output (git-ignored)
 
@@ -31,7 +31,7 @@ The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`elytra` and `hopper` — to keep those items out of players' hands. When an
+`elytra`, `hopper`, and `hopper_minecart` — to keep those items out of players' hands. When an
 item is actually removed from a player, that player gets a chat message
 telling them it isn't permitted this season. No command block or redstone
 clock needed; it starts as soon as the pack loads.
@@ -46,6 +46,12 @@ command block (no leading slash needed inside a command block):
 scriptevent season:cleanup
 ```
 
+or from chat/a command block via the bundled function:
+
+```
+/function season/cleanup
+```
+
 This requires cheats to be enabled in the world settings.
 
 ### Banned mobs
@@ -58,3 +64,23 @@ despawned outright rather than killed, so no death event fires and it
 drops no loot.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
+
+### Pausing/resuming
+
+Both the cleanup sweep and banned-mob despawning can be toggled off without
+uninstalling the pack — handy for testing or if you need banned items/mobs
+back temporarily. Toggle from a command block (no leading slash needed):
+
+```
+scriptevent season:toggle
+```
+
+or from chat/a command block via the bundled function:
+
+```
+/function season/toggle
+```
+
+Each call flips the state and announces it to everyone in chat (`Season
+Manager paused.` / `Season Manager resumed.`). It starts enabled on world
+load. This requires cheats to be enabled in the world settings.
