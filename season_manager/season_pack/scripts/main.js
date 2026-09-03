@@ -110,79 +110,19 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
 //  DIMENSION BOUNCE-BACK
 //  Fallback for any way into a disabled dimension the portal lock doesn't
 //  catch (pre-lit ruined portals, bastion remnants, etc.) — teleports the
-//  player straight back to where they left from, then best-effort destroys
-//  the portal that let them through so it can't fire again.
+//  player straight back to where they left from. The portal itself is left
+//  standing (an earlier version tried to destroy it, but nether/end portals
+//  resist being torn down piecemeal via script — see git history), so a
+//  player who walks right back in gets bounced again.
 //
-//  The teleport always happens first: fromLocation is exactly the spot
-//  that triggered the portal, so if it's still there when the player lands
-//  it just re-triggers — but the send-back itself must never be blocked on
-//  cleanup succeeding (or taking a while, for the Nether's block-by-block
-//  scan). The recently-bounced check is the backstop for that case: a
-//  portal that's still live (bigger than its configured radius, or the
-//  cleanup hasn't caught up yet) sends the second bounce to world spawn
-//  instead of back onto it.
+//  The recently-bounced check is the backstop for that: a player who bounces
+//  twice in a row (i.e. walked straight back into the same live portal) is
+//  sent to world spawn instead of back onto it.
 // ─────────────────────────────────────────────
 
 const DISABLED_DIMENSIONS = new Set(["minecraft:nether", "minecraft:the_end"]);
-// Nether portals validate their shape continuously: clearing the interior
-// "minecraft:portal" blocks while the obsidian frame is still intact gets
-// silently refilled by the game on the next check, since as far as the
-// engine's concerned a complete frame should have a portal in it. Clearing
-// the frame instead is what actually breaks it — same as mining out a
-// single frame block in survival collapses the whole portal.
-//
-// End portal frames don't need the same treatment: they're unbreakable and
-// unobtainable in normal play, so the game never needed a live re-validation
-// for them the way nether portals do. Clearing the "minecraft:end_portal"
-// blocks should stick on its own. As a defensive backstop (in case some
-// re-validation does exist) each frame's eye of ender is also stripped —
-// unlike obsidian, frame blocks themselves are irreplaceable, so this
-// defuses the portal without destroying anything the player can't recreate
-// by finding another eye.
-const PORTAL_BLOCKS = {
-  "minecraft:nether": {
-    radius: 4,
-    actions: [{ type: "minecraft:obsidian", clear: true }],
-  },
-  "minecraft:the_end": {
-    radius: 3,
-    actions: [
-      { type: "minecraft:end_portal", clear: true },
-      { type: "minecraft:end_portal_frame", stripEye: true },
-    ],
-  },
-};
 const BOUNCE_COOLDOWN_TICKS = 40; // 2 seconds
 const recentlyBounced = new Set();
-
-function destroyPortalNear(dimension, location, actions, radius) {
-  const cx = Math.floor(location.x);
-  const cy = Math.floor(location.y);
-  const cz = Math.floor(location.z);
-  for (let x = cx - radius; x <= cx + radius; x++) {
-    for (let y = cy - radius; y <= cy + radius; y++) {
-      for (let z = cz - radius; z <= cz + radius; z++) {
-        let block;
-        try {
-          block = dimension.getBlock({ x, y, z });
-        } catch {
-          continue; // unloaded chunk at the edge of the radius — skip it
-        }
-        const action = actions.find((a) => a.type === block?.typeId);
-        if (!action) continue;
-        try {
-          if (action.clear) {
-            block.setType("minecraft:air");
-          } else if (action.stripEye) {
-            block.setPermutation(block.permutation.withState("end_portal_eye_piece", false));
-          }
-        } catch (e) {
-          console.warn(`destroyPortalNear: failed to modify ${action.type} at ${x},${y},${z}: ${e}`);
-        }
-      }
-    }
-  }
-}
 
 // world.getDefaultSpawnLocation()'s Y can be a bogus placeholder if the
 // world spawn point was never explicitly set (seen returning ~32000) —
@@ -215,14 +155,7 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
       return;
     }
 
-    // Teleport back first — this must always happen regardless of whether
-    // the portal cleanup below succeeds or runs long.
     player.teleport(fromLocation, { dimension: fromDimension });
     player.sendMessage("§cYou entered a forbidden dimension and were sent back.");
-
-    const portalInfo = PORTAL_BLOCKS[toDimension.id];
-    if (portalInfo) {
-      destroyPortalNear(fromDimension, fromLocation, portalInfo.actions, portalInfo.radius);
-    }
   });
 });
