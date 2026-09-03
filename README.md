@@ -11,8 +11,6 @@ under the [MIT License](LICENSE).
 - `season_manager/season_pack/` — the behavior pack itself
   (`manifest.json`, `scripts/main.js`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
-- `scripts/deploy.sh` — installs the pack into Minecraft's
-  `development_behavior_packs` folder
 - `dist/` — build output (git-ignored)
 
 ## Building
@@ -24,15 +22,6 @@ under the [MIT License](LICENSE).
 Produces `dist/season_manager.mcpack`. Double-click it (with Minecraft
 installed) or copy it into your `development_behavior_packs` folder to
 install.
-
-## Deploying (dev)
-
-```sh
-./scripts/deploy.sh
-```
-
-Copies the pack straight into `development_behavior_packs` for fast
-iteration — reload the world in-game to pick up changes.
 
 ## Usage
 

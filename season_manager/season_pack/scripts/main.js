@@ -2,8 +2,8 @@ import { world, system } from "@minecraft/server";
 
 // ─────────────────────────────────────────────
 //  BUILD INFO
-//  Stamped with the short git SHA at package time — see scripts/build.sh
-//  and scripts/deploy.sh. Left as a placeholder if loaded unstamped.
+//  Stamped with the short git SHA at package time — see scripts/build.sh.
+//  Left as a placeholder if loaded unstamped.
 // ─────────────────────────────────────────────
 
 const BUILD_SHA = "__BUILD_SHA__";
