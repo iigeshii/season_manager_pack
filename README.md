@@ -65,19 +65,26 @@ drops no loot.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
 
-### Librarian trades
+### Villager trades
 
-Librarians no longer offer enchanted books at any trading tier.
-[`trading/economy_trades/librarian_trades.json`](season_manager/season_pack/trading/economy_trades/librarian_trades.json)
-overrides the vanilla file at that same path — same file, same location,
-just with every trade using the `enchant_book_for_trading` function
-removed. Every other librarian trade (paper, bookshelves, lanterns,
-compasses, clocks, candles, etc.) is untouched.
+Trade tables in [`trading/economy_trades/`](season_manager/season_pack/trading/economy_trades/)
+override the vanilla files at those same paths — same filenames, same
+location, just with specific trades stripped out. Every other trade in
+each file is untouched.
 
-This is data, not script — it isn't gated by `enabled` and can't be
-toggled off with `scriptevent season:toggle`. To restore enchanted books,
-delete the file (or restore the trade entries in it from the vanilla
-version).
+- **`librarian_trades.json`** — no enchanted books at any tier (every
+  trade using the `enchant_book_for_trading` function removed).
+- **`armorer_trades.json`** / **`weapon_smith_trades.json`** — no diamond
+  gear at any tier (every trade giving a `minecraft:diamond_*` item
+  removed — helmet/chestplate/leggings/boots/sword/axe). Two tiers in
+  each file had *only* a diamond-gear trade, so those tiers now offer
+  nothing new when a villager levels into them; the plain
+  diamond-for-emerald sell trades are untouched since those aren't gear.
+
+This is data, not script — none of it is gated by `enabled` or affected
+by `scriptevent season:toggle`. To restore a removed trade, look up the
+file's git history for the unmodified vanilla version committed just
+before the removal.
 
 ### Portal lock
 

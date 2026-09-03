@@ -163,7 +163,6 @@
         }
       ]
     },
-
     {
       "total_exp_required": 150,
       "groups": [
@@ -189,79 +188,12 @@
               "reward_exp": true
             }
           ]
-        },
-        {
-          "num_to_select": 1,
-          "trades": [
-            {
-              "wants": [
-                {
-                  "item": "minecraft:emerald",
-                  "quantity": 12,
-                  "price_multiplier": 0.2
-                }
-              ],
-              "gives": [
-                {
-                  "item": "minecraft:diamond_axe",
-                  "quantity": 1,
-                  "functions": [
-                    {
-                      "function": "enchant_with_levels",
-                      "treasure": false,
-                      "levels": {
-                        "min": 5,
-                        "max": 19
-                      }
-                    }
-                  ]
-                }
-              ],
-              "trader_exp": 15,
-              "max_uses": 3,
-              "reward_exp": true
-            }
-          ]
         }
       ]
     },
     {
       "total_exp_required": 250,
-      "groups": [
-        {
-          "num_to_select": 1,
-          "trades": [
-            {
-              "wants": [
-                {
-                  "item": "minecraft:emerald",
-                  "quantity": 8,
-                  "price_multiplier": 0.2
-                }
-              ],
-              "gives": [
-                {
-                  "item": "minecraft:diamond_sword",
-                  "quantity": 1,
-                  "functions": [
-                    {
-                      "function": "enchant_with_levels",
-                      "treasure": false,
-                      "levels": {
-                        "min": 5,
-                        "max": 19
-                      }
-                    }
-                  ]
-                }
-              ],
-              "trader_exp": 30,
-              "max_uses": 3,
-              "reward_exp": true
-            }
-          ]
-        }
-      ]
+      "groups": []
     }
   ]
 }
