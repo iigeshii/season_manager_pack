@@ -23,6 +23,15 @@ Produces `dist/season_manager.mcpack`. Double-click it (with Minecraft
 installed) or copy it into your `development_behavior_packs` folder to
 install.
 
+Every build stamps the patch digit of both `manifest.json` `"version"`
+arrays (header and script module) with the repo's current commit count,
+so it always increases — the tracked source keeps `[1, 0, 0]` as a
+placeholder. Minecraft only replaces an already-imported pack if the new
+one has a higher version, so without this a rebuilt `.mcpack` can silently
+get ignored on reimport. This means the version only advances when you
+actually commit — if you're testing uncommitted changes, the reimport
+won't be seen as an update.
+
 ## Usage
 
 ### Cleanup sequence

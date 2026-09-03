@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Packages season_pack/ into a .mcpack (a renamed .zip) under dist/.
 # Stamps the placeholder __BUILD_SHA__ in main.js and manifest.json with the
-# current short git SHA (only in the staged copy — tracked source is left
-# untouched).
+# current short git SHA, and rewrites every manifest.json "version": [a, b,
+# c] array's patch (c) digit to the current commit count — only in the
+# staged copy, tracked source is left untouched. Bumping the patch version
+# on every build is what makes Minecraft actually treat a reimported pack
+# as an update instead of silently keeping its cached copy.
 # Run from anywhere; paths are resolved relative to this script.
 set -euo pipefail
 
@@ -24,14 +27,18 @@ if [ "$GIT_SHA" != "unknown" ] && [ -n "$(git -C "$ROOT_DIR" status --porcelain 
   GIT_SHA="${GIT_SHA}-dirty"
 fi
 
+COMMIT_COUNT="$(git -C "$ROOT_DIR" rev-list --count HEAD 2>/dev/null || echo 0)"
+
 mkdir -p "$DIST_DIR"
 rm -rf "$STAGE_DIR"
 rm -f "$ZIP_PATH" "$MCPACK_PATH"
 
-# Stage a copy so we can stamp the build SHA without touching tracked source
+# Stage a copy so we can stamp the build SHA/version without touching
+# tracked source.
 mkdir -p "$STAGE_DIR"
 cp -r "$PACK_DIR/." "$STAGE_DIR/"
 sed -i "s/__BUILD_SHA__/${GIT_SHA}/g" "$STAGE_DIR/scripts/main.js" "$STAGE_DIR/manifest.json"
+sed -i -E "s/(\"version\": \[[0-9]+, ?[0-9]+, ?)[0-9]+(\])/\1${COMMIT_COUNT}\2/g" "$STAGE_DIR/manifest.json"
 
 # Use PowerShell's Compress-Archive so the build has no extra dependencies
 # (no zip/7z required in Git Bash). manifest.json must sit at the archive
@@ -44,4 +51,4 @@ powershell.exe -NoProfile -Command \
 
 rm -rf "$STAGE_DIR"
 mv "$ZIP_PATH" "$MCPACK_PATH"
-echo "Built $MCPACK_PATH (sha: $GIT_SHA)"
+echo "Built $MCPACK_PATH (sha: $GIT_SHA, patch version: $COMMIT_COUNT)"
