@@ -20,8 +20,8 @@ system.run(() => {
 
 // ─────────────────────────────────────────────
 //  CLEANUP SEQUENCE
-//  Trigger the whole sequence from a single command block:
-//    scriptevent custom:cleanup
+//  Runs automatically on an interval to keep banned items out of players'
+//  hands — no command block or redstone clock needed.
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
@@ -30,9 +30,9 @@ const CLEANUP_COMMANDS = [
   "clear @a hopper",
 ];
 
-system.afterEvents.scriptEventReceive.subscribe((event) => {
-  if (event.id !== "custom:cleanup") return;
+const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
 
+function runCleanup() {
   const overworld = world.getDimension("overworld");
   for (const cmd of CLEANUP_COMMANDS) {
     try {
@@ -41,4 +41,13 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       // /clear throws when nothing matched — not worth surfacing
     }
   }
+}
+
+system.runInterval(runCleanup, CLEANUP_INTERVAL_TICKS);
+
+// Manual trigger, still handy for testing:
+//   scriptevent custom:cleanup
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "custom:cleanup") return;
+  runCleanup();
 });

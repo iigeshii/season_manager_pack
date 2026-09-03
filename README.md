@@ -35,19 +35,22 @@ iteration — reload the world in-game to pick up changes.
 
 ### Cleanup sequence
 
-Place a command block and set its console command to (no leading slash
-needed inside a command block):
+The pack automatically sweeps every online player every
+`CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and runs the
+`CLEANUP_COMMANDS` sequence in
+[`main.js`](custom_manager/custom_pack/scripts/main.js) — currently
+`clear @a elytra` followed by `clear @a hopper` — to keep those items out
+of players' hands. No command block or redstone clock needed; it starts as
+soon as the pack loads.
+
+To ban more items, add commands to the `CLEANUP_COMMANDS` array. To change
+how often the sweep runs, adjust `CLEANUP_INTERVAL_TICKS`.
+
+For manual testing you can also trigger a single sweep on demand from a
+command block (no leading slash needed inside a command block):
 
 ```
 scriptevent custom:cleanup
 ```
 
-This runs the `CLEANUP_COMMANDS` sequence in
-[`main.js`](custom_manager/custom_pack/scripts/main.js) — currently
-`clear @a elytra` followed by `clear @a hopper`. Add more commands to that
-array to extend the sequence.
-
-For a repeating command block, set it to **Repeat** + **Needs Redstone**
-(not **Always Active**) unless you actually want it firing every tick.
-
-`scriptevent` requires cheats to be enabled in the world settings.
+This requires cheats to be enabled in the world settings.
