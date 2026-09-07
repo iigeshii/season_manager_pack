@@ -42,8 +42,12 @@ The pack automatically sweeps every online player every
 in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
 `elytra`, `hopper`, `hopper_minecart`, `piston`, `sticky_piston`,
-`dispenser`, `dropper`, `observer`, `slime`, and `honey_block` — to keep
-those items out of players' hands. When an item is actually removed from a
+`dispenser`, `dropper`, `observer`, `slime`, `honey_block`, `anvil`,
+`chipped_anvil`, and `damaged_anvil` — to keep those items out of
+players' hands. All three anvil wear states are listed because Bedrock
+gives each one its own item ID (unlike Java, where wear is just a damage
+value on one item), so banning only `anvil` would leave chipped/damaged
+anvils as a loophole. When an item is actually removed from a
 player, that player gets a chat message telling them it's currently
 disabled. No command block or redstone clock needed; it starts as soon as
 the pack loads.
@@ -133,6 +137,23 @@ be crafted.
   be ground into blaze powder.
 - **`enchanting_table.json`** — diamonds, obsidian, and a book can all be
   gathered, but they can't yet be assembled into an enchanting table.
+- **`diamond_pickaxe.json`**, **`diamond_axe.json`**,
+  **`diamond_shovel.json`**, **`diamond_hoe.json`**,
+  **`diamond_sword.json`**, **`diamond_helmet.json`**,
+  **`diamond_chestplate.json`**, **`diamond_leggings.json`**,
+  **`diamond_boots.json`** — all nine diamond tool/armor recipes are
+  locked. Diamonds can be mined and held, they just can't be crafted
+  into anything yet. Found/looted diamond gear (chest loot, mob drops)
+  isn't affected — only crafting is blocked, since this is a recipe
+  lock, not an item ban.
+
+Note on shape: most of these recipes had at least one empty cell in
+their vanilla 3-wide grid, so the barrier just fills that gap without
+changing the recipe's footprint. `diamond_shovel.json` and
+`diamond_sword.json` didn't have a spare cell (their vanilla patterns
+are a single column), so those two had their pattern widened to two
+columns to make room for the barrier — same technique, just a visibly
+different shape than vanilla in the recipe book.
 
 Same caveats as the trading overrides: this is data, not gated by
 `enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla
@@ -167,6 +188,34 @@ becoming-event on a short interval as a backstop.
 Both functions require cheats to be enabled. Like the trade and recipe
 overrides above, this is data plus a small always-on watchdog, not
 gated by `enabled`/`scriptevent season:toggle`.
+
+### Elite mobs
+
+Standalone mini-bosses, summoned on demand, that stay permanently
+tougher than their vanilla counterpart — same tag-and-event pattern as
+the Rescue Villagers, just applied to a hostile mob instead of a
+villager.
+
+- **Elite Zombie** — `/function season/summon_elite_zombie` spawns a
+  zombie with 80 health (vanilla: 20), 10 attack damage (vanilla: 3),
+  full knockback resistance, a permanent Strength II / Resistance I /
+  Fire Resistance / Regeneration effect stack (re-applied every 5
+  seconds by a watchdog in
+  [`main.js`](season_manager/season_pack/scripts/main.js), since potion
+  effects expire on their own and the stat components don't), and a
+  guaranteed enchanted iron sword plus a full iron armor set (see
+  [`entities/zombie.json`](season_manager/season_pack/entities/zombie.json)
+  and
+  [`season_elite_zombie_equipment.json`](season_manager/season_pack/loot_tables/entities/season_elite_zombie_equipment.json)).
+
+It's still `minecraft:zombie` under the hood (not a new custom
+identifier), specifically so it renders normally without needing a
+resource pack override — the same rendering pitfall that sank the
+abandoned biome-trader villager work on `feature/biome_trader`.
+
+Requires cheats to be enabled. Not gated by
+`enabled`/`scriptevent season:toggle` — this is a standalone encounter,
+not a season restriction.
 
 ### Portal lock
 

@@ -65,6 +65,12 @@ const CLEANUP_ITEMS = [
   "observer",
   "slime",
   "honey_block",
+  // Anvils have separate item IDs per wear state in Bedrock (unlike Java's
+  // single item + damage value), so all three need banning to actually
+  // block anvils rather than just the pristine one.
+  "anvil",
+  "chipped_anvil",
+  "damaged_anvil",
 ];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
@@ -225,3 +231,42 @@ system.runInterval(() => {
     }
   }
 }, RESCUE_ENFORCE_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  ELITE MOBS
+//  Standalone mini-bosses granted via /function season/summon_<name> — a
+//  permanently tougher variant of a vanilla mob (see entities/zombie.json)
+//  instead of the normal one, tagged on summon so they can be found again
+//  here. Stat boosts (health/attack/equipment) live in the entity's
+//  component group and don't need upkeep, but potion effects expire on
+//  their own, so this periodically re-applies them well before that
+//  happens. Not gated by `enabled` — this is a standalone encounter, not
+//  a season restriction.
+// ─────────────────────────────────────────────
+
+const ELITE_MOBS = [
+  {
+    tag: "season:elite_zombie",
+    type: "minecraft:zombie",
+    effects: [
+      { effect: "strength", amplifier: 1 },
+      { effect: "resistance", amplifier: 0 },
+      { effect: "fire_resistance", amplifier: 0 },
+      { effect: "regeneration", amplifier: 0 },
+    ],
+  },
+];
+
+const ELITE_MOB_INTERVAL_TICKS = 100; // 5 seconds
+const ELITE_MOB_EFFECT_DURATION_TICKS = 240; // 12 seconds — comfortably outlasts the interval
+
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const { tag, type, effects } of ELITE_MOBS) {
+    for (const mob of overworld.getEntities({ type, tags: [tag] })) {
+      for (const { effect, amplifier } of effects) {
+        mob.addEffect(effect, ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier, showParticles: false });
+      }
+    }
+  }
+}, ELITE_MOB_INTERVAL_TICKS);

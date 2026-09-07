@@ -56,25 +56,37 @@
   .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.1rem; margin-bottom: 1.8rem; }
   .masthead h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.6vw, 1.9rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
 
+  .diagram-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1.3rem 1.3rem .8rem; margin-bottom: 1rem; }
+  .diagram-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: .78rem; color: var(--ink-soft); margin: 0 0 1.8rem; }
+  .diagram-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+  .legend-swatch { display: inline-block; width: 1.1rem; height: 0; border-top: 2px solid var(--ink-soft); }
+  .legend-swatch.dashed { border-top-style: dashed; }
+
   .chapters { display: flex; flex-direction: column; gap: 1.4rem; }
 
   .chapter { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1.5rem 1.7rem 1.7rem; }
   .chapter.is-current { border-color: var(--emerald); box-shadow: 0 0 0 1px var(--emerald); }
+  .chapter.is-planned { border-style: dashed; }
 
-  .chapter-kicker { display: flex; align-items: center; gap: .6rem; margin-bottom: .35rem; }
+  .chapter-kicker { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; margin-bottom: .35rem; }
   .chapter.is-current .chapter-kicker { color: var(--emerald-ink); }
-  .current-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; background: var(--emerald); color: var(--surface); padding: .15rem .55rem; border-radius: 999px; }
+  .current-badge, .planned-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; }
+  .current-badge { background: var(--emerald); color: var(--surface); }
+  .planned-badge { background: var(--rust-bg); color: var(--rust); }
 
   .chapter-title { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0 0 .9rem; letter-spacing: -0.01em; text-wrap: balance; }
 
   .chapter-story { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); max-width: 74ch; margin: 0 0 1.3rem; }
 
   .chapter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  @media (max-width: 660px) { .chapter-grid { grid-template-columns: 1fr; } }
+  .chapter-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 900px) { .chapter-grid.cols-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .chapter-grid { grid-template-columns: 1fr; } }
 
   .chapter-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .95rem 1.1rem; }
   .chapter-block h4 { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .07em; text-transform: uppercase; margin: 0 0 .65rem; }
   .chapter-criteria h4 { color: var(--emerald-ink); }
+  .chapter-progress h4 { color: var(--emerald-ink); }
   .chapter-enforce h4 { color: var(--ink-faint); }
   .chapter-block ul { margin: 0; padding-left: 1.1rem; }
   .chapter-block li { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: .4rem; }
@@ -110,21 +122,70 @@
   </section>
 
   <div class="masthead">
-    <div class="kicker">Year 0 · progression calendar</div>
-    <h2>New Haven — 12-Month Progression</h2>
-    <p class="dek">Each stage below tells the story of that arc, the explicit criteria the group has to clear to move on, and exactly what the pack enforces while you're in it. Months are approximate targets, paced to how the group is actually doing — not a fixed calendar.</p>
+    <div class="kicker">Year 0 · progression tree</div>
+    <h2>New Haven — Progression Tree</h2>
+    <p class="dek">This isn't a fixed calendar — it's a dependency tree. Some branches (the dock, the woods, the witches) can be tackled in parallel or in whatever order the group prefers; others only open once their prerequisites are actually cleared. The map below shows what gates what; each node below it breaks down what it takes to clear, what it unlocks, and exactly what's enforced along the way.</p>
   </div>
 
-  <!-- To mark a different month current, move the is-current class and the
-       "Current" badge span to that month's <section class="chapter"> —
-       nothing else on the page needs to change. -->
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+graph TD
+  camp["Founding the Camp"]
+  bread["Breaking Bread"]
+  dock["Anchor &amp; Anvil"]
+  witch["The Witch's Hovel"]
+  wtg["Trade &amp; Trouble<br/>in the Woods"]
+  outpost["Illager Outpost"]
+  mansion["Woodland Mansion"]
+  dtools["Diamond Tools*"]
+  trials["Trials &amp; the<br/>Ancient City"]
+  dgear["Diamond Gear*"]
+  nether["The Nether Opens /<br/>Cult of the Wither"]
+  porko["Road to El Porko"]
+  atlantis["Atlantis Ahoy"]
+  gibliria["Gibliria"]
+  endm["Free the End"]
+  twisty["Twisty Edges"]
+  lorre["The Path of<br/>St. Lorre"]
+  finale["Season Finale"]
+
+  camp --> bread
+  camp --> witch
+  camp --> atlantis
+  bread --> dock
+  bread --> wtg
+  wtg --> outpost
+  outpost -.-> dtools
+  outpost --> mansion
+  mansion --> trials
+  trials -.-> dgear
+  trials --> nether
+  nether --> porko
+  atlantis --> gibliria
+  porko --> endm
+  gibliria --> endm
+  endm --> twisty
+  endm --> lorre
+  twisty --> finale
+  lorre --> finale
+    </pre>
+  </div>
+  <div class="diagram-legend">
+    <span><span class="legend-swatch"></span> required prerequisite</span>
+    <span><span class="legend-swatch dashed"></span> leads to a node whose unlock event isn't decided yet</span>
+    <span>* = restriction is live, but nothing lifts it yet</span>
+  </div>
+
+  <!-- Founding the Camp is the current node. To move it, add/remove
+       is-current on the relevant <section class="chapter"> and move the
+       "Current" badge span — nothing else on the page needs to change. -->
   <div class="chapters">
 
-    <section class="chapter is-current" data-month="1">
-      <div class="chapter-kicker kicker">Month ~1 <span class="current-badge">Current</span></div>
+    <section class="chapter is-current" id="node-camp">
+      <div class="chapter-kicker kicker">Start — no prerequisites <span class="current-badge">Current</span></div>
       <h3 class="chapter-title">Founding the Camp</h3>
-      <p class="chapter-story">This is where Commonhold Rise actually begins — not with a quest, but with shelter. The ship is gone, the Crown's blessing is a name on a scroll, and what's left is a stretch of unclaimed coastline and whatever the group can build with their own hands. Before anyone touches a portal or wires a redstone contraption, the settlement needs walls: a personal space for every member within the base boundary, working crop farms, livestock pens, and a common store everyone can draw from. It's slow, deliberate work on purpose — everything the season builds toward rests on the ground laid down this month.</p>
-      <div class="chapter-grid">
+      <p class="chapter-story">This is where Commonhold Rise actually begins — not with a quest, but with shelter. The ship is gone, the Crown's blessing is a name on a scroll, and what's left is a stretch of unclaimed coastline and whatever the group can build with their own hands. Before anyone touches a portal or wires a redstone contraption, the settlement needs walls: a personal space for every member within the base boundary, working crop farms, livestock pens, and a common store everyone can draw from. It's slow, deliberate work on purpose — everything the season builds toward rests on the ground laid down right here.</p>
+      <div class="chapter-grid cols-3">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
@@ -134,12 +195,22 @@
             <li>A common storage location is designated and accessible to the whole group</li>
           </ul>
         </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Contact made with the nearby village</li>
+          </ul>
+        </div>
         <div class="chapter-block chapter-enforce">
           <h4>Enforcement</h4>
           <ul>
             <li>Nether portal blocked, End portal blocked</li>
-            <li>Items disallowed: <code>hopper</code>, <code>hopper_minecart</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dispenser</code>, <code>dropper</code>, <code>observer</code>, <code>slime</code>, <code>honey_block</code>, <code>elytra</code></li>
+            <li>Banned permanently (Commonhold Ethos, no milestone lifts these): <code>hopper</code>, <code>hopper_minecart</code>, <code>dropper</code>, <code>observer</code></li>
+            <li>Banned until The Witch's Hovel is cleared: <code>piston</code>, <code>dispenser</code></li>
+            <li>Banned pending a policy decision (no milestone defined yet): <code>elytra</code>, <code>sticky_piston</code>, <code>slime</code>, <code>honey_block</code> — sticky pistons need a slimeball to craft, so they stay locked with slime regardless of what happens at The Witch's Hovel</li>
+            <li>Banned until Anchor &amp; Anvil is cleared: <code>anvil</code>, <code>chipped_anvil</code>, <code>damaged_anvil</code></li>
             <li>Made uncraftable: <code>blaze_powder</code>, <code>enchanting_table</code></li>
+            <li>Made uncraftable pending a policy decision — see Diamond Tools / Diamond Gear below: <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code> — diamonds themselves can still be mined and held, found/looted diamond gear is unaffected</li>
             <li>Villager trades: all disabled (every profession + wandering trader)</li>
             <li>Fishing: treasure catches no longer come pre-enchanted</li>
             <li>Blocked entities: <code>iron_golem</code>, <code>piglin</code>, <code>piglin_brute</code> — despawned the instant they spawn</li>
@@ -148,10 +219,78 @@
       </div>
     </section>
 
-    <section class="chapter" data-month="2">
-      <div class="chapter-kicker kicker">Month ~2</div>
+    <section class="chapter" id="node-bread">
+      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
+      <h3 class="chapter-title">Breaking Bread</h3>
+      <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Only once that work is visible and finished does anyone there warm up to the idea of selling New Haven anything at all.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A trade route (road) is built connecting the base to the nearby village</li>
+            <li>The village is reinforced against mob attacks (walls, lighting, or equivalent defenses)</li>
+            <li>The village suffers no further villager losses to mobs once reinforcement is complete</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Villagers now trade food for emeralds (farmer trades restored)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-dock">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Anchor &amp; Anvil</h3>
+      <p class="chapter-story">One road into the village isn't the ceiling — it's the proof of concept. With food already moving by cart, the group turns to the coastline: a real dock, built to actually take on heavier trade than a wagon can carry. Getting it running means putting an anvil to work for the first time all season, which means the standing anvil ban has to come down before the dock is worth anything at all. Word spreads with the new traffic too — sailors passing through start talking, and some of that luck rubs off on New Haven's own fishing lines.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A functional dock area is built and connected to the trade route</li>
+            <li>At least one boat is in active use for trade out of the dock</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Anvils usable again (repairing gear is back on the table)</li>
+            <li>Fishing rods and bows can come pre-enchanted again; enchanted books still don't drop from fishing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-witch">
+      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
+      <h3 class="chapter-title">The Witch's Hovel</h3>
+      <p class="chapter-story">Not every witch hut is harmless. This one's grown into something bigger and far better defended — a real complex, crawling with witches and whatever else they've got guarding the place, not a lone hut with a cauldron out front. Somewhere in the mess, alongside all the potion ingredients, are pistons and dispensers the witches have clearly been using themselves. Clearing the place out is one thing; hauling a working piston and a working dispenser back to base is what actually lets the rest of the group study them up close — which is what it takes before anyone trusts the tech enough to build with it.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>The Witch's Hovel is located</li>
+            <li>Every witch (and anything else guarding the place) is defeated and the structure is held</li>
+            <li>A piston is recovered and brought back to base for inspection</li>
+            <li>A dispenser is recovered and brought back to base for inspection</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Pistons usable</li>
+            <li>Dispensers usable</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-wtg">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
       <h3 class="chapter-title">Trade &amp; Trouble in the Woods</h3>
-      <p class="chapter-story">With the base standing, the group's attention turns outward for the first time — but only as far as the treeline. Word arrives that the Wandering Trader Guild wants a permanent outpost built in exchange for favorable terms, and closer to home, Pale Garden Creaking activity has gotten hard to ignore. Both threads run in parallel this month: raise the Guild's headquarters, and get to the bottom of whatever's animating those trees, all while the Nether and the End remain exactly as sealed as they were on day one.</p>
+      <p class="chapter-story">With the base standing, the group's attention turns outward for the first time — but only as far as the treeline. Word arrives that the Wandering Trader Guild wants a permanent outpost built in exchange for favorable terms, and closer to home, Pale Garden Creaking activity has gotten hard to ignore. Both threads run in parallel: raise the Guild's headquarters, and get to the bottom of whatever's animating those trees, all while the Nether and the End remain exactly as sealed as they were on day one.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -160,41 +299,82 @@
             <li>The Pale Garden / Creaking mystery is investigated and resolved</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same standing portal lock + dimension bounce-back as Month 1 — no pack change needed to stay here</li>
+            <li>Illager Outpost location known</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="3">
-      <div class="chapter-kicker kicker">Month ~3</div>
-      <h3 class="chapter-title">Era of the Illager</h3>
-      <p class="chapter-story">The Guild's opening trades point straight at an Illager Outpost nobody had mapped before. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built in Month 1 can actually hold. Once the group has weathered that and the Outpost is cleared, the trail leads deeper: a Woodland Mansion, rumored to be hiding something that matters to the bigger mystery Commonhold Rise exists to answer.</p>
+    <section class="chapter" id="node-outpost">
+      <div class="chapter-kicker kicker">Requires: Trade &amp; Trouble in the Woods</div>
+      <h3 class="chapter-title">Illager Outpost</h3>
+      <p class="chapter-story">The Guild's opening trades point straight at an Illager Outpost nobody had mapped before. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built back at Founding the Camp can actually hold. Weathering both is what actually teaches the group how the Illagers operate: how to read the signs of a coming raid, how to provoke one on purpose, and what's worth fighting for when Evokers show up in the waves. Word of it also reaches the cartographer back in the village — enough to earn the group a very specific map, the kind that points to something bigger and deeper in the woods.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
             <li>Illager Outpost raided and held</li>
             <li>The retaliation raid is survived</li>
-            <li>Woodland Mansion cleared, Ancient City map recovered</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same standing lock as Month 1 — a content/honor-system gate, not a new technical restriction</li>
+            <li>Bad Omen obtainable (Ominous Bottles) — the group can trigger a raid on the village on demand</li>
+            <li>Evokers now show up in raid waves — Totems of Undying obtainable</li>
+            <li>Cartographer trades restored — mansion Explorer Map only, available immediately with no trade-leveling grind; Woodland Mansion location known once bought</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="4">
-      <div class="chapter-kicker kicker">Month ~4</div>
+    <section class="chapter" id="node-mansion">
+      <div class="chapter-kicker kicker">Requires: Illager Outpost</div>
+      <h3 class="chapter-title">Woodland Mansion</h3>
+      <p class="chapter-story">The Outpost was a skirmish; the Mansion is the real dungeon. Deeper, darker, and stacked with more Evokers than any raid wave — whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Woodland Mansion cleared, Ancient City map recovered</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Trial Chambers and Ancient City locations known</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter is-planned" id="node-dtools">
+      <div class="chapter-kicker kicker">Requires: Illager Outpost <span class="planned-badge">Unlock TBD</span></div>
+      <h3 class="chapter-title">Diamond Tools</h3>
+      <p class="chapter-story">Diamond tools are locked from the very start — every recipe exists, but each one now needs an ingredient nobody can ever obtain in survival. Diamonds themselves are still perfectly mineable and stackable, they just can't be turned into anything yet. What actually lifts the lock hasn't been decided; sitting this node off the Illager Outpost is a starting guess, not a decision.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Not yet defined — the unlock event hasn't been decided</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Diamond pickaxe, axe, shovel, and hoe become craftable again (once an unlock event is chosen)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-trials">
+      <div class="chapter-kicker kicker">Requires: Woodland Mansion</div>
       <h3 class="chapter-title">Trials &amp; the Ancient City</h3>
-      <p class="chapter-story">Two of the game's harder challenges land back-to-back this month. The Mansion's map points to a Trial Chambers complex — clear it, and the Mace is finally in reach. From there it's a straight line to the Ancient City itself, guarded by wardens and worth raiding for the Silence trim alone. Clearing both is what finally earns the group leadership's sign-off to open the Nether — the first dimension gate the season lifts.</p>
+      <p class="chapter-story">Two of the game's harder challenges land back-to-back here. The Mansion's map points to a Trial Chambers complex — clear it, and the Mace is finally in reach. From there it's a straight line to the Ancient City itself, guarded by wardens and worth raiding for the Silence trim alone. Clearing both is what finally earns the group leadership's sign-off to open the Nether — the first dimension gate the season lifts.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -203,19 +383,39 @@
             <li>Ancient City raided (Silence trim recovered)</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same standing lock, unchanged since Month 1</li>
+            <li>Nether access approved; portal lock lifts for the Nether</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="5">
-      <div class="chapter-kicker kicker">Month ~5</div>
+    <section class="chapter is-planned" id="node-dgear">
+      <div class="chapter-kicker kicker">Requires: Trials &amp; the Ancient City <span class="planned-badge">Unlock TBD</span></div>
+      <h3 class="chapter-title">Diamond Gear</h3>
+      <p class="chapter-story">Same situation as diamond tools: the diamond sword and every piece of diamond armor are locked from the start, each recipe needing an ingredient nobody can obtain in survival. Parking the unlock behind the Ancient City raid is a starting guess — a harder, later milestone than tools, since combat gear matters more once real threats show up — but nothing's decided yet.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Not yet defined — the unlock event hasn't been decided</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Diamond helmet, chestplate, leggings, boots, and sword become craftable again (once an unlock event is chosen)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-nether">
+      <div class="chapter-kicker kicker">Requires: Trials &amp; the Ancient City</div>
       <h3 class="chapter-title">The Nether Opens / Cult of the Wither</h3>
-      <p class="chapter-story">The gate finally lifts — but only one of them. This month is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back in Month 1 — is still sitting on the table, unresolved.</p>
+      <p class="chapter-story">The gate finally lifts — but only one of them. This stage is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back at Founding the Camp — is still sitting on the table, unresolved.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -225,21 +425,19 @@
             <li>The Wither is killed</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Admin removes <code>minecraft:nether</code> from <code>DISABLED_DIMENSIONS</code> (and its entry in <code>PORTAL_IGNITERS</code>), rebuilds, and redistributes the pack — there's no in-game toggle per dimension</li>
-            <li>End stays locked</li>
-            <li>Elytra stays in <code>CLEANUP_ITEMS</code> regardless — a standing rule, not month-gated</li>
+            <li>Bastion Remnant locations known</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="6">
-      <div class="chapter-kicker kicker">Month ~6</div>
+    <section class="chapter" id="node-porko">
+      <div class="chapter-kicker kicker">Requires: The Nether Opens</div>
       <h3 class="chapter-title">Road to El Porko</h3>
-      <p class="chapter-story">The Wither's death leaves a power vacuum among the Piglins, and the group moves to fill it before something worse does. All four Bastion Remnant variants are on the table this month — treasure, housing, stables, and mob — each one a small siege in its own right. Clearing them all is what finally makes the Nether highways safe enough to call settled, and cracks open netherite gear for the first time all season.</p>
+      <p class="chapter-story">The Wither's death leaves a power vacuum among the Piglins, and the group moves to fill it before something worse does. All four Bastion Remnant variants are on the table — treasure, housing, stables, and mob — each one a small siege in its own right. Clearing them all is what finally makes the Nether highways safe enough to call settled, and cracks open netherite gear for the first time all season.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -247,20 +445,19 @@
             <li>All 4 Bastion Remnant variants cleared</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same End lock as Month 5 — no pack change for this month</li>
-            <li>Piglins/piglin brutes are still despawned on spawn (standing rule from Month 1) — bastions will be undefended until that's revisited</li>
+            <li>Netherite gear now obtainable; Nether highways declared safe</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="7">
-      <div class="chapter-kicker kicker">Month ~7</div>
+    <section class="chapter" id="node-atlantis">
+      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
       <h3 class="chapter-title">Atlantis Ahoy</h3>
-      <p class="chapter-story">After five straight months of overland and underground pushes, the group finally looks at the water. A bottle found adrift points to a shipwreck, and the wreck points further — a treasure cave, and eventually a full Ocean Monument raid. It's a slower, exploration-heavy month by design, and one with no hard dependency on anything before or after it, which makes it the safest place in the whole calendar to absorb schedule slippage.</p>
+      <p class="chapter-story">Whenever the group wants a break from overland and underground pushes, the water's right there. A bottle found adrift points to a shipwreck, and the wreck points further — a treasure cave, and eventually a full Ocean Monument raid. It's a slower, exploration-heavy branch by design, and one with no hard dependency on anything else in the tree, which makes it the safest place to pick up whenever there's downtime or another branch is running long.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -269,17 +466,17 @@
             <li>Ocean Monument cleared</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same End lock — unchanged</li>
+            <li>Guardian-farm policy decided; Gibliria clue trail begins</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="8">
-      <div class="chapter-kicker kicker">Month ~8</div>
+    <section class="chapter" id="node-gibliria">
+      <div class="chapter-kicker kicker">Requires: Atlantis Ahoy</div>
       <h3 class="chapter-title">Gibliria</h3>
       <p class="chapter-story">Four unrelated sites — a desert Pyramid, a Jungle Temple, an abandoned Church, and a lone Igloo — all turn out to carry pieces of the same puzzle once the group starts comparing notes. Solving it, whatever "it" turns out to be, is the real milestone; looting the Flying City the clues eventually lead to is almost a formality by comparison. Getting this right is what finally authorizes the Stronghold hunt and puts an actual date on the dragon fight.</p>
       <div class="chapter-grid">
@@ -291,19 +488,19 @@
             <li>The Flying City is looted</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Same End lock — unchanged</li>
+            <li>Stronghold hunt authorized; dragon fight scheduled</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="9">
-      <div class="chapter-kicker kicker">Month ~9</div>
+    <section class="chapter" id="node-endm">
+      <div class="chapter-kicker kicker">Requires: Road to El Porko and Gibliria</div>
       <h3 class="chapter-title">Free the End</h3>
-      <p class="chapter-story">Everything since Month 4 has been building toward this. The Stronghold hunt is on, the last Eyes of Ender need gathering, and the Ender Dragon herself is the final boundary standing between the group and the outer End. Villager trading is still fully shut off across the board, same as it's been since Month 1; nothing about the dragon fight relaxes that. But killing her is what finally opens the End Gateways and makes the outer End reachable for the first time all season.</p>
+      <p class="chapter-story">This is where the Nether branch and the exploration branch actually converge. The Stronghold hunt is on, the last Eyes of Ender need gathering, and the Ender Dragon herself is the final boundary standing between the group and the outer End. Villager trading is still fully shut off across the board, same as it's been since Founding the Camp; nothing about the dragon fight relaxes that. But killing her is what finally opens the End Gateways and makes the outer End reachable for the first time all season.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -313,20 +510,19 @@
             <li>Ender Dragon killed</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Villager trading remains fully disabled (every profession + wandering trader) — same standing rule as Month 1, not month-gated</li>
-            <li>End lock lifts at the end of this month: admin removes <code>minecraft:the_end</code> from <code>DISABLED_DIMENSIONS</code>, rebuilds, redistributes</li>
+            <li>End Gateways open; outer End now reachable</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="10">
-      <div class="chapter-kicker kicker">Month ~10</div>
+    <section class="chapter" id="node-twisty">
+      <div class="chapter-kicker kicker">Requires: Free the End</div>
       <h3 class="chapter-title">Twisty Edges</h3>
-      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is this month's actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Month 1.</p>
+      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is the actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -335,20 +531,20 @@
             <li>Mending Librarian located and rescued</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>Rescue Villager feature: run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (one trade, <code>mending_librarian_trades.json</code>) — the only unlock on this page that's a live in-game command instead of a pack rebuild</li>
-            <li>The Elytra policy decision (removing <code>elytra</code> from <code>CLEANUP_ITEMS</code>) still needs a rebuild once decided</li>
+            <li>Mending now available — run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (the only unlock on this page that's a live in-game command instead of a configuration update)</li>
+            <li>Elytra policy decided</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="11">
-      <div class="chapter-kicker kicker">Month ~11</div>
+    <section class="chapter" id="node-lorre">
+      <div class="chapter-kicker kicker">Requires: Free the End</div>
       <h3 class="chapter-title">The Path of St. Lorre, Pt. 1–2</h3>
-      <p class="chapter-story">No new dimension, no new gear tier — just the mystery itself, finally moving. A clue chain that starts in the Stronghold library runs through two full parts this month, each one narrowing down where "St. Lorre" and the seven-marks ruins actually connect. No standing rule lifts or tightens this month; it's a pure content push.</p>
+      <p class="chapter-story">No new dimension, no new gear tier — just the mystery itself, finally moving. A clue chain that starts in the Stronghold library runs through two full parts, each one narrowing down where "St. Lorre" and the seven-marks ruins actually connect. No standing rule lifts or tightens here; it's a pure content push, running in parallel with Twisty Edges rather than blocking or being blocked by it.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -357,17 +553,17 @@
             <li>Final clue location identified</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>No pack changes — standing rules (villager trades disabled, blaze powder/enchanting table recipe locks, fishing enchant removal, mob ban) continue unchanged</li>
+            <li>St. Lorre treasure location known</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="chapter" data-month="12">
-      <div class="chapter-kicker kicker">Month ~12</div>
+    <section class="chapter" id="node-finale">
+      <div class="chapter-kicker kicker">Requires: Twisty Edges and The Path of St. Lorre</div>
       <h3 class="chapter-title">The Treasure of St. Lorre / Season Finale</h3>
       <p class="chapter-story">The season closes on the mystery it opened with. Whatever's waiting at the end of the St. Lorre clue chain gets recovered, the seven-marks question gets an actual answer, and Commonhold Rise's first season wraps. What happens after that isn't automatic — it's a vote, requiring a supermajority of active members, in increments of four months at a time.</p>
       <div class="chapter-grid">
@@ -378,10 +574,10 @@
             <li>Seven-marks mystery resolved</li>
           </ul>
         </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
           <ul>
-            <li>No pack changes</li>
+            <li>Extension vote triggered (4-month increments, supermajority required)</li>
           </ul>
         </div>
       </div>
@@ -392,11 +588,23 @@
   <div class="notes">
     <h2>Notes</h2>
     <ul>
-      <li>Permanent bans (elytra pending, hoppers, etc.) sit on top of every month below regardless of stage — each month's Enforcement block only calls out what's new or still active, not the full standing rule set already spelled out in Month 1.</li>
-      <li>Month 1 has no combat/exploration milestone on purpose — it's the only month where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
-      <li>If a month's raid/puzzle runs long, the safest place to absorb slippage is Month 7–8 (Atlantis/Gibliria have no dependency on anything before or after them).</li>
+      <li>Permanent bans (hoppers, droppers, observers, etc.) sit on top of every branch below regardless of what's been cleared — each node's Enforcement block only calls out what's new or still active there, not the full standing rule set already spelled out at Founding the Camp.</li>
+      <li>Founding the Camp has no combat/exploration milestone on purpose — it's the only node where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
+      <li>Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time, and they don't depend on anything beyond Founding the Camp either.</li>
+      <li>Diamond Tools and Diamond Gear are marked "Not Yet Enforced" on purpose — they're placeholders for a real decision, not restrictions that exist today.</li>
     </ul>
   </div>
 
-  <footer>Source: <code>New_Haven_12_Month_Progression.md</code> in the pack repo. Edit <code>season_planner/index.html</code> directly to update.</footer>
+  <footer>Source: <code>New_Haven_12_Month_Progression.md</code> in the pack repo (since restructured from a monthly calendar into this dependency tree). Edit <code>season_planner/index.html</code> directly to update.</footer>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js"></script>
+<script>
+  (function () {
+    var explicitDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var explicitLight = document.documentElement.getAttribute('data-theme') === 'light';
+    var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = explicitDark || (!explicitLight && systemDark);
+    mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default' });
+  })();
+</script>
