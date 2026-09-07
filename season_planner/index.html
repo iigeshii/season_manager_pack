@@ -57,17 +57,18 @@
   .masthead h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.6vw, 1.9rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
 
   .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  table { border-collapse: collapse; table-layout: fixed; width: 100%; min-width: 760px; }
   caption { caption-side: top; text-align: left; padding: .1rem; }
   th, td { text-align: left; padding: .85rem .9rem; vertical-align: top; border-bottom: 1px solid var(--border); font-size: .87rem; line-height: 1.5; }
   thead th { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 2px solid var(--ink); padding-bottom: .6rem; }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr.is-current { background: var(--emerald-bg); }
-  td.col-month { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1rem; font-weight: 500; white-space: nowrap; width: 3.5rem; }
-  td.col-focus { font-weight: 600; width: 21%; }
+  thead th:first-child, td.col-month { padding-left: .6rem; padding-right: .4rem; }
+  td.col-month { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+  td.col-focus { font-weight: 600; }
   td.col-focus .focus-title { display: block; margin-bottom: .2rem; }
-  td.col-blocked { color: var(--rust); width: 24%; }
-  td.col-opens { color: var(--emerald-ink); width: 31%; }
+  td.col-blocked { color: var(--rust); }
+  td.col-opens { color: var(--emerald-ink); }
 
   .notes { margin-top: 1.8rem; font-size: .85rem; color: var(--ink-soft); }
   .notes h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 .6rem; color: var(--ink); }
@@ -100,16 +101,22 @@
   <div class="masthead">
     <div class="kicker">Year 0 · progression calendar</div>
     <h2>New Haven — 12-Month Progression</h2>
-    <p class="dek">Each month lists what's off-limits and what completing that month's milestone unlocks for the next one.</p>
+    <p class="dek">Each month lists what's off-limits and what completing that month's milestone unlocks for the next one. Months are approximate targets, paced to how the group is actually doing — not a fixed calendar.</p>
   </div>
 
   <!-- To mark a different month current, move the is-current class to that
        month's <tr> — nothing else on the page needs to change. -->
   <div class="table-scroll">
     <table id="progression-table">
+      <colgroup>
+        <col style="width: 8%">
+        <col style="width: 19%">
+        <col style="width: 23%">
+        <col style="width: 50%">
+      </colgroup>
       <thead>
         <tr>
-          <th scope="col">Mo.</th>
+          <th scope="col">~Mo.</th>
           <th scope="col">Focus</th>
           <th scope="col">Not allowed this month</th>
           <th scope="col">What opens next</th>
@@ -117,73 +124,73 @@
       </thead>
       <tbody>
         <tr data-month="1" class="is-current">
-          <td class="col-month">1</td>
+          <td class="col-month">~1</td>
           <td class="col-focus"><span class="focus-title">Founding the Camp</span>Everyone builds a personal room/space at the base; establish crop farms and livestock pens.</td>
           <td class="col-blocked">Nether &amp; End portals; redstone beyond baseline logic (no pistons yet)</td>
           <td class="col-opens">Once every member has a personal space <em>and</em> the base has working crop farm(s) + at least two livestock pens, the Wandering Trader Guild's debt notice arrives and Pale Garden rumors start — Month 2 opens</td>
         </tr>
         <tr data-month="2">
-          <td class="col-month">2</td>
+          <td class="col-month">~2</td>
           <td class="col-focus"><span class="focus-title">Trade &amp; Trouble in the Woods</span>Build the Wandering Trader Guild HQ; investigate the Pale Garden (Creakings).</td>
           <td class="col-blocked">Nether &amp; End still closed</td>
           <td class="col-opens">WTG HQ complete + Creaking mystery solved → Illager Outpost location revealed</td>
         </tr>
         <tr data-month="3">
-          <td class="col-month">3</td>
+          <td class="col-month">~3</td>
           <td class="col-focus"><span class="focus-title">Era of the Illager</span>Raid the Outpost, survive their retaliation raid, clear the Woodland Mansion.</td>
           <td class="col-blocked">Nether &amp; End closed</td>
           <td class="col-opens">Mansion cleared, Ancient City map recovered → Trial Chambers &amp; Ancient City locations open</td>
         </tr>
         <tr data-month="4">
-          <td class="col-month">4</td>
+          <td class="col-month">~4</td>
           <td class="col-focus"><span class="focus-title">Trials &amp; the Ancient City</span>Clear Trial Chambers (Mace), raid the Ancient City for the Silence trim.</td>
           <td class="col-blocked">Nether &amp; End closed</td>
           <td class="col-opens">Ancient City looted → leadership formally approves Nether access</td>
         </tr>
         <tr data-month="5">
-          <td class="col-month">5</td>
+          <td class="col-month">~5</td>
           <td class="col-focus"><span class="focus-title">The Nether Opens / Cult of the Wither</span>Establish the Nether hub, uncover the shrines, fight the Wither.</td>
           <td class="col-blocked">End closed; Elytra decision still pending</td>
           <td class="col-opens">Wither killed → Piglin power vacuum revealed, Bastion locations known</td>
         </tr>
         <tr data-month="6">
-          <td class="col-month">6</td>
+          <td class="col-month">~6</td>
           <td class="col-focus"><span class="focus-title">Road to El Porko</span>Clear all 4 Bastion variants.</td>
           <td class="col-blocked">End closed</td>
           <td class="col-opens">All Bastions cleared → netherite gear unlocked, Nether highways declared safe</td>
         </tr>
         <tr data-month="7">
-          <td class="col-month">7</td>
+          <td class="col-month">~7</td>
           <td class="col-focus"><span class="focus-title">Atlantis Ahoy</span>Follow the bottle to the wreck, treasure cave, and Ocean Monument.</td>
           <td class="col-blocked">End closed</td>
           <td class="col-opens">Ocean Monument cleared → guardian-farm policy decided; Gibliria clue trail opens</td>
         </tr>
         <tr data-month="8">
-          <td class="col-month">8</td>
+          <td class="col-month">~8</td>
           <td class="col-focus"><span class="focus-title">Gibliria</span>Gather clues from the Pyramid, Jungle Temple, Church, and Igloo; loot the Flying City.</td>
           <td class="col-blocked">End closed</td>
           <td class="col-opens">Gibliria solved → Stronghold hunt authorized, dragon fight scheduled</td>
         </tr>
         <tr data-month="9">
-          <td class="col-month">9</td>
+          <td class="col-month">~9</td>
           <td class="col-focus"><span class="focus-title">Free the End</span>Find the Stronghold, gather final Eyes of Ender, kill the Ender Dragon.</td>
           <td class="col-blocked">Standing gear bans still apply</td>
           <td class="col-opens">Dragon killed → End Gateways open, outer End reachable</td>
         </tr>
         <tr data-month="10">
-          <td class="col-month">10</td>
+          <td class="col-month">~10</td>
           <td class="col-focus"><span class="focus-title">Twisty Edges</span>Travel the outer End, rescue the Mending Librarian.</td>
           <td class="col-blocked">Elytra/End-access policy unresolved until this arc concludes</td>
           <td class="col-opens">Librarian rescued → Elytra &amp; End-access policy finalized, mending trades restored</td>
         </tr>
         <tr data-month="11">
-          <td class="col-month">11</td>
+          <td class="col-month">~11</td>
           <td class="col-focus"><span class="focus-title">The Path of St. Lorre, Pt. 1–2</span>Follow the clue chain from the Stronghold library.</td>
           <td class="col-blocked">No new restrictions — standing rules only</td>
           <td class="col-opens">Final clue recovered → treasure location revealed</td>
         </tr>
         <tr data-month="12">
-          <td class="col-month">12</td>
+          <td class="col-month">~12</td>
           <td class="col-focus"><span class="focus-title">The Treasure of St. Lorre / Season Finale</span>Recover the treasure, close the "seven marks" mystery.</td>
           <td class="col-blocked">No new restrictions</td>
           <td class="col-opens">Season complete → triggers your extension vote (4-month increments, supermajority of active members)</td>
