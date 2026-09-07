@@ -2,7 +2,7 @@
   "format_version": 2,
   "header": {
     "name": "Season Manager",
-    "description": "Tools for customizing and managing a season of play. By Gesh Giezel. (__BUILD_SHA__)",
+    "description": "Tools for customizing and managing a season of play. By Gesh Giezel. (v__BUILD_VERSION__, __BUILD_SHA__)",
     "uuid": "3712a2a7-b912-4be1-871d-57fa9c984a6a",
     "version": [1, 0, 0],
     "min_engine_version": [1, 21, 0]

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Packages season_pack/ into a .mcpack (a renamed .zip) under dist/.
-# Stamps the placeholder __BUILD_SHA__ in main.js and manifest.json with the
-# current short git SHA, __BUILD_VERSION__ in main.js with the pack's
+# Stamps the placeholders __BUILD_SHA__ and __BUILD_VERSION__ in main.js
+# and manifest.json with the current short git SHA and the pack's
 # major.minor.commit-count version, and rewrites every manifest.json
 # "version": [a, b, c] array's patch (c) digit to the current commit count
 # — only in the staged copy, tracked source is left untouched. Bumping the
@@ -45,7 +45,7 @@ rm -f "$ZIP_PATH" "$MCPACK_PATH"
 mkdir -p "$STAGE_DIR"
 cp -r "$PACK_DIR/." "$STAGE_DIR/"
 sed -i "s/__BUILD_SHA__/${GIT_SHA}/g" "$STAGE_DIR/scripts/main.js" "$STAGE_DIR/manifest.json"
-sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" "$STAGE_DIR/scripts/main.js"
+sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" "$STAGE_DIR/scripts/main.js" "$STAGE_DIR/manifest.json"
 sed -i -E "s/(\"version\": \[[0-9]+, ?[0-9]+, ?)[0-9]+(\])/\1${COMMIT_COUNT}\2/g" "$STAGE_DIR/manifest.json"
 
 # Use PowerShell's Compress-Archive so the build has no extra dependencies
