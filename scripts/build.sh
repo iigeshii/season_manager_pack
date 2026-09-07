@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Packages season_pack/ into a .mcpack (a renamed .zip) under dist/.
 # Stamps the placeholder __BUILD_SHA__ in main.js and manifest.json with the
-# current short git SHA, and rewrites every manifest.json "version": [a, b,
-# c] array's patch (c) digit to the current commit count — only in the
-# staged copy, tracked source is left untouched. Bumping the patch version
-# on every build is what makes Minecraft actually treat a reimported pack
-# as an update instead of silently keeping its cached copy.
+# current short git SHA, __BUILD_VERSION__ in main.js with the pack's
+# major.minor.commit-count version, and rewrites every manifest.json
+# "version": [a, b, c] array's patch (c) digit to the current commit count
+# — only in the staged copy, tracked source is left untouched. Bumping the
+# patch version on every build is what makes Minecraft actually treat a
+# reimported pack as an update instead of silently keeping its cached copy.
 # Run from anywhere; paths are resolved relative to this script.
 set -euo pipefail
 
@@ -29,6 +30,12 @@ fi
 
 COMMIT_COUNT="$(git -C "$ROOT_DIR" rev-list --count HEAD 2>/dev/null || echo 0)"
 
+# Derive major.minor from the tracked manifest so BUILD_VERSION always
+# matches the version actually stamped into manifest.json below, instead
+# of hardcoding "1.0" a second time here.
+MAJOR_MINOR="$(grep -m1 '"version": \[' "$PACK_DIR/manifest.json" | grep -oE '[0-9]+' | head -2 | tr '\n' '.' | sed 's/\.$//')"
+BUILD_VERSION="${MAJOR_MINOR}.${COMMIT_COUNT}"
+
 mkdir -p "$DIST_DIR"
 rm -rf "$STAGE_DIR"
 rm -f "$ZIP_PATH" "$MCPACK_PATH"
@@ -38,6 +45,7 @@ rm -f "$ZIP_PATH" "$MCPACK_PATH"
 mkdir -p "$STAGE_DIR"
 cp -r "$PACK_DIR/." "$STAGE_DIR/"
 sed -i "s/__BUILD_SHA__/${GIT_SHA}/g" "$STAGE_DIR/scripts/main.js" "$STAGE_DIR/manifest.json"
+sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" "$STAGE_DIR/scripts/main.js"
 sed -i -E "s/(\"version\": \[[0-9]+, ?[0-9]+, ?)[0-9]+(\])/\1${COMMIT_COUNT}\2/g" "$STAGE_DIR/manifest.json"
 
 # Use PowerShell's Compress-Archive so the build has no extra dependencies
@@ -51,4 +59,4 @@ powershell.exe -NoProfile -Command \
 
 rm -rf "$STAGE_DIR"
 mv "$ZIP_PATH" "$MCPACK_PATH"
-echo "Built $MCPACK_PATH (sha: $GIT_SHA, patch version: $COMMIT_COUNT)"
+echo "Built $MCPACK_PATH (version: $BUILD_VERSION, sha: $GIT_SHA)"

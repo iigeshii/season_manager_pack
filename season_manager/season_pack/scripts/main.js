@@ -14,12 +14,14 @@ function currentlyDisabled(thing) {
 
 // ─────────────────────────────────────────────
 //  BUILD INFO
-//  Stamped with the short git SHA at package time — see scripts/build.sh.
-//  Left as a placeholder if loaded unstamped.
+//  Stamped with the pack version (and, for console debugging, the short
+//  git SHA it was built from) at package time — see scripts/build.sh.
+//  Left as placeholders if loaded unstamped.
 // ─────────────────────────────────────────────
 
+const BUILD_VERSION = "__BUILD_VERSION__";
 const BUILD_SHA = "__BUILD_SHA__";
-const BUILD_INFO_TEXT = `Season Manager Loaded (${BUILD_SHA})`;
+const BUILD_INFO_TEXT = `Season Manager Loaded (v${BUILD_VERSION})`;
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   if (!initialSpawn) return;
@@ -27,7 +29,7 @@ world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
 });
 
 system.run(() => {
-  console.warn(BUILD_INFO_TEXT);
+  console.warn(`${BUILD_INFO_TEXT} sha:${BUILD_SHA}`);
 });
 
 // ─────────────────────────────────────────────
