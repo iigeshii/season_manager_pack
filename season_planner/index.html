@@ -53,26 +53,35 @@
   .ethos li:last-child { margin-bottom: 0; }
   .ethos li strong { color: var(--ink); font-weight: 600; }
 
-  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.1rem; margin-bottom: 1.6rem; }
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.1rem; margin-bottom: 1.8rem; }
   .masthead h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.6vw, 1.9rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
 
-  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-  table { border-collapse: collapse; table-layout: fixed; width: 100%; min-width: 760px; }
-  caption { caption-side: top; text-align: left; padding: .1rem; }
-  th, td { text-align: left; padding: .85rem .9rem; vertical-align: top; border-bottom: 1px solid var(--border); font-size: .87rem; line-height: 1.5; }
-  thead th { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 2px solid var(--ink); padding-bottom: .6rem; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr.is-current { background: var(--emerald-bg); }
-  thead th:first-child, td.col-month { padding-left: .6rem; padding-right: .4rem; }
-  td.col-month { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
-  td.col-focus { font-weight: 600; }
-  td.col-focus .focus-title { display: block; margin-bottom: .2rem; }
-  td.col-blocked { color: var(--rust); }
-  td.col-enforce { color: var(--ink-soft); font-size: .82rem; }
-  td.col-enforce code { font-family: var(--font-mono); font-size: .85em; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
-  td.col-opens { color: var(--emerald-ink); }
+  .chapters { display: flex; flex-direction: column; gap: 1.4rem; }
 
-  .notes { margin-top: 1.8rem; font-size: .85rem; color: var(--ink-soft); }
+  .chapter { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1.5rem 1.7rem 1.7rem; }
+  .chapter.is-current { border-color: var(--emerald); box-shadow: 0 0 0 1px var(--emerald); }
+
+  .chapter-kicker { display: flex; align-items: center; gap: .6rem; margin-bottom: .35rem; }
+  .chapter.is-current .chapter-kicker { color: var(--emerald-ink); }
+  .current-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; background: var(--emerald); color: var(--surface); padding: .15rem .55rem; border-radius: 999px; }
+
+  .chapter-title { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0 0 .9rem; letter-spacing: -0.01em; text-wrap: balance; }
+
+  .chapter-story { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); max-width: 74ch; margin: 0 0 1.3rem; }
+
+  .chapter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 660px) { .chapter-grid { grid-template-columns: 1fr; } }
+
+  .chapter-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .95rem 1.1rem; }
+  .chapter-block h4 { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .07em; text-transform: uppercase; margin: 0 0 .65rem; }
+  .chapter-criteria h4 { color: var(--emerald-ink); }
+  .chapter-enforce h4 { color: var(--ink-faint); }
+  .chapter-block ul { margin: 0; padding-left: 1.1rem; }
+  .chapter-block li { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: .4rem; }
+  .chapter-block li:last-child { margin-bottom: 0; }
+  .chapter-enforce code { font-family: var(--font-mono); font-size: .82em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
+
+  .notes { margin-top: 2rem; font-size: .85rem; color: var(--ink-soft); }
   .notes h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 .6rem; color: var(--ink); }
   .notes ul { margin: 0; padding-left: 1.2rem; }
   .notes li { margin-bottom: .4rem; line-height: 1.5; }
@@ -103,123 +112,288 @@
   <div class="masthead">
     <div class="kicker">Year 0 · progression calendar</div>
     <h2>New Haven — 12-Month Progression</h2>
-    <p class="dek">Each month lists what's off-limits and what completing that month's milestone unlocks for the next one. Months are approximate targets, paced to how the group is actually doing — not a fixed calendar.</p>
+    <p class="dek">Each stage below tells the story of that arc, the explicit criteria the group has to clear to move on, and exactly what the pack enforces while you're in it. Months are approximate targets, paced to how the group is actually doing — not a fixed calendar.</p>
   </div>
 
-  <!-- To mark a different month current, move the is-current class to that
-       month's <tr> — nothing else on the page needs to change. -->
-  <div class="table-scroll">
-    <table id="progression-table">
-      <colgroup>
-        <col style="width: 6%">
-        <col style="width: 15%">
-        <col style="width: 15%">
-        <col style="width: 38%">
-        <col style="width: 26%">
-      </colgroup>
-      <thead>
-        <tr>
-          <th scope="col">~Mo.</th>
-          <th scope="col">Focus</th>
-          <th scope="col">Not allowed this month</th>
-          <th scope="col">What opens next</th>
-          <th scope="col">Enforcement</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-month="1" class="is-current">
-          <td class="col-month">~1</td>
-          <td class="col-focus"><span class="focus-title">Founding the Camp</span>Everyone builds a personal room/space at the base; establish crop farms and livestock pens.</td>
-          <td class="col-blocked">Nether &amp; End portals; redstone beyond baseline logic (no pistons yet)</td>
-          <td class="col-opens">Once every member has a personal space <em>and</em> the base has working crop farm(s) + at least two livestock pens, the Wandering Trader Guild's debt notice arrives and Pale Garden rumors start — Month 2 opens</td>
-          <td class="col-enforce">Nether portal blocked, End portal blocked. Items disallowed: <code>hopper</code>, <code>hopper_minecart</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dispenser</code>, <code>dropper</code>, <code>observer</code>, <code>slime</code>, <code>honey_block</code>, <code>elytra</code>. Made uncraftable: <code>blaze_powder</code>.</td>
-        </tr>
-        <tr data-month="2">
-          <td class="col-month">~2</td>
-          <td class="col-focus"><span class="focus-title">Trade &amp; Trouble in the Woods</span>Build the Wandering Trader Guild HQ; investigate the Pale Garden (Creakings).</td>
-          <td class="col-blocked">Nether &amp; End still closed</td>
-          <td class="col-opens">WTG HQ complete + Creaking mystery solved → Illager Outpost location revealed</td>
-          <td class="col-enforce">Same standing portal lock + bounce-back as Month 1 — no pack change needed to stay here.</td>
-        </tr>
-        <tr data-month="3">
-          <td class="col-month">~3</td>
-          <td class="col-focus"><span class="focus-title">Era of the Illager</span>Raid the Outpost, survive their retaliation raid, clear the Woodland Mansion.</td>
-          <td class="col-blocked">Nether &amp; End closed</td>
-          <td class="col-opens">Mansion cleared, Ancient City map recovered → Trial Chambers &amp; Ancient City locations open</td>
-          <td class="col-enforce">Same standing lock — this is a content/honor-system gate, not a new technical restriction.</td>
-        </tr>
-        <tr data-month="4">
-          <td class="col-month">~4</td>
-          <td class="col-focus"><span class="focus-title">Trials &amp; the Ancient City</span>Clear Trial Chambers (Mace), raid the Ancient City for the Silence trim.</td>
-          <td class="col-blocked">Nether &amp; End closed</td>
-          <td class="col-opens">Ancient City looted → leadership formally approves Nether access</td>
-          <td class="col-enforce">Same standing lock, unchanged since Month 1.</td>
-        </tr>
-        <tr data-month="5">
-          <td class="col-month">~5</td>
-          <td class="col-focus"><span class="focus-title">The Nether Opens / Cult of the Wither</span>Establish the Nether hub, uncover the shrines, fight the Wither.</td>
-          <td class="col-blocked">End closed; Elytra decision still pending</td>
-          <td class="col-opens">Wither killed → Piglin power vacuum revealed, Bastion locations known</td>
-          <td class="col-enforce">Admin removes <code>minecraft:nether</code> from <code>DISABLED_DIMENSIONS</code> (and its entry in <code>PORTAL_IGNITERS</code>), then rebuilds and redistributes the pack — there's no in-game toggle per dimension. End stays locked. Elytra stays in <code>CLEANUP_ITEMS</code> regardless — that's a standing rule, not month-gated.</td>
-        </tr>
-        <tr data-month="6">
-          <td class="col-month">~6</td>
-          <td class="col-focus"><span class="focus-title">Road to El Porko</span>Clear all 4 Bastion variants.</td>
-          <td class="col-blocked">End closed</td>
-          <td class="col-opens">All Bastions cleared → netherite gear unlocked, Nether highways declared safe</td>
-          <td class="col-enforce">Same End lock as Month 5 — no pack change for this month.</td>
-        </tr>
-        <tr data-month="7">
-          <td class="col-month">~7</td>
-          <td class="col-focus"><span class="focus-title">Atlantis Ahoy</span>Follow the bottle to the wreck, treasure cave, and Ocean Monument.</td>
-          <td class="col-blocked">End closed</td>
-          <td class="col-opens">Ocean Monument cleared → guardian-farm policy decided; Gibliria clue trail opens</td>
-          <td class="col-enforce">Same End lock — unchanged.</td>
-        </tr>
-        <tr data-month="8">
-          <td class="col-month">~8</td>
-          <td class="col-focus"><span class="focus-title">Gibliria</span>Gather clues from the Pyramid, Jungle Temple, Church, and Igloo; loot the Flying City.</td>
-          <td class="col-blocked">End closed</td>
-          <td class="col-opens">Gibliria solved → Stronghold hunt authorized, dragon fight scheduled</td>
-          <td class="col-enforce">Same End lock — unchanged.</td>
-        </tr>
-        <tr data-month="9">
-          <td class="col-month">~9</td>
-          <td class="col-focus"><span class="focus-title">Free the End</span>Find the Stronghold, gather final Eyes of Ender, kill the Ender Dragon.</td>
-          <td class="col-blocked">Standing gear bans still apply</td>
-          <td class="col-opens">Dragon killed → End Gateways open, outer End reachable</td>
-          <td class="col-enforce">No enchanted books (<code>librarian_trades.json</code>) or diamond gear (<code>armorer_trades.json</code>/<code>weapon_smith_trades.json</code>) — standing trade overrides, not month-gated. End lock lifts at the end of this month: admin removes <code>minecraft:the_end</code> from <code>DISABLED_DIMENSIONS</code>, rebuilds, redistributes.</td>
-        </tr>
-        <tr data-month="10">
-          <td class="col-month">~10</td>
-          <td class="col-focus"><span class="focus-title">Twisty Edges</span>Travel the outer End, rescue the Mending Librarian.</td>
-          <td class="col-blocked">Elytra/End-access policy unresolved until this arc concludes</td>
-          <td class="col-opens">Librarian rescued → Elytra &amp; End-access policy finalized, mending trades restored</td>
-          <td class="col-enforce">Rescue Villager feature: run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (one trade, <code>mending_librarian_trades.json</code>) — the only unlock in this table that's a live in-game command instead of a pack rebuild. The Elytra policy decision (removing <code>elytra</code> from <code>CLEANUP_ITEMS</code>) still needs a rebuild once decided.</td>
-        </tr>
-        <tr data-month="11">
-          <td class="col-month">~11</td>
-          <td class="col-focus"><span class="focus-title">The Path of St. Lorre, Pt. 1–2</span>Follow the clue chain from the Stronghold library.</td>
-          <td class="col-blocked">No new restrictions — standing rules only</td>
-          <td class="col-opens">Final clue recovered → treasure location revealed</td>
-          <td class="col-enforce">No pack changes — standing rules (trade nerfs, blaze powder recipe lock, mob ban) continue unchanged.</td>
-        </tr>
-        <tr data-month="12">
-          <td class="col-month">~12</td>
-          <td class="col-focus"><span class="focus-title">The Treasure of St. Lorre / Season Finale</span>Recover the treasure, close the "seven marks" mystery.</td>
-          <td class="col-blocked">No new restrictions</td>
-          <td class="col-opens">Season complete → triggers your extension vote (4-month increments, supermajority of active members)</td>
-          <td class="col-enforce">No pack changes.</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- To mark a different month current, move the is-current class and the
+       "Current" badge span to that month's <section class="chapter"> —
+       nothing else on the page needs to change. -->
+  <div class="chapters">
+
+    <section class="chapter is-current" data-month="1">
+      <div class="chapter-kicker kicker">Month ~1 <span class="current-badge">Current</span></div>
+      <h3 class="chapter-title">Founding the Camp</h3>
+      <p class="chapter-story">This is where Commonhold Rise actually begins — not with a quest, but with shelter. The ship is gone, the Crown's blessing is a name on a scroll, and what's left is a stretch of unclaimed coastline and whatever the group can build with their own hands. Before anyone touches a portal or wires a redstone contraption, the settlement needs walls: a personal space for every member within the base boundary, working crop farms, livestock pens, and a common store everyone can draw from. It's slow, deliberate work on purpose — everything the season builds toward rests on the ground laid down this month.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Every member has claimed and built a personal space within the base boundary</li>
+            <li>Working farms established for all 6 crops: wheat, carrots, potatoes, beetroot, melon, and pumpkin</li>
+            <li>At least two livestock pens are built and stocked</li>
+            <li>A common storage location is designated and accessible to the whole group</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Nether portal blocked, End portal blocked</li>
+            <li>Items disallowed: <code>hopper</code>, <code>hopper_minecart</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dispenser</code>, <code>dropper</code>, <code>observer</code>, <code>slime</code>, <code>honey_block</code>, <code>elytra</code></li>
+            <li>Made uncraftable: <code>blaze_powder</code>, <code>enchanting_table</code></li>
+            <li>Villager trades: all disabled (every profession + wandering trader)</li>
+            <li>Fishing: treasure catches no longer come pre-enchanted</li>
+            <li>Blocked entities: <code>iron_golem</code>, <code>piglin</code>, <code>piglin_brute</code> — despawned the instant they spawn</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="2">
+      <div class="chapter-kicker kicker">Month ~2</div>
+      <h3 class="chapter-title">Trade &amp; Trouble in the Woods</h3>
+      <p class="chapter-story">With the base standing, the group's attention turns outward for the first time — but only as far as the treeline. Word arrives that the Wandering Trader Guild wants a permanent outpost built in exchange for favorable terms, and closer to home, Pale Garden Creaking activity has gotten hard to ignore. Both threads run in parallel this month: raise the Guild's headquarters, and get to the bottom of whatever's animating those trees, all while the Nether and the End remain exactly as sealed as they were on day one.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Wandering Trader Guild HQ is fully built</li>
+            <li>The Pale Garden / Creaking mystery is investigated and resolved</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same standing portal lock + dimension bounce-back as Month 1 — no pack change needed to stay here</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="3">
+      <div class="chapter-kicker kicker">Month ~3</div>
+      <h3 class="chapter-title">Era of the Illager</h3>
+      <p class="chapter-story">The Guild's opening trades point straight at an Illager Outpost nobody had mapped before. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built in Month 1 can actually hold. Once the group has weathered that and the Outpost is cleared, the trail leads deeper: a Woodland Mansion, rumored to be hiding something that matters to the bigger mystery Commonhold Rise exists to answer.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Illager Outpost raided and held</li>
+            <li>The retaliation raid is survived</li>
+            <li>Woodland Mansion cleared, Ancient City map recovered</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same standing lock as Month 1 — a content/honor-system gate, not a new technical restriction</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="4">
+      <div class="chapter-kicker kicker">Month ~4</div>
+      <h3 class="chapter-title">Trials &amp; the Ancient City</h3>
+      <p class="chapter-story">Two of the game's harder challenges land back-to-back this month. The Mansion's map points to a Trial Chambers complex — clear it, and the Mace is finally in reach. From there it's a straight line to the Ancient City itself, guarded by wardens and worth raiding for the Silence trim alone. Clearing both is what finally earns the group leadership's sign-off to open the Nether — the first dimension gate the season lifts.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Trial Chambers cleared (Mace obtained)</li>
+            <li>Ancient City raided (Silence trim recovered)</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same standing lock, unchanged since Month 1</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="5">
+      <div class="chapter-kicker kicker">Month ~5</div>
+      <h3 class="chapter-title">The Nether Opens / Cult of the Wither</h3>
+      <p class="chapter-story">The gate finally lifts — but only one of them. This month is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back in Month 1 — is still sitting on the table, unresolved.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Nether hub established</li>
+            <li>Nether shrines uncovered and investigated</li>
+            <li>The Wither is killed</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Admin removes <code>minecraft:nether</code> from <code>DISABLED_DIMENSIONS</code> (and its entry in <code>PORTAL_IGNITERS</code>), rebuilds, and redistributes the pack — there's no in-game toggle per dimension</li>
+            <li>End stays locked</li>
+            <li>Elytra stays in <code>CLEANUP_ITEMS</code> regardless — a standing rule, not month-gated</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="6">
+      <div class="chapter-kicker kicker">Month ~6</div>
+      <h3 class="chapter-title">Road to El Porko</h3>
+      <p class="chapter-story">The Wither's death leaves a power vacuum among the Piglins, and the group moves to fill it before something worse does. All four Bastion Remnant variants are on the table this month — treasure, housing, stables, and mob — each one a small siege in its own right. Clearing them all is what finally makes the Nether highways safe enough to call settled, and cracks open netherite gear for the first time all season.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>All 4 Bastion Remnant variants cleared</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same End lock as Month 5 — no pack change for this month</li>
+            <li>Piglins/piglin brutes are still despawned on spawn (standing rule from Month 1) — bastions will be undefended until that's revisited</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="7">
+      <div class="chapter-kicker kicker">Month ~7</div>
+      <h3 class="chapter-title">Atlantis Ahoy</h3>
+      <p class="chapter-story">After five straight months of overland and underground pushes, the group finally looks at the water. A bottle found adrift points to a shipwreck, and the wreck points further — a treasure cave, and eventually a full Ocean Monument raid. It's a slower, exploration-heavy month by design, and one with no hard dependency on anything before or after it, which makes it the safest place in the whole calendar to absorb schedule slippage.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Shipwreck and treasure cave found and looted</li>
+            <li>Ocean Monument cleared</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same End lock — unchanged</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="8">
+      <div class="chapter-kicker kicker">Month ~8</div>
+      <h3 class="chapter-title">Gibliria</h3>
+      <p class="chapter-story">Four unrelated sites — a desert Pyramid, a Jungle Temple, an abandoned Church, and a lone Igloo — all turn out to carry pieces of the same puzzle once the group starts comparing notes. Solving it, whatever "it" turns out to be, is the real milestone; looting the Flying City the clues eventually lead to is almost a formality by comparison. Getting this right is what finally authorizes the Stronghold hunt and puts an actual date on the dragon fight.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Clues gathered from the Pyramid, Jungle Temple, Church, and Igloo</li>
+            <li>The Gibliria puzzle is solved</li>
+            <li>The Flying City is looted</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Same End lock — unchanged</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="9">
+      <div class="chapter-kicker kicker">Month ~9</div>
+      <h3 class="chapter-title">Free the End</h3>
+      <p class="chapter-story">Everything since Month 4 has been building toward this. The Stronghold hunt is on, the last Eyes of Ender need gathering, and the Ender Dragon herself is the final boundary standing between the group and the outer End. Villager trading is still fully shut off across the board, same as it's been since Month 1; nothing about the dragon fight relaxes that. But killing her is what finally opens the End Gateways and makes the outer End reachable for the first time all season.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Stronghold located</li>
+            <li>Remaining Eyes of Ender gathered</li>
+            <li>Ender Dragon killed</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Villager trading remains fully disabled (every profession + wandering trader) — same standing rule as Month 1, not month-gated</li>
+            <li>End lock lifts at the end of this month: admin removes <code>minecraft:the_end</code> from <code>DISABLED_DIMENSIONS</code>, rebuilds, redistributes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="10">
+      <div class="chapter-kicker kicker">Month ~10</div>
+      <h3 class="chapter-title">Twisty Edges</h3>
+      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is this month's actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Month 1.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Outer End islands explored</li>
+            <li>Mending Librarian located and rescued</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>Rescue Villager feature: run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (one trade, <code>mending_librarian_trades.json</code>) — the only unlock on this page that's a live in-game command instead of a pack rebuild</li>
+            <li>The Elytra policy decision (removing <code>elytra</code> from <code>CLEANUP_ITEMS</code>) still needs a rebuild once decided</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="11">
+      <div class="chapter-kicker kicker">Month ~11</div>
+      <h3 class="chapter-title">The Path of St. Lorre, Pt. 1–2</h3>
+      <p class="chapter-story">No new dimension, no new gear tier — just the mystery itself, finally moving. A clue chain that starts in the Stronghold library runs through two full parts this month, each one narrowing down where "St. Lorre" and the seven-marks ruins actually connect. No standing rule lifts or tightens this month; it's a pure content push.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Stronghold library clue chain followed through both parts</li>
+            <li>Final clue location identified</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>No pack changes — standing rules (villager trades disabled, blaze powder/enchanting table recipe locks, fishing enchant removal, mob ban) continue unchanged</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" data-month="12">
+      <div class="chapter-kicker kicker">Month ~12</div>
+      <h3 class="chapter-title">The Treasure of St. Lorre / Season Finale</h3>
+      <p class="chapter-story">The season closes on the mystery it opened with. Whatever's waiting at the end of the St. Lorre clue chain gets recovered, the seven-marks question gets an actual answer, and Commonhold Rise's first season wraps. What happens after that isn't automatic — it's a vote, requiring a supermajority of active members, in increments of four months at a time.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>St. Lorre treasure recovered</li>
+            <li>Seven-marks mystery resolved</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-enforce">
+          <h4>Enforcement</h4>
+          <ul>
+            <li>No pack changes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
   </div>
 
   <div class="notes">
     <h2>Notes</h2>
     <ul>
-      <li>Permanent bans (elytra pending, hoppers, etc.) sit on top of this list regardless of month — this table only tracks <em>progression-gated</em> restrictions, not standing rules.</li>
-      <li>Month 1 has no combat/exploration milestone on purpose — it's the only month where "not allowed" is about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
+      <li>Permanent bans (elytra pending, hoppers, etc.) sit on top of every month below regardless of stage — each month's Enforcement block only calls out what's new or still active, not the full standing rule set already spelled out in Month 1.</li>
+      <li>Month 1 has no combat/exploration milestone on purpose — it's the only month where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
       <li>If a month's raid/puzzle runs long, the safest place to absorb slippage is Month 7–8 (Atlantis/Gibliria have no dependency on anything before or after them).</li>
     </ul>
   </div>
