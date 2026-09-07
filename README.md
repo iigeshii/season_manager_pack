@@ -9,7 +9,8 @@ under the [MIT License](LICENSE).
 ## Layout
 
 - `season_manager/season_pack/` — the behavior pack itself
-  (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`)
+  (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`,
+  `recipes/`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
 - `dist/` — build output (git-ignored)
 
@@ -96,6 +97,27 @@ This is data, not script — none of it is gated by `enabled` or affected
 by `scriptevent season:toggle`. To restore a removed trade, look up the
 file's git history for the unmodified vanilla version committed just
 before the removal.
+
+### Locked recipes
+
+Recipes in [`recipes/`](season_manager/season_pack/recipes/) override
+the vanilla recipe with the same `identifier` (recipes are matched by
+identifier, not file path, but same idea as the trade table overrides:
+highest-priority pack wins). Each locked recipe adds `minecraft:barrier`
+as an extra required ingredient — a technical block with no way to
+obtain it in survival — so the recipe still exists but can never actually
+be crafted.
+
+- **`blaze_powder.json`** — blaze rods can be found/used, but can't yet
+  be ground into blaze powder.
+
+Same caveats as the trading overrides: this is data, not gated by
+`enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla
+recipe shape was copied in, so a future game update to this recipe won't
+reach this pack until someone re-syncs it. One UX wrinkle: the recipe
+book will still show it as unlocked once you hold a blaze rod (the
+`unlock` condition is untouched), it just won't actually complete when
+attempted — restore by deleting the file.
 
 ### Portal lock
 
