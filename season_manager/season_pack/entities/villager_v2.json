@@ -1161,6 +1161,36 @@
           "value": 7
         }
       },
+      "rescue_froglight_cleric": {
+        "minecraft:behavior.trade_interest": {
+          "carried_item_switch_time": 2,
+          "cooldown": 2,
+          "interest_time": 45,
+          "within_radius": 6,
+          "priority": 5,
+          "remove_item_time": 1
+        },
+        "minecraft:dweller": {
+          "can_find_poi": false
+        },
+        "minecraft:economy_trade_table": {
+          "display_name": "entity.villager.cleric",
+          "new_screen": true,
+          "persist_trades": true,
+          "table": "trading/economy_trades/froglight_cleric_trades.json"
+        },
+        "minecraft:type_family": {
+          "family": [
+            "villager",
+            "priest",
+            "cleric",
+            "mob"
+          ]
+        },
+        "minecraft:variant": {
+          "value": 7
+        }
+      },
       "desert_villager": {
         "minecraft:mark_variant": {
           "value": 1
@@ -1849,6 +1879,9 @@
           "priority": 5,
           "remove_item_time": 1
         },
+        "minecraft:dweller": {
+          "can_find_poi": false
+        },
         "minecraft:economy_trade_table": {
           "display_name": "entity.villager.librarian",
           "new_screen": true,
@@ -2473,6 +2506,26 @@
             "child_schedule",
             "job_specific_goals",
             "trade_components"
+          ]
+        }
+      },
+      "season:become_froglight_cleric": {
+        "add": {
+          "component_groups": [
+            "rescue_froglight_cleric",
+            "adult",
+            "make_and_receive_love",
+            "behavior_non_peasant",
+            "work_schedule"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "baby",
+            "child_schedule",
+            "job_specific_goals",
+            "trade_components",
+            "unskilled"
           ]
         }
       },

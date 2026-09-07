@@ -182,3 +182,33 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
     player.sendMessage(currentlyDisabled("dimension"));
   });
 });
+
+// ─────────────────────────────────────────────
+//  RESCUE VILLAGERS
+//  Villagers granted via /function season/summon_<name> get a permanent,
+//  single-purpose profession (see entities/villager_v2.json) instead of
+//  a normal one — tagged on summon so they can be found again here.
+//  Vanilla's job-site claiming can still occasionally reassign a
+//  villager that wanders near an unclaimed lectern/altar even with the
+//  dweller.can_find_poi override in their component group, so this
+//  periodically re-fires the profession event as a backstop. It's a
+//  no-op if nothing actually changed, so it's cheap to run often.
+//  Not gated by `enabled` — this protects an earned reward, it isn't a
+//  season restriction.
+// ─────────────────────────────────────────────
+
+const RESCUE_VILLAGERS = [
+  { tag: "season:rescue_mending_librarian", event: "season:become_mending_librarian" },
+  { tag: "season:rescue_froglight_cleric", event: "season:become_froglight_cleric" },
+];
+
+const RESCUE_ENFORCE_INTERVAL_TICKS = 100; // 5 seconds
+
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const { tag, event } of RESCUE_VILLAGERS) {
+    for (const villager of overworld.getEntities({ type: "minecraft:villager_v2", tags: [tag] })) {
+      villager.triggerEvent(event);
+    }
+  }
+}, RESCUE_ENFORCE_INTERVAL_TICKS);
