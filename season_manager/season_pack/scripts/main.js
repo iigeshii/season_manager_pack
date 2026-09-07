@@ -101,7 +101,11 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  no death event fires and no loot drops.
 // ─────────────────────────────────────────────
 
-const BANNED_MOBS = new Set(["minecraft:iron_golem"]);
+const BANNED_MOBS = new Set([
+  "minecraft:iron_golem",
+  "minecraft:piglin",
+  "minecraft:piglin_brute",
+]);
 
 world.afterEvents.entitySpawn.subscribe(({ entity }) => {
   if (!enabled) return;
@@ -118,6 +122,13 @@ world.afterEvents.entitySpawn.subscribe(({ entity }) => {
 
 const PORTAL_IGNITERS = [
   { item: "minecraft:flint_and_steel", block: "minecraft:obsidian", label: "Nether portals" },
+  // Bedrock-specific: pouring a lava bucket directly into a completed
+  // obsidian frame ignites it too, same as flint and steel — Java has no
+  // equivalent, so this is easy to miss.
+  { item: "minecraft:lava_bucket", block: "minecraft:obsidian", label: "Nether portals" },
+  // Fire charges thrown/used on the frame ignite it the same way, and are
+  // the standard way to automate ignition with a dispenser (e.g. AFK farms).
+  { item: "minecraft:fire_charge", block: "minecraft:obsidian", label: "Nether portals" },
   { item: "minecraft:ender_eye", block: "minecraft:end_portal_frame", label: "End portals" },
 ];
 

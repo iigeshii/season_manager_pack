@@ -10,7 +10,7 @@ under the [MIT License](LICENSE).
 
 - `season_manager/season_pack/` — the behavior pack itself
   (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`,
-  `recipes/`)
+  `recipes/`, `loot_tables/`, `entities/`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
 - `dist/` — build output (git-ignored)
 
@@ -69,34 +69,55 @@ This requires cheats to be enabled in the world settings.
 ### Banned mobs
 
 Any mob in the `BANNED_MOBS` set in
-[`main.js`](season_manager/season_pack/scripts/main.js) — currently just
-`minecraft:iron_golem` — is removed the instant it spawns, whether it
-appears naturally or gets built (e.g. pumpkin + iron blocks). It's
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently
+`minecraft:iron_golem`, `minecraft:piglin`, and
+`minecraft:piglin_brute` — is removed the instant it spawns, whether it
+appears naturally, gets built (e.g. pumpkin + iron blocks), or is
+converted (e.g. a zombified piglin reverting in the Overworld). It's
 despawned outright rather than killed, so no death event fires and it
 drops no loot.
+
+The piglin ban is a standing rule, not month-gated, so it's already in
+effect even though piglins can't reach the Overworld until the Nether
+opens (Month 5). It's still in effect afterward too — including during
+Month 6's Bastion Remnant push, so bastions will be effectively
+undefended until this is revisited.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
 
 ### Villager trades
 
-Trade tables in [`trading/economy_trades/`](season_manager/season_pack/trading/economy_trades/)
+All 13 villager professions plus the wandering trader have their trades
+disabled entirely. Trade tables in
+[`trading/economy_trades/`](season_manager/season_pack/trading/economy_trades/)
 override the vanilla files at those same paths — same filenames, same
-location, just with specific trades stripped out. Every other trade in
-each file is untouched.
+location — with `{"tiers": []}`, so no trades ever populate regardless
+of profession or level: `armorer_trades.json`, `butcher_trades.json`,
+`cartographer_trades.json`, `cleric_trades.json`, `farmer_trades.json`,
+`fisherman_trades.json`, `fletcher_trades.json`,
+`leather_worker_trades.json`, `librarian_trades.json`,
+`shepherd_trades.json`, `stone_mason_trades.json`,
+`tool_smith_trades.json`, `wandering_trader_trades.json`, and
+`weapon_smith_trades.json`.
 
-- **`librarian_trades.json`** — no enchanted books at any tier (every
-  trade using the `enchant_book_for_trading` function removed).
-- **`armorer_trades.json`** / **`weapon_smith_trades.json`** — no diamond
-  gear at any tier (every trade giving a `minecraft:diamond_*` item
-  removed — helmet/chestplate/leggings/boots/sword/axe). Two tiers in
-  each file had *only* a diamond-gear trade, so those tiers now offer
-  nothing new when a villager levels into them; the plain
-  diamond-for-emerald sell trades are untouched since those aren't gear.
+This doesn't affect the [Rescue Villagers](#rescue-villagers) below —
+their tables (`mending_librarian_trades.json`,
+`froglight_cleric_trades.json`) are separate files, referenced only by
+the custom rescue component groups, not by any vanilla profession name.
 
 This is data, not script — none of it is gated by `enabled` or affected
-by `scriptevent season:toggle`. To restore a removed trade, look up the
-file's git history for the unmodified vanilla version committed just
-before the removal.
+by `scriptevent season:toggle`. To restore trading for a profession,
+look up that file's git history for the unmodified vanilla version
+committed just before it was emptied.
+
+### Fishing
+
+[`loot_tables/gameplay/fishing/treasure.json`](season_manager/season_pack/loot_tables/gameplay/fishing/treasure.json)
+overrides the vanilla treasure pool (shared by both the regular and
+jungle fishing tables) with the `enchant_with_levels` function removed
+from the bow, fishing rod, and book entries — so treasure catches can
+still happen, just never pre-enchanted. Fish and junk pools are
+untouched.
 
 ### Locked recipes
 
@@ -110,6 +131,8 @@ be crafted.
 
 - **`blaze_powder.json`** — blaze rods can be found/used, but can't yet
   be ground into blaze powder.
+- **`enchanting_table.json`** — diamonds, obsidian, and a book can all be
+  gathered, but they can't yet be assembled into an enchanting table.
 
 Same caveats as the trading overrides: this is data, not gated by
 `enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla
@@ -119,18 +142,63 @@ book will still show it as unlocked once you hold a blaze rod (the
 `unlock` condition is untouched), it just won't actually complete when
 attempted — restore by deleting the file.
 
+### Rescue Villagers
+
+Permanent, single-trade villagers that bypass the standing "all trades
+disabled" rule above, summoned on demand via a bundled function. Each
+one is a real `minecraft:villager_v2` whose profession is overridden in
+[`entities/villager_v2.json`](season_manager/season_pack/entities/villager_v2.json)
+with a custom component group carrying its own `economy_trade_table`
+and `minecraft:dweller: {"can_find_poi": false}` (so it can't wander
+off and reclaim a real job site, which would otherwise silently wipe
+its trade). A script watchdog in
+[`main.js`](season_manager/season_pack/scripts/main.js) re-fires the
+becoming-event on a short interval as a backstop.
+
+- **Mending Librarian** — `/function season/summon_mending_librarian`
+  spawns a villager with exactly one trade: 20 emeralds for a book with
+  Mending. Trade table:
+  [`mending_librarian_trades.json`](season_manager/season_pack/trading/economy_trades/mending_librarian_trades.json).
+- **Froglight Cleric** — `/function season/summon_froglight_cleric`
+  spawns a villager offering all three froglight colors (ochre,
+  verdant, pearlescent) for 5 emeralds each. Trade table:
+  [`froglight_cleric_trades.json`](season_manager/season_pack/trading/economy_trades/froglight_cleric_trades.json).
+
+Both functions require cheats to be enabled. Like the trade and recipe
+overrides above, this is data plus a small always-on watchdog, not
+gated by `enabled`/`scriptevent season:toggle`.
+
 ### Portal lock
 
-Nether portals and the End portal are blocked from being activated: using
-flint and steel on obsidian, or an eye of ender on an end portal frame,
-does nothing and tells the player it's currently disabled. Configured
-via the `PORTAL_IGNITERS` list in
-[`main.js`](season_manager/season_pack/scripts/main.js).
+Nether portals and the End portal are blocked from being activated:
+using flint and steel, a lava bucket, or a fire charge on obsidian, or
+an eye of ender on an end portal frame, does nothing and tells the
+player it's currently disabled. Configured via the `PORTAL_IGNITERS`
+list in [`main.js`](season_manager/season_pack/scripts/main.js). The
+lava bucket case matters because pouring lava directly into a completed
+obsidian frame ignites it too, same as flint and steel — a
+Bedrock-specific mechanic Java doesn't have, easy to miss if you're only
+picturing flint and steel.
 
-This only stops *ignition* — a ruined portal or bastion remnant that
-already generates lit is unaffected, since there's no ignition action to
-intercept. See dimension bounce-back below for the fallback that covers
-that case.
+This only intercepts a *player* actually using the item — it hooks
+`itemUseOn`, which never fires for a dispenser or hopper clock
+triggering the same item with no player involved. An automated ignition
+setup (e.g. a dispenser-fed lava bucket or fire charge on a timer) will
+still light the portal; nothing currently catches that, since there's
+no ignition-side event to intercept and no reliable way to detect "a
+portal just turned on" from script. Closing that gap would mean
+periodically scanning for lit portals and breaking the obsidian frame
+outright (not just the portal's air blocks, which self-heal from an
+intact frame) — deliberately not implemented yet, since it would be the
+first thing in this pack that destroys player-placed blocks
+automatically.
+
+This also only stops *ignition* — a ruined portal or bastion remnant
+that already generates lit is unaffected, since there's no ignition
+action to intercept. See dimension bounce-back below for the fallback
+that covers that case (though note dimension bounce-back only helps
+once a player actually travels through — a farm that never sends a
+player into the Nether isn't touched by it either).
 
 ### Dimension bounce-back
 
