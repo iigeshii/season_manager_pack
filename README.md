@@ -40,16 +40,25 @@ won't be seen as an update.
 The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
-[`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`elytra`, `hopper`, `hopper_minecart`, `piston`, `sticky_piston`,
-`dispenser`, `dropper`, `observer`, `slime`, `honey_block`, `anvil`,
-`chipped_anvil`, `damaged_anvil`, and `heart_of_the_sea` — to keep those
-items out of players' hands. All three anvil wear states are listed
-because Bedrock gives each one its own item ID (unlike Java, where wear
-is just a damage value on one item), so banning only `anvil` would
-leave chipped/damaged anvils as a loophole. `heart_of_the_sea` is only
-obtainable from buried treasure, so banning it is what makes finding
-one actually mean something instead of it just sitting in a chest.
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently just
+`elytra` and `dispenser`. Everything that used to be on this list is now a
+recipe lock instead (see [Locked recipes](#locked-recipes) below), since a
+recipe lock leaves found/looted copies of an item alone and only blocks
+crafting new ones — a real improvement over destroy-on-pickup for anything
+that's exclusively obtainable through crafting in survival. Elytra and
+dispensers are the exception: both can turn up as loot or as part of a
+generated structure (End ships; desert/jungle temple traps; trial
+chambers) with no crafting step involved, so a recipe lock alone wouldn't
+stop a lucky find — they still need the destroy-on-pickup treatment.
+Dispenser also gets a recipe lock on top of that (`dispenser.json`), same
+reasoning as `observer.json`: without it, a crafting attempt would still
+quietly burn a bow, cobblestone, and redstone on an item that's just
+going to get cleaned up anyway. Elytra has no vanilla recipe at all, so
+there's nothing to lock for it.
+`heart_of_the_sea` was dropped from the list entirely rather than
+converted to a recipe lock: it's inert on its own, and the only thing it's
+good for (a Conduit) is already covered by the `conduit.json` recipe lock,
+so restricting the raw item added nothing.
 When an item is actually removed from a
 player, that player gets a chat message telling them it's currently
 disabled. No command block or redstone clock needed; it starts as soon as
@@ -149,9 +158,9 @@ be crafted.
   into anything yet. Found/looted diamond gear (chest loot, mob drops)
   isn't affected — only crafting is blocked, since this is a recipe
   lock, not an item ban.
-- **`conduit.json`** — locked on top of the `heart_of_the_sea` item ban
-  above, so even a stray Heart of the Sea (found before the ban existed,
-  or added back some other way) can't be turned into a Conduit early.
+- **`conduit.json`** — Heart of the Sea is fully obtainable (buried
+  treasure) and unrestricted on its own; it's inert without a Conduit, so
+  this is the only lock that actually matters for it.
 - **`comparator.json`** — one of three vanilla crafting-table recipes
   (besides Quartz Block) that needs raw Nether Quartz.
 - **`daylight_detector.json`**, **`daylight_detector_from_crimson_slab.json`**,
@@ -161,13 +170,24 @@ be crafted.
   plus a variant for each Nether wood slab), all needing raw quartz. All
   four are locked here — locking only the base one would leave the
   Nether-wood variants as an open bypass.
-- **`observer.json`** — the third quartz recipe, and already covered by
-  the permanent `observer` item ban above, but the item ban alone only
-  deletes a crafted Observer after the fact. Locking the recipe too means
-  a crafting attempt fails outright instead of quietly burning a real
-  quartz (plus redstone and cobblestone) on an item that's just going to
-  get cleaned up anyway — same reasoning as locking `conduit.json` on top
-  of the `heart_of_the_sea` ban.
+- **`observer.json`** — the third quartz recipe.
+- **`hopper.json`**, **`hopper_minecart.json`** — a found hopper (chest
+  loot in a few structures) could otherwise still be combined with a
+  minecart, so the minecart recipe is locked too, not just the hopper's.
+- **`piston.json`**, **`sticky_piston.json`** — sticky piston is locked
+  independently rather than relying on the piston lock alone, in case a
+  piston is ever found rather than crafted.
+- **`dropper.json`**
+- **`slime.json`** — this is the Slime Block (Bedrock's item ID for it is
+  literally `slime`), not the Slimeball — slimeballs themselves aren't
+  restricted.
+- **`honey_block.json`**
+- **`anvil.json`** — locking the pristine anvil recipe is the only lock
+  that makes sense here: `chipped_anvil` and `damaged_anvil` are wear
+  states an anvil reaches through use, not separate recipes, so there's
+  nothing to lock for them directly. A found/looted anvil (and whatever
+  it wears down into with use) is unaffected, same as every other recipe
+  lock on this list.
 
 Quartz Block itself, and anything crafted purely from a Quartz Block
 (Quartz Pillar, Quartz Bricks, Chiseled Quartz Block, Quartz Stairs/Slabs,
@@ -184,18 +204,25 @@ already 3 wide. Most of these recipes had at least one empty cell in
 their vanilla grid, so the barrier just fills that gap without changing
 the recipe's footprint. `diamond_shovel.json` and `diamond_sword.json`
 are vanilla single columns, so widening them to 2 columns for the
-barrier is still well inside the 3x3 cap. `conduit.json`,
-`daylight_detector.json` and its three wood-slab variants, and
-`observer.json` are different: their vanilla grids are already a
-completely full 3x3 (conduit's 8 nautilus shells around 1 heart of the
-sea; daylight detector's 3 glass / 3 quartz / 3 slabs; observer's 6
-cobblestone, 2 redstone, 1 quartz), so there's no room to add a 10th
-cell. Those five instead have the barrier swap in for one of the
-original filled cells (one nautilus shell, one glass, or one
-cobblestone) rather than sit in new space — same effect, just one fewer
-of that particular vanilla ingredient asked for, since the recipe can
-never be finished anyway. `comparator.json` did have a spare cell (its
-3x3 grid has two blank cells) so it kept the vanilla footprint.
+barrier is still well inside the 3x3 cap. `sticky_piston.json` is the
+same story (vanilla is a single-cell-per-row 1x2), and `honey_block.json`
+(vanilla 2x2) widened to 2x3, both still under the cap. `conduit.json`,
+`daylight_detector.json` and its three wood-slab variants, `observer.json`,
+`piston.json`, and `slime.json` are different: their vanilla grids are
+already a completely full 3x3 (conduit's 8 nautilus shells around 1 heart
+of the sea; daylight detector's 3 glass / 3 quartz / 3 slabs; observer's 6
+cobblestone, 2 redstone, 1 quartz; piston's 3 planks, 4 cobblestone, 1
+iron, 1 redstone; slime block's 9 slimeballs), so there's no room to add a
+10th cell. Those seven instead have the barrier swap in for one of the
+original filled cells (one nautilus shell, one glass, one cobblestone, one
+plank, or one slimeball) rather than sit in new space — same effect, just
+one fewer of that particular vanilla ingredient asked for, since the
+recipe can never be finished anyway. `comparator.json`, `hopper.json`,
+`dropper.json`, and `anvil.json` all had a spare cell already in their
+vanilla 3x3 grid, so those four kept the vanilla footprint.
+`hopper_minecart.json` is shapeless (like `blaze_powder.json`), so grid
+size doesn't apply — the barrier is just a third required ingredient
+alongside the hopper and minecart.
 
 Same caveats as the trading overrides: this is data, not gated by
 `enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla

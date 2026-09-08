@@ -54,26 +54,16 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
+// Both of these can turn up as loot/traps in the world (End ships,
+// desert/jungle temples, trial chambers, etc.), bypassing any recipe lock
+// entirely — so they're the only two still handled by destroy-on-pickup.
+// Everything else that used to be here is now a recipe lock instead
+// (see recipes/) so found/looted copies stay valid, only crafting is
+// blocked. heart_of_the_sea was dropped too — it's inert on its own, and
+// the conduit recipe lock already controls the only thing it's good for.
 const CLEANUP_ITEMS = [
   "elytra",
-  "hopper",
-  "hopper_minecart",
-  "piston",
-  "sticky_piston",
   "dispenser",
-  "dropper",
-  "observer",
-  "slime",
-  "honey_block",
-  // Anvils have separate item IDs per wear state in Bedrock (unlike Java's
-  // single item + damage value), so all three need banning to actually
-  // block anvils rather than just the pristine one.
-  "anvil",
-  "chipped_anvil",
-  "damaged_anvil",
-  // Only obtainable from buried treasure, so banning it is what makes the
-  // whole shipwreck-then-treasure chain mean something.
-  "heart_of_the_sea",
 ];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
