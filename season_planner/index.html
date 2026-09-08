@@ -43,7 +43,6 @@
 
   .kicker { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
   h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.1rem, 5vw, 3rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
-  .dek { color: var(--ink-soft); font-size: .92rem; margin: .5rem 0 0; max-width: 68ch; }
 
   .premise { margin-bottom: 2.6rem; }
   .premise .lore { max-width: 62ch; margin-top: 1.3rem; }
@@ -57,6 +56,14 @@
   .ethos li { font-size: .87rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .35rem; }
   .ethos li:last-child { margin-bottom: 0; }
   .ethos li strong { color: var(--ink); font-weight: 600; }
+
+  .season-plan { margin-top: 1.4rem; border-left: 3px solid var(--emerald); background: var(--surface); border-radius: 0 8px 8px 0; padding: 1.1rem 1.3rem; }
+  .season-plan h2 { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .6rem; }
+  .season-plan-dek { font-size: .87rem; color: var(--ink-soft); margin: 0 0 .8rem; max-width: 68ch; line-height: 1.55; }
+  .season-plan ul { margin: 0; padding-left: 1.1rem; }
+  .season-plan li { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .5rem; }
+  .season-plan li:last-child { margin-bottom: 0; }
+  .season-plan li strong { color: var(--ink); font-weight: 600; }
 
   .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.1rem; margin-bottom: 1.8rem; }
   .masthead h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.6vw, 1.9rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
@@ -89,19 +96,23 @@
   .chapter-story { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); max-width: 74ch; margin: 0 0 1.3rem; }
 
   .chapter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .chapter-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-  @media (max-width: 900px) { .chapter-grid.cols-3 { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .chapter-grid { grid-template-columns: 1fr; } }
 
   .chapter-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .95rem 1.1rem; }
   .chapter-block h4 { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .07em; text-transform: uppercase; margin: 0 0 .65rem; }
   .chapter-criteria h4 { color: var(--emerald-ink); }
   .chapter-progress h4 { color: var(--emerald-ink); }
-  .chapter-enforce h4 { color: var(--ink-faint); }
   .chapter-block ul { margin: 0; padding-left: 1.1rem; }
   .chapter-block li { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: .4rem; }
   .chapter-block li:last-child { margin-bottom: 0; }
-  .chapter-enforce code { font-family: var(--font-mono); font-size: .82em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
+
+  .enforcement-intro { margin-top: 1.4rem; border-left: 3px solid var(--emerald); background: var(--surface); border-radius: 0 8px 8px 0; padding: 1.1rem 1.3rem; }
+  .enforcement-intro h2 { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .6rem; }
+  .enforcement-intro-dek { font-size: .87rem; color: var(--ink-soft); margin: 0 0 .8rem; max-width: 68ch; line-height: 1.55; }
+  .enforcement-intro ul { margin: 0; padding-left: 1.1rem; }
+  .enforcement-intro li { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .5rem; }
+  .enforcement-intro li:last-child { margin-bottom: 0; }
+  .enforcement-intro code { font-family: var(--font-mono); font-size: .82em; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
 
   .unplanned { margin-top: 2rem; border-left: 3px solid var(--rust); background: var(--surface); border-radius: 0 8px 8px 0; padding: 1.1rem 1.3rem; }
   .unplanned h2 { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--rust); margin: 0 0 .6rem; }
@@ -132,9 +143,35 @@
     </div>
   </section>
 
+  <div class="season-plan">
+    <h2>How This Season Works</h2>
+    <p class="season-plan-dek">The progression tree isn't fixed — it grows through storylines the players themselves propose and vote on. The general premise: start with extreme limitations, and specific tasks in the context of a storyline with pass criteria lead to unlocks, rewards, or further progression options.</p>
+    <ul>
+      <li><strong>Any player can propose a storyline.</strong> A new addition to the tree can come from anyone, at any time — it doesn't have to come from the owner.</li>
+      <li><strong>A proposal has to define the same four things every node on this page already has:</strong> the pass criteria (what actually has to happen to complete it), the reward (what the group gets for finishing it), what it unlocks, and whether it leads into another storyline further down the tree or stands on its own.</li>
+      <li><strong>Once those four things are formalized, it goes up for a group vote.</strong></li>
+      <li><strong>If it passes, it gets added to the progression tree</strong> — written up in the same format as everything else on this page.</li>
+      <li><strong>Story creators can be granted temporary special privileges</strong> — given materials, creative access, structure block pasting — specifically to build out storyline content. Once that content's built, the privileges go away and they're back to being a commoner like everyone else.</li>
+    </ul>
+  </div>
+
+  <div class="enforcement-intro">
+    <h2>Starting Restrictions</h2>
+    <p class="enforcement-intro-dek">This is the initial set of things that get controlled as disabled — the starting state before any progression has happened. It's meant to change: as the group works through a dynamic, growing storyline and progression tree, this list gets updated to match.</p>
+    <ul>
+      <li>Everything here applies regardless of what's been cleared elsewhere — individual nodes in the tree below only call out what's new for them, not the full standing rule set. Nothing here is permanent; the storyline isn't finished.</li>
+      <li>Nether portal blocked, End portal blocked</li>
+      <li>Removed on pickup, crafted or found: <code>elytra</code>, <code>dispenser</code></li>
+      <li>Uncraftable, opened by planned progression to reopen: <code>anvil</code>, <code>conduit</code></li>
+      <li>Uncraftable, possible future planned progression: <code>dispenser</code>, <code>hopper</code>, <code>hopper_minecart</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dropper</code>, <code>slime</code>, <code>honey_block</code>, <code>observer</code>, <code>blaze_powder</code>, <code>enchanting_table</code>, <code>comparator</code>, <code>daylight_detector</code>, <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code></li>
+      <li>Villager trades: all disabled (every profession + wandering trader)</li>
+      <li>Fishing: treasure catches no longer come pre-enchanted</li>
+      <li>Blocked entities: <code>iron_golem</code>, <code>piglin</code>, <code>piglin_brute</code></li>
+    </ul>
+  </div>
+
   <div class="masthead">
-    <h2>New Haven — Progression Tree</h2>
-    <p class="dek">This isn't a fixed calendar — it's a dependency tree. Some branches (the dock, the raid villages, the ocean) can be tackled in parallel or in whatever order the group prefers; others only open once their prerequisites are actually cleared. The map below shows what gates what; each node below it breaks down what it takes to clear, what it unlocks, and exactly what's enforced along the way.</p>
+    <h2>New Haven — Preliminary Progression Tree</h2>
   </div>
 
   <div class="diagram-wrap">
@@ -249,7 +286,7 @@ graph TD
       <div class="chapter-kicker kicker">Start — no prerequisites <span class="current-badge">Current</span></div>
       <h3 class="chapter-title">Founding the Camp</h3>
       <p class="chapter-story">This is where Commonhold Rise actually begins — not with a quest, but with shelter. The ship is gone, the Crown's blessing is a name on a scroll, and what's left is a stretch of unclaimed coastline and whatever the group can build with their own hands. Before anyone touches a portal or wires a redstone contraption, the settlement needs walls: a personal space for every member within the base boundary, working crop farms, livestock pens, and a common store everyone can draw from. It's slow, deliberate work on purpose — everything the season builds toward rests on the ground laid down right here.</p>
-      <div class="chapter-grid cols-3">
+      <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
@@ -263,19 +300,6 @@ graph TD
           <h4>Unlocks</h4>
           <ul>
             <li>Contact made with the nearby village</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-enforce">
-          <h4>Enforcement — the master list</h4>
-          <ul>
-            <li>Everything here applies regardless of what's been cleared elsewhere — other nodes only call out what's new, not the full standing rule set. Nothing below is permanent; the storyline isn't finished.</li>
-            <li>Nether portal blocked, End portal blocked</li>
-            <li>Removed on pickup, crafted or found: <code>elytra</code>, <code>dispenser</code></li>
-            <li>Uncraftable, opened by planned progression to reopen: <code>anvil</code>, <code>conduit</code></li>
-            <li>Uncraftable, possible future planned progression: <code>dispenser</code>, <code>hopper</code>, <code>hopper_minecart</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dropper</code>, <code>slime</code>, <code>honey_block</code>, <code>observer</code>, <code>blaze_powder</code>, <code>enchanting_table</code>, <code>comparator</code>, <code>daylight_detector</code>, <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code></li>
-            <li>Villager trades: all disabled (every profession + wandering trader)</li>
-            <li>Fishing: treasure catches no longer come pre-enchanted</li>
-            <li>Blocked entities: <code>iron_golem</code>, <code>piglin</code>, <code>piglin_brute</code></li>
           </ul>
         </div>
       </div>
