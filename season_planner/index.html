@@ -74,6 +74,10 @@
   .current-badge { background: var(--emerald); color: var(--surface); }
   .planned-badge { background: var(--rust-bg); color: var(--rust); }
 
+  .chapter-kicker a, .leads-to a { color: var(--emerald-ink); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
+  .chapter-kicker a:hover, .leads-to a:hover { text-decoration-color: currentColor; }
+  .leads-to { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .03em; color: var(--ink-faint); margin-top: 1.1rem; padding-top: .9rem; border-top: 1px dashed var(--border); }
+
   .chapter-title { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0 0 .9rem; letter-spacing: -0.01em; text-wrap: balance; }
 
   .chapter-story { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); max-width: 74ch; margin: 0 0 1.3rem; }
@@ -183,12 +187,39 @@ graph TD
   endm --> lorre
   twisty --> finale
   lorre --> finale
+
+  click camp "#node-camp"
+  click bread "#node-bread"
+  click dock "#node-dock"
+  click grazing "#node-grazing"
+  click feathered "#node-feathered"
+  click woolfrost "#node-woolfrost"
+  click pelts "#node-pelts"
+  click masons "#node-masons"
+  click shipwreck "#node-shipwreck"
+  click treasure "#node-treasure"
+  click witch "#node-witch"
+  click wtg "#node-wtg"
+  click outpost "#node-outpost"
+  click mansion "#node-mansion"
+  click dtools "#node-dtools"
+  click trials "#node-trials"
+  click dgear "#node-dgear"
+  click nether "#node-nether"
+  click porko "#node-porko"
+  click atlantis "#node-atlantis"
+  click gibliria "#node-gibliria"
+  click endm "#node-endm"
+  click twisty "#node-twisty"
+  click lorre "#node-lorre"
+  click finale "#node-finale"
     </pre>
   </div>
   <div class="diagram-legend">
     <span><span class="legend-swatch"></span> required prerequisite</span>
     <span><span class="legend-swatch dashed"></span> leads to a node whose unlock event isn't decided yet</span>
     <span>* = restriction is live, but nothing lifts it yet</span>
+    <span>click any box to jump to its write-up below</span>
   </div>
 
   <!-- Founding the Camp is the current node. To move it, add/remove
@@ -234,10 +265,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a>, <a href="#node-witch">The Witch's Hovel</a></p>
     </section>
 
     <section class="chapter" id="node-bread">
-      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a></div>
       <h3 class="chapter-title">Breaking Bread</h3>
       <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Only once that work is visible and finished does anyone there warm up to the idea of selling New Haven anything at all.</p>
       <div class="chapter-grid">
@@ -257,10 +289,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-dock">Anchor &amp; Anvil</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, <a href="#node-masons">Masons of the Dunes</a>, <a href="#node-wtg">Trade &amp; Trouble in the Woods</a></p>
     </section>
 
     <section class="chapter" id="node-grazing">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Grazing Rights</h3>
       <p class="chapter-story">The road to the first village proved the concept; now it's just a matter of building more of them. Word travels fast once a cartographer starts asking around, and it isn't long before a second settlement turns up out on the open plains — more livestock than the first village ever had room for. A trade route out there is what finally gets New Haven access to more than food: hides, meat, the whole butchering trade the first village never had a use for.</p>
       <div class="chapter-grid">
@@ -281,7 +314,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-feathered">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Feathered Roads</h3>
       <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. Their fletcher's been busy. A trade route out here is what finally gets New Haven real arrows and ranged supplies, instead of whatever the group's managed to scrape together on their own.</p>
       <div class="chapter-grid">
@@ -302,7 +335,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-woolfrost">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Wool and Frost</h3>
       <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. A trade route out here means dye, wool, and the whole textile side of things New Haven's been improvising without all season.</p>
       <div class="chapter-grid">
@@ -323,7 +356,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-pelts">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Pelts and Pines</h3>
       <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. A trade route out here is what finally gets New Haven proper leather goods — the kind the group's been making do without since the season started.</p>
       <div class="chapter-grid">
@@ -344,7 +377,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-masons">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Masons of the Dunes</h3>
       <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. A trade route out here means real stonework, not just whatever the group's managed to quarry by hand.</p>
       <div class="chapter-grid">
@@ -365,7 +398,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-dock">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Anchor &amp; Anvil</h3>
       <p class="chapter-story">One road into the village isn't the ceiling — it's the proof of concept. With food already moving by cart, the group turns to the coastline: a real dock, built to actually take on heavier trade than a wagon can carry. Getting it running means putting an anvil to work for the first time all season, which means the standing anvil ban has to come down before the dock is worth anything at all. Word spreads with the new traffic too — sailors passing through start talking, and some of that luck rubs off on New Haven's own fishing lines.</p>
       <div class="chapter-grid">
@@ -384,10 +417,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-shipwreck">The Shipwreck</a></p>
     </section>
 
     <section class="chapter" id="node-shipwreck">
-      <div class="chapter-kicker kicker">Requires: Anchor &amp; Anvil</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor &amp; Anvil</a></div>
       <h3 class="chapter-title">The Shipwreck</h3>
       <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it turns out to be worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. Whatever's marked on it is worth more than the wreck itself.</p>
       <div class="chapter-grid">
@@ -395,7 +429,7 @@ graph TD
           <h4>Pass Criteria</h4>
           <ul>
             <li>A shipwreck is located and looted, recovering a Buried Treasure map</li>
-            <li>The whole active group is present when the wreck is cleared — see the Commonhold Ethos</li>
+            <li>At least half the active group (or 4 people, whichever is fewer) is present when the wreck is cleared — see the Commonhold Ethos</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
@@ -405,10 +439,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-treasure">Buried Treasure</a></p>
     </section>
 
     <section class="chapter" id="node-treasure">
-      <div class="chapter-kicker kicker">Requires: The Shipwreck</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-shipwreck">The Shipwreck</a></div>
       <h3 class="chapter-title">Buried Treasure</h3>
       <p class="chapter-story">The map only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on.</p>
       <div class="chapter-grid">
@@ -416,7 +451,7 @@ graph TD
           <h4>Pass Criteria</h4>
           <ul>
             <li>The map is followed to the buried treasure site and the chest is dug up</li>
-            <li>The whole active group is present when the chest is opened — see the Commonhold Ethos</li>
+            <li>At least half the active group (or 4 people, whichever is fewer) is present when the chest is opened — see the Commonhold Ethos</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
@@ -426,10 +461,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-atlantis">Atlantis Ahoy</a></p>
     </section>
 
     <section class="chapter" id="node-witch">
-      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a></div>
       <h3 class="chapter-title">The Witch's Hovel</h3>
       <p class="chapter-story">Not every witch hut is harmless. This one's grown into something bigger and far better defended — a real complex, crawling with witches and whatever else they've got guarding the place, not a lone hut with a cauldron out front. Somewhere in the mess, alongside all the potion ingredients, are pistons and dispensers the witches have clearly been using themselves. Clearing the place out is one thing; hauling a working piston and a working dispenser back to base is what actually lets the rest of the group study them up close — which is what it takes before anyone trusts the tech enough to build with it.</p>
       <div class="chapter-grid">
@@ -453,7 +489,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-wtg">
-      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Trade &amp; Trouble in the Woods</h3>
       <p class="chapter-story">With the base standing, the group's attention turns outward for the first time — but only as far as the treeline. Word arrives that the Wandering Trader Guild wants a permanent outpost built in exchange for favorable terms, and closer to home, Pale Garden Creaking activity has gotten hard to ignore. Both threads run in parallel: raise the Guild's headquarters, and get to the bottom of whatever's animating those trees, all while the Nether and the End remain exactly as sealed as they were on day one.</p>
       <div class="chapter-grid">
@@ -471,10 +507,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-outpost">Illager Outpost</a></p>
     </section>
 
     <section class="chapter" id="node-outpost">
-      <div class="chapter-kicker kicker">Requires: Trade &amp; Trouble in the Woods</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trade &amp; Trouble in the Woods</a></div>
       <h3 class="chapter-title">Illager Outpost</h3>
       <p class="chapter-story">The Guild's opening trades point straight at an Illager Outpost nobody had mapped before. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built back at Founding the Camp can actually hold. Weathering both is what actually teaches the group how the Illagers operate: how to read the signs of a coming raid, how to provoke one on purpose, and what's worth fighting for when Evokers show up in the waves. Word of it also reaches the cartographer back in the village — enough to earn the group a very specific map, the kind that points to something bigger and deeper in the woods.</p>
       <div class="chapter-grid">
@@ -494,10 +531,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-dtools">Diamond Tools</a>, <a href="#node-mansion">Woodland Mansion</a></p>
     </section>
 
     <section class="chapter" id="node-mansion">
-      <div class="chapter-kicker kicker">Requires: Illager Outpost</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-outpost">Illager Outpost</a></div>
       <h3 class="chapter-title">Woodland Mansion</h3>
       <p class="chapter-story">The Outpost was a skirmish; the Mansion is the real dungeon. Deeper, darker, and stacked with more Evokers than any raid wave — whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground.</p>
       <div class="chapter-grid">
@@ -514,10 +552,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-trials">Trials &amp; the Ancient City</a></p>
     </section>
 
     <section class="chapter is-planned" id="node-dtools">
-      <div class="chapter-kicker kicker">Requires: Illager Outpost <span class="planned-badge">Unlock TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-outpost">Illager Outpost</a> <span class="planned-badge">Unlock TBD</span></div>
       <h3 class="chapter-title">Diamond Tools</h3>
       <p class="chapter-story">Diamond tools are locked from the very start — every recipe exists, but each one now needs an ingredient nobody can ever obtain in survival. Diamonds themselves are still perfectly mineable and stackable, they just can't be turned into anything yet. What actually lifts the lock hasn't been decided; sitting this node off the Illager Outpost is a starting guess, not a decision.</p>
       <div class="chapter-grid">
@@ -537,7 +576,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-trials">
-      <div class="chapter-kicker kicker">Requires: Woodland Mansion</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-mansion">Woodland Mansion</a></div>
       <h3 class="chapter-title">Trials &amp; the Ancient City</h3>
       <p class="chapter-story">Two of the game's harder challenges land back-to-back here. The Mansion's map points to a Trial Chambers complex — clear it, and the Mace is finally in reach. From there it's a straight line to the Ancient City itself, guarded by wardens and worth raiding for the Silence trim alone. Clearing both is what finally earns the group leadership's sign-off to open the Nether — the first dimension gate the season lifts.</p>
       <div class="chapter-grid">
@@ -555,10 +594,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-dgear">Diamond Gear</a>, <a href="#node-nether">The Nether Opens</a></p>
     </section>
 
     <section class="chapter is-planned" id="node-dgear">
-      <div class="chapter-kicker kicker">Requires: Trials &amp; the Ancient City <span class="planned-badge">Unlock TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-trials">Trials &amp; the Ancient City</a> <span class="planned-badge">Unlock TBD</span></div>
       <h3 class="chapter-title">Diamond Gear</h3>
       <p class="chapter-story">Same situation as diamond tools: the diamond sword and every piece of diamond armor are locked from the start, each recipe needing an ingredient nobody can obtain in survival. Parking the unlock behind the Ancient City raid is a starting guess — a harder, later milestone than tools, since combat gear matters more once real threats show up — but nothing's decided yet.</p>
       <div class="chapter-grid">
@@ -578,7 +618,7 @@ graph TD
     </section>
 
     <section class="chapter" id="node-nether">
-      <div class="chapter-kicker kicker">Requires: Trials &amp; the Ancient City</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-trials">Trials &amp; the Ancient City</a></div>
       <h3 class="chapter-title">The Nether Opens / Cult of the Wither</h3>
       <p class="chapter-story">The gate finally lifts — but only one of them. This stage is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back at Founding the Camp — is still sitting on the table, unresolved.</p>
       <div class="chapter-grid">
@@ -597,10 +637,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-porko">Road to El Porko</a></p>
     </section>
 
     <section class="chapter" id="node-porko">
-      <div class="chapter-kicker kicker">Requires: The Nether Opens</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-nether">The Nether Opens</a></div>
       <h3 class="chapter-title">Road to El Porko</h3>
       <p class="chapter-story">The Wither's death leaves a power vacuum among the Piglins, and the group moves to fill it before something worse does. All four Bastion Remnant variants are on the table — treasure, housing, stables, and mob — each one a small siege in its own right. Clearing them all is what finally makes the Nether highways safe enough to call settled, and cracks open netherite gear for the first time all season.</p>
       <div class="chapter-grid">
@@ -617,10 +658,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-endm">Free the End</a></p>
     </section>
 
     <section class="chapter" id="node-atlantis">
-      <div class="chapter-kicker kicker">Requires: Buried Treasure</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-treasure">Buried Treasure</a></div>
       <h3 class="chapter-title">Atlantis Ahoy</h3>
       <p class="chapter-story">With a Conduit finally in hand, the water stops being something to avoid and starts being worth diving into on purpose. A second wreck — a different one, further out — turns up a lead on a treasure cave, and from there it's a straight shot to a full Ocean Monument raid. Having a Conduit already running is the difference between fighting Elder Guardians and just surviving them.</p>
       <div class="chapter-grid">
@@ -638,10 +680,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-gibliria">Gibliria</a></p>
     </section>
 
     <section class="chapter" id="node-gibliria">
-      <div class="chapter-kicker kicker">Requires: Atlantis Ahoy</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-atlantis">Atlantis Ahoy</a></div>
       <h3 class="chapter-title">Gibliria</h3>
       <p class="chapter-story">Four unrelated sites — a desert Pyramid, a Jungle Temple, an abandoned Church, and a lone Igloo — all turn out to carry pieces of the same puzzle once the group starts comparing notes. Solving it, whatever "it" turns out to be, is the real milestone; looting the Flying City the clues eventually lead to is almost a formality by comparison. Getting this right is what finally authorizes the Stronghold hunt and puts an actual date on the dragon fight.</p>
       <div class="chapter-grid">
@@ -660,10 +703,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-endm">Free the End</a></p>
     </section>
 
     <section class="chapter" id="node-endm">
-      <div class="chapter-kicker kicker">Requires: Road to El Porko and Gibliria</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-porko">Road to El Porko</a> and <a href="#node-gibliria">Gibliria</a></div>
       <h3 class="chapter-title">Free the End</h3>
       <p class="chapter-story">This is where the Nether branch and the exploration branch actually converge. The Stronghold hunt is on, the last Eyes of Ender need gathering, and the Ender Dragon herself is the final boundary standing between the group and the outer End. Villager trading is still fully shut off across the board, same as it's been since Founding the Camp; nothing about the dragon fight relaxes that. But killing her is what finally opens the End Gateways and makes the outer End reachable for the first time all season.</p>
       <div class="chapter-grid">
@@ -682,10 +726,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-twisty">Twisty Edges</a>, <a href="#node-lorre">The Path of St. Lorre</a></p>
     </section>
 
     <section class="chapter" id="node-twisty">
-      <div class="chapter-kicker kicker">Requires: Free the End</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-endm">Free the End</a></div>
       <h3 class="chapter-title">Twisty Edges</h3>
       <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is the actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
       <div class="chapter-grid">
@@ -704,10 +749,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-finale">Season Finale</a></p>
     </section>
 
     <section class="chapter" id="node-lorre">
-      <div class="chapter-kicker kicker">Requires: Free the End</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-endm">Free the End</a></div>
       <h3 class="chapter-title">The Path of St. Lorre, Pt. 1–2</h3>
       <p class="chapter-story">No new dimension, no new gear tier — just the mystery itself, finally moving. A clue chain that starts in the Stronghold library runs through two full parts, each one narrowing down where "St. Lorre" and the seven-marks ruins actually connect. No standing rule lifts or tightens here; it's a pure content push, running in parallel with Twisty Edges rather than blocking or being blocked by it.</p>
       <div class="chapter-grid">
@@ -725,10 +771,11 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-finale">Season Finale</a></p>
     </section>
 
     <section class="chapter" id="node-finale">
-      <div class="chapter-kicker kicker">Requires: Twisty Edges and The Path of St. Lorre</div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-twisty">Twisty Edges</a> and <a href="#node-lorre">The Path of St. Lorre</a></div>
       <h3 class="chapter-title">The Treasure of St. Lorre / Season Finale</h3>
       <p class="chapter-story">The season closes on the mystery it opened with. Whatever's waiting at the end of the St. Lorre clue chain gets recovered, the seven-marks question gets an actual answer, and Commonhold Rise's first season wraps. What happens after that isn't automatic — it's a vote, requiring a supermajority of active members, in increments of four months at a time.</p>
       <div class="chapter-grid">
@@ -770,6 +817,6 @@ graph TD
     var explicitLight = document.documentElement.getAttribute('data-theme') === 'light';
     var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     var isDark = explicitDark || (!explicitLight && systemDark);
-    mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default' });
+    mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
   })();
 </script>
