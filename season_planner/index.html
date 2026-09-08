@@ -164,36 +164,36 @@ graph TD
   lorre["The Path of<br/>St. Lorre"]
   finale["Season Finale"]
 
-  camp --> bread
-  bread --> dock
-  dock --> shipwreck
-  hall --> shipwreck
-  shipwreck --> atlantis
-  bread --> hall
-  hall --> firststand
-  hall --> grazing
-  hall --> feathered
-  hall --> woolfrost
-  hall --> pelts
-  hall --> masons
-  firststand --> wtg
-  grazing --> wtg
-  feathered --> wtg
-  woolfrost --> wtg
-  pelts --> wtg
-  masons --> wtg
-  wtg --> mansion
-  wtg --> forge
-  mansion --> trials
-  trials --> nether
-  nether --> porko
-  atlantis --> gibliria
-  porko --> endm
-  gibliria --> endm
-  endm --> twisty
-  endm --> lorre
-  twisty --> finale
-  lorre --> finale
+  camp -->|village contact| bread
+  bread -->|village maps| dock
+  dock -->|enchanted fishing| shipwreck
+  hall -->|raid tracking| shipwreck
+  shipwreck -->|conduit recipe| atlantis
+  bread -->|village maps| hall
+  hall -->|raid tracking| firststand
+  hall -->|raid tracking| grazing
+  hall -->|raid tracking| feathered
+  hall -->|raid tracking| woolfrost
+  hall -->|raid tracking| pelts
+  hall -->|raid tracking| masons
+  firststand -->|farmer trades| wtg
+  grazing -->|butcher trades| wtg
+  feathered -->|fletcher trades| wtg
+  woolfrost -->|shepherd trades| wtg
+  pelts -->|leatherworker trades| wtg
+  masons -->|mason trades| wtg
+  wtg -->|trader trades| mansion
+  wtg -->|trader trades| forge
+  mansion -->|ancient city map| trials
+  trials -->|nether access| nether
+  nether -->|bastion locations| porko
+  atlantis -->|gibliria clues| gibliria
+  porko -->|netherite gear| endm
+  gibliria -->|dragon fight| endm
+  endm -->|end gateways| twisty
+  endm -->|end gateways| lorre
+  twisty -->|mending villager| finale
+  lorre -->|lorre location| finale
 
   click camp "#node-camp"
   click bread "#node-bread"
@@ -224,7 +224,7 @@ graph TD
     </pre>
   </div>
   <div class="diagram-legend">
-    <span><span class="legend-swatch"></span> required prerequisite</span>
+    <span><span class="legend-swatch"></span> required prerequisite, labeled with the short version of what the node you're leaving just unlocked</span>
     <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Trading on the Edge onward, and Gibliria onward</span>
     <span>click any box to jump to its write-up below</span>
   </div>
