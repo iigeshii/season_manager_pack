@@ -110,14 +110,6 @@
   .unplanned li { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .5rem; }
   .unplanned li:last-child { margin-bottom: 0; }
   .unplanned li strong { color: var(--ink); font-weight: 600; }
-
-  .notes { margin-top: 2rem; font-size: .85rem; color: var(--ink-soft); }
-  .notes h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 .6rem; color: var(--ink); }
-  .notes ul { margin: 0; padding-left: 1.2rem; }
-  .notes li { margin-bottom: .4rem; line-height: 1.5; }
-
-  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--ink-faint); }
-  footer code { font-family: var(--font-mono); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .35rem; }
 </style>
 
 <main>
@@ -141,9 +133,8 @@
   </section>
 
   <div class="masthead">
-    <div class="kicker">Year 0 · progression tree</div>
     <h2>New Haven — Progression Tree</h2>
-    <p class="dek">This isn't a fixed calendar — it's a dependency tree. Some branches (the dock, the woods, the witches) can be tackled in parallel or in whatever order the group prefers; others only open once their prerequisites are actually cleared. The map below shows what gates what; each node below it breaks down what it takes to clear, what it unlocks, and exactly what's enforced along the way.</p>
+    <p class="dek">This isn't a fixed calendar — it's a dependency tree. Some branches (the dock, the raid villages, the ocean) can be tackled in parallel or in whatever order the group prefers; others only open once their prerequisites are actually cleared. The map below shows what gates what; each node below it breaks down what it takes to clear, what it unlocks, and exactly what's enforced along the way.</p>
   </div>
 
   <div class="diagram-wrap">
@@ -238,6 +229,17 @@ graph TD
     <span>click any box to jump to its write-up below</span>
   </div>
 
+  <div class="unplanned">
+    <h2>Unplanned Progression</h2>
+    <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready. Future story planning and unlocks will be discussed and coordinated with the group, and decided by majority vote.</p>
+    <ul>
+      <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
+      <li><strong>Diamond gear.</strong> Tools, sword, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the sword/armor off a dedicated Diamond Gear node — neither exists in the tree anymore, so the whole diamond kit needs a new unlock milestone.</li>
+      <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
+      <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
+    </ul>
+  </div>
+
   <!-- Founding the Camp is the current node. To move it, add/remove
        is-current on the relevant <section class="chapter"> and move the
        "Current" badge span — nothing else on the page needs to change. -->
@@ -264,8 +266,9 @@ graph TD
           </ul>
         </div>
         <div class="chapter-block chapter-enforce">
-          <h4>Enforcement</h4>
+          <h4>Enforcement — the master list</h4>
           <ul>
+            <li>Everything here applies regardless of what's been cleared elsewhere — other nodes only call out what's new, not the full standing rule set. Nothing below is permanent; the storyline isn't finished.</li>
             <li>Nether portal blocked, End portal blocked</li>
             <li>Removed on pickup, crafted or found: <code>elytra</code>, <code>dispenser</code></li>
             <li>Uncraftable, opened by planned progression to reopen: <code>anvil</code>, <code>conduit</code></li>
@@ -668,7 +671,7 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-gibliria">Gibliria</a></p>
+      <p class="leads-to">Leads to: <a href="#node-gibliria">Gibliria</a> — once <a href="#node-shipwreck">Shipwreck &amp; Treasure</a> is cleared, this branch and Gibliria are the safest to pick up whenever the group has downtime; nothing else in the tree depends on their timing</p>
     </section>
 
     <section class="chapter is-tentative" id="node-gibliria">
@@ -784,28 +787,6 @@ graph TD
     </section>
 
   </div>
-
-  <div class="unplanned">
-    <h2>Unplanned Progression</h2>
-    <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready.</p>
-    <ul>
-      <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
-      <li><strong>Diamond gear.</strong> Tools, sword, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the sword/armor off a dedicated Diamond Gear node — neither exists in the tree anymore, so the whole diamond kit needs a new unlock milestone.</li>
-      <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
-      <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
-    </ul>
-  </div>
-
-  <div class="notes">
-    <h2>Notes</h2>
-    <ul>
-      <li>Everything in Founding the Camp's Enforcement list sits on top of every branch below regardless of what's been cleared — each other node's Enforcement block only calls out what's new or still active there, not the full standing rule set. None of these restrictions are declared permanent; the storyline isn't finished, and anything without planned progression today could still get one later.</li>
-      <li>Founding the Camp has no combat/exploration milestone on purpose — it's the only node where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
-      <li>Once its prerequisite (Shipwreck &amp; Treasure) is cleared, Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time.</li>
-    </ul>
-  </div>
-
-  <footer>Source: <code>New_Haven_12_Month_Progression.md</code> in the pack repo (since restructured from a monthly calendar into this dependency tree). Edit <code>season_planner/index.html</code> directly to update.</footer>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js"></script>
