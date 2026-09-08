@@ -2,22 +2,25 @@
   "format_version": "1.20.10",
   "minecraft:recipe_shaped": {
     "description": {
-    "identifier": "minecraft:conduit"
+    "identifier": "minecraft:observer"
     },
 
 
     "tags": [ "crafting_table" ],
     "pattern": [
       "##L",
-      "#X#",
+      "RRQ",
       "###"
     ],
     "key": {
-      "#": {
-        "item": "minecraft:nautilus_shell"
+      "Q": {
+        "item": "minecraft:quartz"
       },
-      "X": {
-        "item": "minecraft:heart_of_the_sea"
+      "R": {
+        "item": "minecraft:redstone"
+      },
+      "#": {
+        "item": "minecraft:cobblestone"
       },
       "L": {
         "item": "minecraft:barrier"
@@ -25,14 +28,11 @@
     },
     "unlock": [
       {
-        "item": "minecraft:nautilus_shell"
-      },
-      {
-        "item": "minecraft:heart_of_the_sea"
+        "item": "minecraft:quartz"
       }
     ],
     "result": {
-      "item": "minecraft:conduit"
+      "item": "minecraft:observer"
     }
   }
 }

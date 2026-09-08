@@ -152,16 +152,50 @@ be crafted.
 - **`conduit.json`** — locked on top of the `heart_of_the_sea` item ban
   above, so even a stray Heart of the Sea (found before the ban existed,
   or added back some other way) can't be turned into a Conduit early.
+- **`comparator.json`** — one of three vanilla crafting-table recipes
+  (besides Quartz Block) that needs raw Nether Quartz.
+- **`daylight_detector.json`**, **`daylight_detector_from_crimson_slab.json`**,
+  **`daylight_detector_from_mangrove_slab.json`**,
+  **`daylight_detector_from_warped_slab.json`** — vanilla actually ships
+  four separate recipe identifiers for Daylight Detector (the base one
+  plus a variant for each Nether wood slab), all needing raw quartz. All
+  four are locked here — locking only the base one would leave the
+  Nether-wood variants as an open bypass.
+- **`observer.json`** — the third quartz recipe, and already covered by
+  the permanent `observer` item ban above, but the item ban alone only
+  deletes a crafted Observer after the fact. Locking the recipe too means
+  a crafting attempt fails outright instead of quietly burning a real
+  quartz (plus redstone and cobblestone) on an item that's just going to
+  get cleaned up anyway — same reasoning as locking `conduit.json` on top
+  of the `heart_of_the_sea` ban.
 
-Note on shape: most of these recipes had at least one empty cell in
-their vanilla 3-wide grid, so the barrier just fills that gap without
-changing the recipe's footprint. `diamond_shovel.json`,
-`diamond_sword.json`, and `conduit.json` didn't have a spare cell
-(diamond shovel/sword are a single column; conduit's 3x3 grid is
-completely full — 8 nautilus shells around 1 heart of the sea), so
-those three had their pattern widened by one column to make room for
-the barrier — same technique, just a visibly different shape than
-vanilla in the recipe book.
+Quartz Block itself, and anything crafted purely from a Quartz Block
+(Quartz Pillar, Quartz Bricks, Chiseled Quartz Block, Quartz Stairs/Slabs,
+Smooth Quartz and its stairs/slabs) are deliberately left alone — none of
+those recipes need raw quartz as an ingredient, only the block, so once
+the Nether's open and quartz ore is minable, all of that stays craftable.
+Comparator, Daylight Detector, and Observer are the only three recipes
+that need the raw item itself, which is why they're the ones locked.
+
+Note on shape: crafting-table grids cap out at 3x3 — a shaped recipe
+can't be wider or taller than that, full stop, so widening a pattern to
+make room for the barrier only works if the vanilla recipe wasn't
+already 3 wide. Most of these recipes had at least one empty cell in
+their vanilla grid, so the barrier just fills that gap without changing
+the recipe's footprint. `diamond_shovel.json` and `diamond_sword.json`
+are vanilla single columns, so widening them to 2 columns for the
+barrier is still well inside the 3x3 cap. `conduit.json`,
+`daylight_detector.json` and its three wood-slab variants, and
+`observer.json` are different: their vanilla grids are already a
+completely full 3x3 (conduit's 8 nautilus shells around 1 heart of the
+sea; daylight detector's 3 glass / 3 quartz / 3 slabs; observer's 6
+cobblestone, 2 redstone, 1 quartz), so there's no room to add a 10th
+cell. Those five instead have the barrier swap in for one of the
+original filled cells (one nautilus shell, one glass, or one
+cobblestone) rather than sit in new space — same effect, just one fewer
+of that particular vanilla ingredient asked for, since the recipe can
+never be finished anyway. `comparator.json` did have a spare cell (its
+3x3 grid has two blank cells) so it kept the vanilla footprint.
 
 Same caveats as the trading overrides: this is data, not gated by
 `enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla

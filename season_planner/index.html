@@ -60,19 +60,16 @@
   .diagram-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: .78rem; color: var(--ink-soft); margin: 0 0 1.8rem; }
   .diagram-legend span { display: inline-flex; align-items: center; gap: .4rem; }
   .legend-swatch { display: inline-block; width: 1.1rem; height: 0; border-top: 2px solid var(--ink-soft); }
-  .legend-swatch.dashed { border-top-style: dashed; }
 
   .chapters { display: flex; flex-direction: column; gap: 1.4rem; }
 
   .chapter { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1.5rem 1.7rem 1.7rem; }
   .chapter.is-current { border-color: var(--emerald); box-shadow: 0 0 0 1px var(--emerald); }
-  .chapter.is-planned { border-style: dashed; }
 
   .chapter-kicker { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; margin-bottom: .35rem; }
   .chapter.is-current .chapter-kicker { color: var(--emerald-ink); }
-  .current-badge, .planned-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; }
+  .current-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; }
   .current-badge { background: var(--emerald); color: var(--surface); }
-  .planned-badge { background: var(--rust-bg); color: var(--rust); }
 
   .chapter-kicker a, .leads-to a { color: var(--emerald-ink); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
   .chapter-kicker a:hover, .leads-to a:hover { text-decoration-color: currentColor; }
@@ -96,6 +93,14 @@
   .chapter-block li { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: .4rem; }
   .chapter-block li:last-child { margin-bottom: 0; }
   .chapter-enforce code { font-family: var(--font-mono); font-size: .82em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
+
+  .unplanned { margin-top: 2rem; border-left: 3px solid var(--rust); background: var(--surface); border-radius: 0 8px 8px 0; padding: 1.1rem 1.3rem; }
+  .unplanned h2 { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--rust); margin: 0 0 .6rem; }
+  .unplanned-dek { font-size: .85rem; color: var(--ink-soft); margin: 0 0 .8rem; max-width: 68ch; line-height: 1.55; }
+  .unplanned ul { margin: 0; padding-left: 1.1rem; }
+  .unplanned li { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .5rem; }
+  .unplanned li:last-child { margin-bottom: 0; }
+  .unplanned li strong { color: var(--ink); font-weight: 600; }
 
   .notes { margin-top: 2rem; font-size: .85rem; color: var(--ink-soft); }
   .notes h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 .6rem; color: var(--ink); }
@@ -139,20 +144,17 @@ graph TD
   bread["Breaking Bread"]
   hall["Hall of Heroes"]
   firststand["The First Stand"]
-  dock["Anchor &amp; Anvil"]
+  dock["Anchor Point"]
+  forge["The Forge Reopens"]
   grazing["Grazing Rights"]
   feathered["Feathered Roads"]
   woolfrost["Wool and Frost"]
   pelts["Pelts and Pines"]
   masons["Masons of<br/>the Dunes"]
   shipwreck["Shipwreck &amp;<br/>Treasure"]
-  witch["The Witch's Hovel"]
   wtg["Trading on<br/>the Edge"]
-  outpost["Illager Outpost"]
   mansion["Woodland Mansion"]
-  dtools["Diamond Tools*"]
   trials["Trials &amp; the<br/>Ancient City"]
-  dgear["Diamond Gear*"]
   nether["The Nether Opens /<br/>Cult of the Wither"]
   porko["Road to El Porko"]
   atlantis["Atlantis Ahoy"]
@@ -163,15 +165,11 @@ graph TD
   finale["Season Finale"]
 
   camp --> bread
-  camp --> witch
   bread --> dock
   dock --> shipwreck
   hall --> shipwreck
   shipwreck --> atlantis
   bread --> hall
-  bread --> outpost
-  outpost -.-> dtools
-  outpost --> mansion
   hall --> firststand
   hall --> grazing
   hall --> feathered
@@ -184,8 +182,9 @@ graph TD
   woolfrost --> wtg
   pelts --> wtg
   masons --> wtg
+  wtg --> mansion
+  wtg --> forge
   mansion --> trials
-  trials -.-> dgear
   trials --> nether
   nether --> porko
   atlantis --> gibliria
@@ -201,19 +200,16 @@ graph TD
   click hall "#node-hall"
   click firststand "#node-firststand"
   click dock "#node-dock"
+  click forge "#node-forge"
   click grazing "#node-grazing"
   click feathered "#node-feathered"
   click woolfrost "#node-woolfrost"
   click pelts "#node-pelts"
   click masons "#node-masons"
   click shipwreck "#node-shipwreck"
-  click witch "#node-witch"
   click wtg "#node-wtg"
-  click outpost "#node-outpost"
   click mansion "#node-mansion"
-  click dtools "#node-dtools"
   click trials "#node-trials"
-  click dgear "#node-dgear"
   click nether "#node-nether"
   click porko "#node-porko"
   click atlantis "#node-atlantis"
@@ -226,8 +222,6 @@ graph TD
   </div>
   <div class="diagram-legend">
     <span><span class="legend-swatch"></span> required prerequisite</span>
-    <span><span class="legend-swatch dashed"></span> leads to a node whose unlock event isn't decided yet</span>
-    <span>* = restriction is live, but nothing lifts it yet</span>
     <span>click any box to jump to its write-up below</span>
   </div>
 
@@ -261,20 +255,21 @@ graph TD
           <ul>
             <li>Nether portal blocked, End portal blocked</li>
             <li>Banned permanently (Commonhold Ethos, no milestone lifts these): <code>hopper</code>, <code>hopper_minecart</code>, <code>dropper</code>, <code>observer</code></li>
-            <li>Banned until The Witch's Hovel is cleared: <code>piston</code>, <code>dispenser</code></li>
-            <li>Banned pending a policy decision (no milestone defined yet): <code>elytra</code>, <code>sticky_piston</code>, <code>slime</code>, <code>honey_block</code> — sticky pistons need a slimeball to craft, so they stay locked with slime regardless of what happens at The Witch's Hovel</li>
-            <li>Banned until Anchor &amp; Anvil is cleared: <code>anvil</code>, <code>chipped_anvil</code>, <code>damaged_anvil</code></li>
+            <li>Banned pending a policy decision (no milestone defined yet — see Unplanned Progression below): <code>elytra</code>, <code>piston</code>, <code>sticky_piston</code>, <code>dispenser</code>, <code>slime</code>, <code>honey_block</code> — sticky pistons additionally need a slimeball to craft, so they stay locked with slime regardless of what unlocks plain pistons</li>
+            <li>Banned until The Forge Reopens is cleared: <code>anvil</code>, <code>chipped_anvil</code>, <code>damaged_anvil</code></li>
             <li>Banned until Shipwreck &amp; Treasure is completed: <code>heart_of_the_sea</code></li>
             <li>Made uncraftable: <code>blaze_powder</code>, <code>enchanting_table</code></li>
             <li>Made uncraftable until Shipwreck &amp; Treasure is completed: <code>conduit</code> — locked on top of the <code>heart_of_the_sea</code> ban, so a stray Heart of the Sea can't shortcut it</li>
-            <li>Made uncraftable pending a policy decision — see Diamond Tools / Diamond Gear below: <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code> — diamonds themselves can still be mined and held, found/looted diamond gear is unaffected</li>
+            <li>Made uncraftable pending a policy decision (no milestone defined yet — see Unplanned Progression below): <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, and <code>diamond_boots</code> — diamonds themselves can still be mined and held, found/looted diamond gear is unaffected</li>
+            <li>Made uncraftable pending a policy decision (no milestone defined yet — see Unplanned Progression below): <code>comparator</code>, <code>daylight_detector</code> — the only two vanilla recipes besides Quartz Block and Observer that need raw Nether Quartz. Quartz Block and anything crafted purely from a Quartz Block (pillar, bricks, chiseled, stairs, slabs, smooth quartz) are <em>not</em> restricted — once the Nether's open and quartz is minable, that whole decorative line stays craftable, only these two (plus Observer, below) stay locked</li>
+            <li>Made uncraftable on top of the permanent <code>observer</code> item ban above: <code>observer</code> — the item ban alone only deletes a crafted Observer after the fact, so the recipe is locked too, otherwise a crafting attempt quietly burns a real quartz (plus redstone and cobblestone) for nothing</li>
             <li>Villager trades: all disabled (every profession + wandering trader)</li>
             <li>Fishing: treasure catches no longer come pre-enchanted</li>
             <li>Blocked entities: <code>iron_golem</code>, <code>piglin</code>, <code>piglin_brute</code> — despawned the instant they spawn</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a>, <a href="#node-witch">The Witch's Hovel</a></p>
+      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a></p>
     </section>
 
     <section class="chapter" id="node-bread">
@@ -297,29 +292,7 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-dock">Anchor &amp; Anvil</a>, <a href="#node-hall">Hall of Heroes</a>, <a href="#node-outpost">Illager Outpost</a></p>
-    </section>
-
-    <section class="chapter" id="node-outpost">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Illager Outpost</h3>
-      <p class="chapter-story">The village New Haven just earned trust with doesn't hide it well — there's an Illager Outpost close enough that everyone there flinches at loud noises. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built back at Founding the Camp can actually hold. Weathering both is what actually teaches the group how the Illagers operate: how to read the signs of a coming raid, how to provoke one on purpose with an Ominous Bottle, and what's worth fighting for when Evokers show up in the waves. None of that is unique to this one outpost — Bad Omen was never something this pack locked away, and there are more outposts than just this one, which is the whole point once raids need to happen again and again. Word of this one also reaches the cartographer back in the village — enough to earn the group a very specific map, the kind that points to something bigger and deeper in the woods.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>Illager Outpost raided and held</li>
-            <li>The retaliation raid is survived</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>The cartographer's table gains the mansion Explorer Map trade (Master tier moved down to no trade-leveling required); Woodland Mansion location known once bought</li>
-          </ul>
-        </div>
-      </div>
-      <p class="leads-to">Leads to: <a href="#node-dtools">Diamond Tools</a>, <a href="#node-mansion">Woodland Mansion</a></p>
+      <p class="leads-to">Leads to: <a href="#node-dock">Anchor Point</a>, <a href="#node-hall">Hall of Heroes</a></p>
     </section>
 
     <section class="chapter" id="node-hall">
@@ -345,20 +318,19 @@ graph TD
 
     <section class="chapter" id="node-dock">
       <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Anchor &amp; Anvil</h3>
-      <p class="chapter-story">One road into the village isn't the ceiling — it's the proof of concept. With food already moving by cart, the group turns to the coastline: a real dock, built to actually take on heavier trade than a wagon can carry. Getting it running means putting an anvil to work for the first time all season, which means the standing anvil ban has to come down before the dock is worth anything at all. Word spreads with the new traffic too — sailors passing through start talking, and some of that luck rubs off on New Haven's own fishing lines.</p>
+      <h3 class="chapter-title">Anchor Point</h3>
+      <p class="chapter-story">One road into the village isn't the ceiling — it's the proof of concept. With food already moving by cart, the group turns to the coastline: a real dock, built to actually take on heavier trade than a wagon can carry. Word spreads with the new traffic too — sailors passing through start talking, and some of that luck rubs off on New Haven's own fishing lines.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
             <li>A functional dock area is built and connected to the trade route</li>
-            <li>At least one boat is in active use for trade out of the dock</li>
+            <li>At least one ship is placed in the dock</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Anvils usable again (repairing gear is back on the table)</li>
             <li>Fishing rods and bows can come pre-enchanted again; enchanted books still don't drop from fishing</li>
           </ul>
         </div>
@@ -366,8 +338,29 @@ graph TD
       <p class="leads-to">Leads to: <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
     </section>
 
+    <section class="chapter" id="node-forge">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trading on the Edge</a></div>
+      <h3 class="chapter-title">The Forge Reopens</h3>
+      <p class="chapter-story">Gear takes a beating faster than anyone expected, and there's no fixing a cracked pickaxe or a chipped sword by wishing at it. After six villages' worth of raids and a season of hauling trade goods, the toll is finally too much to ignore — the group can spare the hands and the iron to build out a proper smithy and actually staff it, which is what brings the anvil ban down. Nothing about docks or boats or anything else.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A working forge/smithy structure is built</li>
+            <li>Someone is designated to keep it staffed and running</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Anvils usable again (repairing and renaming gear is back on the table)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <section class="chapter" id="node-shipwreck">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor &amp; Anvil</a> and <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor Point</a> and <a href="#node-hall">Hall of Heroes</a></div>
       <h3 class="chapter-title">Shipwreck &amp; Treasure</h3>
       <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it's worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. It only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on — and worth writing down properly, same as every other win that's gone into the Hall.</p>
       <div class="chapter-grid">
@@ -391,30 +384,6 @@ graph TD
         </div>
       </div>
       <p class="leads-to">Leads to: <a href="#node-atlantis">Atlantis Ahoy</a></p>
-    </section>
-
-    <section class="chapter" id="node-witch">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a></div>
-      <h3 class="chapter-title">The Witch's Hovel</h3>
-      <p class="chapter-story">Not every witch hut is harmless. This one's grown into something bigger and far better defended — a real complex, crawling with witches and whatever else they've got guarding the place, not a lone hut with a cauldron out front. Somewhere in the mess, alongside all the potion ingredients, are pistons and dispensers the witches have clearly been using themselves. Clearing the place out is one thing; hauling a working piston and a working dispenser back to base is what actually lets the rest of the group study them up close — which is what it takes before anyone trusts the tech enough to build with it.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>The Witch's Hovel is located</li>
-            <li>Every witch (and anything else guarding the place) is defeated and the structure is held</li>
-            <li>A piston is recovered and brought back to base for inspection</li>
-            <li>A dispenser is recovered and brought back to base for inspection</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Pistons usable</li>
-            <li>Dispensers usable</li>
-          </ul>
-        </div>
-      </div>
     </section>
 
     <section class="chapter" id="node-firststand">
@@ -583,12 +552,13 @@ graph TD
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-mansion">Woodland Mansion</a>, <a href="#node-forge">The Forge Reopens</a></p>
     </section>
 
     <section class="chapter" id="node-mansion">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-outpost">Illager Outpost</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trading on the Edge</a></div>
       <h3 class="chapter-title">Woodland Mansion</h3>
-      <p class="chapter-story">The Outpost was a skirmish; the Mansion is the real dungeon. Deeper, darker, and stacked with more Evokers than any raid wave — whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground.</p>
+      <p class="chapter-story">A Woodland Mansion turns up somewhere out past the Dark Forest, deeper and darker than anything the group's raided so far — stacked with more Evokers than any single fight has thrown at them yet. Whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground. Exactly how the group first hears about this place is still an open question — this whole entry point needs a real story, not just a placeholder connection to Trading on the Edge.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -604,26 +574,6 @@ graph TD
         </div>
       </div>
       <p class="leads-to">Leads to: <a href="#node-trials">Trials &amp; the Ancient City</a></p>
-    </section>
-
-    <section class="chapter is-planned" id="node-dtools">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-outpost">Illager Outpost</a> <span class="planned-badge">Unlock TBD</span></div>
-      <h3 class="chapter-title">Diamond Tools</h3>
-      <p class="chapter-story">Diamond tools are locked from the very start — every recipe exists, but each one now needs an ingredient nobody can ever obtain in survival. Diamonds themselves are still perfectly mineable and stackable, they just can't be turned into anything yet. What actually lifts the lock hasn't been decided; sitting this node off the Illager Outpost is a starting guess, not a decision.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>Not yet defined — the unlock event hasn't been decided</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Diamond pickaxe, axe, shovel, and hoe become craftable again (once an unlock event is chosen)</li>
-          </ul>
-        </div>
-      </div>
     </section>
 
     <section class="chapter" id="node-trials">
@@ -645,27 +595,7 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-dgear">Diamond Gear</a>, <a href="#node-nether">The Nether Opens</a></p>
-    </section>
-
-    <section class="chapter is-planned" id="node-dgear">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-trials">Trials &amp; the Ancient City</a> <span class="planned-badge">Unlock TBD</span></div>
-      <h3 class="chapter-title">Diamond Gear</h3>
-      <p class="chapter-story">Same situation as diamond tools: the diamond sword and every piece of diamond armor are locked from the start, each recipe needing an ingredient nobody can obtain in survival. Parking the unlock behind the Ancient City raid is a starting guess — a harder, later milestone than tools, since combat gear matters more once real threats show up — but nothing's decided yet.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>Not yet defined — the unlock event hasn't been decided</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Diamond helmet, chestplate, leggings, boots, and sword become craftable again (once an unlock event is chosen)</li>
-          </ul>
-        </div>
-      </div>
+      <p class="leads-to">Leads to: <a href="#node-nether">The Nether Opens</a></p>
     </section>
 
     <section class="chapter" id="node-nether">
@@ -848,13 +778,23 @@ graph TD
 
   </div>
 
+  <div class="unplanned">
+    <h2>Unplanned Progression</h2>
+    <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready.</p>
+    <ul>
+      <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
+      <li><strong>Diamond gear.</strong> Tools, sword, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the sword/armor off a dedicated Diamond Gear node — neither exists in the tree anymore, so the whole diamond kit needs a new unlock milestone.</li>
+      <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
+      <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
+    </ul>
+  </div>
+
   <div class="notes">
     <h2>Notes</h2>
     <ul>
       <li>Permanent bans (hoppers, droppers, observers, etc.) sit on top of every branch below regardless of what's been cleared — each node's Enforcement block only calls out what's new or still active there, not the full standing rule set already spelled out at Founding the Camp.</li>
       <li>Founding the Camp has no combat/exploration milestone on purpose — it's the only node where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
       <li>Once its prerequisite (Shipwreck &amp; Treasure) is cleared, Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time.</li>
-      <li>Diamond Tools and Diamond Gear are marked "Not Yet Enforced" on purpose — they're placeholders for a real decision, not restrictions that exist today.</li>
     </ul>
   </div>
 
