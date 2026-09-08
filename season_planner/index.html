@@ -137,16 +137,17 @@
 graph TD
   camp["Founding the Camp"]
   bread["Breaking Bread"]
+  hall["Hall of Heroes"]
+  firststand["The First Stand"]
   dock["Anchor &amp; Anvil"]
   grazing["Grazing Rights"]
   feathered["Feathered Roads"]
   woolfrost["Wool and Frost"]
   pelts["Pelts and Pines"]
   masons["Masons of<br/>the Dunes"]
-  shipwreck["The Shipwreck"]
-  treasure["Buried Treasure"]
+  shipwreck["Shipwreck &amp;<br/>Treasure"]
   witch["The Witch's Hovel"]
-  wtg["Trade &amp; Trouble<br/>in the Woods"]
+  wtg["Trading on<br/>the Edge"]
   outpost["Illager Outpost"]
   mansion["Woodland Mansion"]
   dtools["Diamond Tools*"]
@@ -165,17 +166,24 @@ graph TD
   camp --> witch
   bread --> dock
   dock --> shipwreck
-  shipwreck --> treasure
-  treasure --> atlantis
-  bread --> grazing
-  bread --> feathered
-  bread --> woolfrost
-  bread --> pelts
-  bread --> masons
-  bread --> wtg
-  wtg --> outpost
+  hall --> shipwreck
+  shipwreck --> atlantis
+  bread --> hall
+  bread --> outpost
   outpost -.-> dtools
   outpost --> mansion
+  hall --> firststand
+  hall --> grazing
+  hall --> feathered
+  hall --> woolfrost
+  hall --> pelts
+  hall --> masons
+  firststand --> wtg
+  grazing --> wtg
+  feathered --> wtg
+  woolfrost --> wtg
+  pelts --> wtg
+  masons --> wtg
   mansion --> trials
   trials -.-> dgear
   trials --> nether
@@ -190,6 +198,8 @@ graph TD
 
   click camp "#node-camp"
   click bread "#node-bread"
+  click hall "#node-hall"
+  click firststand "#node-firststand"
   click dock "#node-dock"
   click grazing "#node-grazing"
   click feathered "#node-feathered"
@@ -197,7 +207,6 @@ graph TD
   click pelts "#node-pelts"
   click masons "#node-masons"
   click shipwreck "#node-shipwreck"
-  click treasure "#node-treasure"
   click witch "#node-witch"
   click wtg "#node-wtg"
   click outpost "#node-outpost"
@@ -255,9 +264,9 @@ graph TD
             <li>Banned until The Witch's Hovel is cleared: <code>piston</code>, <code>dispenser</code></li>
             <li>Banned pending a policy decision (no milestone defined yet): <code>elytra</code>, <code>sticky_piston</code>, <code>slime</code>, <code>honey_block</code> — sticky pistons need a slimeball to craft, so they stay locked with slime regardless of what happens at The Witch's Hovel</li>
             <li>Banned until Anchor &amp; Anvil is cleared: <code>anvil</code>, <code>chipped_anvil</code>, <code>damaged_anvil</code></li>
-            <li>Banned until The Shipwreck is cleared: <code>heart_of_the_sea</code></li>
+            <li>Banned until Shipwreck &amp; Treasure is completed: <code>heart_of_the_sea</code></li>
             <li>Made uncraftable: <code>blaze_powder</code>, <code>enchanting_table</code></li>
-            <li>Made uncraftable until Buried Treasure is found: <code>conduit</code> — locked on top of the <code>heart_of_the_sea</code> ban, so a stray Heart of the Sea can't shortcut it</li>
+            <li>Made uncraftable until Shipwreck &amp; Treasure is completed: <code>conduit</code> — locked on top of the <code>heart_of_the_sea</code> ban, so a stray Heart of the Sea can't shortcut it</li>
             <li>Made uncraftable pending a policy decision — see Diamond Tools / Diamond Gear below: <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code> — diamonds themselves can still be mined and held, found/looted diamond gear is unaffected</li>
             <li>Villager trades: all disabled (every profession + wandering trader)</li>
             <li>Fishing: treasure catches no longer come pre-enchanted</li>
@@ -271,7 +280,7 @@ graph TD
     <section class="chapter" id="node-bread">
       <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a></div>
       <h3 class="chapter-title">Breaking Bread</h3>
-      <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Only once that work is visible and finished does anyone there warm up to the idea of selling New Haven anything at all.</p>
+      <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Only once that work is visible and finished does anyone there warm up to New Haven at all — enough, at least, to let a cartographer start pointing the way toward other settlements. Actually trading with this village is a different matter; that trust gets earned later, the hard way.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -284,117 +293,54 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Villagers now trade food for emeralds (farmer trades restored)</li>
-            <li>The village's cartographer starts trading again too — village maps only; maps to mansions, monuments, and other dungeons still need their own unlock</li>
+            <li>The village's cartographer starts trading — village maps only; maps to mansions, monuments, and other dungeons still need their own unlock</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-dock">Anchor &amp; Anvil</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, <a href="#node-masons">Masons of the Dunes</a>, <a href="#node-wtg">Trade &amp; Trouble in the Woods</a></p>
+      <p class="leads-to">Leads to: <a href="#node-dock">Anchor &amp; Anvil</a>, <a href="#node-hall">Hall of Heroes</a>, <a href="#node-outpost">Illager Outpost</a></p>
     </section>
 
-    <section class="chapter" id="node-grazing">
+    <section class="chapter" id="node-outpost">
       <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Grazing Rights</h3>
-      <p class="chapter-story">The road to the first village proved the concept; now it's just a matter of building more of them. Word travels fast once a cartographer starts asking around, and it isn't long before a second settlement turns up out on the open plains — more livestock than the first village ever had room for. A trade route out there is what finally gets New Haven access to more than food: hides, meat, the whole butchering trade the first village never had a use for.</p>
+      <h3 class="chapter-title">Illager Outpost</h3>
+      <p class="chapter-story">The village New Haven just earned trust with doesn't hide it well — there's an Illager Outpost close enough that everyone there flinches at loud noises. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built back at Founding the Camp can actually hold. Weathering both is what actually teaches the group how the Illagers operate: how to read the signs of a coming raid, how to provoke one on purpose with an Ominous Bottle, and what's worth fighting for when Evokers show up in the waves. None of that is unique to this one outpost — Bad Omen was never something this pack locked away, and there are more outposts than just this one, which is the whole point once raids need to happen again and again. Word of this one also reaches the cartographer back in the village — enough to earn the group a very specific map, the kind that points to something bigger and deeper in the woods.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>A cartographer sells the Plains Village map</li>
-            <li>A trade route is built to the plains village found</li>
+            <li>Illager Outpost raided and held</li>
+            <li>The retaliation raid is survived</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Butcher trades restored</li>
+            <li>The cartographer's table gains the mansion Explorer Map trade (Master tier moved down to no trade-leveling required); Woodland Mansion location known once bought</li>
           </ul>
         </div>
       </div>
+      <p class="leads-to">Leads to: <a href="#node-dtools">Diamond Tools</a>, <a href="#node-mansion">Woodland Mansion</a></p>
     </section>
 
-    <section class="chapter" id="node-feathered">
+    <section class="chapter" id="node-hall">
       <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Feathered Roads</h3>
-      <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. Their fletcher's been busy. A trade route out here is what finally gets New Haven real arrows and ranged supplies, instead of whatever the group's managed to scrape together on their own.</p>
+      <h3 class="chapter-title">Hall of Heroes</h3>
+      <p class="chapter-story">Every village New Haven backs from here on is about to get tested by fire, and someone decides those wins shouldn't just be a story people tell each other afterward. The group raises a proper Hall back at the original settlement — plaques, records, whatever passes for a monument this early in the season. Nothing that happens at any other village counts toward anything until it's written down here first.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>A cartographer sells the Savanna Village map</li>
-            <li>A trade route is built to the savanna village found</li>
+            <li>A Hall of Heroes is constructed at the original settlement</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Fletcher trades restored</li>
+            <li>A place now exists to formally record raid victories — each entry notes when the raid happened, who took part (proof it was the whole party, not one player soloing it), and, for any village found by map, displays the actual map that led there. Required before any village's raid win counts toward its trade unlock.</li>
           </ul>
         </div>
       </div>
-    </section>
-
-    <section class="chapter" id="node-woolfrost">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Wool and Frost</h3>
-      <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. A trade route out here means dye, wool, and the whole textile side of things New Haven's been improvising without all season.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>A cartographer sells the Snowy Village map</li>
-            <li>A trade route is built to the snowy village found</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Shepherd trades restored</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="chapter" id="node-pelts">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Pelts and Pines</h3>
-      <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. A trade route out here is what finally gets New Haven proper leather goods — the kind the group's been making do without since the season started.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>A cartographer sells the Taiga Village map</li>
-            <li>A trade route is built to the taiga village found</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Leatherworker trades restored</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="chapter" id="node-masons">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Masons of the Dunes</h3>
-      <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. A trade route out here means real stonework, not just whatever the group's managed to quarry by hand.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>A cartographer sells the Desert Village map</li>
-            <li>A trade route is built to the desert village found</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Stone Mason trades restored</li>
-          </ul>
-        </div>
-      </div>
+      <p class="leads-to">Leads to: <a href="#node-firststand">The First Stand</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, <a href="#node-masons">Masons of the Dunes</a>, <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
     </section>
 
     <section class="chapter" id="node-dock">
@@ -417,47 +363,30 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-shipwreck">The Shipwreck</a></p>
+      <p class="leads-to">Leads to: <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
     </section>
 
     <section class="chapter" id="node-shipwreck">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor &amp; Anvil</a></div>
-      <h3 class="chapter-title">The Shipwreck</h3>
-      <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it turns out to be worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. Whatever's marked on it is worth more than the wreck itself.</p>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor &amp; Anvil</a> and <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Shipwreck &amp; Treasure</h3>
+      <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it's worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. It only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on — and worth writing down properly, same as every other win that's gone into the Hall.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
             <li>A shipwreck is located and looted, recovering a Buried Treasure map</li>
             <li>At least half the active group (or 4 people, whichever is fewer) is present when the wreck is cleared — see the Commonhold Ethos</li>
+            <li>The map is followed to the buried treasure site and the chest is dug up</li>
+            <li>At least half the active group (or 4 people, whichever is fewer) is present when the chest is opened — see the Commonhold Ethos</li>
+            <li>The find is recorded in the Hall of Heroes — noting when it happened and who took part</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
             <li>Heart of the Sea usable</li>
-          </ul>
-        </div>
-      </div>
-      <p class="leads-to">Leads to: <a href="#node-treasure">Buried Treasure</a></p>
-    </section>
-
-    <section class="chapter" id="node-treasure">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-shipwreck">The Shipwreck</a></div>
-      <h3 class="chapter-title">Buried Treasure</h3>
-      <p class="chapter-story">The map only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>The map is followed to the buried treasure site and the chest is dug up</li>
-            <li>At least half the active group (or 4 people, whichever is fewer) is present when the chest is opened — see the Commonhold Ethos</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
             <li>Conduit recipe usable</li>
+            <li>The cartographer's table gains the monument Explorer Map trade</li>
           </ul>
         </div>
       </div>
@@ -488,50 +417,172 @@ graph TD
       </div>
     </section>
 
-    <section class="chapter" id="node-wtg">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Trade &amp; Trouble in the Woods</h3>
-      <p class="chapter-story">With the base standing, the group's attention turns outward for the first time — but only as far as the treeline. Word arrives that the Wandering Trader Guild wants a permanent outpost built in exchange for favorable terms, and closer to home, Pale Garden Creaking activity has gotten hard to ignore. Both threads run in parallel: raise the Guild's headquarters, and get to the bottom of whatever's animating those trees, all while the Nether and the End remain exactly as sealed as they were on day one.</p>
+    <section class="chapter" id="node-firststand">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">The First Stand</h3>
+      <p class="chapter-story">Bad Omen was never locked behind anything — any Illager Outpost the group finds gives up an Ominous Bottle, and there are always more outposts than raids the group actually needs to run. With the Hall standing and a bottle in hand, they turn it on the very first village they backed — on purpose, at full intensity, to prove the fortifications from Breaking Bread actually hold up under real pressure instead of just against whatever wandered by. Surviving it and getting the win written into the Hall is what finally convinces the village to start selling New Haven food again.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>Wandering Trader Guild HQ is fully built</li>
-            <li>The Pale Garden / Creaking mystery is investigated and resolved</li>
+            <li>The original village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the original village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened and who took part</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Illager Outpost location known</li>
+            <li>Farmer trades restored</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-outpost">Illager Outpost</a></p>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
     </section>
 
-    <section class="chapter" id="node-outpost">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trade &amp; Trouble in the Woods</a></div>
-      <h3 class="chapter-title">Illager Outpost</h3>
-      <p class="chapter-story">The Guild's opening trades point straight at an Illager Outpost nobody had mapped before. Raiding it is the easy part — the retaliation raid that follows is the real test of whether the base built back at Founding the Camp can actually hold. Weathering both is what actually teaches the group how the Illagers operate: how to read the signs of a coming raid, how to provoke one on purpose, and what's worth fighting for when Evokers show up in the waves. Word of it also reaches the cartographer back in the village — enough to earn the group a very specific map, the kind that points to something bigger and deeper in the woods.</p>
+    <section class="chapter" id="node-grazing">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Grazing Rights</h3>
+      <p class="chapter-story">The road to the first village proved the concept; now it's just a matter of building more of them. Word travels fast once a cartographer starts asking around, and it isn't long before a second settlement turns up out on the open plains — more livestock than the first village ever had room for. Bad Omen makes the terms plain: fortify the place, weather a raid at full intensity, and get the win into the Hall before this trade route means anything.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>Illager Outpost raided and held</li>
-            <li>The retaliation raid is survived</li>
+            <li>A cartographer sells the Plains Village map</li>
+            <li>A trade route is built to the plains village found</li>
+            <li>The plains village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the plains village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Bad Omen obtainable (Ominous Bottles) — the group can trigger a raid on the village on demand</li>
-            <li>Evokers now show up in raid waves — Totems of Undying obtainable</li>
-            <li>The cartographer's table gains the mansion Explorer Map trade (Master tier moved down to no trade-leveling required); Woodland Mansion location known once bought</li>
+            <li>Butcher trades restored</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-dtools">Diamond Tools</a>, <a href="#node-mansion">Woodland Mansion</a></p>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+    </section>
+
+    <section class="chapter" id="node-feathered">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Feathered Roads</h3>
+      <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. Their fletcher's been busy, but that only matters once the group proves this village is worth the trouble: fortify it, call down a raid at full intensity, survive it together, and write the win into the Hall.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Savanna Village map</li>
+            <li>A trade route is built to the savanna village found</li>
+            <li>The savanna village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the savanna village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Fletcher trades restored</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+    </section>
+
+    <section class="chapter" id="node-woolfrost">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Wool and Frost</h3>
+      <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. Dye and wool are only on the table once this village's stood up to the same test as every other one: fortified, raided at full intensity, survived, and recorded.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Snowy Village map</li>
+            <li>A trade route is built to the snowy village found</li>
+            <li>The snowy village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the snowy village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Shepherd trades restored</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+    </section>
+
+    <section class="chapter" id="node-pelts">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Pelts and Pines</h3>
+      <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. Proper leather goods wait on the same proof every other village demands now: fortify it, survive a full-intensity raid as a group, and get the win written into the Hall.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Taiga Village map</li>
+            <li>A trade route is built to the taiga village found</li>
+            <li>The taiga village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the taiga village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Leatherworker trades restored</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+    </section>
+
+    <section class="chapter" id="node-masons">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Masons of the Dunes</h3>
+      <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. Real stonework waits on the same terms as everywhere else: fortify the village, survive a full-intensity raid together, and record the win in the Hall.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Desert Village map</li>
+            <li>A trade route is built to the desert village found</li>
+            <li>The desert village is fully fortified against raids</li>
+            <li>The group survives one maximum-intensity raid together at the desert village</li>
+            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Stone Mason trades restored</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+    </section>
+
+    <section class="chapter" id="node-wtg">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-firststand">The First Stand</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, and <a href="#node-masons">Masons of the Dunes</a></div>
+      <h3 class="chapter-title">Trading on the Edge</h3>
+      <p class="chapter-story">Six villages defended, six wins written into the Hall — word of that travels through backroads faster than New Haven ever expected, and the Wandering Traders finally approach. They've decided New Haven is worth dealing with, and they're ready to open their own trades for good. The catch is where they want to set up shop: demand for pale wood has spiked somewhere down their trade routes, and they want their headquarters built right on the edge of the nearest Pale Garden to keep the supply moving. Building it here is just the opening move — whatever's deeper in that Garden is a different problem for a different day.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A Wandering Trader waystation is built near a Pale Garden</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Special Wandering Trader trades unlocked</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="chapter" id="node-mansion">
@@ -662,9 +713,9 @@ graph TD
     </section>
 
     <section class="chapter" id="node-atlantis">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-treasure">Buried Treasure</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></div>
       <h3 class="chapter-title">Atlantis Ahoy</h3>
-      <p class="chapter-story">With a Conduit finally in hand, the water stops being something to avoid and starts being worth diving into on purpose. A second wreck — a different one, further out — turns up a lead on a treasure cave, and from there it's a straight shot to a full Ocean Monument raid. Having a Conduit already running is the difference between fighting Elder Guardians and just surviving them.</p>
+      <p class="chapter-story">When word reached the village that New Haven had pulled a Conduit together out of whatever came out of that treasure chest, their cartographer went digging through old charts and turned up a route to an Ocean Monument — proof enough that the water's worth taking seriously. A second wreck further out turns up a lead on a treasure cave too, and from there it's a straight shot to the Monument itself. Having a Conduit already running is the difference between fighting Elder Guardians and just surviving them.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -802,7 +853,7 @@ graph TD
     <ul>
       <li>Permanent bans (hoppers, droppers, observers, etc.) sit on top of every branch below regardless of what's been cleared — each node's Enforcement block only calls out what's new or still active there, not the full standing rule set already spelled out at Founding the Camp.</li>
       <li>Founding the Camp has no combat/exploration milestone on purpose — it's the only node where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
-      <li>Once its prerequisites (The Shipwreck, Buried Treasure) are cleared, Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time.</li>
+      <li>Once its prerequisite (Shipwreck &amp; Treasure) is cleared, Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time.</li>
       <li>Diamond Tools and Diamond Gear are marked "Not Yet Enforced" on purpose — they're placeholders for a real decision, not restrictions that exist today.</li>
     </ul>
   </div>
