@@ -1,0 +1,641 @@
+<title>The Trade Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #eef1e6;
+    --surface: #f8faf2;
+    --border: #d7dbc9;
+    --ink: #1b1f1a;
+    --ink-soft: #565c4f;
+    --ink-faint: #8b9080;
+    --emerald: #1f9d63;
+    --emerald-ink: #0d6b40;
+    --emerald-bg: #d9f0e3;
+    --rust: #a23b3b;
+    --rust-bg: #f3dede;
+    --focus: #1f9d63;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Public Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12140f; --surface: #191d15; --border: #2c3126;
+      --ink: #e7ebdd; --ink-soft: #a9b09c; --ink-faint: #6b7062;
+      --emerald: #3ecb87; --emerald-ink: #6fe3a6; --emerald-bg: #163827;
+      --rust: #e08585; --rust-bg: #3a2020; --focus: #3ecb87;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12140f; --surface: #191d15; --border: #2c3126;
+    --ink: #e7ebdd; --ink-soft: #a9b09c; --ink-faint: #6b7062;
+    --emerald: #3ecb87; --emerald-ink: #6fe3a6; --emerald-bg: #163827;
+    --rust: #e08585; --rust-bg: #3a2020; --focus: #3ecb87;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  main { max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  .kicker { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4.5vw, 2.7rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .dek { color: var(--ink-soft); font-size: .92rem; margin: .6rem 0 0; max-width: 68ch; line-height: 1.6; }
+
+  .header { border-bottom: 2px solid var(--ink); padding-bottom: 1.4rem; margin-bottom: 1.4rem; }
+
+  .notes-box { border-left: 3px solid var(--emerald); background: var(--surface); border-radius: 0 8px 8px 0; padding: 1rem 1.2rem; margin-bottom: 1.8rem; }
+  .notes-box h2 { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .6rem; }
+  .notes-box ul { margin: 0; padding-left: 1.1rem; }
+  .notes-box li { font-size: .85rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: .4rem; }
+  .notes-box li:last-child { margin-bottom: 0; }
+  .notes-box code { font-family: var(--font-mono); font-size: .9em; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .3rem; }
+
+  .nav-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2.2rem; }
+  .nav-pills a { font-family: var(--font-mono); font-size: .74rem; color: var(--ink-soft); text-decoration: none; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: .35rem .8rem; }
+  .nav-pills a:hover { color: var(--emerald-ink); border-color: var(--emerald); }
+
+  .profession { margin-bottom: 2.4rem; scroll-margin-top: 1rem; }
+  .profession h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; margin: 0 0 .8rem; letter-spacing: -0.01em; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 480px; }
+  thead th { text-align: left; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 2px solid var(--ink); padding: .7rem .9rem .55rem; }
+  tbody td { padding: .5rem .9rem; font-family: var(--font-mono); font-size: .8rem; color: var(--ink); border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.tier-row td { font-family: var(--font-body); font-weight: 600; font-size: .78rem; letter-spacing: .03em; text-transform: uppercase; color: var(--emerald-ink); background: var(--emerald-bg); padding: .45rem .9rem; }
+  tr.group-row td { font-family: var(--font-body); font-style: italic; font-size: .78rem; color: var(--ink-faint); background: var(--bg); padding: .35rem .9rem; }
+  tbody td:nth-child(3) { font-family: var(--font-body); color: var(--ink-soft); font-size: .78rem; white-space: nowrap; }
+
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--ink-faint); }
+  footer code { font-family: var(--font-mono); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05rem .35rem; }
+</style>
+
+<main>
+  <div class="header">
+    <div class="kicker">Commonhold Rise · reference</div>
+    <h1>The Trade Ledger</h1>
+    <p class="dek">Every unmodified vanilla Bedrock villager profession, plus the Wandering Trader, tier by tier, straight from Mojang's own trade files. Built as a lookup for designing this pack's own trade nerfs and restores — not narrative content.</p>
+  </div>
+
+  <div class="notes-box">
+    <h2>How to read this</h2>
+    <ul>
+      <li>Each row is one trade: what the villager <strong>wants</strong> from you, what it <strong>gives</strong> back, and how many times that exact trade can be used before it needs to level up again.</li>
+      <li>A <em>"picks N of the following M"</em> row means the villager only ever offers N of those M options at once, chosen at random when it takes the job — not all of them simultaneously. Plain trades directly under a tier heading are always offered.</li>
+      <li><em>"1 of: ..."</em> inside a cell means that single trade slot resolves randomly to one of the listed items (e.g. a random wool color) rather than being a pick against other trades.</li>
+      <li>Cartographer's biome-locked map trades (<code>village_taiga</code>, <code>swamp_hut</code>, <code>village_snowy</code>, <code>village_savanna</code>, <code>village_plains</code>, <code>jungle_temple</code>, <code>village_desert</code>) are further restricted to cartographers <em>born</em> in specific biomes — no cartographer ever sells a map back to its own home biome. See the season planner's Trade Web note for the exact biome-to-biome table.</li>
+      <li>A couple of item names still carry a legacy Bedrock data-value suffix vanilla's own files haven't cleaned up (e.g. <code>potion (data 8)</code>) — left as-is rather than guessed at, where the exact variant isn't confidently known.</li>
+    </ul>
+  </div>
+
+  <nav class="nav-pills">
+    <a href="#prof-armorer">Armorer</a>
+    <a href="#prof-butcher">Butcher</a>
+    <a href="#prof-cartographer">Cartographer</a>
+    <a href="#prof-cleric">Cleric</a>
+    <a href="#prof-farmer">Farmer</a>
+    <a href="#prof-fisherman">Fisherman</a>
+    <a href="#prof-fletcher">Fletcher</a>
+    <a href="#prof-leather-worker">Leatherworker</a>
+    <a href="#prof-librarian">Librarian</a>
+    <a href="#prof-shepherd">Shepherd</a>
+    <a href="#prof-stone-mason">Stone Mason</a>
+    <a href="#prof-tool-smith">Toolsmith</a>
+    <a href="#prof-weapon-smith">Weaponsmith</a>
+    <a href="#prof-wandering-trader">Wandering Trader</a>
+  </nav>
+
+    <section class="profession" id="prof-armorer">
+      <h2>Armorer</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>coal x15</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 4</td></tr>
+        <tr><td>emerald x7</td><td>iron_leggings</td><td>12</td></tr>
+        <tr><td>emerald x4</td><td>iron_boots</td><td>12</td></tr>
+        <tr><td>emerald x5</td><td>iron_helmet</td><td>12</td></tr>
+        <tr><td>emerald x9</td><td>iron_chestplate</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>iron_ingot x4</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 3</td></tr>
+        <tr><td>emerald x36</td><td>bell</td><td>12</td></tr>
+        <tr><td>emerald</td><td>chainmail_boots</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>chainmail_leggings</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>lava_bucket</td><td>emerald</td><td>12</td></tr>
+        <tr><td>diamond</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 3</td></tr>
+        <tr><td>emerald</td><td>chainmail_helmet</td><td>12</td></tr>
+        <tr><td>emerald x4</td><td>chainmail_chestplate</td><td>12</td></tr>
+        <tr><td>emerald x5</td><td>shield</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x14</td><td>diamond_leggings</td><td>3</td></tr>
+        <tr><td>emerald x8</td><td>diamond_boots</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x8</td><td>diamond_helmet</td><td>3</td></tr>
+        <tr><td>emerald x16</td><td>diamond_chestplate</td><td>3</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-butcher">
+      <h2>Butcher</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 3</td></tr>
+        <tr><td>chicken x14</td><td>emerald</td><td>16</td></tr>
+        <tr><td>rabbit x4</td><td>emerald</td><td>16</td></tr>
+        <tr><td>porkchop x7</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>rabbit_stew</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>coal x15</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>cooked_chicken x8</td><td>16</td></tr>
+        <tr><td>emerald</td><td>cooked_porkchop x5</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>beef x10</td><td>emerald</td><td>16</td></tr>
+        <tr><td>muttonraw x7</td><td>emerald</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>dried_kelp_block x10</td><td>emerald</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>sweet_berries x10</td><td>emerald</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-cartographer">
+      <h2>Cartographer</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>paper x24</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x7</td><td>empty_map</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr class="group-row"><td colspan="3">picks 2 of the following 8</td></tr>
+        <tr><td>glass_pane x11</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → village_taiga]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → swamp_hut]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → village_snowy]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → village_savanna]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → village_plains]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → jungle_temple]</td><td>12</td></tr>
+        <tr><td>emerald x8 + compass</td><td>map [map → village_desert]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr class="group-row"><td colspan="3">picks 2 of the following 3</td></tr>
+        <tr><td>compass</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x13 + compass</td><td>map [map → monument]</td><td>12</td></tr>
+        <tr><td>emerald x12 + compass</td><td>map [map → trial_chambers]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr class="group-row"><td colspan="3">picks 2 of the following 16</td></tr>
+        <tr><td>emerald x7</td><td>frame</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>blue_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>white_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>red_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>green_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>lime_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>purple_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>cyan_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>yellow_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>orange_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>brown_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>magenta_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>light_blue_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>pink_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>gray_banner</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>banner</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>emerald x8</td><td>globe_banner_pattern</td><td>12</td></tr>
+        <tr><td>emerald x14 + compass</td><td>map [map → mansion]</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-cleric">
+      <h2>Cleric</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>rotten_flesh x32</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>redstone x2</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>gold_ingot x3</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald</td><td>blue_dye</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>rabbit_foot x2</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x4</td><td>glowstone</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>turtle_shell_piece x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>glass_bottle x9</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x5</td><td>ender_pearl</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>nether_wart x22</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>experience_bottle</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-farmer">
+      <h2>Farmer</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 4</td></tr>
+        <tr><td>wheat x20</td><td>emerald</td><td>16</td></tr>
+        <tr><td>potato x26</td><td>emerald</td><td>16</td></tr>
+        <tr><td>beetroot x15</td><td>emerald</td><td>16</td></tr>
+        <tr><td>carrot x22</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>bread x6</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>pumpkin x6</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>pumpkin_pie x4</td><td>12</td></tr>
+        <tr><td>emerald</td><td>apple x4</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>melon_block x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>cookie x18</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>emerald</td><td>suspicious_stew</td><td>12</td></tr>
+        <tr><td>emerald</td><td>cake</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x3</td><td>golden_carrot x3</td><td>12</td></tr>
+        <tr><td>emerald x4</td><td>speckled_melon x3</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-fisherman">
+      <h2>Fisherman</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>string x20</td><td>emerald</td><td>16</td></tr>
+        <tr><td>coal x10</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x3</td><td>cod_bucket</td><td>16</td></tr>
+        <tr><td>emerald + fish x6</td><td>cooked_fish x6</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>fish x15</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x2</td><td>campfire</td><td>12</td></tr>
+        <tr><td>emerald + salmon x6</td><td>cooked_salmon x6</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>salmon x13</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x3</td><td>fishing_rod</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>clownfish x6</td><td>emerald</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>pufferfish x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>1 of: oak_boat, spruce_boat, jungle_boat, acacia_boat, dark_oak_boat</td><td>emerald</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-fletcher">
+      <h2>Fletcher</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>stick x32</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>arrow x16</td><td>12</td></tr>
+        <tr><td>emerald + gravel x10</td><td>flint x10</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>flint x26</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>bow</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>string x14</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x3</td><td>crossbow</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>feather x24</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x2</td><td>bow</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>tripwire_hook x8</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x3</td><td>crossbow</td><td>3</td></tr>
+        <tr><td>emerald x2 + arrow x5</td><td>arrow x5</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-leather-worker">
+      <h2>Leatherworker</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>leather x6</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x3</td><td>leather_leggings [random dye color]</td><td>12</td></tr>
+        <tr><td>emerald x7</td><td>leather_chestplate [random dye color]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>flint x26</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x5</td><td>leather_helmet [random dye color]</td><td>12</td></tr>
+        <tr><td>emerald x4</td><td>leather_boots [random dye color]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>rabbit_hide x9</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x7</td><td>leather_chestplate [random dye color]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>turtle_shell_piece x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x6</td><td>horsearmorleather [random dye color]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x5</td><td>leather_helmet [random dye color]</td><td>12</td></tr>
+        <tr><td>emerald x6</td><td>saddle</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-librarian">
+      <h2>Librarian</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>paper x24</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x9</td><td>bookshelf</td><td>12</td></tr>
+        <tr><td>emerald + book</td><td>book [random enchanted book]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>book x4</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>lantern</td><td>12</td></tr>
+        <tr><td>emerald + book</td><td>book [random enchanted book]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>dye x5</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>glass x4</td><td>12</td></tr>
+        <tr><td>emerald + book</td><td>book [random enchanted book]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>writable_book + writable_book</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 3</td></tr>
+        <tr><td>emerald x4</td><td>compass</td><td>12</td></tr>
+        <tr><td>emerald x5</td><td>clock</td><td>12</td></tr>
+        <tr><td>emerald + book</td><td>book [random enchanted book]</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 4</td></tr>
+        <tr><td>emerald x3</td><td>red_candle</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>red_candle</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>red_candle</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>yellow_candle</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-shepherd">
+      <h2>Shepherd</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>1 of: white_wool x18, gray_wool x18, brown_wool x18, black_wool x18</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x2</td><td>shears</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>1 of: black_dye x12, gray_dye x12, lime_dye x12, light_blue_dye x12, white_dye x12</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald</td><td>1 of: white_wool, orange_wool, magenta_wool, light_blue_wool, yellow_wool, lime_wool, pink_wool, gray_wool, light_gray_wool, cyan_wool, purple_wool, blue_wool, brown_wool, green_wool, red_wool, black_wool</td><td>16</td></tr>
+        <tr><td>emerald</td><td>1 of: white_carpet x4, orange_carpet x4, magenta_carpet x4, light_blue_carpet x4, yellow_carpet x4, lime_carpet x4, pink_carpet x4, gray_carpet x4, light_gray_carpet x4, cyan_carpet x4, purple_carpet x4, blue_carpet x4, brown_carpet x4, green_carpet x4, red_carpet x4, black_carpet x4</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>1 of: red_dye x12, light_gray_dye x12, pink_dye x12, yellow_dye x12, orange_dye x12</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x3</td><td>bed</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>1 of: green_dye x12, brown_dye x12, blue_dye x12, purple_dye x12, cyan_dye x12, magenta_dye x12</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x3</td><td>banner</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>emerald x2</td><td>painting x3</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-stone-mason">
+      <h2>Stone Mason</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>clay_ball x10</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>brick x10</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>stone x20</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>chiseled_stone_bricks x4</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>1 of: granite x16, diorite x16, andesite x16</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald</td><td>1 of: polished_granite x4, polished_diorite x4, polished_andesite x4, dripstone_block x4</td><td>16</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>quartz x12</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald</td><td>1 of: white_terracotta, orange_terracotta, magenta_terracotta, light_blue_terracotta, yellow_terracotta, lime_terracotta, pink_terracotta, gray_terracotta, light_gray_terracotta, cyan_terracotta, purple_terracotta, blue_terracotta, brown_terracotta, green_terracotta, red_terracotta, black_terracotta, black_glazed_terracotta, blue_glazed_terracotta, brown_glazed_terracotta, cyan_glazed_terracotta, gray_glazed_terracotta, green_glazed_terracotta, light_blue_glazed_terracotta, lime_glazed_terracotta, magenta_glazed_terracotta, orange_glazed_terracotta, pink_glazed_terracotta, purple_glazed_terracotta, red_glazed_terracotta, silver_glazed_terracotta, white_glazed_terracotta, yellow_glazed_terracotta</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>emerald</td><td>1 of: quartz_block, quartz_pillar</td><td>12</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-tool-smith">
+      <h2>Toolsmith</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>coal x15</td><td>emerald</td><td>16</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 4</td></tr>
+        <tr><td>emerald</td><td>stone_axe</td><td>12</td></tr>
+        <tr><td>emerald</td><td>stone_shovel</td><td>12</td></tr>
+        <tr><td>emerald</td><td>stone_pickaxe</td><td>12</td></tr>
+        <tr><td>emerald</td><td>stone_hoe</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>iron_ingot x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x36</td><td>bell</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>flint x30</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 4</td></tr>
+        <tr><td>emerald</td><td>iron_axe</td><td>3</td></tr>
+        <tr><td>emerald x2</td><td>iron_shovel</td><td>3</td></tr>
+        <tr><td>emerald x3</td><td>iron_pickaxe</td><td>3</td></tr>
+        <tr><td>emerald x4</td><td>diamond_hoe</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>diamond</td><td>emerald</td><td>12</td></tr>
+        <tr class="group-row"><td colspan="3">picks 1 of the following 2</td></tr>
+        <tr><td>emerald x12</td><td>diamond_axe</td><td>3</td></tr>
+        <tr><td>emerald x5</td><td>diamond_shovel</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>emerald x13</td><td>diamond_pickaxe</td><td>3</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-weapon-smith">
+      <h2>Weaponsmith</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Novice</td></tr>
+        <tr><td>coal x15</td><td>emerald</td><td>16</td></tr>
+        <tr><td>emerald x3</td><td>iron_axe</td><td>12</td></tr>
+        <tr><td>emerald x2</td><td>iron_sword</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Apprentice</td></tr>
+        <tr><td>iron_ingot x4</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x36</td><td>bell</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Journeyman</td></tr>
+        <tr><td>flint x24</td><td>emerald</td><td>12</td></tr>
+        <tr class="tier-row"><td colspan="3">Expert</td></tr>
+        <tr><td>diamond</td><td>emerald</td><td>12</td></tr>
+        <tr><td>emerald x12</td><td>diamond_axe</td><td>3</td></tr>
+        <tr class="tier-row"><td colspan="3">Master</td></tr>
+        <tr><td>emerald x8</td><td>diamond_sword</td><td>3</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="profession" id="prof-wandering-trader">
+      <h2>Wandering Trader</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Wants</th><th>Gives</th><th>Max Uses</th></tr></thead>
+          <tbody>
+        <tr class="tier-row"><td colspan="3">Pool 1 — 2 of these 6 are offered per spawn</td></tr>
+        <tr><td>potion</td><td>emerald</td><td>2</td></tr>
+        <tr><td>water_bucket</td><td>emerald x2</td><td>2</td></tr>
+        <tr><td>milk_bucket</td><td>emerald x2</td><td>2</td></tr>
+        <tr><td>fermented_spider_eye</td><td>emerald x3</td><td>2</td></tr>
+        <tr><td>baked_potato x4</td><td>emerald</td><td>2</td></tr>
+        <tr><td>hay_block</td><td>emerald</td><td>2</td></tr>
+        <tr class="tier-row"><td colspan="3">Pool 2 — 2 of these 15 are offered per spawn</td></tr>
+        <tr><td>emerald</td><td>packed_ice</td><td>6</td></tr>
+        <tr><td>emerald x6</td><td>blue_ice</td><td>6</td></tr>
+        <tr><td>emerald</td><td>gunpowder x4</td><td>2</td></tr>
+        <tr><td>emerald x3</td><td>podzol x3</td><td>6</td></tr>
+        <tr><td>emerald</td><td>acacia_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>birch_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>dark_oak_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>jungle_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>oak_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>spruce_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>cherry_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>pale_oak_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>mangrove_log x8</td><td>4</td></tr>
+        <tr><td>emerald</td><td>iron_pickaxe</td><td>1</td></tr>
+        <tr><td>emerald x5</td><td>potion (data 8)</td><td>1</td></tr>
+        <tr class="tier-row"><td colspan="3">Pool 3 — 5 of these 76 are offered per spawn</td></tr>
+        <tr><td>emerald x3</td><td>tropical_fish_bucket</td><td>4</td></tr>
+        <tr><td>emerald x3</td><td>pufferfish_bucket</td><td>4</td></tr>
+        <tr><td>emerald x2</td><td>sea_pickle</td><td>5</td></tr>
+        <tr><td>emerald x4</td><td>slime_ball</td><td>5</td></tr>
+        <tr><td>emerald x2</td><td>glowstone</td><td>5</td></tr>
+        <tr><td>emerald x5</td><td>nautilus_shell</td><td>5</td></tr>
+        <tr><td>emerald</td><td>fern</td><td>12</td></tr>
+        <tr><td>emerald</td><td>tall_dry_grass</td><td>12</td></tr>
+        <tr><td>emerald</td><td>sugar_cane</td><td>8</td></tr>
+        <tr><td>emerald</td><td>pumpkin</td><td>4</td></tr>
+        <tr><td>emerald x3</td><td>kelp</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>cactus</td><td>8</td></tr>
+        <tr><td>emerald</td><td>dandelion</td><td>12</td></tr>
+        <tr><td>emerald</td><td>poppy</td><td>12</td></tr>
+        <tr><td>emerald</td><td>blue_orchid</td><td>8</td></tr>
+        <tr><td>emerald</td><td>allium</td><td>12</td></tr>
+        <tr><td>emerald</td><td>azure_bluet</td><td>12</td></tr>
+        <tr><td>emerald</td><td>red_tulip</td><td>12</td></tr>
+        <tr><td>emerald</td><td>orange_tulip</td><td>12</td></tr>
+        <tr><td>emerald</td><td>white_tulip</td><td>12</td></tr>
+        <tr><td>emerald</td><td>pink_tulip</td><td>12</td></tr>
+        <tr><td>emerald</td><td>oxeye_daisy</td><td>12</td></tr>
+        <tr><td>emerald</td><td>cornflower</td><td>12</td></tr>
+        <tr><td>emerald</td><td>wildflowers</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>firefly_bush</td><td>8</td></tr>
+        <tr><td>emerald</td><td>lily_of_the_valley</td><td>7</td></tr>
+        <tr><td>emerald</td><td>open_eyeblossom</td><td>7</td></tr>
+        <tr><td>emerald</td><td>wheat_seeds</td><td>12</td></tr>
+        <tr><td>emerald</td><td>beetroot_seeds</td><td>12</td></tr>
+        <tr><td>emerald</td><td>pumpkin_seeds</td><td>12</td></tr>
+        <tr><td>emerald</td><td>melon_seeds</td><td>12</td></tr>
+        <tr><td>emerald x5</td><td>acacia_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>birch_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>dark_oak_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>jungle_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>oak_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>spruce_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>cherry_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>pale_oak_sapling</td><td>8</td></tr>
+        <tr><td>emerald x5</td><td>mangrove_propagule</td><td>8</td></tr>
+        <tr><td>emerald</td><td>red_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>white_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>blue_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>pink_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>black_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>green_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>light_gray_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>magenta_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>yellow_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>gray_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>purple_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>light_blue_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>lime_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>orange_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>brown_dye x3</td><td>12</td></tr>
+        <tr><td>emerald</td><td>cyan_dye x3</td><td>12</td></tr>
+        <tr><td>emerald x3</td><td>brain_coral_block</td><td>8</td></tr>
+        <tr><td>emerald x3</td><td>bubble_coral_block</td><td>8</td></tr>
+        <tr><td>emerald x3</td><td>fire_coral_block</td><td>8</td></tr>
+        <tr><td>emerald x3</td><td>horn_coral_block</td><td>8</td></tr>
+        <tr><td>emerald x3</td><td>tube_coral_block</td><td>8</td></tr>
+        <tr><td>emerald</td><td>vine x3</td><td>4</td></tr>
+        <tr><td>emerald</td><td>pale_hanging_moss x3</td><td>4</td></tr>
+        <tr><td>emerald</td><td>brown_mushroom x3</td><td>4</td></tr>
+        <tr><td>emerald</td><td>red_mushroom x3</td><td>4</td></tr>
+        <tr><td>emerald</td><td>waterlily x5</td><td>2</td></tr>
+        <tr><td>emerald</td><td>small_dripleaf_block x2</td><td>5</td></tr>
+        <tr><td>emerald</td><td>sand x8</td><td>8</td></tr>
+        <tr><td>emerald</td><td>red_sand x4</td><td>6</td></tr>
+        <tr><td>emerald</td><td>pointed_dripstone x2</td><td>5</td></tr>
+        <tr><td>emerald</td><td>dirt_with_roots x2</td><td>5</td></tr>
+        <tr><td>emerald</td><td>moss_block x2</td><td>5</td></tr>
+        <tr><td>emerald</td><td>pale_moss_block x2</td><td>5</td></tr>
+        <tr><td>emerald x2</td><td>golden_dandelion</td><td>12</td></tr>
+        <tr><td>emerald</td><td>name_tag</td><td>5</td></tr>
+        <tr><td>emerald</td><td>sulfur_spike x2</td><td>5</td></tr>
+        </tbody>
+        </table>
+      </div>
+    </section>
+
+  <footer>Source: Mojang's <code>bedrock-samples</code> repository (<code>behavior_pack/trading/economy_trades/</code>), also mirrored unmodified on this pack's <code>original_loot</code> branch. Fetched 2026-09-07. Edit <code>trade_reference/index.html</code> directly to update.</footer>
+</main>
