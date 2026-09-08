@@ -71,6 +71,9 @@ const CLEANUP_ITEMS = [
   "anvil",
   "chipped_anvil",
   "damaged_anvil",
+  // Only obtainable from buried treasure, so banning it is what makes the
+  // whole shipwreck-then-treasure chain mean something.
+  "heart_of_the_sea",
 ];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second

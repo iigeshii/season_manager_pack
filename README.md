@@ -43,11 +43,14 @@ in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
 `elytra`, `hopper`, `hopper_minecart`, `piston`, `sticky_piston`,
 `dispenser`, `dropper`, `observer`, `slime`, `honey_block`, `anvil`,
-`chipped_anvil`, and `damaged_anvil` — to keep those items out of
-players' hands. All three anvil wear states are listed because Bedrock
-gives each one its own item ID (unlike Java, where wear is just a damage
-value on one item), so banning only `anvil` would leave chipped/damaged
-anvils as a loophole. When an item is actually removed from a
+`chipped_anvil`, `damaged_anvil`, and `heart_of_the_sea` — to keep those
+items out of players' hands. All three anvil wear states are listed
+because Bedrock gives each one its own item ID (unlike Java, where wear
+is just a damage value on one item), so banning only `anvil` would
+leave chipped/damaged anvils as a loophole. `heart_of_the_sea` is only
+obtainable from buried treasure, so banning it is what makes finding
+one actually mean something instead of it just sitting in a chest.
+When an item is actually removed from a
 player, that player gets a chat message telling them it's currently
 disabled. No command block or redstone clock needed; it starts as soon as
 the pack loads.
@@ -146,14 +149,19 @@ be crafted.
   into anything yet. Found/looted diamond gear (chest loot, mob drops)
   isn't affected — only crafting is blocked, since this is a recipe
   lock, not an item ban.
+- **`conduit.json`** — locked on top of the `heart_of_the_sea` item ban
+  above, so even a stray Heart of the Sea (found before the ban existed,
+  or added back some other way) can't be turned into a Conduit early.
 
 Note on shape: most of these recipes had at least one empty cell in
 their vanilla 3-wide grid, so the barrier just fills that gap without
-changing the recipe's footprint. `diamond_shovel.json` and
-`diamond_sword.json` didn't have a spare cell (their vanilla patterns
-are a single column), so those two had their pattern widened to two
-columns to make room for the barrier — same technique, just a visibly
-different shape than vanilla in the recipe book.
+changing the recipe's footprint. `diamond_shovel.json`,
+`diamond_sword.json`, and `conduit.json` didn't have a spare cell
+(diamond shovel/sword are a single column; conduit's 3x3 grid is
+completely full — 8 nautilus shells around 1 heart of the sea), so
+those three had their pattern widened by one column to make room for
+the barrier — same technique, just a visibly different shape than
+vanilla in the recipe book.
 
 Same caveats as the trading overrides: this is data, not gated by
 `enabled`/`scriptevent season:toggle`, and it freezes at whatever vanilla

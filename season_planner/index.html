@@ -117,6 +117,7 @@
       <ul>
         <li><strong>Nothing is automated.</strong> No iron farms, no book farms — what you have, you mined, farmed, or hunted yourself.</li>
         <li><strong>Everything is walked, ridden, or sailed.</strong> That's why the roads — and the small settlements along them — matter.</li>
+        <li><strong>Some milestones belong to everyone.</strong> Where a node below says a find has to happen "as a group," that's not something the pack checks in code — it's a house rule the group enforces on its honor, the same as every other Pass Criteria on this page.</li>
       </ul>
     </div>
   </section>
@@ -133,6 +134,13 @@ graph TD
   camp["Founding the Camp"]
   bread["Breaking Bread"]
   dock["Anchor &amp; Anvil"]
+  grazing["Grazing Rights"]
+  feathered["Feathered Roads"]
+  woolfrost["Wool and Frost"]
+  pelts["Pelts and Pines"]
+  masons["Masons of<br/>the Dunes"]
+  shipwreck["The Shipwreck"]
+  treasure["Buried Treasure"]
   witch["The Witch's Hovel"]
   wtg["Trade &amp; Trouble<br/>in the Woods"]
   outpost["Illager Outpost"]
@@ -151,8 +159,15 @@ graph TD
 
   camp --> bread
   camp --> witch
-  camp --> atlantis
   bread --> dock
+  dock --> shipwreck
+  shipwreck --> treasure
+  treasure --> atlantis
+  bread --> grazing
+  bread --> feathered
+  bread --> woolfrost
+  bread --> pelts
+  bread --> masons
   bread --> wtg
   wtg --> outpost
   outpost -.-> dtools
@@ -209,7 +224,9 @@ graph TD
             <li>Banned until The Witch's Hovel is cleared: <code>piston</code>, <code>dispenser</code></li>
             <li>Banned pending a policy decision (no milestone defined yet): <code>elytra</code>, <code>sticky_piston</code>, <code>slime</code>, <code>honey_block</code> — sticky pistons need a slimeball to craft, so they stay locked with slime regardless of what happens at The Witch's Hovel</li>
             <li>Banned until Anchor &amp; Anvil is cleared: <code>anvil</code>, <code>chipped_anvil</code>, <code>damaged_anvil</code></li>
+            <li>Banned until The Shipwreck is cleared: <code>heart_of_the_sea</code></li>
             <li>Made uncraftable: <code>blaze_powder</code>, <code>enchanting_table</code></li>
+            <li>Made uncraftable until Buried Treasure is found: <code>conduit</code> — locked on top of the <code>heart_of_the_sea</code> ban, so a stray Heart of the Sea can't shortcut it</li>
             <li>Made uncraftable pending a policy decision — see Diamond Tools / Diamond Gear below: <code>diamond_pickaxe</code>, <code>diamond_axe</code>, <code>diamond_shovel</code>, <code>diamond_hoe</code>, <code>diamond_sword</code>, <code>diamond_helmet</code>, <code>diamond_chestplate</code>, <code>diamond_leggings</code>, <code>diamond_boots</code> — diamonds themselves can still be mined and held, found/looted diamond gear is unaffected</li>
             <li>Villager trades: all disabled (every profession + wandering trader)</li>
             <li>Fishing: treasure catches no longer come pre-enchanted</li>
@@ -236,6 +253,112 @@ graph TD
           <h4>Unlocks</h4>
           <ul>
             <li>Villagers now trade food for emeralds (farmer trades restored)</li>
+            <li>The village's cartographer starts trading again too — village maps only; maps to mansions, monuments, and other dungeons still need their own unlock</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-grazing">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Grazing Rights</h3>
+      <p class="chapter-story">The road to the first village proved the concept; now it's just a matter of building more of them. Word travels fast once a cartographer starts asking around, and it isn't long before a second settlement turns up out on the open plains — more livestock than the first village ever had room for. A trade route out there is what finally gets New Haven access to more than food: hides, meat, the whole butchering trade the first village never had a use for.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Plains Village map</li>
+            <li>A trade route is built to the plains village found</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Butcher trades restored</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-feathered">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Feathered Roads</h3>
+      <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. Their fletcher's been busy. A trade route out here is what finally gets New Haven real arrows and ranged supplies, instead of whatever the group's managed to scrape together on their own.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Savanna Village map</li>
+            <li>A trade route is built to the savanna village found</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Fletcher trades restored</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-woolfrost">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Wool and Frost</h3>
+      <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. A trade route out here means dye, wool, and the whole textile side of things New Haven's been improvising without all season.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Snowy Village map</li>
+            <li>A trade route is built to the snowy village found</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Shepherd trades restored</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-pelts">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Pelts and Pines</h3>
+      <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. A trade route out here is what finally gets New Haven proper leather goods — the kind the group's been making do without since the season started.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Taiga Village map</li>
+            <li>A trade route is built to the taiga village found</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Leatherworker trades restored</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-masons">
+      <div class="chapter-kicker kicker">Requires: Breaking Bread</div>
+      <h3 class="chapter-title">Masons of the Dunes</h3>
+      <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. A trade route out here means real stonework, not just whatever the group's managed to quarry by hand.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A cartographer sells the Desert Village map</li>
+            <li>A trade route is built to the desert village found</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Stone Mason trades restored</li>
           </ul>
         </div>
       </div>
@@ -258,6 +381,48 @@ graph TD
           <ul>
             <li>Anvils usable again (repairing gear is back on the table)</li>
             <li>Fishing rods and bows can come pre-enchanted again; enchanted books still don't drop from fishing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-shipwreck">
+      <div class="chapter-kicker kicker">Requires: Anchor &amp; Anvil</div>
+      <h3 class="chapter-title">The Shipwreck</h3>
+      <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it turns out to be worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. Whatever's marked on it is worth more than the wreck itself.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>A shipwreck is located and looted, recovering a Buried Treasure map</li>
+            <li>The whole active group is present when the wreck is cleared — see the Commonhold Ethos</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Heart of the Sea usable</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="node-treasure">
+      <div class="chapter-kicker kicker">Requires: The Shipwreck</div>
+      <h3 class="chapter-title">Buried Treasure</h3>
+      <p class="chapter-story">The map only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>The map is followed to the buried treasure site and the chest is dug up</li>
+            <li>The whole active group is present when the chest is opened — see the Commonhold Ethos</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Conduit recipe usable</li>
           </ul>
         </div>
       </div>
@@ -325,7 +490,7 @@ graph TD
           <ul>
             <li>Bad Omen obtainable (Ominous Bottles) — the group can trigger a raid on the village on demand</li>
             <li>Evokers now show up in raid waves — Totems of Undying obtainable</li>
-            <li>Cartographer trades restored — mansion Explorer Map only, available immediately with no trade-leveling grind; Woodland Mansion location known once bought</li>
+            <li>The cartographer's table gains the mansion Explorer Map trade (Master tier moved down to no trade-leveling required); Woodland Mansion location known once bought</li>
           </ul>
         </div>
       </div>
@@ -455,9 +620,9 @@ graph TD
     </section>
 
     <section class="chapter" id="node-atlantis">
-      <div class="chapter-kicker kicker">Requires: Founding the Camp</div>
+      <div class="chapter-kicker kicker">Requires: Buried Treasure</div>
       <h3 class="chapter-title">Atlantis Ahoy</h3>
-      <p class="chapter-story">Whenever the group wants a break from overland and underground pushes, the water's right there. A bottle found adrift points to a shipwreck, and the wreck points further — a treasure cave, and eventually a full Ocean Monument raid. It's a slower, exploration-heavy branch by design, and one with no hard dependency on anything else in the tree, which makes it the safest place to pick up whenever there's downtime or another branch is running long.</p>
+      <p class="chapter-story">With a Conduit finally in hand, the water stops being something to avoid and starts being worth diving into on purpose. A second wreck — a different one, further out — turns up a lead on a treasure cave, and from there it's a straight shot to a full Ocean Monument raid. Having a Conduit already running is the difference between fighting Elder Guardians and just surviving them.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -590,7 +755,7 @@ graph TD
     <ul>
       <li>Permanent bans (hoppers, droppers, observers, etc.) sit on top of every branch below regardless of what's been cleared — each node's Enforcement block only calls out what's new or still active there, not the full standing rule set already spelled out at Founding the Camp.</li>
       <li>Founding the Camp has no combat/exploration milestone on purpose — it's the only node where the criteria are about redstone tier and dimension access rather than an event gate, since there's no quest to fail yet.</li>
-      <li>Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time, and they don't depend on anything beyond Founding the Camp either.</li>
+      <li>Once its prerequisites (The Shipwreck, Buried Treasure) are cleared, Atlantis Ahoy and Gibliria are the safest branch to pick up whenever the group has downtime — nothing else in the tree depends on them being done at any particular time.</li>
       <li>Diamond Tools and Diamond Gear are marked "Not Yet Enforced" on purpose — they're placeholders for a real decision, not restrictions that exist today.</li>
     </ul>
   </div>
