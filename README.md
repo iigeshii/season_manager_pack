@@ -171,6 +171,10 @@ be crafted.
   four are locked here — locking only the base one would leave the
   Nether-wood variants as an open bypass.
 - **`observer.json`** — the third quartz recipe.
+- **`dispenser.json`** — locked on top of the `dispenser` item ban, same
+  reasoning as `observer.json`: the item ban alone only deletes a crafted
+  Dispenser after the fact, so the recipe is locked too rather than let a
+  crafting attempt waste a bow, cobblestone, and redstone for nothing.
 - **`hopper.json`**, **`hopper_minecart.json`** — a found hopper (chest
   loot in a few structures) could otherwise still be combined with a
   minecart, so the minecart recipe is locked too, not just the hopper's.
@@ -208,12 +212,13 @@ barrier is still well inside the 3x3 cap. `sticky_piston.json` is the
 same story (vanilla is a single-cell-per-row 1x2), and `honey_block.json`
 (vanilla 2x2) widened to 2x3, both still under the cap. `conduit.json`,
 `daylight_detector.json` and its three wood-slab variants, `observer.json`,
-`piston.json`, and `slime.json` are different: their vanilla grids are
-already a completely full 3x3 (conduit's 8 nautilus shells around 1 heart
-of the sea; daylight detector's 3 glass / 3 quartz / 3 slabs; observer's 6
-cobblestone, 2 redstone, 1 quartz; piston's 3 planks, 4 cobblestone, 1
-iron, 1 redstone; slime block's 9 slimeballs), so there's no room to add a
-10th cell. Those seven instead have the barrier swap in for one of the
+`piston.json`, `slime.json`, and `dispenser.json` are different: their
+vanilla grids are already a completely full 3x3 (conduit's 8 nautilus
+shells around 1 heart of the sea; daylight detector's 3 glass / 3 quartz /
+3 slabs; observer's 6 cobblestone, 2 redstone, 1 quartz; piston's 3
+planks, 4 cobblestone, 1 iron, 1 redstone; slime block's 9 slimeballs;
+dispenser's 7 cobblestone, 1 bow, 1 redstone), so there's no room to add a
+10th cell. Those eight instead have the barrier swap in for one of the
 original filled cells (one nautilus shell, one glass, one cobblestone, one
 plank, or one slimeball) rather than sit in new space — same effect, just
 one fewer of that particular vanilla ingredient asked for, since the
