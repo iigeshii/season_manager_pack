@@ -328,8 +328,12 @@ tougher than their vanilla counterpart — same tag-and-event pattern as
 the Rescue Villagers, just applied to a hostile mob instead of a
 villager.
 
-- **Elite Zombie** — `/function season/summon_elite_zombie` spawns a
-  zombie with 80 health (vanilla: 20), 10 attack damage (vanilla: 3),
+- **Elite Zombie** — `/function season/summon_elite_zombie` spawns 7
+  blocks ahead of whichever way the caster is facing (`^ ^ ^7`, not
+  `~ ~ ~`) so it doesn't land right on top of them. It's a hostile mob,
+  so it won't stick around — or spawn at all — on Peaceful difficulty;
+  that's vanilla behavior, not a pack bug. The zombie itself has 80
+  health (vanilla: 20), 10 attack damage (vanilla: 3),
   full knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in
