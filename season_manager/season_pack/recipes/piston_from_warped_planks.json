@@ -2,34 +2,35 @@
   "format_version": "1.20.10",
   "minecraft:recipe_shaped": {
     "description": {
-    "identifier": "minecraft:dropper"
+    "identifier": "minecraft:piston_from_warped_planks"
     },
 
 
     "tags": [ "crafting_table" ],
     "pattern": [
-      "L##",
-      "# #",
-      "#R#"
+      "LAA",
+      "BCB",
+      "BDB"
     ],
     "key": {
-      "R": {
-        "item": "minecraft:redstone"
+      "A": {
+        "item": "minecraft:warped_planks"
       },
-      "#": {
+      "B": {
         "item": "minecraft:cobblestone"
+      },
+      "C": {
+        "item": "minecraft:iron_ingot"
+      },
+      "D": {
+        "item": "minecraft:redstone"
       },
       "L": {
         "item": "minecraft:barrier"
       }
     },
-    "unlock": [
-      {
-        "item": "minecraft:redstone"
-      }
-    ],
     "result": {
-      "item": "minecraft:dropper"
+      "item": "minecraft:piston"
     }
   }
 }

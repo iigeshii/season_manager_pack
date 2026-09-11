@@ -184,10 +184,24 @@ be crafted.
 - **`hopper.json`**, **`hopper_minecart.json`** — a found hopper (chest
   loot in a few structures) could otherwise still be combined with a
   minecart, so the minecart recipe is locked too, not just the hopper's.
-- **`piston.json`**, **`sticky_piston.json`** — sticky piston is locked
-  independently rather than relying on the piston lock alone, in case a
-  piston is ever found rather than crafted.
+- **`piston.json`**, **`piston_from_crimson_planks.json`**,
+  **`piston_from_mangrove_planks.json`**, **`piston_from_warped_planks.json`**
+  — same situation as Daylight Detector: vanilla ships four separate
+  recipe identifiers for Piston (the base one, which takes any plank via
+  the `minecraft:planks` tag, plus a dedicated identifier for each Nether
+  wood/mangrove plank type that isn't covered by that tag). All four are
+  locked — this was actually missed on the first pass and slipped through
+  as a live bypass (crimson/mangrove/warped planks still worked) until it
+  was caught.
+- **`sticky_piston.json`** — locked independently rather than relying on
+  the piston lock alone, in case a piston is ever found rather than
+  crafted.
 - **`dropper.json`**
+- **`crafter.json`** — needs a Dropper as an ingredient, same as vanilla,
+  so it's already unreachable via crafting once `dropper.json` is locked —
+  but a found Dropper (chest loot) could otherwise still get combined into
+  one, so this is locked independently too, same reasoning as
+  `hopper_minecart.json`.
 - **`slime.json`** — this is the Slime Block (Bedrock's item ID for it is
   literally `slime`), not the Slimeball — slimeballs themselves aren't
   restricted.
@@ -218,17 +232,21 @@ barrier is still well inside the 3x3 cap. `sticky_piston.json` is the
 same story (vanilla is a single-cell-per-row 1x2), and `honey_block.json`
 (vanilla 2x2) widened to 2x3, both still under the cap. `conduit.json`,
 `daylight_detector.json` and its three wood-slab variants, `observer.json`,
-`piston.json`, `slime.json`, and `dispenser.json` are different: their
-vanilla grids are already a completely full 3x3 (conduit's 8 nautilus
-shells around 1 heart of the sea; daylight detector's 3 glass / 3 quartz /
-3 slabs; observer's 6 cobblestone, 2 redstone, 1 quartz; piston's 3
-planks, 4 cobblestone, 1 iron, 1 redstone; slime block's 9 slimeballs;
-dispenser's 7 cobblestone, 1 bow, 1 redstone), so there's no room to add a
-10th cell. Those eight instead have the barrier swap in for one of the
-original filled cells (one nautilus shell, one glass, one cobblestone, one
-plank, or one slimeball) rather than sit in new space — same effect, just
-one fewer of that particular vanilla ingredient asked for, since the
-recipe can never be finished anyway. `comparator.json`, `hopper.json`,
+`piston.json` and its three plank-type variants, `slime.json`,
+`dispenser.json`, and `crafter.json` are different: their vanilla grids
+are already a completely full 3x3 (conduit's 8 nautilus shells around 1
+heart of the sea; daylight detector's 3 glass / 3 quartz / 3 slabs;
+observer's 6 cobblestone, 2 redstone, 1 quartz; piston's 3 planks, 4
+cobblestone, 1 iron, 1 redstone (same shape across all four identifiers,
+just a different plank item each time); slime block's 9 slimeballs;
+dispenser's 7 cobblestone, 1 bow, 1 redstone; crafter's 5 iron ingots, 1
+crafting table, 2 redstone, 1 dropper), so there's no room to add a 10th
+cell. Those thirteen instead have the barrier
+swap in for one of the original filled cells (one nautilus shell, one
+glass, one cobblestone, one plank, one slimeball, or one iron ingot)
+rather than sit in new space — same effect, just one fewer of that
+particular vanilla ingredient asked for, since the recipe can never be
+finished anyway. `comparator.json`, `hopper.json`,
 `dropper.json`, `anvil.json`, and `diamond_spear.json` all had a spare
 cell already in their vanilla 3x3 grid, so those five kept the vanilla
 footprint.
@@ -256,6 +274,18 @@ off and reclaim a real job site, which would otherwise silently wipe
 its trade). A script watchdog in
 [`main.js`](season_manager/season_pack/scripts/main.js) re-fires the
 becoming-event on a short interval as a backstop.
+
+Each `summon_*.mcfunction` fires its becoming-event directly via
+`/summon`'s `spawnEvent` argument (`summon <type> ~ ~ ~ ~ ~ <event>`)
+rather than summoning first and separately targeting `@e[...,c=1]` for
+a follow-up `/event entity` — an earlier version did the latter, and
+`c=1` with no radius or `sort=nearest` isn't guaranteed to resolve to
+the entity that was just summoned if anything else of that type is
+loaded nearby. Since the watchdog above just keeps re-firing the event
+on whatever has the tag, a wrong target here wouldn't have
+self-corrected — it would've permanently re-asserted the mistake. The
+`tag` command still runs as a second step (spawnEvent has no way to add
+an arbitrary tag), now with `sort=nearest` added for the same reason.
 
 - **Mending Librarian** — `/function season/summon_mending_librarian`
   spawns a villager with exactly one trade: 20 emeralds for a book with

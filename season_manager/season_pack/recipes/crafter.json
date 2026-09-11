@@ -2,22 +2,28 @@
   "format_version": "1.20.10",
   "minecraft:recipe_shaped": {
     "description": {
-    "identifier": "minecraft:dropper"
+    "identifier": "minecraft:crafter"
     },
 
 
     "tags": [ "crafting_table" ],
     "pattern": [
       "L##",
-      "# #",
-      "#R#"
+      "#C#",
+      "RDR"
     ],
     "key": {
       "R": {
         "item": "minecraft:redstone"
       },
       "#": {
-        "item": "minecraft:cobblestone"
+        "item": "minecraft:iron_ingot"
+      },
+      "D": {
+        "item": "minecraft:dropper"
+      },
+      "C": {
+        "item": "minecraft:crafting_table"
       },
       "L": {
         "item": "minecraft:barrier"
@@ -25,11 +31,11 @@
     },
     "unlock": [
       {
-        "item": "minecraft:redstone"
+        "item": "minecraft:dropper"
       }
     ],
     "result": {
-      "item": "minecraft:dropper"
+      "item": "minecraft:crafter"
     }
   }
 }
