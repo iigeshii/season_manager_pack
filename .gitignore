@@ -1,5 +1,9 @@
-# Build output
-/dist/
+# Build output — mcpack releases get committed, everything else (the
+# transient _stage/ dir, stray zips, dirty builds) stays ignored. A dirty
+# build isn't tied to a clean commit, so it's not a real release.
+/dist/*
+!/dist/*.mcpack
+/dist/*-dirty.mcpack
 
 # OS cruft
 Thumbs.db

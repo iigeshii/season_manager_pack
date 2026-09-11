@@ -12,7 +12,8 @@ under the [MIT License](LICENSE).
   (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`,
   `recipes/`, `loot_tables/`, `entities/`)
 - `scripts/build.sh` — packages the behavior pack into a `.mcpack`
-- `dist/` — build output (git-ignored)
+- `dist/` — build output; the `.mcpack` files get committed for release,
+  everything else in here is git-ignored
 
 ## Building
 
@@ -20,7 +21,9 @@ under the [MIT License](LICENSE).
 ./scripts/build.sh
 ```
 
-Produces `dist/season_manager.mcpack`. Double-click it (with Minecraft
+Produces `dist/season_manager-<version>.mcpack` (e.g.
+`dist/season_manager-1.0.42.mcpack`), versioned so each build gets its own
+file instead of overwriting the last one. Double-click it (with Minecraft
 installed) or copy it into your `development_behavior_packs` folder to
 install.
 
