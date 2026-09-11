@@ -43,21 +43,35 @@ won't be seen as an update.
 The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
-[`main.js`](season_manager/season_pack/scripts/main.js) — currently just
-`elytra` and `dispenser`. Everything that used to be on this list is now a
-recipe lock instead (see [Locked recipes](#locked-recipes) below), since a
-recipe lock leaves found/looted copies of an item alone and only blocks
-crafting new ones — a real improvement over destroy-on-pickup for anything
-that's exclusively obtainable through crafting in survival. Elytra and
-dispensers are the exception: both can turn up as loot or as part of a
-generated structure (End ships; desert/jungle temple traps; trial
-chambers) with no crafting step involved, so a recipe lock alone wouldn't
-stop a lucky find — they still need the destroy-on-pickup treatment.
-Dispenser also gets a recipe lock on top of that (`dispenser.json`), same
-reasoning as `observer.json`: without it, a crafting attempt would still
-quietly burn a bow, cobblestone, and redstone on an item that's just
-going to get cleaned up anyway. Elytra has no vanilla recipe at all, so
-there's nothing to lock for it.
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently
+`elytra`, `dispenser`, `dropper`, `sticky_piston`, and `piston`. Most of
+what used to be on this list is now a recipe lock instead (see
+[Locked recipes](#locked-recipes) below), since a recipe lock leaves
+found/looted copies of an item alone and only blocks crafting new ones —
+a real improvement over destroy-on-pickup for anything that's exclusively
+obtainable through crafting in survival. Elytra and Dispenser are on this
+list because both can turn up as loot or as part of a generated structure
+(End ships; desert/jungle temple traps; trial chambers) with no crafting
+step involved, so a recipe lock alone wouldn't stop a lucky find — Elytra
+has no vanilla recipe at all, and Dispenser also keeps its recipe lock
+(`dispenser.json`) on top of the destroy, same reasoning as
+`observer.json`: without it, a crafting attempt would still quietly burn
+a bow, cobblestone, and redstone on an item that's just going to get
+cleaned up anyway.
+
+Dropper, Sticky Piston, and Piston are on this list for a different
+reason: their recipe locks (`dropper.json`, `sticky_piston.json`,
+`piston.json` + its plank variants) are still in place and should still
+block crafting on their own, but all three stopped showing up in the
+survival recipe book for reasons that were never fully root-caused (see
+git history for the debugging trail — dropper and dispenser looked like
+they might be colliding with each other's near-identical vanilla shape,
+but removing dispenser's lock entirely as a test didn't bring dropper
+back, and piston/sticky_piston aren't shape-twins with anything, so that
+theory didn't hold up). Rather than ship something silently working
+around a bug nobody could pin down, all three also get destroyed on
+pickup so the actual restriction holds regardless of what that display
+bug turns out to be.
 `heart_of_the_sea` was dropped from the list entirely rather than
 converted to a recipe lock: it's inert on its own, and the only thing it's
 good for (a Conduit) is already covered by the `conduit.json` recipe lock,
@@ -202,10 +216,11 @@ be crafted.
   was caught. Same `unlock`-field requirement as the Daylight Detector
   variants above applied here too — each plank variant now has its own
   `"unlock": [{"item": "minecraft:redstone"}]`, same as the base recipe.
+  Also backed by `piston` in `CLEANUP_ITEMS` — see Cleanup sequence above.
 - **`sticky_piston.json`** — locked independently rather than relying on
   the piston lock alone, in case a piston is ever found rather than
-  crafted.
-- **`dropper.json`**
+  crafted. Also backed by `sticky_piston` in `CLEANUP_ITEMS`.
+- **`dropper.json`** — also backed by `dropper` in `CLEANUP_ITEMS`.
 - **`crafter.json`** — needs a Dropper as an ingredient, same as vanilla,
   so it's already unreachable via crafting once `dropper.json` is locked —
   but a found Dropper (chest loot) could otherwise still get combined into

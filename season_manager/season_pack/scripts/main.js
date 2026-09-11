@@ -54,16 +54,25 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
-// Both of these can turn up as loot/traps in the world (End ships,
+// elytra and dispenser can turn up as loot/traps in the world (End ships,
 // desert/jungle temples, trial chambers, etc.), bypassing any recipe lock
-// entirely — so they're the only two still handled by destroy-on-pickup.
-// Everything else that used to be here is now a recipe lock instead
-// (see recipes/) so found/looted copies stay valid, only crafting is
-// blocked. heart_of_the_sea was dropped too — it's inert on its own, and
-// the conduit recipe lock already controls the only thing it's good for.
+// entirely, so they're destroyed on pickup on top of being recipe-locked.
+// dropper, sticky_piston, and piston are here for a different reason: their
+// recipe locks are still in place and (as far as manual crafting-grid
+// placement goes) should still block crafting on their own, but they
+// stopped showing up in the survival recipe book for reasons that were
+// never fully root-caused, and this guarantees the restriction holds
+// regardless of whatever that display bug actually is.
+// Everything else that used to be here is now a recipe lock only (see
+// recipes/) so found/looted copies stay valid, only crafting is blocked.
+// heart_of_the_sea was dropped too — it's inert on its own, and the
+// conduit recipe lock already controls the only thing it's good for.
 const CLEANUP_ITEMS = [
   "elytra",
   "dispenser",
+  "dropper",
+  "sticky_piston",
+  "piston",
 ];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second
