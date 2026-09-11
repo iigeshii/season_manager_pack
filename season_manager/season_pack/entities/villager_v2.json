@@ -1171,7 +1171,9 @@
           "remove_item_time": 1
         },
         "minecraft:dweller": {
-          "can_find_poi": false
+          "can_find_poi": false,
+          "dwelling_type": "village",
+          "dweller_role": "inhabitant"
         },
         "minecraft:economy_trade_table": {
           "display_name": "entity.villager.cleric",
@@ -1880,7 +1882,9 @@
           "remove_item_time": 1
         },
         "minecraft:dweller": {
-          "can_find_poi": false
+          "can_find_poi": false,
+          "dwelling_type": "village",
+          "dweller_role": "inhabitant"
         },
         "minecraft:economy_trade_table": {
           "display_name": "entity.villager.librarian",
