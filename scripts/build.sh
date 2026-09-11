@@ -25,7 +25,11 @@ fi
 
 GIT_SHA="$(git -C "$ROOT_DIR" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
 DIRTY_SUFFIX=""
-if [ "$GIT_SHA" != "unknown" ] && [ -n "$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null)" ]; then
+# dist/ is excluded here on purpose: it holds the committed .mcpack releases
+# themselves, and without this exclusion, a build's own not-yet-committed
+# output would make git status see the tree as dirty and mark every build
+# after it dirty too, even with zero actual source changes.
+if [ "$GIT_SHA" != "unknown" ] && [ -n "$(git -C "$ROOT_DIR" status --porcelain -- . ':!dist' 2>/dev/null)" ]; then
   DIRTY_SUFFIX="-dirty"
   GIT_SHA="${GIT_SHA}${DIRTY_SUFFIX}"
 fi
