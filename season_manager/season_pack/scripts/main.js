@@ -150,14 +150,19 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
 //  resist being torn down piecemeal via script — see git history), so a
 //  player who walks right back in gets bounced again.
 //
-//  The recently-bounced check is the backstop for that: a player who bounces
-//  twice in a row (i.e. walked straight back into the same live portal) is
-//  sent to world spawn instead of back onto it.
+//  A flat "second bounce sends you to spawn" backstop wasn't reliable
+//  enough in practice — players got stuck cycling in and out of the portal
+//  faster than it could catch. Instead, each consecutive bounce nudges the
+//  return point 1 additional block away (2nd bounce = 2 blocks, 3rd = 3,
+//  etc.), so a player standing right on the portal frame keeps landing
+//  further clear of it until they're off it entirely. A hard cap still
+//  sends them to world spawn if that somehow doesn't work after 10 tries.
 // ─────────────────────────────────────────────
 
 const DISABLED_DIMENSIONS = new Set(["minecraft:nether", "minecraft:the_end"]);
 const BOUNCE_COOLDOWN_TICKS = 40; // 2 seconds
-const recentlyBounced = new Set();
+const BOUNCE_GIVE_UP_COUNT = 10;
+const bounceCounts = new Map(); // player id -> consecutive bounce count
 
 // world.getDefaultSpawnLocation()'s Y can be a bogus placeholder if the
 // world spawn point was never explicitly set (seen returning ~32000) —
@@ -177,12 +182,12 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
 
-  const looping = recentlyBounced.has(player.id);
-  recentlyBounced.add(player.id);
-  system.runTimeout(() => recentlyBounced.delete(player.id), BOUNCE_COOLDOWN_TICKS);
+  const bounceCount = (bounceCounts.get(player.id) ?? 0) + 1;
+  bounceCounts.set(player.id, bounceCount);
+  system.runTimeout(() => bounceCounts.delete(player.id), BOUNCE_COOLDOWN_TICKS);
 
   system.run(() => {
-    if (looping) {
+    if (bounceCount > BOUNCE_GIVE_UP_COUNT) {
       const overworld = world.getDimension("overworld");
       const spawn = world.getDefaultSpawnLocation();
       player.teleport(findSurfaceNear(overworld, Math.floor(spawn.x), Math.floor(spawn.z)), { dimension: overworld });
@@ -190,7 +195,8 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
       return;
     }
 
-    player.teleport(fromLocation, { dimension: fromDimension });
+    const nudged = { x: fromLocation.x + bounceCount, y: fromLocation.y, z: fromLocation.z };
+    player.teleport(nudged, { dimension: fromDimension });
     player.sendMessage(currentlyDisabled("dimension"));
   });
 });

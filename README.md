@@ -341,12 +341,19 @@ The portal itself is left standing — an earlier version tried to destroy
 it after the fact, but nether/end portals resist being torn down
 piecemeal via script (nether portals in particular re-validate their own
 shape and silently refill anything removed from an intact frame), so a
-player standing right next to it can just walk back in immediately. As a
-backstop, a player who bounces twice in a row within
-`BOUNCE_COOLDOWN_TICKS` is sent to world spawn instead of back onto the
-portal — dropped onto the ground nearest spawn's X/Z rather than its raw
-Y, since a world spawn point that was never explicitly set can report a
-nonsensical height.
+player standing right next to it can just walk back in immediately. A
+flat "bounces twice, send to spawn" backstop turned out not to be
+reliable in practice — players could get stuck cycling in and out faster
+than it caught. Instead, each consecutive bounce (tracked per-player in
+`bounceCounts`, within `BOUNCE_COOLDOWN_TICKS` of the last one) nudges the
+return point that many extra blocks away — 2nd bounce lands 2 blocks off,
+3rd lands 3, and so on — so someone standing right on the portal frame
+keeps landing further clear of it each time instead of walking straight
+back onto it. `BOUNCE_GIVE_UP_COUNT` (10) is a hard cap: if nudging still
+somehow hasn't cleared the portal after 10 tries, the player is sent to
+world spawn instead — dropped onto the ground nearest spawn's X/Z rather
+than its raw Y, since a world spawn point that was never explicitly set
+can report a nonsensical height.
 
 To ban/unban a dimension, add or remove its ID in `DISABLED_DIMENSIONS`.
 
