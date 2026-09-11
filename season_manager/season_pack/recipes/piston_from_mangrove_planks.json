@@ -29,6 +29,11 @@
         "item": "minecraft:barrier"
       }
     },
+    "unlock": [
+      {
+        "item": "minecraft:redstone"
+      }
+    ],
     "result": {
       "item": "minecraft:piston"
     }

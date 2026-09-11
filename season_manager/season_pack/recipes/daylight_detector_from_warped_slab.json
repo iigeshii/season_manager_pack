@@ -26,6 +26,11 @@
         "item": "minecraft:barrier"
       }
     },
+    "unlock": [
+      {
+        "item": "minecraft:quartz"
+      }
+    ],
     "result": {
       "item": "minecraft:daylight_detector"
     }

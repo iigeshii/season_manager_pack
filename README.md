@@ -175,7 +175,14 @@ be crafted.
   four separate recipe identifiers for Daylight Detector (the base one
   plus a variant for each Nether wood slab), all needing raw quartz. All
   four are locked here — locking only the base one would leave the
-  Nether-wood variants as an open bypass.
+  Nether-wood variants as an open bypass. The three wood-slab variants
+  needed one more thing beyond the barrier: vanilla's own versions of
+  these files have no `unlock` field at all, but Bedrock 1.20+ rejects
+  any recipe missing one outright (visible as a `[Recipes][error] ...
+  1.20+ Recipes require unlock data` line in the content log) — so
+  mirroring vanilla exactly here actually breaks the override. Each one
+  now has its own `"unlock": [{"item": "minecraft:quartz"}]`, same as
+  the base recipe.
 - **`observer.json`** — the third quartz recipe.
 - **`dispenser.json`** — locked on top of the `dispenser` item ban, same
   reasoning as `observer.json`: the item ban alone only deletes a crafted
@@ -192,7 +199,9 @@ be crafted.
   wood/mangrove plank type that isn't covered by that tag). All four are
   locked — this was actually missed on the first pass and slipped through
   as a live bypass (crimson/mangrove/warped planks still worked) until it
-  was caught.
+  was caught. Same `unlock`-field requirement as the Daylight Detector
+  variants above applied here too — each plank variant now has its own
+  `"unlock": [{"item": "minecraft:redstone"}]`, same as the base recipe.
 - **`sticky_piston.json`** — locked independently rather than relying on
   the piston lock alone, in case a piston is ever found rather than
   crafted.
@@ -275,17 +284,14 @@ its trade). A script watchdog in
 [`main.js`](season_manager/season_pack/scripts/main.js) re-fires the
 becoming-event on a short interval as a backstop.
 
-Each `summon_*.mcfunction` fires its becoming-event directly via
-`/summon`'s `spawnEvent` argument (`summon <type> ~ ~ ~ ~ ~ <event>`)
-rather than summoning first and separately targeting `@e[...,c=1]` for
-a follow-up `/event entity` — an earlier version did the latter, and
-`c=1` with no radius or `sort=nearest` isn't guaranteed to resolve to
-the entity that was just summoned if anything else of that type is
-loaded nearby. Since the watchdog above just keeps re-firing the event
-on whatever has the tag, a wrong target here wouldn't have
-self-corrected — it would've permanently re-asserted the mistake. The
-`tag` command still runs as a second step (spawnEvent has no way to add
-an arbitrary tag), now with `sort=nearest` added for the same reason.
+Each `summon_*.mcfunction` summons the entity, then targets it with
+`@e[type=<type>,c=1]` for the `tag` and `/event entity` that follow.
+Note for anyone touching this: Bedrock's `c=<n>` on `@e`/`@a`/`@p`
+already sorts by increasing distance from the command's execution
+position — there's no `sort=` keyword like Java Edition has, and adding
+one is a hard parse error that fails the whole function to load. Since
+the summon happens at the same position the function runs from, `c=1`
+alone reliably resolves to the entity that was just created.
 
 - **Mending Librarian** — `/function season/summon_mending_librarian`
   spawns a villager with exactly one trade: 20 emeralds for a book with
