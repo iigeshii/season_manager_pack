@@ -1,0 +1,35 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:recipe_shaped": {
+    "description": {
+    "identifier": "minecraft:diamond_spear"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "L X",
+      " # ",
+      "#  "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:stick"
+      },
+      "X": {
+        "item": "minecraft:diamond"
+      },
+      "L": {
+        "item": "minecraft:barrier"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:diamond"
+      }
+    ],
+    "result": {
+      "item": "minecraft:diamond_spear"
+    }
+  }
+}

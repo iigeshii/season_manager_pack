@@ -154,13 +154,16 @@ be crafted.
   gathered, but they can't yet be assembled into an enchanting table.
 - **`diamond_pickaxe.json`**, **`diamond_axe.json`**,
   **`diamond_shovel.json`**, **`diamond_hoe.json`**,
-  **`diamond_sword.json`**, **`diamond_helmet.json`**,
-  **`diamond_chestplate.json`**, **`diamond_leggings.json`**,
-  **`diamond_boots.json`** — all nine diamond tool/armor recipes are
-  locked. Diamonds can be mined and held, they just can't be crafted
-  into anything yet. Found/looted diamond gear (chest loot, mob drops)
-  isn't affected — only crafting is blocked, since this is a recipe
-  lock, not an item ban.
+  **`diamond_sword.json`**, **`diamond_spear.json`**,
+  **`diamond_helmet.json`**, **`diamond_chestplate.json`**,
+  **`diamond_leggings.json`**, **`diamond_boots.json`** — all ten diamond
+  tool/weapon/armor recipes are locked. Diamonds can be mined and held,
+  they just can't be crafted into anything yet. Found/looted diamond gear
+  (chest loot, mob drops) isn't affected — only crafting is blocked, since
+  this is a recipe lock, not an item ban. Netherite Spear doesn't need its
+  own lock, same as the other netherite upgrades — `smithing_netherite_spear`
+  requires a Diamond Spear as its base ingredient, so it's already
+  unreachable with the diamond recipe locked.
 - **`conduit.json`** — Heart of the Sea is fully obtainable (buried
   treasure) and unrestricted on its own; it's inert without a Conduit, so
   this is the only lock that actually matters for it.
@@ -226,8 +229,9 @@ original filled cells (one nautilus shell, one glass, one cobblestone, one
 plank, or one slimeball) rather than sit in new space — same effect, just
 one fewer of that particular vanilla ingredient asked for, since the
 recipe can never be finished anyway. `comparator.json`, `hopper.json`,
-`dropper.json`, and `anvil.json` all had a spare cell already in their
-vanilla 3x3 grid, so those four kept the vanilla footprint.
+`dropper.json`, `anvil.json`, and `diamond_spear.json` all had a spare
+cell already in their vanilla 3x3 grid, so those five kept the vanilla
+footprint.
 `hopper_minecart.json` is shapeless (like `blaze_powder.json`), so grid
 size doesn't apply — the barrier is just a third required ingredient
 alongside the hopper and minecart.
