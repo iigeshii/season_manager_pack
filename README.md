@@ -44,34 +44,33 @@ The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`elytra`, `dispenser`, `dropper`, `sticky_piston`, and `piston`. Most of
-what used to be on this list is now a recipe lock instead (see
-[Locked recipes](#locked-recipes) below), since a recipe lock leaves
-found/looted copies of an item alone and only blocks crafting new ones —
-a real improvement over destroy-on-pickup for anything that's exclusively
-obtainable through crafting in survival. Elytra and Dispenser are on this
-list because both can turn up as loot or as part of a generated structure
-(End ships; desert/jungle temple traps; trial chambers) with no crafting
-step involved, so a recipe lock alone wouldn't stop a lucky find — Elytra
-has no vanilla recipe at all, and Dispenser also keeps its recipe lock
-(`dispenser.json`) on top of the destroy, same reasoning as
-`observer.json`: without it, a crafting attempt would still quietly burn
-a bow, cobblestone, and redstone on an item that's just going to get
-cleaned up anyway.
+`elytra`, `dispenser`, `dropper`, `sticky_piston`, and `piston`. Most other
+banned items use a recipe lock instead (see [Locked recipes](#locked-recipes)
+below), since a recipe lock leaves found/looted copies of an item alone
+and only blocks crafting new ones — a real improvement over
+destroy-on-pickup for anything that's exclusively obtainable through
+crafting in survival. Elytra is here because it can turn up as loot (End
+ships) with no crafting step involved, so a recipe lock wouldn't apply to
+it anyway — it has no vanilla recipe at all.
 
-Dropper, Sticky Piston, and Piston are on this list for a different
-reason: their recipe locks (`dropper.json`, `sticky_piston.json`,
-`piston.json` + its plank variants) are still in place and should still
-block crafting on their own, but all three stopped showing up in the
-survival recipe book for reasons that were never fully root-caused (see
-git history for the debugging trail — dropper and dispenser looked like
-they might be colliding with each other's near-identical vanilla shape,
-but removing dispenser's lock entirely as a test didn't bring dropper
-back, and piston/sticky_piston aren't shape-twins with anything, so that
-theory didn't hold up). Rather than ship something silently working
-around a bug nobody could pin down, all three also get destroyed on
-pickup so the actual restriction holds regardless of what that display
-bug turns out to be.
+Dispenser, Dropper, Sticky Piston, and Piston are on this list for a
+different reason: all four originally had recipe locks (matching the
+technique used everywhere else in this pack — see git history), but
+dropper, sticky piston, and piston stopped showing up in the survival
+recipe book for reasons that were never fully root-caused. Dispenser's
+lock was working fine on its own; removing it as a diagnostic test
+brought Dispenser back in the recipe book immediately, but dropper still
+didn't reappear, which ruled out the leading theory (that dropper and
+dispenser were colliding with each other over their near-identical
+vanilla shape) — and piston/sticky piston aren't shape-twins with
+anything else in this pack, so that theory didn't fit them either.
+Rather than ship four recipe files with an unexplained, unreliable
+display quirk, all four were simplified down to destroy-on-pickup only —
+their recipe lock files have been removed entirely, so this is now the
+sole mechanism restricting them. The tradeoff versus a working recipe
+lock: a found/looted copy of any of these four doesn't survive either,
+whereas every other item on this page's [Locked recipes](#locked-recipes)
+list still lets a found copy stand.
 `heart_of_the_sea` was dropped from the list entirely rather than
 converted to a recipe lock: it's inert on its own, and the only thing it's
 good for (a Conduit) is already covered by the `conduit.json` recipe lock,
@@ -198,37 +197,16 @@ be crafted.
   now has its own `"unlock": [{"item": "minecraft:quartz"}]`, same as
   the base recipe.
 - **`observer.json`** — the third quartz recipe.
-- **`dispenser.json`** — locked on top of the `dispenser` item ban, same
-  reasoning as `observer.json`: the item ban alone only deletes a crafted
-  Dispenser after the fact, so the recipe is locked too rather than let a
-  crafting attempt waste a bow, cobblestone, and redstone for nothing.
 - **`hopper.json`**, **`hopper_minecart.json`** — a found hopper (chest
   loot in a few structures) could otherwise still be combined with a
   minecart, so the minecart recipe is locked too, not just the hopper's.
-- **`piston.json`**, **`piston_from_crimson_planks.json`**,
-  **`piston_from_mangrove_planks.json`**, **`piston_from_warped_planks.json`**
-  — same situation as Daylight Detector: vanilla ships four separate
-  recipe identifiers for Piston (the base one, which takes any plank via
-  the `minecraft:planks` tag, plus a dedicated identifier for each Nether
-  wood/mangrove plank type that isn't covered by that tag). All four are
-  locked — this was actually missed on the first pass and slipped through
-  as a live bypass (crimson/mangrove/warped planks still worked) until it
-  was caught. Same `unlock`-field requirement as the Daylight Detector
-  variants above applied here too — each plank variant now has its own
-  `"unlock": [{"item": "minecraft:redstone"}]`, same as the base recipe.
-  Also backed by `piston` in `CLEANUP_ITEMS` — see Cleanup sequence above.
-- **`sticky_piston.json`** — locked independently rather than relying on
-  the piston lock alone, in case a piston is ever found rather than
-  crafted. Also backed by `sticky_piston` in `CLEANUP_ITEMS`.
-- **`dropper.json`** — also backed by `dropper` in `CLEANUP_ITEMS`.
-- **`crafter.json`** — needs a Dropper as an ingredient, same as vanilla,
-  so it's already unreachable via crafting once `dropper.json` is locked —
-  but a found Dropper (chest loot) could otherwise still get combined into
-  one, so this is locked independently too, same reasoning as
+- **`crafter.json`** — needs a Dropper as an ingredient, same as vanilla.
+  Dropper itself is handled by destroy-on-pickup now (`dropper` in
+  `CLEANUP_ITEMS`, see Cleanup sequence above) rather than a recipe lock —
+  see that section for why — but a Dropper destroyed a tick after pickup
+  could still theoretically get used in the same crafting action before
+  cleanup runs, so this stays locked independently too, same reasoning as
   `hopper_minecart.json`.
-- **`slime.json`** — this is the Slime Block (Bedrock's item ID for it is
-  literally `slime`), not the Slimeball — slimeballs themselves aren't
-  restricted.
 - **`honey_block.json`**
 - **`anvil.json`** — locking the pristine anvil recipe is the only lock
   that makes sense here: `chipped_anvil` and `damaged_anvil` are wear
@@ -252,28 +230,23 @@ already 3 wide. Most of these recipes had at least one empty cell in
 their vanilla grid, so the barrier just fills that gap without changing
 the recipe's footprint. `diamond_shovel.json` and `diamond_sword.json`
 are vanilla single columns, so widening them to 2 columns for the
-barrier is still well inside the 3x3 cap. `sticky_piston.json` is the
-same story (vanilla is a single-cell-per-row 1x2), and `honey_block.json`
-(vanilla 2x2) widened to 2x3, both still under the cap. `conduit.json`,
-`daylight_detector.json` and its three wood-slab variants, `observer.json`,
-`piston.json` and its three plank-type variants, `slime.json`,
-`dispenser.json`, and `crafter.json` are different: their vanilla grids
-are already a completely full 3x3 (conduit's 8 nautilus shells around 1
-heart of the sea; daylight detector's 3 glass / 3 quartz / 3 slabs;
-observer's 6 cobblestone, 2 redstone, 1 quartz; piston's 3 planks, 4
-cobblestone, 1 iron, 1 redstone (same shape across all four identifiers,
-just a different plank item each time); slime block's 9 slimeballs;
-dispenser's 7 cobblestone, 1 bow, 1 redstone; crafter's 5 iron ingots, 1
-crafting table, 2 redstone, 1 dropper), so there's no room to add a 10th
-cell. Those thirteen instead have the barrier
-swap in for one of the original filled cells (one nautilus shell, one
-glass, one cobblestone, one plank, one slimeball, or one iron ingot)
-rather than sit in new space — same effect, just one fewer of that
-particular vanilla ingredient asked for, since the recipe can never be
-finished anyway. `comparator.json`, `hopper.json`,
-`dropper.json`, `anvil.json`, and `diamond_spear.json` all had a spare
-cell already in their vanilla 3x3 grid, so those five kept the vanilla
-footprint.
+barrier is still well inside the 3x3 cap, and `honey_block.json`
+(vanilla 2x2) widened to 2x3 the same way. `conduit.json`,
+`daylight_detector.json` and its three wood-slab variants, and
+`observer.json` are different: their vanilla grids are already a
+completely full 3x3 (conduit's 8 nautilus shells around 1 heart of the
+sea; daylight detector's 3 glass / 3 quartz / 3 slabs; observer's 6
+cobblestone, 2 redstone, 1 quartz), so there's no room to add a 10th
+cell. Those five instead have the barrier swap in for one of the
+original filled cells (one nautilus shell or one glass) rather than sit
+in new space — same effect, just one fewer of that particular vanilla
+ingredient asked for, since the recipe can never be finished anyway.
+`comparator.json`, `hopper.json`, `anvil.json`, and `diamond_spear.json`
+all had a spare cell already in their vanilla 3x3 grid, so those four
+kept the vanilla footprint. `crafter.json`'s vanilla grid is also a
+completely full 3x3 (5 iron ingots, 1 crafting table, 2 redstone, 1
+dropper), so it uses the same swap-in-a-filled-cell approach — one iron
+ingot, in this case.
 `hopper_minecart.json` is shapeless (like `blaze_powder.json`), so grid
 size doesn't apply — the barrier is just a third required ingredient
 alongside the hopper and minecart.
