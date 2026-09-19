@@ -54,25 +54,39 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  Add more commands here to extend the sequence.
 // ─────────────────────────────────────────────
 
-// elytra and dispenser can turn up as loot/traps in the world (End ships,
-// desert/jungle temples, trial chambers, etc.), bypassing any recipe lock
-// entirely, so they're destroyed on pickup on top of being recipe-locked.
-// dropper, sticky_piston, and piston are here for a different reason: their
-// recipe locks are still in place and (as far as manual crafting-grid
-// placement goes) should still block crafting on their own, but they
-// stopped showing up in the survival recipe book for reasons that were
-// never fully root-caused, and this guarantees the restriction holds
-// regardless of whatever that display bug actually is.
-// Everything else that used to be here is now a recipe lock only (see
-// recipes/) so found/looted copies stay valid, only crafting is blocked.
-// heart_of_the_sea was dropped too — it's inert on its own, and the
-// conduit recipe lock already controls the only thing it's good for.
+// Every currently-banned item except diamond tools/weapon/armor ends up
+// here now, on top of whatever recipe lock also exists for it (see
+// recipes/) — a trial chambers run turned up a loose hopper, proving a
+// recipe lock alone doesn't stop something found rather than crafted.
+// elytra has no vanilla recipe at all, so this is its only restriction.
+// dispenser, dropper, sticky_piston, and piston went further: their
+// recipe lock files were removed entirely, since dropper/sticky_piston/
+// piston stopped showing up in the survival recipe book for reasons that
+// were never fully root-caused — this is their only restriction now.
+// chipped_anvil and damaged_anvil ride along with anvil for the usual
+// reason: Bedrock gives each wear state its own item ID, so banning only
+// the pristine one leaves a loophole once an anvil's actually been used.
+// heart_of_the_sea is still deliberately NOT here — it's inert on its
+// own, and the conduit recipe lock (plus this list, now) already
+// controls the only thing it's good for.
 const CLEANUP_ITEMS = [
   "elytra",
   "dispenser",
   "dropper",
   "sticky_piston",
   "piston",
+  "anvil",
+  "chipped_anvil",
+  "damaged_anvil",
+  "conduit",
+  "hopper",
+  "hopper_minecart",
+  "crafter",
+  "observer",
+  "blaze_powder",
+  "enchanting_table",
+  "comparator",
+  "daylight_detector",
 ];
 
 const CLEANUP_INTERVAL_TICKS = 20; // 20 ticks = 1 second

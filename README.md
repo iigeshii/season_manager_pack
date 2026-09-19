@@ -43,38 +43,53 @@ won't be seen as an update.
 The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
-[`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`elytra`, `dispenser`, `dropper`, `sticky_piston`, and `piston`. Most other
-banned items use a recipe lock instead (see [Locked recipes](#locked-recipes)
-below), since a recipe lock leaves found/looted copies of an item alone
-and only blocks crafting new ones — a real improvement over
-destroy-on-pickup for anything that's exclusively obtainable through
-crafting in survival. Elytra is here because it can turn up as loot (End
-ships) with no crafting step involved, so a recipe lock wouldn't apply to
-it anyway — it has no vanilla recipe at all.
+[`main.js`](season_manager/season_pack/scripts/main.js) — currently every
+banned item except the diamond tools/weapon/armor set: `elytra`,
+`dispenser`, `dropper`, `sticky_piston`, `piston`, `anvil`,
+`chipped_anvil`, `damaged_anvil`, `conduit`, `hopper`, `hopper_minecart`,
+`crafter`, `honey_block`, `observer`, `blaze_powder`, `enchanting_table`,
+`comparator`, and `daylight_detector`. Elytra is here because it can turn
+up as loot (End ships) with no crafting step involved, so a recipe lock
+wouldn't apply to it anyway — it has no vanilla recipe at all.
 
-Dispenser, Dropper, Sticky Piston, and Piston are on this list for a
-different reason: all four originally had recipe locks (matching the
-technique used everywhere else in this pack — see git history), but
-dropper, sticky piston, and piston stopped showing up in the survival
-recipe book for reasons that were never fully root-caused. Dispenser's
-lock was working fine on its own; removing it as a diagnostic test
-brought Dispenser back in the recipe book immediately, but dropper still
-didn't reappear, which ruled out the leading theory (that dropper and
-dispenser were colliding with each other over their near-identical
-vanilla shape) — and piston/sticky piston aren't shape-twins with
-anything else in this pack, so that theory didn't fit them either.
-Rather than ship four recipe files with an unexplained, unreliable
-display quirk, all four were simplified down to destroy-on-pickup only —
-their recipe lock files have been removed entirely, so this is now the
-sole mechanism restricting them. The tradeoff versus a working recipe
-lock: a found/looted copy of any of these four doesn't survive either,
-whereas every other item on this page's [Locked recipes](#locked-recipes)
-list still lets a found copy stand.
-`heart_of_the_sea` was dropped from the list entirely rather than
-converted to a recipe lock: it's inert on its own, and the only thing it's
-good for (a Conduit) is already covered by the `conduit.json` recipe lock,
-so restricting the raw item added nothing.
+Dispenser, Dropper, Sticky Piston, and Piston went further than the rest
+of the list: all four originally had recipe locks (matching the technique
+used everywhere else in this pack — see git history), but dropper, sticky
+piston, and piston stopped showing up in the survival recipe book for
+reasons that were never fully root-caused. Dispenser's lock was working
+fine on its own; removing it as a diagnostic test brought Dispenser back
+in the recipe book immediately, but dropper still didn't reappear, which
+ruled out the leading theory (that dropper and dispenser were colliding
+with each other over their near-identical vanilla shape) — and
+piston/sticky piston aren't shape-twins with anything else in this pack,
+so that theory didn't fit them either. Rather than ship four recipe files
+with an unexplained, unreliable display quirk, all four were simplified
+down to destroy-on-pickup only — their recipe lock files have been
+removed entirely, so this is now the sole mechanism restricting them.
+
+Everything else on the list (anvil and its wear states, conduit, hopper,
+hopper_minecart, crafter, honey_block, observer, blaze_powder,
+enchanting_table, comparator, daylight_detector) still keeps its recipe
+lock too — this is belt-and-suspenders, not a replacement for it. The
+reason it got added: a player found a loose hopper in a trial chambers
+loot room, proving a recipe lock alone doesn't stop something found
+rather than crafted, and there was no reason to assume hopper was the
+only banned item with a real find-it-in-the-world path. `chipped_anvil`
+and `damaged_anvil` ride along with `anvil` for the usual reason —
+Bedrock gives each wear state on an anvil its own item ID, so banning
+only the pristine one leaves a loophole once one's actually been used.
+
+The tradeoff versus a working recipe lock alone: a found/looted copy of
+anything on this list doesn't survive either, where a pure recipe lock
+(like the ten diamond items, which are deliberately excluded from this
+list) leaves found/looted copies alone. If a milestone reopens one of
+these items later, remember it needs removing from both places —
+deleting its recipe lock file only stops crafting; it'll still get
+destroyed on pickup until it's also taken out of `CLEANUP_ITEMS`.
+`heart_of_the_sea` is deliberately not on this list at all: it's inert on
+its own, and the only thing it's good for (a Conduit) is already covered
+by `conduit` being on the list, so restricting the raw item too would add
+nothing.
 When an item is actually removed from a
 player, that player gets a chat message telling them it's currently
 disabled. No command block or redstone clock needed; it starts as soon as
@@ -162,9 +177,11 @@ obtain it in survival — so the recipe still exists but can never actually
 be crafted.
 
 - **`blaze_powder.json`** — blaze rods can be found/used, but can't yet
-  be ground into blaze powder.
+  be ground into blaze powder. Also backed by `blaze_powder` in
+  `CLEANUP_ITEMS` — see Cleanup sequence above.
 - **`enchanting_table.json`** — diamonds, obsidian, and a book can all be
   gathered, but they can't yet be assembled into an enchanting table.
+  Also backed by `enchanting_table` in `CLEANUP_ITEMS`.
 - **`diamond_pickaxe.json`**, **`diamond_axe.json`**,
   **`diamond_shovel.json`**, **`diamond_hoe.json`**,
   **`diamond_sword.json`**, **`diamond_spear.json`**,
@@ -179,9 +196,11 @@ be crafted.
   unreachable with the diamond recipe locked.
 - **`conduit.json`** — Heart of the Sea is fully obtainable (buried
   treasure) and unrestricted on its own; it's inert without a Conduit, so
-  this is the only lock that actually matters for it.
+  this is the only lock that actually matters for it. Also backed by
+  `conduit` in `CLEANUP_ITEMS`, so a found Conduit doesn't survive either.
 - **`comparator.json`** — one of three vanilla crafting-table recipes
-  (besides Quartz Block) that needs raw Nether Quartz.
+  (besides Quartz Block) that needs raw Nether Quartz. Also backed by
+  `comparator` in `CLEANUP_ITEMS`.
 - **`daylight_detector.json`**, **`daylight_detector_from_crimson_slab.json`**,
   **`daylight_detector_from_mangrove_slab.json`**,
   **`daylight_detector_from_warped_slab.json`** — vanilla actually ships
@@ -195,25 +214,33 @@ be crafted.
   1.20+ Recipes require unlock data` line in the content log) — so
   mirroring vanilla exactly here actually breaks the override. Each one
   now has its own `"unlock": [{"item": "minecraft:quartz"}]`, same as
-  the base recipe.
-- **`observer.json`** — the third quartz recipe.
+  the base recipe. Also backed by `daylight_detector` in `CLEANUP_ITEMS`.
+- **`observer.json`** — the third quartz recipe. Also backed by
+  `observer` in `CLEANUP_ITEMS`.
 - **`hopper.json`**, **`hopper_minecart.json`** — a found hopper (chest
   loot in a few structures) could otherwise still be combined with a
   minecart, so the minecart recipe is locked too, not just the hopper's.
+  Also backed by `hopper` and `hopper_minecart` in `CLEANUP_ITEMS` — this
+  is exactly the found-hopper case that prompted adding the rest of this
+  list to destroy-on-pickup in the first place.
 - **`crafter.json`** — needs a Dropper as an ingredient, same as vanilla.
   Dropper itself is handled by destroy-on-pickup now (`dropper` in
   `CLEANUP_ITEMS`, see Cleanup sequence above) rather than a recipe lock —
   see that section for why — but a Dropper destroyed a tick after pickup
   could still theoretically get used in the same crafting action before
   cleanup runs, so this stays locked independently too, same reasoning as
-  `hopper_minecart.json`.
-- **`honey_block.json`**
+  `hopper_minecart.json`. Also backed by `crafter` in `CLEANUP_ITEMS`
+  itself, on top of that.
+- **`honey_block.json`** — also backed by `honey_block` in
+  `CLEANUP_ITEMS`.
 - **`anvil.json`** — locking the pristine anvil recipe is the only lock
   that makes sense here: `chipped_anvil` and `damaged_anvil` are wear
   states an anvil reaches through use, not separate recipes, so there's
-  nothing to lock for them directly. A found/looted anvil (and whatever
-  it wears down into with use) is unaffected, same as every other recipe
-  lock on this list.
+  nothing to lock for them directly. Unlike every other recipe lock on
+  this list, a found/looted anvil (and whatever it wears down into with
+  use) does *not* get a pass here — `anvil`, `chipped_anvil`, and
+  `damaged_anvil` are all in `CLEANUP_ITEMS`, so all three get destroyed
+  on pickup regardless of source.
 
 Quartz Block itself, and anything crafted purely from a Quartz Block
 (Quartz Pillar, Quartz Bricks, Chiseled Quartz Block, Quartz Stairs/Slabs,
