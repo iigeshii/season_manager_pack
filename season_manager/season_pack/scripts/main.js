@@ -63,21 +63,19 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 // recipe lock files were removed entirely, since dropper/sticky_piston/
 // piston stopped showing up in the survival recipe book for reasons that
 // were never fully root-caused — this is their only restriction now.
-// chipped_anvil and damaged_anvil ride along with anvil for the usual
-// reason: Bedrock gives each wear state its own item ID, so banning only
-// the pristine one leaves a loophole once an anvil's actually been used.
 // heart_of_the_sea is still deliberately NOT here — it's inert on its
 // own, and the conduit recipe lock (plus this list, now) already
-// controls the only thing it's good for.
+// controls the only thing it's good for. Anvil (and its chipped/damaged
+// wear states) is also deliberately NOT here anymore — not because The
+// Forge Reopens milestone was reached (it hasn't been), but because the
+// group directly voted to allow anvils back, specifically for renaming
+// items with nametags.
 const CLEANUP_ITEMS = [
   "elytra",
   "dispenser",
   "dropper",
   "sticky_piston",
   "piston",
-  "anvil",
-  "chipped_anvil",
-  "damaged_anvil",
   "conduit",
   "hopper",
   "hopper_minecart",

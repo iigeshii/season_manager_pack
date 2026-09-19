@@ -46,12 +46,11 @@ in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently every
 banned item except the diamond tools/weapon/armor set and Honey Block
 (see below): `elytra`, `dispenser`, `dropper`, `sticky_piston`, `piston`,
-`anvil`, `chipped_anvil`, `damaged_anvil`, `conduit`, `hopper`,
-`hopper_minecart`, `crafter`, `observer`, `blaze_powder`,
-`enchanting_table`, `comparator`, and `daylight_detector`. Elytra is here
-because it can turn up as loot (End ships) with no crafting step
-involved, so a recipe lock wouldn't apply to it anyway — it has no
-vanilla recipe at all.
+`conduit`, `hopper`, `hopper_minecart`, `crafter`, `observer`,
+`blaze_powder`, `enchanting_table`, `comparator`, and `daylight_detector`.
+Elytra is here because it can turn up as loot (End ships) with no
+crafting step involved, so a recipe lock wouldn't apply to it anyway —
+it has no vanilla recipe at all.
 
 Dispenser, Dropper, Sticky Piston, and Piston went further than the rest
 of the list: all four originally had recipe locks (matching the technique
@@ -68,17 +67,14 @@ with an unexplained, unreliable display quirk, all four were simplified
 down to destroy-on-pickup only — their recipe lock files have been
 removed entirely, so this is now the sole mechanism restricting them.
 
-Everything else on the list (anvil and its wear states, conduit, hopper,
-hopper_minecart, crafter, observer, blaze_powder, enchanting_table,
-comparator, daylight_detector) still keeps its recipe
-lock too — this is belt-and-suspenders, not a replacement for it. The
-reason it got added: a player found a loose hopper in a trial chambers
-loot room, proving a recipe lock alone doesn't stop something found
-rather than crafted, and there was no reason to assume hopper was the
-only banned item with a real find-it-in-the-world path. `chipped_anvil`
-and `damaged_anvil` ride along with `anvil` for the usual reason —
-Bedrock gives each wear state on an anvil its own item ID, so banning
-only the pristine one leaves a loophole once one's actually been used.
+Everything else on the list (conduit, hopper, hopper_minecart, crafter,
+observer, blaze_powder, enchanting_table, comparator, daylight_detector)
+still keeps its recipe lock too — this is belt-and-suspenders, not a
+replacement for it. The reason it got added: a player found a loose
+hopper in a trial chambers loot room, proving a recipe lock alone doesn't
+stop something found rather than crafted, and there was no reason to
+assume hopper was the only banned item with a real find-it-in-the-world
+path.
 
 The tradeoff versus a working recipe lock alone: a found/looted copy of
 anything on this list doesn't survive either, where a pure recipe lock
@@ -86,7 +82,12 @@ anything on this list doesn't survive either, where a pure recipe lock
 list) leaves found/looted copies alone. If a milestone reopens one of
 these items later, remember it needs removing from both places —
 deleting its recipe lock file only stops crafting; it'll still get
-destroyed on pickup until it's also taken out of `CLEANUP_ITEMS`.
+destroyed on pickup until it's also taken out of `CLEANUP_ITEMS`. Anvil
+(plus `chipped_anvil`/`damaged_anvil`) is the first real example of this
+— though via a direct group vote (specifically to allow nametags) rather
+than The Forge Reopens milestone, which hasn't actually been reached. All
+three were removed from `CLEANUP_ITEMS` and `anvil.json` was deleted —
+both halves had to change either way.
 `heart_of_the_sea` is deliberately not on this list at all: it's inert on
 its own, and the only thing it's good for (a Conduit) is already covered
 by `conduit` being on the list, so restricting the raw item too would add
@@ -232,14 +233,12 @@ be crafted.
   cleanup runs, so this stays locked independently too, same reasoning as
   `hopper_minecart.json`. Also backed by `crafter` in `CLEANUP_ITEMS`
   itself, on top of that.
-- **`anvil.json`** — locking the pristine anvil recipe is the only lock
-  that makes sense here: `chipped_anvil` and `damaged_anvil` are wear
-  states an anvil reaches through use, not separate recipes, so there's
-  nothing to lock for them directly. Unlike every other recipe lock on
-  this list, a found/looted anvil (and whatever it wears down into with
-  use) does *not* get a pass here — `anvil`, `chipped_anvil`, and
-  `damaged_anvil` are all in `CLEANUP_ITEMS`, so all three get destroyed
-  on pickup regardless of source.
+
+Anvil has no lock at all anymore — the group voted to allow it back
+(specifically for nametags), not The Forge Reopens milestone, which
+hasn't actually been reached. `anvil.json` was deleted and
+`anvil`/`chipped_anvil`/`damaged_anvil` came off `CLEANUP_ITEMS` too. See
+Cleanup sequence above.
 
 Quartz Block itself, and anything crafted purely from a Quartz Block
 (Quartz Pillar, Quartz Bricks, Chiseled Quartz Block, Quartz Stairs/Slabs,
@@ -266,9 +265,9 @@ cell. Those five instead have the barrier swap in for one of the
 original filled cells (one nautilus shell or one glass) rather than sit
 in new space — same effect, just one fewer of that particular vanilla
 ingredient asked for, since the recipe can never be finished anyway.
-`comparator.json`, `hopper.json`, `anvil.json`, and `diamond_spear.json`
-all had a spare cell already in their vanilla 3x3 grid, so those four
-kept the vanilla footprint. `crafter.json`'s vanilla grid is also a
+`comparator.json`, `hopper.json`, and `diamond_spear.json` all had a
+spare cell already in their vanilla 3x3 grid, so those three kept the
+vanilla footprint. `crafter.json`'s vanilla grid is also a
 completely full 3x3 (5 iron ingots, 1 crafting table, 2 redstone, 1
 dropper), so it uses the same swap-in-a-filled-cell approach — one iron
 ingot, in this case.
