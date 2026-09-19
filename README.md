@@ -44,13 +44,14 @@ The pack automatically sweeps every online player every
 `CLEANUP_INTERVAL_TICKS` (default 20 ticks = 1 second) and clears each item
 in the `CLEANUP_ITEMS` list in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently every
-banned item except the diamond tools/weapon/armor set: `elytra`,
-`dispenser`, `dropper`, `sticky_piston`, `piston`, `anvil`,
-`chipped_anvil`, `damaged_anvil`, `conduit`, `hopper`, `hopper_minecart`,
-`crafter`, `honey_block`, `observer`, `blaze_powder`, `enchanting_table`,
-`comparator`, and `daylight_detector`. Elytra is here because it can turn
-up as loot (End ships) with no crafting step involved, so a recipe lock
-wouldn't apply to it anyway — it has no vanilla recipe at all.
+banned item except the diamond tools/weapon/armor set and Honey Block
+(see below): `elytra`, `dispenser`, `dropper`, `sticky_piston`, `piston`,
+`anvil`, `chipped_anvil`, `damaged_anvil`, `conduit`, `hopper`,
+`hopper_minecart`, `crafter`, `observer`, `blaze_powder`,
+`enchanting_table`, `comparator`, and `daylight_detector`. Elytra is here
+because it can turn up as loot (End ships) with no crafting step
+involved, so a recipe lock wouldn't apply to it anyway — it has no
+vanilla recipe at all.
 
 Dispenser, Dropper, Sticky Piston, and Piston went further than the rest
 of the list: all four originally had recipe locks (matching the technique
@@ -68,8 +69,8 @@ down to destroy-on-pickup only — their recipe lock files have been
 removed entirely, so this is now the sole mechanism restricting them.
 
 Everything else on the list (anvil and its wear states, conduit, hopper,
-hopper_minecart, crafter, honey_block, observer, blaze_powder,
-enchanting_table, comparator, daylight_detector) still keeps its recipe
+hopper_minecart, crafter, observer, blaze_powder, enchanting_table,
+comparator, daylight_detector) still keeps its recipe
 lock too — this is belt-and-suspenders, not a replacement for it. The
 reason it got added: a player found a loose hopper in a trial chambers
 loot room, proving a recipe lock alone doesn't stop something found
@@ -231,8 +232,6 @@ be crafted.
   cleanup runs, so this stays locked independently too, same reasoning as
   `hopper_minecart.json`. Also backed by `crafter` in `CLEANUP_ITEMS`
   itself, on top of that.
-- **`honey_block.json`** — also backed by `honey_block` in
-  `CLEANUP_ITEMS`.
 - **`anvil.json`** — locking the pristine anvil recipe is the only lock
   that makes sense here: `chipped_anvil` and `damaged_anvil` are wear
   states an anvil reaches through use, not separate recipes, so there's
@@ -257,8 +256,7 @@ already 3 wide. Most of these recipes had at least one empty cell in
 their vanilla grid, so the barrier just fills that gap without changing
 the recipe's footprint. `diamond_shovel.json` and `diamond_sword.json`
 are vanilla single columns, so widening them to 2 columns for the
-barrier is still well inside the 3x3 cap, and `honey_block.json`
-(vanilla 2x2) widened to 2x3 the same way. `conduit.json`,
+barrier is still well inside the 3x3 cap. `conduit.json`,
 `daylight_detector.json` and its three wood-slab variants, and
 `observer.json` are different: their vanilla grids are already a
 completely full 3x3 (conduit's 8 nautilus shells around 1 heart of the
