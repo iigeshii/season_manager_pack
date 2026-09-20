@@ -283,6 +283,21 @@ book will still show it as unlocked once you hold a blaze rod (the
 `unlock` condition is untouched), it just won't actually complete when
 attempted — restore by deleting the file.
 
+### Added recipes
+
+Unlike everything in [Locked recipes](#locked-recipes) above, this one
+isn't overriding a vanilla identifier — it's new. Vanilla only goes one
+direction between these two items (4 Rabbit Hide → 1 Leather, see
+`minecraft:leather`'s recipe); there's no vanilla recipe for the reverse.
+
+- **`rabbit_hide_from_leather.json`** — the exact mirror of that vanilla
+  recipe, just flipped: 1 Leather → 4 Rabbit Hide. Shapeless (no specific
+  grid arrangement needed for a single ingredient), under its own
+  `season:rabbit_hide_from_leather` identifier so it can't collide with
+  any real or future vanilla recipe. Round-tripping through both
+  recipes nets zero material gain or loss either direction, so this
+  doesn't introduce a duplication exploit.
+
 ### Rescue Villagers
 
 Permanent, single-trade villagers that bypass the standing "all trades
