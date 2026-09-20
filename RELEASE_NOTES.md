@@ -30,4 +30,7 @@ regardless of when each piece was actually added:
   leggings, and boots all craft from Rabbit Hide instead of Leather —
   same amounts as before, just a different material.
 - **Leather armor gives you a speed boost.** Wear 2-3 pieces for Speed
-  I, or a full 4-piece set for Speed II.
+  I, or a full 4-piece set for Speed II. This is a trial — the goal is
+  to give Leather more of a reason to exist. If we like how it plays
+  out, we may consider similar full-set bonuses for other armor types
+  down the line.
