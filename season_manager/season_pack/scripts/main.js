@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import { world, system, EquipmentSlot } from "@minecraft/server";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -290,3 +290,39 @@ system.runInterval(() => {
     }
   }
 }, ELITE_MOB_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  LEATHER ARMOR SPEED BONUS
+//  Leather armor is crafted from Rabbit Hide now (see recipes/) — 2 or 3
+//  pieces worn grants Speed I, a full 4-piece set grants Speed II
+//  instead (not stacked on top of Speed I). Effects expire on their own,
+//  so this re-applies on an interval, same pattern as ELITE_MOBS.
+// ─────────────────────────────────────────────
+
+const LEATHER_ARMOR_SLOTS = [
+  { slot: EquipmentSlot.Head, item: "minecraft:leather_helmet" },
+  { slot: EquipmentSlot.Chest, item: "minecraft:leather_chestplate" },
+  { slot: EquipmentSlot.Legs, item: "minecraft:leather_leggings" },
+  { slot: EquipmentSlot.Feet, item: "minecraft:leather_boots" },
+];
+
+const LEATHER_SPEED_INTERVAL_TICKS = 100; // 5 seconds
+const LEATHER_SPEED_EFFECT_DURATION_TICKS = 140; // comfortably outlasts the interval
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    let piecesWorn = 0;
+    for (const { slot, item } of LEATHER_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    }
+
+    if (piecesWorn >= 4) {
+      player.addEffect("speed", LEATHER_SPEED_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    } else if (piecesWorn >= 2) {
+      player.addEffect("speed", LEATHER_SPEED_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+    }
+  }
+}, LEATHER_SPEED_INTERVAL_TICKS);

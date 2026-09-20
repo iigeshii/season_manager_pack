@@ -382,6 +382,24 @@ Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
 not a season restriction.
 
+### Leather armor speed bonus
+
+Leather armor is crafted from Rabbit Hide now (see
+[Swapped-ingredient recipes](#swapped-ingredient-recipes) above), and
+wearing it grants a speed buff to match: 2 or 3 pieces of leather armor
+worn grants Speed I, and a full 4-piece set grants Speed II instead (not
+stacked on top of Speed I — it's one or the other). Checked and
+re-applied every 5 seconds by a watchdog in
+[`main.js`](season_manager/season_pack/scripts/main.js)
+(`LEATHER_ARMOR_SLOTS`), since potion effects expire on their own and
+armor doesn't trigger a re-check by itself. Mixing leather with other
+armor materials still counts each leather piece — a leather helmet with
+three diamond pieces is 1 leather piece worn (no buff), not disqualified
+from the count entirely.
+
+Like Elite Mobs, this isn't gated by `enabled`/`scriptevent
+season:toggle` — it's a standing mechanic, not a season restriction.
+
 ### Portal lock
 
 Nether portals and the End portal are blocked from being activated:
