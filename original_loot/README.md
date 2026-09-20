@@ -17,6 +17,10 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
 - `loot_tables/gameplay/fishing.json`, `jungle_fishing.json`, and
   `loot_tables/gameplay/fishing/*.json` — the fish/junk/treasure pools that
   back the fishing rod loot table.
+- `recipes/leather_helmet.json`, `leather_chestplate.json`,
+  `leather_leggings.json`, `leather_boots.json` — the four vanilla leather
+  armor recipes, pulled 2026-09-19, kept here to diff against once they're
+  overridden to use Rabbit Hide instead of Leather.
 
 When changing a table in the actual pack, diff against the matching file
 here to see exactly what vanilla shipped.

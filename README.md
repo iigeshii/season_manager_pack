@@ -298,6 +298,23 @@ direction between these two items (4 Rabbit Hide → 1 Leather, see
   recipes nets zero material gain or loss either direction, so this
   doesn't introduce a duplication exploit.
 
+### Swapped-ingredient recipes
+
+Same vanilla `identifier`, same shape, same quantities — only the
+material changed. Unlike [Locked recipes](#locked-recipes), these still
+craft normally; nothing here is disabled.
+
+- **`leather_helmet.json`**, **`leather_chestplate.json`**,
+  **`leather_leggings.json`**, **`leather_boots.json`** — all four use
+  Rabbit Hide (`minecraft:rabbit_hide`) instead of Leather now, in the
+  exact same pattern and quantity vanilla used for Leather (3/6/7/4
+  respectively — see each file's `pattern`). Plain Leather can still be
+  worn if already owned, and still converts to/from Rabbit Hide via
+  the vanilla recipe and `rabbit_hide_from_leather.json` above — it's
+  just no longer what these four recipes ask for. `leather_horse_armor.json`
+  was deliberately left alone; "leather armor" was read as the four
+  player-wearable pieces, not horse armor.
+
 ### Rescue Villagers
 
 Permanent, single-trade villagers that bypass the standing "all trades
