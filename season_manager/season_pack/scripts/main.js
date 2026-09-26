@@ -327,3 +327,39 @@ system.runInterval(() => {
     }
   }
 }, LEATHER_SPEED_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  CHAINMAIL ARMOR HASTE BONUS
+//  Same pattern as the Leather Armor Speed Bonus above, just Chainmail
+//  and Haste instead of Leather and Speed — 2 or 3 pieces worn grants
+//  Haste I, a full 4-piece set grants Haste II instead (not stacked on
+//  top of Haste I).
+// ─────────────────────────────────────────────
+
+const CHAINMAIL_ARMOR_SLOTS = [
+  { slot: EquipmentSlot.Head, item: "minecraft:chainmail_helmet" },
+  { slot: EquipmentSlot.Chest, item: "minecraft:chainmail_chestplate" },
+  { slot: EquipmentSlot.Legs, item: "minecraft:chainmail_leggings" },
+  { slot: EquipmentSlot.Feet, item: "minecraft:chainmail_boots" },
+];
+
+const CHAINMAIL_HASTE_INTERVAL_TICKS = 100; // 5 seconds
+const CHAINMAIL_HASTE_EFFECT_DURATION_TICKS = 140; // comfortably outlasts the interval
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    let piecesWorn = 0;
+    for (const { slot, item } of CHAINMAIL_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    }
+
+    if (piecesWorn >= 4) {
+      player.addEffect("haste", CHAINMAIL_HASTE_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    } else if (piecesWorn >= 2) {
+      player.addEffect("haste", CHAINMAIL_HASTE_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+    }
+  }
+}, CHAINMAIL_HASTE_INTERVAL_TICKS);

@@ -419,6 +419,20 @@ from the count entirely.
 Like Elite Mobs, this isn't gated by `enabled`/`scriptevent
 season:toggle` — it's a standing mechanic, not a season restriction.
 
+### Chainmail armor haste bonus
+
+Same idea as the Leather Armor Speed Bonus above, just Chainmail and
+Haste instead of Leather and Speed: 2 or 3 pieces of Chainmail armor
+worn grants Haste I, and a full 4-piece set grants Haste II instead (not
+stacked on top of Haste I). Same watchdog pattern too — checked and
+re-applied every 5 seconds (`CHAINMAIL_ARMOR_SLOTS` in
+[`main.js`](season_manager/season_pack/scripts/main.js)), and mixing
+Chainmail with other armor materials still counts each Chainmail piece
+individually toward the total.
+
+Not gated by `enabled`/`scriptevent season:toggle`, same as the Leather
+bonus.
+
 ### Portal lock
 
 Nether portals and the End portal are blocked from being activated:
