@@ -443,10 +443,18 @@ villager.
   seconds by a watchdog in
   [`main.js`](season_manager/season_pack/scripts/main.js), since potion
   effects expire on their own and the stat components don't), and a
-  guaranteed enchanted iron sword plus a full iron armor set (see
-  [`entities/zombie.json`](season_manager/season_pack/entities/zombie.json)
+  guaranteed enchanted iron sword plus a full iron armor set, trimmed
+  bright red (Redstone material, Wayfinder pattern) on every piece so
+  it's immediately recognizable as the boss instead of a regular
+  iron-armored zombie — see
+  [`entities/zombie.json`](season_manager/season_pack/entities/zombie.json),
+  [`season_elite_zombie_equipment.json`](season_manager/season_pack/loot_tables/entities/season_elite_zombie_equipment.json),
   and
-  [`season_elite_zombie_equipment.json`](season_manager/season_pack/loot_tables/entities/season_elite_zombie_equipment.json)).
+  [`season_elite_zombie_armor.json`](season_manager/season_pack/loot_tables/entities/season_elite_zombie_armor.json)
+  (a copy of vanilla's `armor_set_iron.json` with a `set_armor_trim`
+  function added to each piece — kept as its own file rather than
+  overriding the shared vanilla one, so nothing else that might use
+  `armor_set_iron.json` is affected).
 
 It's still `minecraft:zombie` under the hood (not a new custom
 identifier), specifically so it renders normally without needing a
