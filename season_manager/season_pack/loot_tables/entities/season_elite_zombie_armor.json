@@ -20,14 +20,6 @@
           ],
           "pools": [
             {
-              "conditions": [
-                {
-                  "condition": "random_difficulty_chance",
-                  "default_chance": 0.5,
-                  "peaceful": 0,
-                  "hard": 0.6
-                }
-              ],
               "rolls": 1,
               "entries": [
                 {
@@ -47,14 +39,6 @@
                   ],
                   "pools": [
                     {
-                      "conditions": [
-                        {
-                          "condition": "random_difficulty_chance",
-                          "default_chance": 0.5,
-                          "peaceful": 0,
-                          "hard": 0.6
-                        }
-                      ],
                       "rolls": 1,
                       "entries": [
                         {
@@ -74,14 +58,6 @@
                           ],
                           "pools": [
                             {
-                              "conditions": [
-                                {
-                                  "condition": "random_difficulty_chance",
-                                  "default_chance": 0.5,
-                                  "peaceful": 0,
-                                  "hard": 0.6
-                                }
-                              ],
                               "rolls": 1,
                               "entries": [
                                 {

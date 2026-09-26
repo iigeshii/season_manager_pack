@@ -462,7 +462,12 @@ villager.
   (a copy of vanilla's `armor_set_iron.json` with a `set_armor_trim`
   function added to each piece — kept as its own file rather than
   overriding the shared vanilla one, so nothing else that might use
-  `armor_set_iron.json` is affected).
+  `armor_set_iron.json` is affected). Vanilla's own version only gives
+  the chestplate/leggings/boots a chance each (50% by default, gated
+  behind each other, so a bad roll skipped the whole rest of the set) —
+  the pack's copy drops the `random_difficulty_chance` conditions
+  entirely, so the full trimmed set is guaranteed every time, not just
+  the helmet.
 
 It's still `minecraft:zombie` under the hood (not a new custom
 identifier), specifically so it renders normally without needing a
@@ -490,6 +495,16 @@ faster `minecraft:behavior.ranged_attack`, added via a custom event
 fired only on the tagged guard Skeletons after they spawn. This doesn't
 affect any other Skeleton in the world — only ones tagged
 `season:elite_guard`.
+
+Both the Elite Zombie and its guards get a 30-second Slow Falling effect
+the instant they spawn, so they drift gently down to actual solid ground
+instead of taking fall damage (or dying) — this matters because the
+function is meant to be run by someone flying above the battlefield in
+Creative (e.g. a DM), which would otherwise spawn everything at the
+caster's altitude, floating in mid-air. The guards' spawn offsets also
+place them 1 block higher than the Elite Zombie's own position
+(`^ ^1 ^5` instead of `^ ^ ^5`) to keep them from landing partially
+embedded in small terrain bumps around it.
 
 Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
