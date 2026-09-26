@@ -821,7 +821,7 @@
                   "value": "season_elite"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             }
           ]
         },
@@ -888,7 +888,7 @@
                   "value": "season_elite"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             }
           ]
         },

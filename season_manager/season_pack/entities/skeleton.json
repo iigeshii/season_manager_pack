@@ -684,7 +684,7 @@
           "priority": 0
         },
         "minecraft:shooter": {
-          "def": "season:long_arrow",
+          "def": "minecraft:arrow",
           "sound": "bow"
         },
         "minecraft:type_family": {
@@ -706,7 +706,7 @@
                   "value": "season_elite"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             }
           ]
         },

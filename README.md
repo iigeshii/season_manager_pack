@@ -519,18 +519,14 @@ group, and the extended `season:elite_guard_skeleton` group:
   dropped once they're chased — vanilla Zombies stop pursuing well
   before that (Skeletons don't set an explicit follow range at all,
   meaning they'd fall back to a much shorter engine default).
-- **Skeletons shoot farther and straighter.** `attack_range` on the
-  guard Skeleton's ranged attack goes from 15 to 32 blocks, and their
-  `minecraft:shooter` points at a new
-  [`entities/long_arrow.json`](season_manager/season_pack/entities/long_arrow.json)
-  (`season:long_arrow`) instead of the vanilla arrow — a copy of
-  vanilla's projectile with `power` raised (1.6 → 2.2), `gravity`
-  lowered (0.05 → 0.03), and `uncertainty_base`/`uncertainty_multiplier`
-  lowered (16/4 → 4/1) for a flatter, more accurate shot without going
-  as laser-precise as a fully-charged player arrow (uncertainty 1/0).
-  This is a brand new identifier, not an override of vanilla's
-  `arrow.json`, so wild Skeletons and player bows are completely
-  unaffected.
+- **Skeletons shoot farther.** `attack_range` on the guard Skeleton's
+  ranged attack goes from 15 to 32 blocks. They still fire vanilla's own
+  `minecraft:arrow` — an earlier attempt at a custom `season:long_arrow`
+  projectile with flatter/more-accurate flight was reverted because a
+  new entity identifier with no matching resource pack model renders
+  invisibly in-game (the same client-side pitfall noted below for the
+  Elite Zombie's own identifier, and the reason it stayed
+  `minecraft:zombie` instead of getting a custom one).
 
 Both the Elite Zombie and its guards get a 30-second Slow Falling effect
 the instant they spawn, so they drift gently down to actual solid ground
