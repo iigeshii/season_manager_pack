@@ -181,12 +181,20 @@ into four rarity buckets:
   each), End Rod (2).
 
 Every trade costs a flat 1 Emerald, using the same `price_multiplier: 0.05`
-convention as the other custom trade tables (a `price_multiplier` of
-exactly `0` isn't a valid demand value and silently kept every trade
-from registering at all — this was a real bug, not just a balance
-choice). With `quantity: 1` and `max_uses: 3`, demand can't realistically
-climb far enough within one spawn's uses to push the price above 1
-Emerald in practice. What varies is how much you get back.
+convention as the other custom trade tables. With `quantity: 1` and
+`max_uses: 3`, demand can't realistically climb far enough within one
+spawn's uses to push the price above 1 Emerald in practice. What varies
+is how much you get back.
+
+One gotcha worth flagging: Jack o'Lantern's real Bedrock item ID is
+`minecraft:lit_pumpkin`, not `minecraft:jack_o_lantern` (Bedrock kept the
+legacy name even after Java renamed it). A single invalid item ID
+anywhere in this file silently invalidated every trade in it — the
+trader would show up with an empty trade list and no error in the
+content log — so if trades ever go missing again after an edit here,
+check every `item` string against
+[Mojang's block ID list](https://github.com/Mojang/bedrock-samples/blob/main/metadata/vanilladata_modules/mojang-blocks.json)
+first.
 Groups use `num_to_select` to pick a random subset of each category per
 spawn, so no two Wandering Traders offer the exact same lineup, matching
 vanilla's own randomized-offer behavior. Each trade is
