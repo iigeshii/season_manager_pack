@@ -166,10 +166,13 @@ committed just before it was emptied.
 
 [`loot_tables/gameplay/fishing/treasure.json`](season_manager/season_pack/loot_tables/gameplay/fishing/treasure.json)
 overrides the vanilla treasure pool (shared by both the regular and
-jungle fishing tables) with the `enchant_with_levels` function removed
-from the bow, fishing rod, and book entries — so treasure catches can
-still happen, just never pre-enchanted. Fish and junk pools are
-untouched.
+jungle fishing tables). Bow and Fishing Rod catches restore vanilla's
+`enchant_with_levels` (30 levels, treasure-only enchants), so they can
+come pre-enchanted again same as vanilla. Book catches keep that function
+removed — a fished-up book still never comes pre-enchanted. Fish and junk
+pools are untouched. See
+`original_loot/loot_tables/gameplay/fishing/treasure.json` for the
+unmodified vanilla version.
 
 ### Turtle scute drop
 
