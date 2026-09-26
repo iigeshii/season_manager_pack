@@ -448,6 +448,28 @@ identifier), specifically so it renders normally without needing a
 resource pack override — the same rendering pitfall that sank the
 abandoned biome-trader villager work on `feature/biome_trader`.
 
+The same function also spawns a ring of 12 plain guard mobs around it —
+6 Zombies and 6 Skeletons alternating every 30° around a 5-block-radius
+circle, using `execute ... rotated <angle> 0` at each of the 12 compass
+directions off the Elite Zombie's position. These are ordinary vanilla mobs otherwise, tagged `season:elite_guard`,
+each given an Iron Helmet so they don't burn to death standing out in
+daylight during the event, plus a permanent Strength I (a modest damage
+bump) and Speed I (noticeably faster than normal, but well short of a
+baby zombie's speed) — applied once via `/effect ... 1000000 0 true` at
+summon time rather than a watchdog, since guards are one-off spawns, not
+a persistent mob like the Elite Zombie itself.
+
+The guard Skeletons also fire arrows roughly 2-3x faster than a normal
+Skeleton (every 1 second instead of vanilla's 2-3 seconds, depending on
+difficulty). A Skeleton's fire rate is a base entity component, not
+something a potion effect can touch, so this needed a full-copy
+override — [`entities/skeleton.json`](season_manager/season_pack/entities/skeleton.json) —
+with a new `season:elite_guard_skeleton` component group carrying a
+faster `minecraft:behavior.ranged_attack`, added via a custom event
+fired only on the tagged guard Skeletons after they spawn. This doesn't
+affect any other Skeleton in the world — only ones tagged
+`season:elite_guard`.
+
 Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
 not a season restriction.

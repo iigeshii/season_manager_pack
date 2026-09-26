@@ -36,6 +36,12 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   dropped the diamonds for a single Copper Ingot instead. The Netherite
   Upgrade Smithing Template's own duplication recipe is a different
   template, not an armor trim, and isn't included here.
+- `entities/skeleton.json` — the vanilla Skeleton entity definition,
+  pulled 2026-09-26. Kept as a reference for the base
+  `minecraft:behavior.ranged_attack` fire rate (3 seconds normally, 2 on
+  Hard) before the real pack's version added a `season:elite_guard_skeleton`
+  component group that fires arrows every 1 second, applied only to
+  Skeletons summoned as guards for the Elite Zombie event.
 - `loot_tables/entities/sea_turtle.json` — the vanilla Turtle loot table
   (the entity is `minecraft:turtle`, but vanilla names the loot table
   file `sea_turtle.json`), pulled 2026-09-26. Vanilla only drops
