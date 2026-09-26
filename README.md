@@ -165,8 +165,14 @@ committed just before it was emptied.
 
 Unlike the villager professions above, the Wandering Trader isn't fully
 disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading/economy_trades/wandering_trader_trades.json)
-replaces the vanilla trade list with a light-block-only one, grouped
-into four rarity buckets:
+replaces the vanilla trade list with a light-block-only one, plus one
+always-available staple trade, grouped into four rarity buckets:
+
+- **Always available** — 4 Emeralds for 1 Diamond. Unlike the light
+  trades below, this one sits directly in the tier's `trades` array
+  instead of inside a `groups` entry, so it isn't part of the random
+  per-spawn subset — every Wandering Trader offers it, every time
+  (`max_uses: 4`, same no-restock rule as everything else here).
 
 - **Common** (picks 3 of 5, 1 Emerald each) — Torch (16), Soul Torch
   (8), Glowstone (8), Redstone Lamp (4), Jack o'Lantern (4).
