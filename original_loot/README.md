@@ -27,6 +27,17 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   armor recipes (Chainmail has no real crafting-table recipe of its own
   in vanilla — only a furnace recipe for smelting a damaged piece back
   into a fresh one).
+- `recipes/*_armor_trim_smithing_template_duplicate.json` (18 patterns —
+  Bolt, Coast, Dune, Eye, Flow, Host, Raiser, Rib, Sentry, Shaper,
+  Silence, Snout, Spire, Tide, Vex, Ward, Wayfinder, Wild — plus Bolt's
+  separate waxed-copper variant), pulled 2026-09-26. These are the
+  vanilla Armor Trim Smithing Template duplication recipes, kept here
+  purely as a reference set — nothing in the actual pack touches trims
+  or templates, so there was nothing to override; these don't belong in
+  the real pack since they'd be dead weight doing exactly what vanilla
+  already does on its own. The Netherite Upgrade Smithing Template's own
+  duplication recipe is a different template, not an armor trim, and
+  isn't included here.
 
 When changing a table in the actual pack, diff against the matching file
 here to see exactly what vanilla shipped.
