@@ -38,7 +38,7 @@ tag @e[type=minecraft:zombie,tag=!season:elite_zombie,tag=!season:elite_guard,c=
 execute as @e[tag=season:elite_zombie,c=1] at @s rotated 330 0 run summon minecraft:skeleton ^ ^ ^5
 tag @e[type=minecraft:skeleton,tag=!season:elite_guard,c=1] add season:elite_guard
 
-execute as @e[tag=season:elite_guard] run item replace entity @s slot.armor.head 0 with minecraft:iron_helmet
+execute as @e[tag=season:elite_guard] run replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet
 effect @e[tag=season:elite_guard] strength 1000000 0 true
 effect @e[tag=season:elite_guard] speed 1000000 0 true
 execute as @e[type=minecraft:skeleton,tag=season:elite_guard] run event entity @s season:become_elite_guard_skeleton
