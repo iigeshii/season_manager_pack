@@ -1,0 +1,23 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "season:melon_from_melon_block"
+    },
+    "tags": [ "crafting_table" ],
+    "ingredients": [
+      {
+        "item": "minecraft:melon_block"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:melon_block"
+      }
+    ],
+    "result": {
+      "item": "minecraft:melon",
+      "count": 9
+    }
+  }
+}

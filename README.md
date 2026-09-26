@@ -299,18 +299,26 @@ attempted — restore by deleting the file.
 
 ### Added recipes
 
-Unlike everything in [Locked recipes](#locked-recipes) above, this one
-isn't overriding a vanilla identifier — it's new. Vanilla only goes one
-direction between these two items (4 Rabbit Hide → 1 Leather, see
-`minecraft:leather`'s recipe); there's no vanilla recipe for the reverse.
+Unlike everything in [Locked recipes](#locked-recipes) above, these
+aren't overriding a vanilla identifier — they're new. A few vanilla
+recipes only go one direction between two items, with no recipe for the
+reverse; these fill that gap.
 
-- **`rabbit_hide_from_leather.json`** — the exact mirror of that vanilla
-  recipe, just flipped: 1 Leather → 4 Rabbit Hide. Shapeless (no specific
-  grid arrangement needed for a single ingredient), under its own
-  `season:rabbit_hide_from_leather` identifier so it can't collide with
-  any real or future vanilla recipe. Round-tripping through both
-  recipes nets zero material gain or loss either direction, so this
-  doesn't introduce a duplication exploit.
+- **`rabbit_hide_from_leather.json`** — vanilla has 4 Rabbit Hide → 1
+  Leather (`minecraft:leather`'s recipe) but nothing going back the other
+  way. This is the exact mirror, just flipped: 1 Leather → 4 Rabbit Hide.
+  Shapeless (no specific grid arrangement needed for a single
+  ingredient), under its own `season:rabbit_hide_from_leather` identifier
+  so it can't collide with any real or future vanilla recipe.
+  Round-tripping through both recipes nets zero material gain or loss
+  either direction, so this doesn't introduce a duplication exploit.
+- **`melon_from_melon_block.json`** — same situation: vanilla has 9
+  Melon (the slice item is actually called `minecraft:melon` in Bedrock)
+  → 1 Melon Block (`minecraft:melon_block`'s recipe), but nothing going
+  back. This is the mirror: 1 Melon Block → 9 Melon. Shapeless, under
+  `season:melon_from_melon_block`. Same no-duplication-exploit reasoning
+  as the Rabbit Hide recipe above — 9 slices in either direction, no net
+  gain.
 - **`chainmail_helmet.json`**, **`chainmail_chestplate.json`**,
   **`chainmail_leggings.json`**, **`chainmail_boots.json`** — Chainmail
   armor has no real crafting-table recipe in vanilla at all (only a
