@@ -84,6 +84,7 @@ const CLEANUP_ITEMS = [
   "blaze_powder",
   "enchanting_table",
   "comparator",
+  "repeater",
   "daylight_detector",
 ];
 

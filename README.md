@@ -47,7 +47,7 @@ in the `CLEANUP_ITEMS` list in
 banned item except the diamond tools/weapon/armor set and Honey Block
 (see below): `elytra`, `dispenser`, `dropper`, `sticky_piston`, `piston`,
 `conduit`, `hopper`, `hopper_minecart`, `crafter`, `observer`,
-`blaze_powder`, `enchanting_table`, `comparator`, and `daylight_detector`.
+`blaze_powder`, `enchanting_table`, `comparator`, `repeater`, and `daylight_detector`.
 Elytra is here because it can turn up as loot (End ships) with no
 crafting step involved, so a recipe lock wouldn't apply to it anyway —
 it has no vanilla recipe at all.
@@ -66,6 +66,9 @@ so that theory didn't fit them either. Rather than ship four recipe files
 with an unexplained, unreliable display quirk, all four were simplified
 down to destroy-on-pickup only — their recipe lock files have been
 removed entirely, so this is now the sole mechanism restricting them.
+Repeater, added later after one turned up in the world, never had a
+recipe lock at all for the same reason — it's destroy-on-pickup only
+from the start.
 
 Everything else on the list (conduit, hopper, hopper_minecart, crafter,
 observer, blaze_powder, enchanting_table, comparator, daylight_detector)
