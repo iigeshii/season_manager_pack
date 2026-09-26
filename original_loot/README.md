@@ -21,6 +21,12 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   `leather_leggings.json`, `leather_boots.json` — the four vanilla leather
   armor recipes, pulled 2026-09-19, kept here to diff against once they're
   overridden to use Rabbit Hide instead of Leather.
+- `recipes/iron_helmet.json`, `iron_chestplate.json`, `iron_leggings.json`,
+  `iron_boots.json` — the four vanilla iron armor recipes, pulled
+  2026-09-26, kept as a shape/quantity reference for the new Chainmail
+  armor recipes (Chainmail has no real crafting-table recipe of its own
+  in vanilla — only a furnace recipe for smelting a damaged piece back
+  into a fresh one).
 
 When changing a table in the actual pack, diff against the matching file
 here to see exactly what vanilla shipped.
