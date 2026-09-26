@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "minecraft:bolt_armor_trim_smithing_template_duplicate_waxed"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:bolt_armor_trim_smithing_template"
+      },
+      {
+        "item": "minecraft:waxed_copper"
+      },
+      {
+        "item": "minecraft:copper_ingot"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:bolt_armor_trim_smithing_template"
+      }
+    ],
+    "result": {
+      "item": "minecraft:bolt_armor_trim_smithing_template",
+      "count": 2
+    }
+  }
+}

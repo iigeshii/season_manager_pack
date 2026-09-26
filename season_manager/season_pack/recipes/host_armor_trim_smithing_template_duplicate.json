@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "minecraft:host_armor_trim_smithing_template_duplicate"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:host_armor_trim_smithing_template"
+      },
+      {
+        "item": "minecraft:hardened_clay"
+      },
+      {
+        "item": "minecraft:copper_ingot"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:host_armor_trim_smithing_template"
+      }
+    ],
+    "result": {
+      "item": "minecraft:host_armor_trim_smithing_template",
+      "count": 2
+    }
+  }
+}

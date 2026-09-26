@@ -433,6 +433,22 @@ individually toward the total.
 Not gated by `enabled`/`scriptevent season:toggle`, same as the Leather
 bonus.
 
+### Cheaper trim template duplication
+
+All 19 Armor Trim Smithing Template duplication recipes (see
+`original_loot/recipes/` for the vanilla originals this replaced) are
+overridden to drop their cost from 7 Diamonds down to a single Copper
+Ingot. Everything else about each recipe stays the same: same template,
+same pattern-specific base material (e.g. Dune still needs Sandstone,
+Coast still needs Cobblestone), same 2-copies result. Vanilla's version
+of each recipe is shaped (a specific 3x3 arrangement); these are
+shapeless instead, since there's no reason to force a particular grid
+position once it's down to three distinct ingredients with no
+duplicates. Bolt's separate waxed-copper variant is included too. The
+Netherite Upgrade Smithing Template's duplication recipe is untouched —
+it's a different template, not an armor trim, and wasn't part of this
+change.
+
 ### Portal lock
 
 Nether portals and the End portal are blocked from being activated:
