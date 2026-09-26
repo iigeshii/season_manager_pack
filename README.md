@@ -168,23 +168,24 @@ disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading
 replaces the vanilla trade list with a light-block-only one, grouped
 into four rarity buckets:
 
-- **Common** (picks 3 of 5) — Torch (8), Soul Torch (4), Glowstone (4),
-  Redstone Lamp (2), Jack o'Lantern (2).
-- **Candles** (picks 2 of 17, counted as part of Common) — any candle
-  color including plain, 5 each.
-- **Uncommon** (picks 2 of 4) — Lantern, Soul Lantern, Sea Lantern,
-  Shroomlight, 4 each.
-- **Copper Lanterns** (picks 1 of 8, counted as part of Uncommon) — any
-  oxidation stage (unweathered/exposed/weathered/oxidized), waxed or
-  not, 4 each.
-- **Rare** (picks 1 of 4) — Ochre/Verdant/Pearlescent Froglight (3
-  each), End Rod (2).
+- **Common** (picks 3 of 5, 1 Emerald each) — Torch (16), Soul Torch
+  (8), Glowstone (8), Redstone Lamp (4), Jack o'Lantern (4).
+- **Candles** (picks 2 of 17, counted as part of Common, 1 Emerald
+  each) — any candle color including plain, 8 each.
+- **Uncommon** (picks 2 of 4, 2 Emeralds each) — Lantern, Soul Lantern,
+  Sea Lantern, Shroomlight, 6 each.
+- **Copper Lanterns** (picks 1 of 8, counted as part of Uncommon, 2
+  Emeralds each) — any oxidation stage (unweathered/exposed/weathered/
+  oxidized), waxed or not, 6 each.
+- **Rare** (picks 1 of 4, 3 Emeralds each) — Ochre/Verdant/Pearlescent
+  Froglight (4 each), End Rod (4).
 
-Every trade costs a flat 1 Emerald, using the same `price_multiplier: 0.05`
-convention as the other custom trade tables. With `quantity: 1` and
-`max_uses: 3`, demand can't realistically climb far enough within one
-spawn's uses to push the price above 1 Emerald in practice. What varies
-is how much you get back.
+Price climbs with rarity (1/2/3 Emeralds) rather than staying flat,
+matching vanilla's own convention of charging more for the less common
+stuff — but each trade still hands back a generous stack rather than a
+single unit, so it feels worth the cost rather than just pricier for the
+same amount. `price_multiplier: 0.05` matches the other custom trade
+tables' convention.
 
 One gotcha worth flagging: Jack o'Lantern's real Bedrock item ID is
 `minecraft:lit_pumpkin`, not `minecraft:jack_o_lantern` (Bedrock kept the
@@ -220,9 +221,8 @@ unmodified vanilla version.
 
 [`loot_tables/entities/sea_turtle.json`](season_manager/season_pack/loot_tables/entities/sea_turtle.json)
 overrides the vanilla Turtle loot table (the entity is `minecraft:turtle`,
-but vanilla names the loot table file `sea_turtle.json`) to add a
-guaranteed 1-2 Turtle Scute on death, on top of the existing Seagrass
-drop. Vanilla doesn't drop Scute here at all — the only vanilla source is
+but vanilla names the loot table file `sea_turtle.json`) to add a 0-1
+Turtle Scute drop on death, on top of the existing Seagrass drop. Vanilla doesn't drop Scute here at all — the only vanilla source is
 a baby turtle growing into an adult, an entirely separate mechanic from
 this loot table. See `original_loot/loot_tables/entities/sea_turtle.json`
 for the unmodified vanilla version.
