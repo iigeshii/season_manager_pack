@@ -300,6 +300,22 @@ direction between these two items (4 Rabbit Hide → 1 Leather, see
   any real or future vanilla recipe. Round-tripping through both
   recipes nets zero material gain or loss either direction, so this
   doesn't introduce a duplication exploit.
+- **`chainmail_helmet.json`**, **`chainmail_chestplate.json`**,
+  **`chainmail_leggings.json`**, **`chainmail_boots.json`** — Chainmail
+  armor has no real crafting-table recipe in vanilla at all (only a
+  furnace recipe for smelting a damaged piece back into a fresh one —
+  see `original_loot/recipes/` for the vanilla iron armor recipes these
+  were shaped after), so these are entirely new, under the real
+  `minecraft:chainmail_*` identifiers since nothing else claims them.
+  Same silhouette as the matching iron armor piece, but built from a mix
+  of Chain (the frame — brow band, shoulder straps, waistband, ankle
+  cuffs) and Iron Nugget (the mesh fill) instead of solid Iron Ingots:
+  helmet 3 Chain + 2 Nugget, chestplate 2 Chain + 6 Nugget, leggings 3
+  Chain + 4 Nugget, boots 2 Chain + 2 Nugget. Works out to roughly
+  3.9/3.1/4.1/2.7 Iron Ingots' worth of material respectively (Chain
+  itself costs 1 Ingot + 2 Nuggets to make, and 9 Nuggets = 1 Ingot) —
+  cheaper than the matching iron piece across the board, which fits
+  Chainmail's spot between Leather and Iron in vanilla's armor values.
 
 ### Swapped-ingredient recipes
 
