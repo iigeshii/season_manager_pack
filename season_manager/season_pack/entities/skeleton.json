@@ -675,7 +675,7 @@
         "minecraft:behavior.ranged_attack": {
           "attack_interval": {
             "min": 1.0,
-            "max": 1.0
+            "max": 3.0
           },
           "attack_range": {
             "min": 0.0,

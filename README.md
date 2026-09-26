@@ -447,11 +447,13 @@ the Rescue Villagers, just applied to a hostile mob instead of a
 villager.
 
 - **Elite Zombie** — `/function season/summon_elite_zombie` spawns 7
-  blocks ahead of whichever way the caster is facing (`^ ^ ^7`, not
-  `~ ~ ~`) so it doesn't land right on top of them. It's a hostile mob,
-  so it won't stick around — or spawn at all — on Peaceful difficulty;
-  that's vanilla behavior, not a pack bug. The zombie itself has 160
-  health (vanilla: 20), 6 attack damage (vanilla: 3), full knockback resistance, a permanent Strength II / Resistance I /
+  blocks ahead of whichever way the caster is facing and 5 blocks above
+  them (`^ ^5 ^7`, not `~ ~ ~`), so it doesn't land right on top of them
+  and there's room for the Slow Falling drift described below. It's a
+  hostile mob, so it won't stick around — or spawn at all — on Peaceful
+  difficulty; that's vanilla behavior, not a pack bug. The zombie itself
+  has 100 health (vanilla: 20), 6 attack damage (vanilla: 3), full
+  knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in
   [`main.js`](season_manager/season_pack/scripts/main.js), since potion
@@ -490,9 +492,9 @@ baby zombie's speed) — applied once via `/effect ... 1000000 0 true` at
 summon time rather than a watchdog, since guards are one-off spawns, not
 a persistent mob like the Elite Zombie itself.
 
-The guard Skeletons also fire arrows roughly 2-3x faster than a normal
-Skeleton (every 1 second instead of vanilla's 2-3 seconds, depending on
-difficulty). A Skeleton's fire rate is a base entity component, not
+The guard Skeletons also fire arrows on a random 1-3 second interval,
+about the same pace as vanilla but rolled fresh each shot instead of a
+fixed 2-3 seconds. A Skeleton's fire rate is a base entity component, not
 something a potion effect can touch, so this needed a full-copy
 override — [`entities/skeleton.json`](season_manager/season_pack/entities/skeleton.json) —
 with a new `season:elite_guard_skeleton` component group carrying a
