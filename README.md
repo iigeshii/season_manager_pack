@@ -171,6 +171,17 @@ from the bow, fishing rod, and book entries — so treasure catches can
 still happen, just never pre-enchanted. Fish and junk pools are
 untouched.
 
+### Turtle scute drop
+
+[`loot_tables/entities/sea_turtle.json`](season_manager/season_pack/loot_tables/entities/sea_turtle.json)
+overrides the vanilla Turtle loot table (the entity is `minecraft:turtle`,
+but vanilla names the loot table file `sea_turtle.json`) to add a
+guaranteed 1-2 Turtle Scute on death, on top of the existing Seagrass
+drop. Vanilla doesn't drop Scute here at all — the only vanilla source is
+a baby turtle growing into an adult, an entirely separate mechanic from
+this loot table. See `original_loot/loot_tables/entities/sea_turtle.json`
+for the unmodified vanilla version.
+
 ### Locked recipes
 
 Recipes in [`recipes/`](season_manager/season_pack/recipes/) override

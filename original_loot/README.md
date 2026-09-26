@@ -36,6 +36,13 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   dropped the diamonds for a single Copper Ingot instead. The Netherite
   Upgrade Smithing Template's own duplication recipe is a different
   template, not an armor trim, and isn't included here.
+- `loot_tables/entities/sea_turtle.json` — the vanilla Turtle loot table
+  (the entity is `minecraft:turtle`, but vanilla names the loot table
+  file `sea_turtle.json`), pulled 2026-09-26. Vanilla only drops
+  Seagrass here — no Scute; Scute is normally only obtained when a baby
+  turtle grows into an adult, a separate mechanic from this loot table.
+  Kept here to show that baseline before the real pack's version added a
+  guaranteed 1-2 Turtle Scute drop.
 
 When changing a table in the actual pack, diff against the matching file
 here to see exactly what vanilla shipped.
