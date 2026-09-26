@@ -139,8 +139,8 @@ To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
 
 ### Villager trades
 
-All 13 villager professions plus the wandering trader have their trades
-disabled entirely. Trade tables in
+All 13 villager professions have their trades disabled entirely. Trade
+tables in
 [`trading/economy_trades/`](season_manager/season_pack/trading/economy_trades/)
 override the vanilla files at those same paths — same filenames, same
 location — with `{"tiers": []}`, so no trades ever populate regardless
@@ -149,8 +149,7 @@ of profession or level: `armorer_trades.json`, `butcher_trades.json`,
 `fisherman_trades.json`, `fletcher_trades.json`,
 `leather_worker_trades.json`, `librarian_trades.json`,
 `shepherd_trades.json`, `stone_mason_trades.json`,
-`tool_smith_trades.json`, `wandering_trader_trades.json`, and
-`weapon_smith_trades.json`.
+`tool_smith_trades.json`, and `weapon_smith_trades.json`.
 
 This doesn't affect the [Rescue Villagers](#rescue-villagers) below —
 their tables (`mending_librarian_trades.json`,
@@ -161,6 +160,36 @@ This is data, not script — none of it is gated by `enabled` or affected
 by `scriptevent season:toggle`. To restore trading for a profession,
 look up that file's git history for the unmodified vanilla version
 committed just before it was emptied.
+
+### Wandering Trader trades
+
+Unlike the villager professions above, the Wandering Trader isn't fully
+disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading/economy_trades/wandering_trader_trades.json)
+replaces the vanilla trade list with a light-block-only one, grouped
+into four rarity buckets:
+
+- **Common** (picks 3 of 5) — Torch (8), Soul Torch (4), Glowstone (4),
+  Redstone Lamp (2), Jack o'Lantern (2).
+- **Candles** (picks 2 of 17, counted as part of Common) — any candle
+  color including plain, 5 each.
+- **Uncommon** (picks 2 of 4) — Lantern, Soul Lantern, Sea Lantern,
+  Shroomlight, 4 each.
+- **Copper Lanterns** (picks 1 of 8, counted as part of Uncommon) — any
+  oxidation stage (unweathered/exposed/weathered/oxidized), waxed or
+  not, 4 each.
+- **Rare** (picks 1 of 4) — Ochre/Verdant/Pearlescent Froglight (3
+  each), End Rod (2).
+
+Every trade costs a flat 1 Emerald (`price_multiplier: 0` so the price
+never drifts upward with demand); what varies is how much you get back.
+Groups use `num_to_select` to pick a random subset of each category per
+spawn, so no two Wandering Traders offer the exact same lineup, matching
+vanilla's own randomized-offer behavior. Each trade is
+capped at `max_uses: 3` and the Wandering Trader has no restock
+mechanic in vanilla, so once a trade's uses run out for that spawn,
+it's gone for good — same "wanders in, wanders out" lifecycle as
+vanilla otherwise (still despawns after a few minutes, still spawns
+llamas, etc. — nothing else about the entity was touched).
 
 ### Fishing
 
