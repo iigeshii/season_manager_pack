@@ -480,7 +480,7 @@ resource pack override — the same rendering pitfall that sank the
 abandoned biome-trader villager work on `feature/biome_trader`.
 
 The same function also spawns a ring of 16 plain guard mobs around it —
-8 Zombies and 8 Skeletons alternating every 22.5° around an 8-block-radius
+8 Zombies and 8 Skeletons alternating every 22.5° around a 12-block-radius
 circle, using `execute ... rotated <angle> 0` at each of the 16 compass
 directions off the Elite Zombie's position. These are ordinary vanilla mobs otherwise, tagged `season:elite_guard`,
 each given an Iron Helmet so they don't burn to death standing out in
