@@ -180,8 +180,13 @@ into four rarity buckets:
 - **Rare** (picks 1 of 4) — Ochre/Verdant/Pearlescent Froglight (3
   each), End Rod (2).
 
-Every trade costs a flat 1 Emerald (`price_multiplier: 0` so the price
-never drifts upward with demand); what varies is how much you get back.
+Every trade costs a flat 1 Emerald, using the same `price_multiplier: 0.05`
+convention as the other custom trade tables (a `price_multiplier` of
+exactly `0` isn't a valid demand value and silently kept every trade
+from registering at all — this was a real bug, not just a balance
+choice). With `quantity: 1` and `max_uses: 3`, demand can't realistically
+climb far enough within one spawn's uses to push the price above 1
+Emerald in practice. What varies is how much you get back.
 Groups use `num_to_select` to pick a random subset of each category per
 spawn, so no two Wandering Traders offer the exact same lineup, matching
 vanilla's own randomized-offer behavior. Each trade is
