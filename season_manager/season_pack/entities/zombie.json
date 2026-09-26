@@ -787,8 +787,8 @@
       },
       "season:elite_zombie": {
         "minecraft:health": {
-          "max": 100,
-          "value": 100
+          "max": 80,
+          "value": 80
         },
         "minecraft:attack": {
           "damage": 6
@@ -866,9 +866,18 @@
         "minecraft:follow_range": {
           "value": 48,
           "max": 48
+        },
+        "minecraft:despawn": {
+          "despawn_from_chance": false,
+          "despawn_from_inactivity": false,
+          "despawn_from_simulation_edge": false
         }
       },
       "season:elite_guard_zombie": {
+        "minecraft:health": {
+          "max": 30,
+          "value": 30
+        },
         "minecraft:type_family": {
           "family": [
             "zombie",
@@ -933,6 +942,11 @@
         "minecraft:follow_range": {
           "value": 48,
           "max": 48
+        },
+        "minecraft:despawn": {
+          "despawn_from_chance": false,
+          "despawn_from_inactivity": false,
+          "despawn_from_simulation_edge": false
         }
       }
     },

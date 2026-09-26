@@ -452,7 +452,7 @@ villager.
   and there's room for the Slow Falling drift described below. It's a
   hostile mob, so it won't stick around — or spawn at all — on Peaceful
   difficulty; that's vanilla behavior, not a pack bug. The zombie itself
-  has 100 health (vanilla: 20), 6 attack damage (vanilla: 3), full
+  has 80 health (vanilla: 20), 6 attack damage (vanilla: 3), full
   knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in
@@ -481,16 +481,17 @@ identifier), specifically so it renders normally without needing a
 resource pack override — the same rendering pitfall that sank the
 abandoned biome-trader villager work on `feature/biome_trader`.
 
-The same function also spawns a ring of 16 plain guard mobs around it —
-8 Zombies and 8 Skeletons alternating every 22.5° around a 12-block-radius
-circle, using `execute ... rotated <angle> 0` at each of the 16 compass
-directions off the Elite Zombie's position. These are ordinary vanilla mobs otherwise, tagged `season:elite_guard`,
+The same function also spawns a ring of 12 plain guard mobs around it —
+6 Zombies and 6 Skeletons alternating every 30° around a 12-block-radius
+circle, using `execute ... rotated <angle> 0` at each of the 12 compass
+directions off the Elite Zombie's position. Both guard types get 30
+health (vanilla: 20) via their component groups, tagged `season:elite_guard`,
 each given an Iron Helmet so they don't burn to death standing out in
 daylight during the event, plus a permanent Strength I (a modest damage
 bump) and Speed I (noticeably faster than normal, but well short of a
 baby zombie's speed) — applied once via `/effect ... 1000000 0 true` at
-summon time rather than a watchdog, since guards are one-off spawns, not
-a persistent mob like the Elite Zombie itself.
+summon time rather than a watchdog, since the effects (unlike health)
+aren't part of the entity's own component groups.
 
 The guard Skeletons also fire arrows on a random 1-3 second interval,
 about the same pace as vanilla but rolled fresh each shot instead of a
@@ -537,8 +538,17 @@ function is meant to be run by someone flying above the battlefield in
 Creative (e.g. a DM), which would otherwise spawn everything at the
 caster's altitude, floating in mid-air. The guards' spawn offsets also
 place them 1 block higher than the Elite Zombie's own position
-(`^ ^1 ^5` instead of `^ ^ ^5`) to keep them from landing partially
+(`^ ^1 ^12` instead of `^ ^ ^12`) to keep them from landing partially
 embedded in small terrain bumps around it.
+
+None of the event's mobs despawn on their own. Vanilla Zombies and
+Skeletons can randomly despawn from chance, inactivity, or simulation
+edge distance if no player is nearby for a while; the Elite Zombie and
+both guard groups override `minecraft:despawn` with those three flags
+set to `false` (and no `despawn_from_distance` block at all), so once
+summoned they're permanent until killed — same philosophy as the
+Rescue Villagers, just via a different component since despawn works
+differently for hostile mobs than for villagers.
 
 Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,

@@ -672,6 +672,10 @@
         }
       },
       "season:elite_guard_skeleton": {
+        "minecraft:health": {
+          "max": 30,
+          "value": 30
+        },
         "minecraft:behavior.ranged_attack": {
           "attack_interval": {
             "min": 1.0,
@@ -751,6 +755,11 @@
         "minecraft:follow_range": {
           "value": 48,
           "max": 48
+        },
+        "minecraft:despawn": {
+          "despawn_from_chance": false,
+          "despawn_from_inactivity": false,
+          "despawn_from_simulation_edge": false
         }
       }
     },
