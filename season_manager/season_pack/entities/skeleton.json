@@ -757,9 +757,11 @@
           "max": 48
         },
         "minecraft:despawn": {
-          "despawn_from_chance": false,
-          "despawn_from_inactivity": false,
-          "despawn_from_simulation_edge": false
+          "filters": {
+            "test": "is_family",
+            "subject": "self",
+            "value": "season_never_despawns"
+          }
         }
       }
     },

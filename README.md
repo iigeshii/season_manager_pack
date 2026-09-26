@@ -543,12 +543,21 @@ embedded in small terrain bumps around it.
 
 None of the event's mobs despawn on their own. Vanilla Zombies and
 Skeletons can randomly despawn from chance, inactivity, or simulation
-edge distance if no player is nearby for a while; the Elite Zombie and
-both guard groups override `minecraft:despawn` with those three flags
-set to `false` (and no `despawn_from_distance` block at all), so once
-summoned they're permanent until killed — same philosophy as the
-Rescue Villagers, just via a different component since despawn works
-differently for hostile mobs than for villagers.
+edge distance if no player is nearby for a while. The first attempt at
+disabling this — setting `despawn_from_chance`/`despawn_from_inactivity`/
+`despawn_from_simulation_edge` to `false` — actually made things *worse*:
+mobs spawned and despawned almost instantly, meaning those flags don't
+mean "never despawn from this rule" the way they read; they more likely
+skip the randomized gate on the rule, so it fires unconditionally
+instead of never. The working fix, on the Elite Zombie and both guard
+groups, is a `minecraft:despawn` override with a `filters` block that
+can never evaluate true (`is_family` against a family string, `season_never_despawns`,
+that nothing is ever tagged with) — per Bedrock's own docs, defining
+`filters` at all makes the standard despawn rules ignored entirely, so
+only that (never-satisfied) filter decides, and the mobs are permanent
+until killed. Same philosophy as the Rescue Villagers, just via a
+different component since despawn works differently for hostile mobs
+than for villagers.
 
 Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
