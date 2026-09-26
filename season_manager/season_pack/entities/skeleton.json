@@ -679,9 +679,78 @@
           },
           "attack_range": {
             "min": 0.0,
-            "max": 15.0
+            "max": 32.0
           },
           "priority": 0
+        },
+        "minecraft:shooter": {
+          "def": "season:long_arrow",
+          "sound": "bow"
+        },
+        "minecraft:type_family": {
+          "family": [
+            "skeleton",
+            "undead",
+            "monster",
+            "mob",
+            "season_elite"
+          ]
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "season_elite"
+                }
+              },
+              "deals_damage": false
+            }
+          ]
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 1,
+          "entity_types": [
+            {
+              "filters": {
+                "all_of": [
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "breeze"
+                  },
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "season_elite"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "reselect_targets": true,
+          "must_see": true,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "player"
+              },
+              "max_dist": 48
+            }
+          ],
+          "priority": 2
+        },
+        "minecraft:follow_range": {
+          "value": 48,
+          "max": 48
         }
       }
     },

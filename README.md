@@ -450,9 +450,8 @@ villager.
   blocks ahead of whichever way the caster is facing (`^ ^ ^7`, not
   `~ ~ ~`) so it doesn't land right on top of them. It's a hostile mob,
   so it won't stick around — or spawn at all — on Peaceful difficulty;
-  that's vanilla behavior, not a pack bug. The zombie itself has 80
-  health (vanilla: 20), 10 attack damage (vanilla: 3),
-  full knockback resistance, a permanent Strength II / Resistance I /
+  that's vanilla behavior, not a pack bug. The zombie itself has 160
+  health (vanilla: 20), 6 attack damage (vanilla: 3), full knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in
   [`main.js`](season_manager/season_pack/scripts/main.js), since potion
@@ -480,9 +479,9 @@ identifier), specifically so it renders normally without needing a
 resource pack override — the same rendering pitfall that sank the
 abandoned biome-trader villager work on `feature/biome_trader`.
 
-The same function also spawns a ring of 12 plain guard mobs around it —
-6 Zombies and 6 Skeletons alternating every 30° around a 5-block-radius
-circle, using `execute ... rotated <angle> 0` at each of the 12 compass
+The same function also spawns a ring of 16 plain guard mobs around it —
+8 Zombies and 8 Skeletons alternating every 22.5° around an 8-block-radius
+circle, using `execute ... rotated <angle> 0` at each of the 16 compass
 directions off the Elite Zombie's position. These are ordinary vanilla mobs otherwise, tagged `season:elite_guard`,
 each given an Iron Helmet so they don't burn to death standing out in
 daylight during the event, plus a permanent Strength I (a modest damage
@@ -501,6 +500,37 @@ faster `minecraft:behavior.ranged_attack`, added via a custom event
 fired only on the tagged guard Skeletons after they spawn. This doesn't
 affect any other Skeleton in the world — only ones tagged
 `season:elite_guard`.
+
+All the event's mobs — the Elite Zombie and both guard types — share a
+`season_elite` type family and three coordinated tuning changes, applied
+via `season:elite_zombie` (existing), a new `season:elite_guard_zombie`
+group, and the extended `season:elite_guard_skeleton` group:
+
+- **No friendly fire.** A `minecraft:damage_sensor` trigger zeroes out
+  any damage from another `season_elite`-family mob, and
+  `minecraft:behavior.hurt_by_target` is extended to never retaliate
+  against one either. Without this, a guard Skeleton's arrow going wide
+  and clipping a guard Zombie (or the Elite Zombie itself) used to start
+  infighting.
+- **Longer detection and chase range.** `minecraft:behavior.nearest_attackable_target`
+  is narrowed to players only (guards don't care about villagers/iron
+  golems/etc.) but its `max_dist` is raised to 48, and a
+  `minecraft:follow_range` of 48 is added so a spotted player isn't
+  dropped once they're chased — vanilla Zombies stop pursuing well
+  before that (Skeletons don't set an explicit follow range at all,
+  meaning they'd fall back to a much shorter engine default).
+- **Skeletons shoot farther and straighter.** `attack_range` on the
+  guard Skeleton's ranged attack goes from 15 to 32 blocks, and their
+  `minecraft:shooter` points at a new
+  [`entities/long_arrow.json`](season_manager/season_pack/entities/long_arrow.json)
+  (`season:long_arrow`) instead of the vanilla arrow — a copy of
+  vanilla's projectile with `power` raised (1.6 → 2.2), `gravity`
+  lowered (0.05 → 0.03), and `uncertainty_base`/`uncertainty_multiplier`
+  lowered (16/4 → 4/1) for a flatter, more accurate shot without going
+  as laser-precise as a fully-charged player arrow (uncertainty 1/0).
+  This is a brand new identifier, not an override of vanilla's
+  `arrow.json`, so wild Skeletons and player bows are completely
+  unaffected.
 
 Both the Elite Zombie and its guards get a 30-second Slow Falling effect
 the instant they spawn, so they drift gently down to actual solid ground

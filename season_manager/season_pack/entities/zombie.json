@@ -787,11 +787,11 @@
       },
       "season:elite_zombie": {
         "minecraft:health": {
-          "max": 80,
-          "value": 80
+          "max": 160,
+          "value": 160
         },
         "minecraft:attack": {
-          "damage": 10
+          "damage": 6
         },
         "minecraft:knockback_resistance": {
           "value": 1.0
@@ -810,6 +810,129 @@
             "mob",
             "season_elite"
           ]
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "season_elite"
+                }
+              },
+              "deals_damage": false
+            }
+          ]
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 1,
+          "entity_types": [
+            {
+              "filters": {
+                "all_of": [
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "breeze"
+                  },
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "season_elite"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 2,
+          "must_see": true,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "player"
+              },
+              "max_dist": 48
+            }
+          ]
+        },
+        "minecraft:follow_range": {
+          "value": 48,
+          "max": 48
+        }
+      },
+      "season:elite_guard_zombie": {
+        "minecraft:type_family": {
+          "family": [
+            "zombie",
+            "undead",
+            "monster",
+            "mob",
+            "season_elite"
+          ]
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "season_elite"
+                }
+              },
+              "deals_damage": false
+            }
+          ]
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 1,
+          "entity_types": [
+            {
+              "filters": {
+                "all_of": [
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "breeze"
+                  },
+                  {
+                    "operator": "not",
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "season_elite"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 2,
+          "must_see": true,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "player"
+              },
+              "max_dist": 48
+            }
+          ]
+        },
+        "minecraft:follow_range": {
+          "value": 48,
+          "max": 48
         }
       }
     },
@@ -818,6 +941,13 @@
         "add": {
           "component_groups": [
             "season:elite_zombie"
+          ]
+        }
+      },
+      "season:become_elite_guard_zombie": {
+        "add": {
+          "component_groups": [
+            "season:elite_guard_zombie"
           ]
         }
       },
