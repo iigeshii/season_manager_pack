@@ -168,21 +168,23 @@ disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading
 replaces the vanilla trade list with a light-block-only one, plus one
 always-available staple trade, grouped into four rarity buckets:
 
-- **Always available** — 4 Emeralds for 1 Diamond. Unlike the light
-  trades below, this one sits directly in the tier's `trades` array
-  instead of inside a `groups` entry, so it isn't part of the random
-  per-spawn subset — every Wandering Trader offers it, every time
-  (`max_uses: 4`, same no-restock rule as everything else here).
+- **Always available** — 4 Emeralds for 1 Diamond. This is its own
+  `groups` entry with `num_to_select: 1` out of a single trade, so it's
+  always picked — a bare `trades` array placed directly on the tier
+  (alongside `groups`, the way vanilla's own simplest examples show it
+  used alone) turned out not to render at all once a `groups` array was
+  also present, so this uses the same group mechanism as everything
+  else instead (`max_uses: 4`, same no-restock rule as the rest).
 
-- **Common** (picks 3 of 5, 1 Emerald each) — Torch (16), Soul Torch
-  (8), Glowstone (8), Redstone Lamp (4), Jack o'Lantern (4).
-- **Candles** (picks 2 of 17, counted as part of Common, 1 Emerald
-  each) — any candle color including plain, 8 each.
+- **Common** (one pool, picks 6 of 30) — the 5 basic light blocks (Torch
+  16 @ 1 Emerald, Soul Torch 8 @ 1, Glowstone 8 @ 1, Redstone Lamp 4 @ 1,
+  Jack o'Lantern 4 @ 1), all 17 candle colors including plain (8 each @
+  1 Emerald), and all 8 Copper Lantern oxidation/wax variants (6 each @
+  2 Emeralds), all mixed into a single group so the 6 picked are a true
+  random draw across all 30 — not "always some candles," which is what
+  happened when candles were their own separate always-picked group.
 - **Uncommon** (picks 2 of 4, 2 Emeralds each) — Lantern, Soul Lantern,
   Sea Lantern, Shroomlight, 6 each.
-- **Copper Lanterns** (picks 1 of 8, counted as part of Uncommon, 2
-  Emeralds each) — any oxidation stage (unweathered/exposed/weathered/
-  oxidized), waxed or not, 6 each.
 - **Rare** (picks 1 of 4, 3 Emeralds each) — Ochre/Verdant/Pearlescent
   Froglight (4 each), End Rod (4).
 
