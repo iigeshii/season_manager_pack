@@ -168,25 +168,29 @@ disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading
 replaces the vanilla trade list with a light-block-only one, plus one
 always-available staple trade, grouped into four rarity buckets:
 
-- **Always available** — 4 Emeralds for 1 Diamond. This is its own
-  `groups` entry with `num_to_select: 1` out of a single trade, so it's
-  always picked — a bare `trades` array placed directly on the tier
-  (alongside `groups`, the way vanilla's own simplest examples show it
-  used alone) turned out not to render at all once a `groups` array was
-  also present, so this uses the same group mechanism as everything
+- **Always available** — 1 Diamond for 4 Emeralds, a way to convert
+  Diamonds into Emeralds rather than the other way around. This is its
+  own `groups` entry with `num_to_select: 1` out of a single trade, so
+  it's always picked — a bare `trades` array placed directly on the
+  tier (alongside `groups`, the way vanilla's own simplest examples show
+  it used alone) turned out not to render at all once a `groups` array
+  was also present, so this uses the same group mechanism as everything
   else instead (`max_uses: 4`, same no-restock rule as the rest).
 
-- **Common** (one pool, picks 6 of 30) — the 5 basic light blocks (Torch
-  16 @ 1 Emerald, Soul Torch 8 @ 1, Glowstone 8 @ 1, Redstone Lamp 4 @ 1,
-  Jack o'Lantern 4 @ 1), all 17 candle colors including plain (8 each @
-  1 Emerald), and all 8 Copper Lantern oxidation/wax variants (6 each @
-  2 Emeralds), all mixed into a single group so the 6 picked are a true
-  random draw across all 30 — not "always some candles," which is what
-  happened when candles were their own separate always-picked group.
-- **Uncommon** (picks 2 of 4, 2 Emeralds each) — Lantern, Soul Lantern,
-  Sea Lantern, Shroomlight, 6 each.
-- **Rare** (picks 1 of 4, 3 Emeralds each) — Ochre/Verdant/Pearlescent
-  Froglight (4 each), End Rod (4).
+- **Common** (picks 5 of 13, no candles) — the 5 basic light blocks
+  (Torch 16 @ 1 Emerald, Soul Torch 8 @ 1, Glowstone 8 @ 1, Redstone
+  Lamp 4 @ 1, Jack o'Lantern 4 @ 1) plus all 8 Copper Lantern
+  oxidation/wax variants (6 each @ 2 Emeralds).
+- **Candles** (picks 1 of 17, own group) — any candle color including
+  plain, 8 each @ 1 Emerald. This used to be merged into the Common pool
+  above (picks 6 of 30), but with candles being over half the pool they
+  crowded out everything else almost every time — a separate 1-pick
+  group guarantees exactly one candle slot without letting them
+  dominate the rest.
+- **Uncommon/Rare** (picks 3 of 8, one merged pool) — Lantern, Soul
+  Lantern, Sea Lantern, Shroomlight (6 each @ 2 Emeralds), and
+  Ochre/Verdant/Pearlescent Froglight plus End Rod (4 each @ 3
+  Emeralds).
 
 Price climbs with rarity (1/2/3 Emeralds) rather than staying flat,
 matching vanilla's own convention of charging more for the less common

@@ -7,8 +7,8 @@
           "num_to_select": 1,
           "trades": [
             {
-              "wants": [{ "item": "minecraft:emerald", "quantity": 4, "price_multiplier": 0.05 }],
-              "gives": [{ "item": "minecraft:diamond", "quantity": 1 }],
+              "wants": [{ "item": "minecraft:diamond", "quantity": 1, "price_multiplier": 0.05 }],
+              "gives": [{ "item": "minecraft:emerald", "quantity": 4 }],
               "trader_exp": 0,
               "max_uses": 4,
               "reward_exp": false
@@ -16,13 +16,26 @@
           ]
         },
         {
-          "num_to_select": 6,
+          "num_to_select": 5,
           "trades": [
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:torch", "quantity": 16 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:soul_torch", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:glowstone", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:redstone_lamp", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:lit_pumpkin", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:exposed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:weathered_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:oxidized_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_exposed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_weathered_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_oxidized_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
+          ]
+        },
+        {
+          "num_to_select": 1,
+          "trades": [
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:white_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:orange_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
@@ -39,29 +52,16 @@
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:brown_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:green_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:red_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:black_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:exposed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:weathered_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:oxidized_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_exposed_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_weathered_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:waxed_oxidized_copper_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 1, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:black_candle", "quantity": 8 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
           ]
         },
         {
-          "num_to_select": 2,
+          "num_to_select": 3,
           "trades": [
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:soul_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:sea_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:shroomlight", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
-          ]
-        },
-        {
-          "num_to_select": 1,
-          "trades": [
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:shroomlight", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:ochre_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:verdant_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:pearlescent_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
