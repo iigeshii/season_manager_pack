@@ -457,8 +457,14 @@ villager.
   them (`^ ^5 ^7`, not `~ ~ ~`), so it doesn't land right on top of them
   and there's room for the Slow Falling drift described below. It's a
   hostile mob, so it won't stick around — or spawn at all — on Peaceful
-  difficulty; that's vanilla behavior, not a pack bug. The zombie itself
-  has 80 health (vanilla: 20), 6 attack damage (vanilla: 3), full
+  difficulty; that's vanilla behavior, not a pack bug. Vanilla Zombies
+  randomly spawn as a baby (or baby jockey) about 5% of the time, so
+  right after tagging it the function fires a new `season:force_adult`
+  event — removes `minecraft:zombie_baby`/`minecraft:zombie_jockey` and
+  re-adds the adult component groups, undoing that roll if it happened
+  — before the elite stats get applied, guaranteeing a full-size Elite
+  Zombie every time. The zombie itself has 80 health (vanilla: 20), 6
+  attack damage (vanilla: 3), full
   knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in

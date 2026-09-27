@@ -962,6 +962,22 @@
           ]
         }
       },
+      "season:force_adult": {
+        "remove": {
+          "component_groups": [
+            "minecraft:zombie_baby",
+            "minecraft:zombie_jockey"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "minecraft:zombie_default",
+            "minecraft:zombie_adult",
+            "minecraft:not_on_zombie_horse",
+            "minecraft:can_have_equipment"
+          ]
+        }
+      },
       "season:become_elite_guard_zombie": {
         "add": {
           "component_groups": [

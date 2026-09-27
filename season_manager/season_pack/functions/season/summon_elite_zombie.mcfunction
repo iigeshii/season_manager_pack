@@ -1,5 +1,6 @@
 summon minecraft:zombie ^ ^5 ^7
 tag @e[type=minecraft:zombie,c=1] add season:elite_zombie
+event entity @e[type=minecraft:zombie,c=1] season:force_adult
 event entity @e[type=minecraft:zombie,c=1] season:become_elite_zombie
 effect @e[tag=season:elite_zombie] slow_falling 30 0 true
 
