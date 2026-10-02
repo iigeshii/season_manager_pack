@@ -375,22 +375,16 @@ system.runInterval(() => {
 //
 //  Uses .remove() rather than .kill() specifically so this can't be
 //  exploited as a free meat/wool farm (no death event, no loot drop, no
-//  XP). Selection is weighted, not a strict order — babies and
-//  white/undyed Sheep are more likely to go than everything else, but
-//  it's still possible for any animal to be picked. An earlier version
-//  used a strict priority order (exhaust all babies, then exhaust all
-//  undyed Sheep, only then touch anything else) and it wiped out every
-//  last white Sheep in one pass before ever touching a Pig/Chicken/Cow,
-//  since most naturally-spawned Sheep are undyed — too harsh for what
-//  was meant to be a mild preference.
+//  XP). Babies go first, absolutely, before any adult is touched — see
+//  pickCullTarget below for why that's an absolute rule while the
+//  Sheep-color preference is only a weighted one.
 // ─────────────────────────────────────────────
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
 
-const FARM_ANIMAL_CAP = 130;
+const FARM_ANIMAL_CAP = 150;
 const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
 
-const BABY_CULL_WEIGHT = 5;
 const UNDYED_SHEEP_CULL_WEIGHT = 3;
 const DEFAULT_CULL_WEIGHT = 1;
 
@@ -404,14 +398,20 @@ function isUndyedSheep(animal) {
   return !color || color.value === 0; // 0 = white, vanilla's default undyed color
 }
 
-function cullWeight(animal) {
-  if (isBabyAnimal(animal)) return BABY_CULL_WEIGHT;
-  if (isUndyedSheep(animal)) return UNDYED_SHEEP_CULL_WEIGHT;
-  return DEFAULT_CULL_WEIGHT;
-}
-
+// Babies are an absolute priority — every baby goes before a single
+// adult is touched. Babies are usually a small slice of a farm's
+// population at any given moment (they grow up in ~20 minutes), so a
+// weighted preference like the Sheep-color one below wasn't enough to
+// actually feel like a priority: most culls still landed on adults
+// just because there were so many more of them. Adult selection stays
+// weighted, not absolute, since an absolute "all undyed Sheep before
+// any other adult" rule is what wiped out every white Sheep in one
+// pass previously.
 function pickCullTarget(animals) {
-  const weights = animals.map(cullWeight);
+  const babies = animals.filter(isBabyAnimal);
+  if (babies.length > 0) return babies[Math.floor(Math.random() * babies.length)];
+
+  const weights = animals.map((animal) => (isUndyedSheep(animal) ? UNDYED_SHEEP_CULL_WEIGHT : DEFAULT_CULL_WEIGHT));
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
   let roll = Math.random() * totalWeight;
   for (let i = 0; i < animals.length; i++) {

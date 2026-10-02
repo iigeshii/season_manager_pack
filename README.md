@@ -619,8 +619,8 @@ for one farm to quietly eat most of that budget on its own.
 A watchdog in [`main.js`](season_manager/season_pack/scripts/main.js)
 (`FARM_ANIMAL_TYPES`/`FARM_ANIMAL_CAP`) checks the combined Overworld
 population of Pigs, Chickens, Cows, and Sheep every 5 seconds, and if
-the total is over 130, despawns surplus animals one at a time until it's
-back at 130 or under. This is a world-wide total, not per-area — `getEntities`
+the total is over 150, despawns surplus animals one at a time until it's
+back at 150 or under. This is a world-wide total, not per-area — `getEntities`
 with no location filter returns every matching entity in every currently
 loaded chunk in the dimension, so two unrelated farms on opposite sides
 of the map both count against the same combined cap as long as both are
@@ -630,19 +630,23 @@ farm — no death event, no loot drop, no XP. Whenever a cull happens,
 every player gets a short chat message (`§e3 farm animals despawned
 (mob cap).`).
 
-Selection is weighted, not a strict priority order: babies are 5x more
-likely to be picked than a baseline animal, and white/undyed Sheep are
-3x more likely, so a cull leans toward thinning young stock and plain
-Sheep without ever being guaranteed to. An earlier version used a strict
-order instead — exhaust every baby, then exhaust every undyed Sheep,
-only then touch anything else — and in practice that meant every single
-white Sheep in the world got despawned in one pass before a single
-Pig/Chicken/Cow was touched, since most naturally-spawned Sheep are
-undyed to begin with. Weighting avoids that: colored Sheep, Pigs,
-Chickens, and Cows still have a real (if lower) chance of being picked
-each time, so a big cull spreads out instead of wiping one category
-clean. Not gated by `enabled`/`scriptevent season:toggle`, same as the
-other standalone watchdogs in this pack.
+Babies are an absolute priority — every baby despawns before a single
+adult is touched. A weighted preference (babies just more *likely* than
+adults) wasn't enough in practice: babies are usually a small slice of
+a farm's population at any moment, since they grow up in about 20
+minutes, so most culls still landed on adults purely because there were
+so many more of them. Once no babies are left, adult selection is
+weighted rather than absolute: white/undyed Sheep are 3x more likely to
+be picked than everything else, but colored Sheep, Pigs, Chickens, and
+Cows still have a real chance too. An earlier version made the Sheep
+preference absolute as well (exhaust every undyed Sheep before touching
+anything else) and that wiped out every white Sheep in the world in one
+pass, since most naturally-spawned Sheep are undyed to begin with —
+weighting avoids repeating that for the Sheep case while still letting
+babies be a hard rule, since there isn't the same "wipe out a whole
+species" risk with babies (they regrow within minutes regardless). Not
+gated by `enabled`/`scriptevent season:toggle`, same as the other
+standalone watchdogs in this pack.
 
 ### Cheaper trim template duplication
 
