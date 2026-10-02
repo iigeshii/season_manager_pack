@@ -626,12 +626,24 @@ loaded chunk in the dimension, so two unrelated farms on opposite sides
 of the map both count against the same combined cap as long as both are
 loaded. It despawns rather than kills (`.remove()`, not
 `.kill()`) specifically so this can't be exploited as a free meat/wool
-farm — no death event, no loot drop, no XP. Selection order: babies
-first (shrinks an actively-breeding farm rather than its established
-stock), then white/undyed Sheep before colored ones (so a player's dye
-work isn't the first thing undone), then whatever's left at random. Not
-gated by `enabled`/`scriptevent season:toggle`, same as the other
-standalone watchdogs in this pack.
+farm — no death event, no loot drop, no XP.
+
+Selection is weighted, not a strict priority order: babies are 5x more
+likely to be picked than a baseline animal, and white/undyed Sheep are
+3x more likely, so a cull leans toward thinning young stock and plain
+Sheep without ever being guaranteed to. An earlier version used a strict
+order instead — exhaust every baby, then exhaust every undyed Sheep,
+only then touch anything else — and in practice that meant every single
+white Sheep in the world got despawned in one pass before a single
+Pig/Chicken/Cow was touched, since most naturally-spawned Sheep are
+undyed to begin with. Weighting avoids that: colored Sheep, Pigs,
+Chickens, and Cows still have a real (if lower) chance of being picked
+each time, so a big cull spreads out instead of wiping one category
+clean. Whenever a cull actually happens, every player gets a chat
+message (`world.sendMessage`) saying how many animals were despawned
+and why, so it doesn't look like animals are silently vanishing for no
+reason. Not gated by `enabled`/`scriptevent season:toggle`, same as the
+other standalone watchdogs in this pack.
 
 ### Cheaper trim template duplication
 

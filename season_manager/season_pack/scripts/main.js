@@ -375,16 +375,24 @@ system.runInterval(() => {
 //
 //  Uses .remove() rather than .kill() specifically so this can't be
 //  exploited as a free meat/wool farm (no death event, no loot drop, no
-//  XP). Picks babies first (shrinks an actively-breeding farm instead of
-//  its established stock), then white/undyed Sheep before colored ones
-//  (so a player's dye work isn't the first thing undone), then whatever
-//  is left at random.
+//  XP). Selection is weighted, not a strict order — babies and
+//  white/undyed Sheep are more likely to go than everything else, but
+//  it's still possible for any animal to be picked. An earlier version
+//  used a strict priority order (exhaust all babies, then exhaust all
+//  undyed Sheep, only then touch anything else) and it wiped out every
+//  last white Sheep in one pass before ever touching a Pig/Chicken/Cow,
+//  since most naturally-spawned Sheep are undyed — too harsh for what
+//  was meant to be a mild preference.
 // ─────────────────────────────────────────────
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
 
 const FARM_ANIMAL_CAP = 75;
 const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
+
+const BABY_CULL_WEIGHT = 5;
+const UNDYED_SHEEP_CULL_WEIGHT = 3;
+const DEFAULT_CULL_WEIGHT = 1;
 
 function isBabyAnimal(animal) {
   return animal.getComponent("minecraft:is_baby") !== undefined;
@@ -393,26 +401,41 @@ function isBabyAnimal(animal) {
 function isUndyedSheep(animal) {
   if (animal.typeId !== "minecraft:sheep") return false;
   const color = animal.getComponent("minecraft:color");
-  return !color || color.color === 0; // 0 = white, vanilla's default undyed color
+  return !color || color.value === 0; // 0 = white, vanilla's default undyed color
+}
+
+function cullWeight(animal) {
+  if (isBabyAnimal(animal)) return BABY_CULL_WEIGHT;
+  if (isUndyedSheep(animal)) return UNDYED_SHEEP_CULL_WEIGHT;
+  return DEFAULT_CULL_WEIGHT;
 }
 
 function pickCullTarget(animals) {
-  const babies = animals.filter(isBabyAnimal);
-  if (babies.length > 0) return babies[Math.floor(Math.random() * babies.length)];
-
-  const undyedSheep = animals.filter(isUndyedSheep);
-  if (undyedSheep.length > 0) return undyedSheep[Math.floor(Math.random() * undyedSheep.length)];
-
-  return animals[Math.floor(Math.random() * animals.length)];
+  const weights = animals.map(cullWeight);
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (let i = 0; i < animals.length; i++) {
+    roll -= weights[i];
+    if (roll < 0) return animals[i];
+  }
+  return animals[animals.length - 1]; // floating-point fallback
 }
 
 system.runInterval(() => {
   const overworld = world.getDimension("overworld");
   const animals = FARM_ANIMAL_TYPES.flatMap((type) => overworld.getEntities({ type }));
 
+  let culled = 0;
   while (animals.length > FARM_ANIMAL_CAP) {
     const target = pickCullTarget(animals);
     animals.splice(animals.indexOf(target), 1);
     target.remove();
+    culled++;
+  }
+
+  if (culled > 0) {
+    world.sendMessage(
+      `§eSeason Manager: ${culled} farm animal${culled === 1 ? "" : "s"} despawned — too many Pigs/Chickens/Cows/Sheep were loaded at once, blocking natural spawning world-wide.`
+    );
   }
 }, FARM_ANIMAL_INTERVAL_TICKS);
