@@ -363,3 +363,56 @@ system.runInterval(() => {
     }
   }
 }, CHAINMAIL_HASTE_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  FARM ANIMAL POPULATION CAP
+//  Bedrock's global mob cap is a flat 200 mobs world-wide; once that's
+//  hit, natural spawning of everything (zombies, skeletons, wildlife)
+//  stops dead everywhere. Unattended breeding pens are the usual
+//  culprit — Pigs, Chickens, Cows, and Sheep breed exponentially if fed
+//  and never thinned out. This keeps their combined total under a cap
+//  by despawning the surplus.
+//
+//  Uses .remove() rather than .kill() specifically so this can't be
+//  exploited as a free meat/wool farm (no death event, no loot drop, no
+//  XP). Picks babies first (shrinks an actively-breeding farm instead of
+//  its established stock), then white/undyed Sheep before colored ones
+//  (so a player's dye work isn't the first thing undone), then whatever
+//  is left at random.
+// ─────────────────────────────────────────────
+
+const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
+
+const FARM_ANIMAL_CAP = 75;
+const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
+
+function isBabyAnimal(animal) {
+  return animal.getComponent("minecraft:is_baby") !== undefined;
+}
+
+function isUndyedSheep(animal) {
+  if (animal.typeId !== "minecraft:sheep") return false;
+  const color = animal.getComponent("minecraft:color");
+  return !color || color.color === 0; // 0 = white, vanilla's default undyed color
+}
+
+function pickCullTarget(animals) {
+  const babies = animals.filter(isBabyAnimal);
+  if (babies.length > 0) return babies[Math.floor(Math.random() * babies.length)];
+
+  const undyedSheep = animals.filter(isUndyedSheep);
+  if (undyedSheep.length > 0) return undyedSheep[Math.floor(Math.random() * undyedSheep.length)];
+
+  return animals[Math.floor(Math.random() * animals.length)];
+}
+
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  const animals = FARM_ANIMAL_TYPES.flatMap((type) => overworld.getEntities({ type }));
+
+  while (animals.length > FARM_ANIMAL_CAP) {
+    const target = pickCullTarget(animals);
+    animals.splice(animals.indexOf(target), 1);
+    target.remove();
+  }
+}, FARM_ANIMAL_INTERVAL_TICKS);

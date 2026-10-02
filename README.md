@@ -607,6 +607,32 @@ individually toward the total.
 Not gated by `enabled`/`scriptevent season:toggle`, same as the Leather
 bonus.
 
+### Farm animal population cap
+
+Bedrock's global mob cap is a flat 200 mobs world-wide — once that's
+hit, natural spawning of *everything* (zombies, skeletons, new
+wildlife) stops dead, everywhere, until the count drops back down. An
+unattended breeding pen is the usual culprit: Pigs, Chickens, Cows, and
+Sheep breed exponentially if fed and never thinned out, and it's easy
+for one farm to quietly eat most of that budget on its own.
+
+A watchdog in [`main.js`](season_manager/season_pack/scripts/main.js)
+(`FARM_ANIMAL_TYPES`/`FARM_ANIMAL_CAP`) checks the combined Overworld
+population of Pigs, Chickens, Cows, and Sheep every 5 seconds, and if
+the total is over 75, despawns surplus animals one at a time until it's
+back at 75 or under. This is a world-wide total, not per-area — `getEntities`
+with no location filter returns every matching entity in every currently
+loaded chunk in the dimension, so two unrelated farms on opposite sides
+of the map both count against the same combined cap as long as both are
+loaded. It despawns rather than kills (`.remove()`, not
+`.kill()`) specifically so this can't be exploited as a free meat/wool
+farm — no death event, no loot drop, no XP. Selection order: babies
+first (shrinks an actively-breeding farm rather than its established
+stock), then white/undyed Sheep before colored ones (so a player's dye
+work isn't the first thing undone), then whatever's left at random. Not
+gated by `enabled`/`scriptevent season:toggle`, same as the other
+standalone watchdogs in this pack.
+
 ### Cheaper trim template duplication
 
 All 19 Armor Trim Smithing Template duplication recipes (see
