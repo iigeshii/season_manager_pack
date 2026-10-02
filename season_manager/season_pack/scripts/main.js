@@ -387,7 +387,7 @@ system.runInterval(() => {
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
 
-const FARM_ANIMAL_CAP = 75;
+const FARM_ANIMAL_CAP = 130;
 const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
 
 const BABY_CULL_WEIGHT = 5;
@@ -434,8 +434,6 @@ system.runInterval(() => {
   }
 
   if (culled > 0) {
-    world.sendMessage(
-      `§eSeason Manager: ${culled} farm animal${culled === 1 ? "" : "s"} despawned — too many Pigs/Chickens/Cows/Sheep were loaded at once, blocking natural spawning world-wide.`
-    );
+    world.sendMessage(`§e${culled} farm animal${culled === 1 ? "" : "s"} despawned (mob cap).`);
   }
 }, FARM_ANIMAL_INTERVAL_TICKS);

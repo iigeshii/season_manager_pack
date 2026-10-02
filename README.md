@@ -619,14 +619,16 @@ for one farm to quietly eat most of that budget on its own.
 A watchdog in [`main.js`](season_manager/season_pack/scripts/main.js)
 (`FARM_ANIMAL_TYPES`/`FARM_ANIMAL_CAP`) checks the combined Overworld
 population of Pigs, Chickens, Cows, and Sheep every 5 seconds, and if
-the total is over 75, despawns surplus animals one at a time until it's
-back at 75 or under. This is a world-wide total, not per-area — `getEntities`
+the total is over 130, despawns surplus animals one at a time until it's
+back at 130 or under. This is a world-wide total, not per-area — `getEntities`
 with no location filter returns every matching entity in every currently
 loaded chunk in the dimension, so two unrelated farms on opposite sides
 of the map both count against the same combined cap as long as both are
 loaded. It despawns rather than kills (`.remove()`, not
 `.kill()`) specifically so this can't be exploited as a free meat/wool
-farm — no death event, no loot drop, no XP.
+farm — no death event, no loot drop, no XP. Whenever a cull happens,
+every player gets a short chat message (`§e3 farm animals despawned
+(mob cap).`).
 
 Selection is weighted, not a strict priority order: babies are 5x more
 likely to be picked than a baseline animal, and white/undyed Sheep are
@@ -639,10 +641,7 @@ Pig/Chicken/Cow was touched, since most naturally-spawned Sheep are
 undyed to begin with. Weighting avoids that: colored Sheep, Pigs,
 Chickens, and Cows still have a real (if lower) chance of being picked
 each time, so a big cull spreads out instead of wiping one category
-clean. Whenever a cull actually happens, every player gets a chat
-message (`world.sendMessage`) saying how many animals were despawned
-and why, so it doesn't look like animals are silently vanishing for no
-reason. Not gated by `enabled`/`scriptevent season:toggle`, same as the
+clean. Not gated by `enabled`/`scriptevent season:toggle`, same as the
 other standalone watchdogs in this pack.
 
 ### Cheaper trim template duplication
