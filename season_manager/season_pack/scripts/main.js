@@ -375,14 +375,20 @@ system.runInterval(() => {
 //
 //  Uses .remove() rather than .kill() specifically so this can't be
 //  exploited as a free meat/wool farm (no death event, no loot drop, no
-//  XP). Babies go first, absolutely, before any adult is touched — see
-//  pickCullTarget below for why that's an absolute rule while the
-//  Sheep-color preference is only a weighted one.
+//  XP). Each despawn comes from whichever of the 4 species currently
+//  has the most individuals loaded, recomputed after every removal —
+//  not a flat random pick across all of them combined. That matters for
+//  lopsided farms: 200 Sheep and 2 Cows should only ever cost Sheep,
+//  since Cows never become the largest group. A purely random pick
+//  across the combined pool would instead cull proportionally and could
+//  easily wipe out the 2 Cows just from bad luck. Babies and the
+//  Sheep-color preference (see pickCullTarget) are tie-breakers *within*
+//  whichever species gets picked, not a global override of this rule.
 // ─────────────────────────────────────────────
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
 
-const FARM_ANIMAL_CAP = 150;
+const FARM_ANIMAL_CAP = 160;
 const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
 
 const UNDYED_SHEEP_CULL_WEIGHT = 3;
@@ -398,19 +404,7 @@ function isUndyedSheep(animal) {
   return !color || color.value === 0; // 0 = white, vanilla's default undyed color
 }
 
-// Babies are an absolute priority — every baby goes before a single
-// adult is touched. Babies are usually a small slice of a farm's
-// population at any given moment (they grow up in ~20 minutes), so a
-// weighted preference like the Sheep-color one below wasn't enough to
-// actually feel like a priority: most culls still landed on adults
-// just because there were so many more of them. Adult selection stays
-// weighted, not absolute, since an absolute "all undyed Sheep before
-// any other adult" rule is what wiped out every white Sheep in one
-// pass previously.
-function pickCullTarget(animals) {
-  const babies = animals.filter(isBabyAnimal);
-  if (babies.length > 0) return babies[Math.floor(Math.random() * babies.length)];
-
+function pickWeighted(animals) {
   const weights = animals.map((animal) => (isUndyedSheep(animal) ? UNDYED_SHEEP_CULL_WEIGHT : DEFAULT_CULL_WEIGHT));
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
   let roll = Math.random() * totalWeight;
@@ -421,16 +415,46 @@ function pickCullTarget(animals) {
   return animals[animals.length - 1]; // floating-point fallback
 }
 
+// Finds the species with the most individuals currently loaded, then
+// picks which one of that species to despawn: every baby of that
+// species goes before any adult of it (babies are usually a small
+// slice of the population at any moment, since they grow up in ~20
+// minutes, so anything less than an absolute rule barely reads as a
+// priority in practice); once no babies are left, white/undyed Sheep
+// are 3x more likely than other adults of that species, but not an
+// absolute rule — an earlier version made that absolute too and it
+// wiped out every white Sheep in one pass, since most naturally-spawned
+// Sheep are undyed to begin with.
+function pickCullTarget(animalsByType) {
+  let largestType = FARM_ANIMAL_TYPES[0];
+  for (const type of FARM_ANIMAL_TYPES) {
+    if (animalsByType.get(type).length > animalsByType.get(largestType).length) largestType = type;
+  }
+
+  const candidates = animalsByType.get(largestType);
+  const babies = candidates.filter(isBabyAnimal);
+  if (babies.length > 0) {
+    return { type: largestType, target: babies[Math.floor(Math.random() * babies.length)] };
+  }
+
+  return { type: largestType, target: pickWeighted(candidates) };
+}
+
 system.runInterval(() => {
   const overworld = world.getDimension("overworld");
-  const animals = FARM_ANIMAL_TYPES.flatMap((type) => overworld.getEntities({ type }));
+  const animalsByType = new Map(FARM_ANIMAL_TYPES.map((type) => [type, overworld.getEntities({ type })]));
+
+  let total = 0;
+  for (const list of animalsByType.values()) total += list.length;
 
   let culled = 0;
-  while (animals.length > FARM_ANIMAL_CAP) {
-    const target = pickCullTarget(animals);
-    animals.splice(animals.indexOf(target), 1);
+  while (total > FARM_ANIMAL_CAP) {
+    const { type, target } = pickCullTarget(animalsByType);
+    const list = animalsByType.get(type);
+    list.splice(list.indexOf(target), 1);
     target.remove();
     culled++;
+    total--;
   }
 
   if (culled > 0) {
