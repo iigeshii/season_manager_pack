@@ -38,8 +38,17 @@
     --amber: #e0b04a; --amber-ink: #f0c876; --amber-bg: #3a2f10;
   }
   * { box-sizing: border-box; }
-  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); margin: 0; }
   main { max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  main [id] { scroll-margin-top: 4rem; }
+
+  .site-nav { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .site-nav ul { list-style: none; max-width: 1040px; margin: 0 auto; padding: .7rem 1.5rem; display: flex; gap: .4rem 1.3rem; overflow-x: auto; white-space: nowrap; }
+  .site-nav a { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; }
+  .site-nav a:hover { color: var(--emerald-ink); }
+  .site-nav .nav-current { color: var(--emerald-ink); font-weight: 500; }
+  @media (max-width: 560px) { .site-nav ul { padding-inline: 1rem; } main { padding-inline: 1rem; } }
 
   .kicker { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
   h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.1rem, 5vw, 3rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
@@ -70,6 +79,7 @@
   .masthead h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.6vw, 1.9rem); margin: .15rem 0 0; letter-spacing: -0.01em; text-wrap: balance; }
 
   .diagram-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1.3rem 1.3rem .8rem; margin-bottom: 1rem; }
+  .diagram-wrap .mermaid .nodeLabel, .diagram-wrap .mermaid foreignObject div { max-width: none !important; white-space: nowrap !important; }
   .diagram-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: .78rem; color: var(--ink-soft); margin: 0 0 1.8rem; }
   .diagram-legend span { display: inline-flex; align-items: center; gap: .4rem; }
   .legend-swatch { display: inline-block; width: 1.1rem; height: 0; border-top: 2px solid var(--ink-soft); }
@@ -87,9 +97,13 @@
   .current-badge, .tentative-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; }
   .current-badge { background: var(--emerald); color: var(--surface); }
   .tentative-badge { background: var(--amber); color: var(--surface); }
+  .complete-badge { font-family: var(--font-mono); font-size: .63rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; background: var(--emerald-bg); color: var(--emerald-ink); }
+  .chapter.is-complete .chapter-kicker { color: var(--emerald-ink); }
+  .chapter-criteria li.met::marker { content: "✓  "; color: var(--emerald); font-weight: 600; }
+  .chapter-criteria .outcome { display: block; font-size: .8rem; color: var(--ink-faint); margin-top: .15rem; }
 
-  .chapter-kicker a, .leads-to a { color: var(--emerald-ink); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
-  .chapter-kicker a:hover, .leads-to a:hover { text-decoration-color: currentColor; }
+  .chapter-kicker a, .leads-to a, .chapter-block a { color: var(--emerald-ink); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
+  .chapter-kicker a:hover, .leads-to a:hover, .chapter-block a:hover { text-decoration-color: currentColor; }
   .leads-to { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .03em; color: var(--ink-faint); margin-top: 1.1rem; padding-top: .9rem; border-top: 1px dashed var(--border); }
 
   .chapter-title { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0 0 .9rem; letter-spacing: -0.01em; text-wrap: balance; }
@@ -106,6 +120,9 @@
   .chapter-block ul { margin: 0; padding-left: 1.1rem; }
   .chapter-block li { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: .4rem; }
   .chapter-block li:last-child { margin-bottom: 0; }
+  .chapter-block li > strong { color: var(--ink); font-weight: 600; }
+  .chapter-block ul ul { margin-top: .35rem; margin-bottom: .2rem; }
+  .chapter-block ul ul li { margin-bottom: .25rem; }
 
   .season-plan-sub { margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px dashed var(--border); }
   .season-plan-sub h3 { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .07em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .6rem; }
@@ -118,10 +135,75 @@
   .unplanned li { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: .5rem; }
   .unplanned li:last-child { margin-bottom: 0; }
   .unplanned li strong { color: var(--ink); font-weight: 600; }
+
+  /* Mystic Library: one ladder per enchant group, Tier I at the bottom, each higher row gated by the one below. */
+  .mystic { display: grid; gap: 1.4rem; margin-top: 2.6rem; }
+  .mystic .masthead { margin-bottom: 0; }
+  .ml-dek { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); margin: 0; max-width: 68ch; }
+  .ml-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; }
+  .ml-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .75rem .9rem; display: grid; gap: .1rem; min-width: 0; }
+  .ml-stat .k { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .ml-stat .v { font-weight: 600; font-size: 1rem; font-variant-numeric: tabular-nums; }
+  .ml-stat .v.done { color: var(--emerald-ink); }
+  .ml-stat .v.wait { color: var(--ink-soft); }
+  .ml-costs { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+  .ml-cost { font-family: var(--font-mono); font-size: .75rem; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; padding: .2rem .6rem; font-variant-numeric: tabular-nums; }
+  .ml-cost b { color: var(--emerald-ink); }
+  .ml-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.1rem; font-size: .8rem; color: var(--ink-soft); align-items: center; margin-top: .9rem; }
+  .ml-legend .ml-chip { font-size: .74rem; padding: .1rem .5rem; }
+  .ml-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 1rem; }
+  .ml-group { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem; display: grid; gap: .8rem; align-content: start; min-width: 0; }
+  .ml-ghead { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .7rem; }
+  .ml-ghead h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 0; }
+  .ml-tag { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .07em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 999px; border: 1px solid var(--ink-faint); color: var(--ink-faint); }
+  .ml-tag.on { border-color: var(--emerald); color: var(--emerald-ink); }
+  .ml-ladder { display: flex; flex-direction: column-reverse; }
+  .ml-tier { display: grid; gap: .5rem; padding-block: .75rem; border-top: 1px dashed var(--border); }
+  .ml-tier:last-child { border-top: 0; padding-top: 0; }
+  .ml-tier:first-child { padding-bottom: 0; }
+  .ml-thead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem .8rem; align-items: baseline; }
+  .ml-tname { font-family: var(--font-mono); font-weight: 500; font-size: .74rem; letter-spacing: .06em; }
+  .ml-tier.sealed .ml-tname { color: var(--ink-faint); }
+  .ml-tmeta { font-size: .78rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .ml-tmeta.open { color: var(--emerald-ink); }
+  .ml-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .ml-chip { font-size: .8rem; font-weight: 600; border-radius: 4px; padding: .2rem .6rem; border: 1.5px solid var(--border); }
+  .ml-chip.got { background: var(--emerald); border-color: var(--emerald); color: var(--surface); }
+  .ml-chip.open { border-color: var(--emerald); background: var(--emerald-bg); color: var(--emerald-ink); }
+  .ml-chip.sealed { border-style: dashed; color: var(--ink-faint); }
+  .ml-footnote { font-size: .8rem; color: var(--ink-faint); margin: 0; }
+  .mystic a:not(.ml-chip) { color: var(--emerald-ink); text-decoration-color: var(--border); text-underline-offset: 2px; }
+  .mystic a:hover { text-decoration-color: currentColor; }
+  .ml-chip small { font-family: var(--font-mono); font-size: .7rem; font-weight: 500; margin-left: .2rem; }
+  .ml-ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 1rem; }
+  .ml-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem; min-width: 0; }
+  .ml-card-wide { grid-column: 1 / -1; }
+  .ml-card h3 { font-family: var(--font-mono); font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .7rem; }
+  .ml-table-wrap { overflow-x: auto; }
+  .ml-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .ml-table th { font-family: var(--font-mono); font-size: .64rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 0 .6rem .45rem 0; border-bottom: 1px solid var(--border); }
+  .ml-table td { padding: .45rem .6rem .45rem 0; border-bottom: 1px dashed var(--border); color: var(--ink-soft); vertical-align: top; }
+  .ml-table tr:last-child td { border-bottom: 0; }
+  .ml-table td:first-child { color: var(--ink); font-weight: 600; }
+  .ml-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ml-table td b { color: var(--emerald-ink); }
+  .ml-empty { font-size: .85rem; color: var(--ink-faint); margin: 0; }
 </style>
 
+<nav class="site-nav" aria-label="Page sections">
+  <ul>
+    <li><a href="#top">Commonhold Rise</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#tree">Progression Tree</a></li>
+    <li><a href="#storylines">Storylines</a></li>
+    <li><a href="#mystic-library">Mystic Library</a></li>
+    <li><a href="#unplanned">Unplanned</a></li>
+    <li><a href="#storylines" class="nav-current" id="nav-current">Current storyline</a></li>
+  </ul>
+</nav>
+
 <main>
-  <section class="premise">
+  <section class="premise" id="top">
     <h1>Commonhold Rise</h1>
     <div class="lore">
       <p>The Crown had called for settlers to a newly discovered land, and we were the crew who answered — not under a tyrant, but as a community, under one banner.</p>
@@ -139,7 +221,7 @@
     </div>
   </section>
 
-  <div class="season-plan">
+  <div class="season-plan" id="how-it-works">
     <h2>How This Season Works</h2>
     <p class="season-plan-dek">We start with extreme limitations — no Nether or End access, no villager trading, no diamond tools or armor, elytra and dispensers stripped on sight, piglins and iron golems blocked outright. Through a series of events with fixed goals, we gain rewards, unlock blocked content, and progress to further stories. The stories themselves are not currently fixed — they will be created by the players. The progression tree also isn't fixed — it grows through storylines that you propose and vote on.</p>
     <ul>
@@ -168,7 +250,7 @@
     <p class="season-plan-dek">What follows below is an example of what the beginning of that progression tree looks like.</p>
   </div>
 
-  <div class="masthead">
+  <div class="masthead" id="tree">
     <h2>Preliminary Progression Tree</h2>
   </div>
 
@@ -178,15 +260,17 @@ graph TD
   camp["Founding the Camp"]
   bread["Breaking Bread"]
   hall["Hall of Heroes"]
-  firststand["The First Stand"]
-  dock["Anchor Point"]
+  mystic["The Mystic Library"]
+  archery["The Archery Contest"]
   forge["The Forge Reopens"]
-  grazing["Grazing Rights"]
-  feathered["Feathered Roads"]
-  woolfrost["Wool and Frost"]
-  pelts["Pelts and Pines"]
-  masons["Masons of<br/>the Dunes"]
   shipwreck["Shipwreck &amp;<br/>Treasure"]
+  subgraph villages["Village Milestones: Breaking Bread plus one village of each other kind"]
+    feathered["Feathered Roads<br/><i>Savanna</i>"]
+    woolfrost["Wool and Frost<br/><i>Snowy</i>"]
+    pelts["Pelts and Pines<br/><i>Taiga</i>"]
+    masons["Masons of the Dunes<br/><i>Desert</i>"]
+    tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman<br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith"]
+  end
   wtg["Trading on<br/>the Edge"]
   mansion["Woodland Mansion"]
   trials["Trials &amp; the<br/>Ancient City"]
@@ -200,23 +284,17 @@ graph TD
   finale["Season Finale"]
 
   camp -->|village contact| bread
-  bread -->|village maps| dock
-  dock -->|enchanted fishing| shipwreck
+  camp -->|village contact| hall
+  hall -->|raid tracking| bread
+  bread -->|village maps| mystic
+  mystic -->|enchanted books| archery
+  hall -->|raid tracking| archery
   hall -->|raid tracking| shipwreck
   shipwreck -->|conduit recipe| atlantis
-  bread -->|village maps| hall
-  hall -->|raid tracking| firststand
-  hall -->|raid tracking| grazing
-  hall -->|raid tracking| feathered
-  hall -->|raid tracking| woolfrost
-  hall -->|raid tracking| pelts
-  hall -->|raid tracking| masons
-  firststand -->|farmer trades| wtg
-  grazing -->|butcher trades| wtg
-  feathered -->|fletcher trades| wtg
-  woolfrost -->|shepherd trades| wtg
-  pelts -->|leatherworker trades| wtg
-  masons -->|mason trades| wtg
+  bread -->|village maps| feathered & woolfrost & pelts & masons
+  feathered & woolfrost & pelts & masons --> tally
+  bread -->|first village| tally
+  tally -->|all 5 kinds| wtg
   wtg -->|trader trades| mansion
   wtg -->|trader trades| forge
   mansion -->|ancient city map| trials
@@ -233,14 +311,14 @@ graph TD
   click camp "#node-camp"
   click bread "#node-bread"
   click hall "#node-hall"
-  click firststand "#node-firststand"
-  click dock "#node-dock"
+  click mystic "#node-mystic"
+  click archery "#node-archery"
   click forge "#node-forge"
-  click grazing "#node-grazing"
   click feathered "#node-feathered"
   click woolfrost "#node-woolfrost"
   click pelts "#node-pelts"
   click masons "#node-masons"
+  click tally "#village-milestones"
   click shipwreck "#node-shipwreck"
   click wtg "#node-wtg"
   click mansion "#node-mansion"
@@ -255,36 +333,44 @@ graph TD
   click finale "#node-finale"
 
   classDef tentative fill:#f5e8c8,stroke:#a3760f,stroke-width:2px,stroke-dasharray: 4 3,color:#3a2c05;
-  class forge,mansion,trials,nether,porko,gibliria,endm,twisty,lorre,finale tentative
+  classDef complete fill:#d9f0e3,stroke:#1f9d63,stroke-width:2px,color:#0d6b40;
+  style villages fill:none,stroke:#8b9080,stroke-width:1px,stroke-dasharray: 6 4
+  class mystic,archery,forge,mansion,trials,nether,porko,gibliria,endm,twisty,lorre,finale tentative
+  class camp complete
     </pre>
   </div>
   <div class="diagram-legend">
     <span><span class="legend-swatch"></span> required prerequisite, labeled with the short version of what the node you're leaving just unlocked</span>
+    <span><span class="legend-swatch-box" style="border:2px solid var(--emerald);background:var(--emerald-bg)"></span> Complete</span>
     <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Trading on the Edge onward, and Gibliria onward</span>
     <span>click any box to jump to its write-up below</span>
   </div>
 
-  <div class="masthead">
+  <div class="masthead" id="storylines">
     <h2>The Storylines</h2>
   </div>
 
-  <!-- Founding the Camp is the current node. To move it, add/remove
+  <!-- Hall of Heroes and Breaking Bread are the current nodes. To move one, add/remove
        is-current on the relevant <section class="chapter"> and move the
-       "Current" badge span — nothing else on the page needs to change. -->
+       "Current" badge span — the nav's "Current" link follows automatically.
+       A finished node gets is-complete, a "Complete" badge, and class="met"
+       plus an <span class="outcome"> on each criterion saying what really happened.
+       Also add it to "class ... complete" in the tree diagram. -->
   <div class="chapters">
 
-    <section class="chapter is-current" id="node-camp">
-      <div class="chapter-kicker kicker">Start — no prerequisites <span class="current-badge">Current</span></div>
+    <section class="chapter is-complete" id="node-camp">
+      <div class="chapter-kicker kicker">Start — no prerequisites <span class="complete-badge">Complete</span></div>
       <h3 class="chapter-title">Founding the Camp</h3>
       <p class="chapter-story">This is where Commonhold Rise actually begins — not with a quest, but with shelter. The ship is gone, the Crown's blessing is a name on a scroll, and what's left is a stretch of unclaimed coastline and whatever the group can build with their own hands. Before anyone touches a portal or wires a redstone contraption, New Haven needs walls: a personal space for every member within the base boundary, working crop farms, livestock pens, and a common store everyone can draw from. It's slow, deliberate work on purpose — everything the season builds toward rests on the ground laid down right here.</p>
+      <p class="chapter-story">What actually happened: the group landed with nothing but seeds, and New Haven grew out of the farms they planted.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>Every member has claimed and built a personal space within the base boundary</li>
-            <li>Working farms established for all 6 crops: wheat, carrots, potatoes, beetroot, melon, and pumpkin</li>
-            <li>At least two livestock pens are built and stocked</li>
-            <li>A common storage location is designated and accessible to the whole group</li>
+            <li class="met">Every member has claimed and built a personal space within the base boundary<span class="outcome">Decreed done. Members spread out a little past the boundary.</span></li>
+            <li class="met">Working farms established for all 6 crops: wheat, carrots, potatoes, beetroot, melon, and pumpkin<span class="outcome">Done.</span></li>
+            <li class="met">At least two livestock pens are built and stocked<span class="outcome">Done. Lots of animal farms, spread around rather than consolidated.</span></li>
+            <li class="met">A common storage location is designated and accessible to the whole group<span class="outcome">Done.</span></li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
@@ -294,34 +380,11 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a></p>
+      <p class="leads-to">Leads to: <a href="#node-hall">Hall of Heroes</a> and <a href="#node-bread">Breaking Bread</a>, which run side by side</p>
     </section>
 
-    <section class="chapter" id="node-bread">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a></div>
-      <h3 class="chapter-title">Breaking Bread</h3>
-      <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Only once that work is visible and finished does anyone there warm up to New Haven at all — enough, at least, to let a cartographer start pointing the way toward other settlements. Actually trading with this village is a different matter; that trust gets earned later, the hard way.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>A trade route (road) is built connecting the base to the nearby village</li>
-            <li>The village is reinforced against mob attacks (walls, lighting, or equivalent defenses)</li>
-            <li>The village suffers no further villager losses to mobs once reinforcement is complete</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>The village's cartographer starts trading — village maps only; maps to mansions, monuments, and other dungeons still need their own unlock</li>
-          </ul>
-        </div>
-      </div>
-      <p class="leads-to">Leads to: <a href="#node-dock">Anchor Point</a>, <a href="#node-hall">Hall of Heroes</a></p>
-    </section>
-
-    <section class="chapter" id="node-hall">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
+    <section class="chapter is-current" id="node-hall">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a>. Runs alongside Breaking Bread, and must be complete before Breaking Bread can finish. <span class="current-badge">Current</span></div>
       <h3 class="chapter-title">Hall of Heroes</h3>
       <p class="chapter-story">Every village New Haven backs from here on is about to get tested by fire, and someone decides those wins shouldn't just be a story people tell each other afterward. The group raises a proper Hall back at the original settlement — plaques, records, whatever passes for a monument this early in the season. Nothing that happens at any other village counts toward anything until it's written down here first.</p>
       <div class="chapter-grid">
@@ -338,35 +401,115 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-firststand">The First Stand</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, <a href="#node-masons">Masons of the Dunes</a>, <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
+      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a>, <a href="#node-shipwreck">Shipwreck &amp; Treasure</a>, <a href="#node-archery">The Archery Contest</a></p>
     </section>
 
-    <section class="chapter" id="node-dock">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
-      <h3 class="chapter-title">Anchor Point</h3>
-      <p class="chapter-story">One road into the village isn't the ceiling — it's the proof of concept. With food already moving by cart, the group turns to the coastline: a real dock, built to actually take on heavier trade than a wagon can carry. Word spreads with the new traffic too — sailors passing through start talking, and some of that luck rubs off on New Haven's own fishing lines.</p>
+    <section class="chapter is-current" id="node-bread">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a> to start, <a href="#node-hall">Hall of Heroes</a> to finish <span class="current-badge">Current</span></div>
+      <h3 class="chapter-title">Breaking Bread</h3>
+      <p class="chapter-story">The nearest village wants nothing to do with New Haven. Too many wandering bands have come through before with more interest in scavenging than settling, and right now the group looks exactly like one of them. Earning actual trust means showing up and doing something useful without asking for anything back first: a real road connecting the two settlements, and enough reinforcement — walls, lighting, whatever it takes — that the village stops losing its own people to mobs at night. Walls aren't proof, though. Bad Omen was never locked behind anything: any Illager Outpost gives up an Ominous Bottle, and there are always more outposts than raids anyone needs. So the group brings the raids to the village on purpose, three times over and at full intensity, to show the defenses hold under real pressure. Before the first raid, New Haven declares one villager the village leader and gives him a name of its own choosing. Through all of it, the leader matters more than anyone. If he falls, no amount of walls will convince anyone there that New Haven can keep them safe. Only once the village has seen New Haven stand with it does anyone there warm up at all, enough for its cleric, cartographer and fletcher to start trading, and for the cartographer to start pointing the way toward other settlements.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>A functional dock area is built and connected to the trade route</li>
-            <li>At least one ship is placed in the dock</li>
+            <li><strong>Connect the village</strong>
+              <ul>
+                <li>A trade route (road) connects the base to the village</li>
+              </ul>
+            </li>
+            <li><strong>Build out the village</strong>, as agreed in the group vote
+              <ul>
+                <li>Housing / hotel district (apartment complex or similar)</li>
+                <li>Farming district</li>
+                <li>Market district</li>
+                <li>Town hall (mayor's office)</li>
+                <li>Reinforcement against mob attacks (walls, lighting, or equivalent defenses)</li>
+                <li>Each build is claimed by one owner who leads it; anyone can help</li>
+              </ul>
+            </li>
+            <li><strong>Before the first raid</strong>
+              <ul>
+                <li>The village has at least 20 villagers</li>
+                <li>The group declares one villager the village leader, chooses his name, and name-tags him</li>
+              </ul>
+            </li>
+            <li><strong>Survive 3 maximum-level raids at the village</strong>
+              <ul>
+                <li>At least 4 people take part in each raid</li>
+                <li>No more than 2 villagers are lost across all 3 raids, counting only villagers who were there before the first raid</li>
+                <li>The village leader survives</li>
+              </ul>
+            </li>
+            <li><strong>Record it in the <a href="#node-hall">Hall of Heroes</a></strong>
+              <ul>
+                <li>The Hall of Heroes is complete</li>
+                <li>All 3 raids are recorded there, noting when each happened and who took part</li>
+              </ul>
+            </li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Fishing rods and bows can come pre-enchanted again; enchanted books still don't drop from fishing</li>
+            <li>Counts as the first village toward the <a href="#village-milestones">Village Milestones</a></li>
+            <li>Cleric trades restored</li>
+            <li>Cartographer trades restored, village maps only</li>
+            <li>Fletcher trades restored</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
+      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a>, the other village storylines, <a href="#village-milestones">Village Milestones</a></p>
+    </section>
+
+    <section class="chapter is-tentative" id="node-mystic">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
+      <h3 class="chapter-title">The Mystic Library</h3>
+      <p class="chapter-story">There are no enchanting tables in New Haven. Whatever the old world knew about enchanting didn't survive the crossing intact. Once the village trusts New Haven enough to talk, its librarians admit they've kept what's left of that knowledge, but have nowhere fit to study it. Building them a proper library, a place to learn and focus, is how enchanted books come back into the world: not from a table, but from people. From then on, the community decides together which books the librarians learn next.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>The Mystic Library is built for the librarians (design and requirements still to be written)</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens. Mending is never sold.</li>
+            <li>The token tree opens, so higher tiers can be bought with tokens earned at events</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#mystic-library">the Mystic Library enchanting tree</a>, which keeps growing through the rest of the season; <a href="#node-archery">The Archery Contest</a></p>
+    </section>
+
+    <section class="chapter is-tentative" id="node-archery">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-mystic">The Mystic Library</a> and <a href="#node-hall">Hall of Heroes</a> <span class="tentative-badge">Story TBD</span></div>
+      <h3 class="chapter-title">The Archery Contest</h3>
+      <p class="chapter-story">The librarians won't teach the bow books to a settlement that can't shoot straight. It's up to the players to prove otherwise: design an archery game, make it genuinely hard to pass, and hold a contest where at least half the group can still clear it.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Players design and build an archery game that is difficult to pass</li>
+            <li>The game is run as a contest event with at least 4 entrants — see the Commonhold Ethos</li>
+            <li>At least half of the group that enters succeeds during the contest</li>
+            <li>The contest is recorded in the Hall of Heroes — noting when it happened, who entered, and who passed</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Ranged opens in the <a href="#mystic-library">Mystic Library</a>: its Tier I books can be bought for 1 token each</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="chapter is-tentative" id="node-forge">
       <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trading on the Edge</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">The Forge Reopens</h3>
-      <p class="chapter-story">Gear takes a beating faster than anyone expected, and there's no fixing a cracked pickaxe or a chipped sword by wishing at it. After six villages' worth of raids and a season of hauling trade goods, the toll is finally too much to ignore — the group can spare the hands and the iron to build out a proper smithy and actually staff it, which is what brings the anvil ban down. Nothing about docks or boats or anything else.</p>
+      <p class="chapter-story">Gear takes a beating faster than anyone expected, and there's no fixing a cracked pickaxe or a chipped sword by wishing at it. After five villages' worth of raids and a season of hauling trade goods, the toll is finally too much to ignore — the group can spare the hands and the iron to build out a proper smithy and actually staff it, which is what brings the anvil ban down.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -385,9 +528,9 @@ graph TD
     </section>
 
     <section class="chapter" id="node-shipwreck">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-dock">Anchor Point</a> and <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
       <h3 class="chapter-title">Shipwreck &amp; Treasure</h3>
-      <p class="chapter-story">The dock doesn't just bring traders in — it gives the group somewhere to actually launch from. Word of a wreck out past the reefs has been floating around since the first boat went out, and it's worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. It only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on — and worth writing down properly, same as every other win that's gone into the Hall.</p>
+      <p class="chapter-story">Word of a wreck out past the reefs has been floating around since New Haven's first boats went out, and it's worth chasing: a hold full of salvage, and buried somewhere in the wreckage, a map that isn't like the others the cartographer sells. It only points to a general area, not a marked X, so it takes real digging — literal shovel work — to actually turn up the chest. Whatever's inside is worth the trouble: raw materials the whole group can put toward the same thing, rather than one player pocketing it and moving on — and worth writing down properly, same as every other win that's gone into the Hall.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -410,48 +553,29 @@ graph TD
       <p class="leads-to">Leads to: <a href="#node-atlantis">Atlantis Ahoy</a></p>
     </section>
 
-    <section class="chapter" id="node-firststand">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
-      <h3 class="chapter-title">The First Stand</h3>
-      <p class="chapter-story">Bad Omen was never locked behind anything — any Illager Outpost the group finds gives up an Ominous Bottle, and there are always more outposts than raids the group actually needs to run. With the Hall standing and a bottle in hand, they turn it on the very first village they backed — on purpose, at full intensity, to prove the fortifications from Breaking Bread actually hold up under real pressure instead of just against whatever wandered by. Surviving it and getting the win written into the Hall is what finally convinces the village to start selling New Haven food again.</p>
+    <section class="chapter" id="village-milestones">
+      <div class="chapter-kicker kicker">Every village is fortified, raided, and recorded in the <a href="#node-hall">Hall of Heroes</a></div>
+      <h3 class="chapter-title">Village Milestones</h3>
+      <p class="chapter-story">Trades come back by how many villages New Haven has stood up for, not by which one. There are five kinds of village: Plains, Desert, Savanna, Taiga and Snowy. Breaking Bread is the first village. Each village after it has to be a kind the group hasn't done yet, in any order. Breaking Bread's village happens to be Plains, so the other four kinds are the storylines below.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
+          <h4>Villages</h4>
           <ul>
-            <li>The original village is fully fortified against raids</li>
-            <li>The group survives one maximum-intensity raid together at the original village</li>
-            <li>The win is recorded in the Hall of Heroes — noting when it happened and who took part</li>
+            <li>First village: <a href="#node-bread">Breaking Bread</a></li>
+            <li>Savanna: <a href="#node-feathered">Feathered Roads</a></li>
+            <li>Snowy: <a href="#node-woolfrost">Wool and Frost</a></li>
+            <li>Taiga: <a href="#node-pelts">Pelts and Pines</a></li>
+            <li>Desert: <a href="#node-masons">Masons of the Dunes</a></li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Farmer trades restored</li>
-          </ul>
-        </div>
-      </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
-    </section>
-
-    <section class="chapter" id="node-grazing">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
-      <h3 class="chapter-title">Grazing Rights</h3>
-      <p class="chapter-story">The road to the first village proved the concept; now it's just a matter of building more of them. Word travels fast once a cartographer starts asking around, and it isn't long before a second settlement turns up out on the open plains — more livestock than the first village ever had room for. Bad Omen makes the terms plain: fortify the place, weather a raid at full intensity, and get the win into the Hall before this trade route means anything.</p>
-      <div class="chapter-grid">
-        <div class="chapter-block chapter-criteria">
-          <h4>Pass Criteria</h4>
-          <ul>
-            <li>A cartographer sells the Plains Village map</li>
-            <li>A trade route is built to the plains village found</li>
-            <li>The plains village is fully fortified against raids</li>
-            <li>The group survives one maximum-intensity raid together at the plains village</li>
-            <li>The win is recorded in the Hall of Heroes — noting when it happened, who took part, and displaying the cartographer's map that led the group there</li>
-          </ul>
-        </div>
-        <div class="chapter-block chapter-progress">
-          <h4>Unlocks</h4>
-          <ul>
-            <li>Butcher trades restored</li>
+            <li><strong>1 village:</strong> Cleric, Cartographer, Fletcher</li>
+            <li><strong>2 villages:</strong> Butcher, Farmer, Fisherman. Farmer specials: Golden Carrots and Glistering Melon Slices.</li>
+            <li><strong>3 villages:</strong> Shepherd, Leatherworker, Stone Mason</li>
+            <li><strong>4 villages:</strong> Armorer, Toolsmith, Weaponsmith, with diamond gear sales restricted</li>
+            <li><strong>All 5 kinds:</strong> opens <a href="#node-wtg">Trading on the Edge</a></li>
           </ul>
         </div>
       </div>
@@ -459,9 +583,9 @@ graph TD
     </section>
 
     <section class="chapter" id="node-feathered">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Feathered Roads</h3>
-      <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. Their fletcher's been busy, but that only matters once the group proves this village is worth the trouble: fortify it, call down a raid at full intensity, survive it together, and write the win into the Hall.</p>
+      <p class="chapter-story">Past the plains the land opens into savanna — acacia scrub, exposed hills, and a village that's clearly had to defend itself more than most. It only counts once the group proves this village is worth the trouble: fortify it, call down a raid at full intensity, survive it together, and write the win into the Hall.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -476,17 +600,17 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Fletcher trades restored</li>
+            <li>Counts as one village toward the <a href="#village-milestones">Village Milestones</a></li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+      <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
     <section class="chapter" id="node-woolfrost">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Wool and Frost</h3>
-      <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. Dye and wool are only on the table once this village's stood up to the same test as every other one: fortified, raided at full intensity, survived, and recorded.</p>
+      <p class="chapter-story">Further out, in terrain the group hasn't bothered mapping yet, is a village buried in snow — practical architecture, warm colors everywhere, and a shepherd with more wool on hand than anyone knows what to do with. It counts once it's stood up to the same test as every other one: fortified, raided at full intensity, survived, and recorded.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -501,17 +625,17 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Shepherd trades restored</li>
+            <li>Counts as one village toward the <a href="#village-milestones">Village Milestones</a></li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+      <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
     <section class="chapter" id="node-pelts">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Pelts and Pines</h3>
-      <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. Proper leather goods wait on the same proof every other village demands now: fortify it, survive a full-intensity raid as a group, and get the win written into the Hall.</p>
+      <p class="chapter-story">The taiga village turns up in thick pine forest, wolves circling the treeline, and a leatherworker who's clearly been busy. It counts on the same proof every other village demands now: fortify it, survive a full-intensity raid as a group, and get the win written into the Hall.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -526,17 +650,17 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Leatherworker trades restored</li>
+            <li>Counts as one village toward the <a href="#village-milestones">Village Milestones</a></li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+      <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
     <section class="chapter" id="node-masons">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-hall">Hall of Heroes</a></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a></div>
       <h3 class="chapter-title">Masons of the Dunes</h3>
-      <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. Real stonework waits on the same terms as everywhere else: fortify the village, survive a full-intensity raid together, and record the win in the Hall.</p>
+      <p class="chapter-story">Out past the savanna, sandstone walls rise from the dunes — a desert village, and a stone mason with more chiseled sandstone and quartz on hand than New Haven's own builders have ever had the patience for. It counts on the same terms as everywhere else: fortify the village, survive a full-intensity raid together, and record the win in the Hall.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -551,17 +675,17 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Stone Mason trades restored</li>
+            <li>Counts as one village toward the <a href="#village-milestones">Village Milestones</a></li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+      <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
     <section class="chapter" id="node-wtg">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-firststand">The First Stand</a>, <a href="#node-grazing">Grazing Rights</a>, <a href="#node-feathered">Feathered Roads</a>, <a href="#node-woolfrost">Wool and Frost</a>, <a href="#node-pelts">Pelts and Pines</a>, and <a href="#node-masons">Masons of the Dunes</a></div>
+      <div class="chapter-kicker kicker">Requires: all five kinds of village in the <a href="#village-milestones">Village Milestones</a></div>
       <h3 class="chapter-title">Trading on the Edge</h3>
-      <p class="chapter-story">Six villages defended, six wins written into the Hall — word of that travels through backroads faster than New Haven ever expected, and the Wandering Traders finally approach. They've decided New Haven is worth dealing with, and they're ready to open their own trades for good. The catch is where they want to set up shop: demand for pale wood has spiked somewhere down their trade routes, and they want their headquarters built right on the edge of the nearest Pale Garden to keep the supply moving. Building it here is just the opening move — whatever's deeper in that Garden is a different problem for a different day.</p>
+      <p class="chapter-story">Five villages defended, one of every kind there is — word of that travels through backroads faster than New Haven ever expected, and the Wandering Traders finally approach. They've decided New Haven is worth dealing with, and they're ready to open their own trades for good. The catch is where they want to set up shop: demand for pale wood has spiked somewhere down their trade routes, and they want their headquarters built right on the edge of the nearest Pale Garden to keep the supply moving. Building it here is just the opening move — whatever's deeper in that Garden is a different problem for a different day.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -802,13 +926,71 @@ graph TD
 
   </div>
 
-  <div class="unplanned">
+  <section class="mystic" id="mystic-library">
+    <div class="masthead">
+      <h2>The Mystic Library</h2>
+    </div>
+    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-bread">Breaking Bread</a> is complete.</p>
+
+    <div class="ml-status" id="ml-status" aria-label="Mystic Library progress"></div>
+
+    <div class="season-plan">
+      <h2>How the Tree Climbs</h2>
+      <ul>
+        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows Breaking Bread, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is never sold.</strong></li>
+        <li><strong>The other groups have their own questlines.</strong> Armor opens with an armorer questline and Melee with a weapons questline, which may also bring back diamond armor and diamond weapons. Tools opens with a mining questline, Ranged with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Finishing one opens that group's Tier I books for tokens.</li>
+        <li><strong>Everyone who takes part earns a token.</strong> Each participant in an event or questline earns 1 token and picks which open book it goes toward. Whatever gets unlocked is unlocked for everyone.</li>
+        <li><strong>Each group climbs on its own.</strong> A tier opens once enough books in the tier below it are unlocked, so one book can't race to the top alone.</li>
+        <li><strong>Every book after that costs tokens.</strong> Outside General and Fishing, a Tier I book costs 1 token, Tier II costs 2, Tier III costs 3, and so on.</li>
+      </ul>
+      <div class="ml-costs" id="ml-costs"></div>
+      <div class="ml-legend">
+        <span class="ml-chip got">Unlocked</span> on sale now
+        <span class="ml-chip open">Open</span> can be bought with tokens
+        <span class="ml-chip sealed">Sealed</span> tier not open yet
+      </div>
+    </div>
+
+    <div class="ml-groups" id="ml-groups" aria-label="Enchant groups"></div>
+    <p class="ml-footnote">Hover over a book to see who paid for it. A number like 1/3 means the book is partly paid for.</p>
+
+    <div class="unplanned" id="ml-warnings" style="margin-top:0" hidden></div>
+
+    <div class="ml-ledger" id="token-ledger">
+      <div class="ml-card">
+        <h3>Token Ledger</h3>
+        <div id="ml-players"></div>
+      </div>
+      <div class="ml-card">
+        <h3>Books Being Paid For</h3>
+        <div id="ml-funding"></div>
+      </div>
+      <div class="ml-card ml-card-wide">
+        <h3>Events</h3>
+        <div id="ml-events"></div>
+      </div>
+    </div>
+
+    <div class="unplanned" style="margin-top:0">
+      <h2>Still Being Decided</h2>
+      <ul>
+        <li>Token payouts for bigger questlines, and whether the group starts with a token bank.</li>
+        <li>Whether the gate should be three quarters of the tier below, or a fixed count per group.</li>
+        <li>The Armor, Melee and Tools questlines: their stories, criteria, and where they sit on the tree.</li>
+      </ul>
+    </div>
+
+    <p class="ml-footnote" id="ml-updated"></p>
+  </section>
+
+  <div class="unplanned" id="unplanned">
     <h2>Unplanned Progression</h2>
     <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready. Future story planning and unlocks will be discussed and coordinated with the group, and decided by majority vote.</p>
     <ul>
       <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
-      <li><strong>Diamond gear.</strong> Tools, sword, spear, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the weapons/armor off a dedicated Diamond Gear node — neither exists in the tree anymore, so the whole diamond kit needs a new unlock milestone.</li>
+      <li><strong>Diamond gear.</strong> Tools, sword, spear, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the weapons/armor off a dedicated Diamond Gear node — neither exists in the tree anymore. Proposed homes now come from the <a href="#mystic-library">Mystic Library</a> questlines: diamond armor with the armorer questline that opens the Armor books, and the diamond sword and spear with the weapons questline that opens Melee. Diamond tools could fit the mining questline that opens Tools. None of these questlines is written yet. The Armorer, Toolsmith and Weaponsmith come back at 4 villages, but without their diamond gear sales.</li>
       <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
+      <li><strong>Blaze powder and early potions.</strong> Blaze powder is removed on sight, so no brewing is possible before the Nether. One idea from Fredo: a witch storyline brings basic potion brewing in early (with Weakness possibly restricted), and a Cleric trade becomes a renewable source of blaze powder. Useful potions like Water Breathing and Fire Resistance would still wait for their own milestones, such as Water Breathing after the Ocean Monument. Not a skill tree, just a storyline.</li>
       <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
     </ul>
   </div>
@@ -823,4 +1005,194 @@ graph TD
     var isDark = explicitDark || (!explicitLight && systemDark);
     mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
   })();
+
+  // Point the nav's "Current" link at the chapters marked is-current (the first one is the link target).
+  (function () {
+    var all = document.querySelectorAll('.chapter.is-current');
+    var current = all[0];
+    var link = document.getElementById('nav-current');
+    if (!current || !link) return;
+    link.href = '#' + current.id;
+    link.textContent = 'Current: ' + Array.prototype.map.call(all, function (c) { return c.querySelector('.chapter-title').textContent; }).join(' + ');
+  })();
+</script>
+
+<script>
+/* ===== MYSTIC LIBRARY PROGRESS: edit this block to post updates ===== */
+// Each flag opens its groups. General and Fishing Tier I books come free when the library is complete; every other book costs tokens.
+const PROGRESS = {
+  updated: "October 3, 2026",
+  mysticLibrary: "locked",  // "locked" until Breaking Bread is done, then "underway", then "complete" (opens General, Fishing)
+  armorQuest: false,      // Armor (armorer questline TBD, possibly with diamond armor)
+  meleeQuest: false,      // Melee (weapons questline TBD, possibly with diamond weapons)
+  toolsQuest: false,      // Tools (mining questline TBD)
+  rangedQuest: false,     // Ranged (The Archery Contest)
+  nether: false,          // Fire
+  oceanMonument: false    // Water
+};
+
+// One entry per event or questline, oldest first. Everyone listed earns 1 token.
+// Add `tokens: 2` to an entry for a bonus payout.
+//   { date: "Oct 12, 2026", name: "Breaking Bread road build", players: ["Gesh", "Fredo", "Kai"] },
+const EVENTS = [
+];
+
+// One entry per token spent, oldest first. Tokens can only go toward a book in an open tier.
+// A book level unlocks once its tokens reach the tier cost, so players can pool toward one book.
+// Add `tokens: 2` to spend more than one token in a single entry.
+//   { player: "Fredo", book: "Lure", level: 1 },
+//   { player: "Gesh",  book: "Unbreaking", level: 2 },
+const SPENDS = [
+];
+
+const TIER_COST = {1:1, 2:2, 3:3, 4:4, 5:5};   // tokens per book at each tier (General and Fishing Tier I are free)
+const GATE_SHARE = 0.75;                        // share of the tier below needed to open a tier
+/* ==================================================================== */
+
+(function () {
+  const LIBRARY = {gate:"mysticLibrary", gateLabel:"Opens with the Mystic Library"};
+  const GROUPS = [
+    {name:"General", ...LIBRARY, freeTier1:true, items:[["Unbreaking",3],["Feather Falling",4],["Thorns",3]]},
+    {name:"Fishing", ...LIBRARY, freeTier1:true, items:[["Luck of the Sea",3],["Lure",3]]},
+    {name:"Armor",   gate:"armorQuest",    gateLabel:"Opens with the armorer questline",
+     items:[["Protection",4],["Blast Protection",4],["Projectile Protection",4]]},
+    {name:"Melee",   gate:"meleeQuest",    gateLabel:"Opens with the weapons questline",
+     items:[["Sharpness",5],["Smite",5],["Bane of Arthropods",5],["Knockback",2],["Looting",3]]},
+    {name:"Tools",   gate:"toolsQuest",    gateLabel:"Opens with the mining questline",
+     items:[["Efficiency",5],["Fortune",3],["Silk Touch",1]]},
+    {name:"Ranged",  gate:"rangedQuest",   gateLabel:"Opens with The Archery Contest",
+     items:[["Power",5],["Punch",2],["Infinity",1],["Piercing",4],["Quick Charge",3],["Multishot",1],["Flame",1]]},
+    {name:"Fire",    gate:"nether",        gateLabel:"Opens with the Nether",
+     items:[["Fire Aspect",2],["Fire Protection",4]]},
+    {name:"Water",   gate:"oceanMonument", gateLabel:"Opens with the Ocean Monument",
+     items:[["Respiration",3],["Aqua Affinity",1],["Depth Strider",3],["Impaling",5],["Loyalty",3],["Riptide",3],["Channeling",1]]}
+  ];
+  const ROMAN = ["","I","II","III","IV","V"];
+  const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+  const warnings = [];
+
+  // ----- Tally the ledger -----
+  const maxLevel = {};
+  GROUPS.forEach(g => g.items.forEach(([n, m]) => { maxLevel[n] = m; }));
+
+  const players = {};
+  const player = n => players[n] || (players[n] = {earned:0, spent:0, events:0, books:[]});
+  EVENTS.forEach(e => (e.players || []).forEach(p => { player(p).earned += e.tokens || 1; player(p).events++; }));
+
+  const pool = {};   // "Book|level" -> {tokens, by: {player: tokens}}
+  SPENDS.forEach(s => {
+    if (!(s.book in maxLevel)) { warnings.push('Unknown book "' + s.book + '" in a spend by ' + s.player + '.'); return; }
+    if (!(s.level >= 1 && s.level <= maxLevel[s.book])) { warnings.push(s.book + " has no level " + s.level + " (spend by " + s.player + ")."); return; }
+    const n = s.tokens || 1, k = s.book + "|" + s.level;
+    const p = pool[k] || (pool[k] = {tokens:0, by:{}});
+    p.tokens += n; p.by[s.player] = (p.by[s.player] || 0) + n;
+    const pl = player(s.player); pl.spent += n;
+    const label = s.book + " " + ROMAN[s.level];
+    if (!pl.books.includes(label)) pl.books.push(label);
+  });
+  const paidBy = p => Object.entries(p.by).map(([n, t]) => n + (t > 1 ? " (" + t + ")" : "")).join(", ");
+
+  // ----- Draw the tree -----
+  let spent = 0, gotCount = 0, totalCount = 0;
+  const funding = [];
+  const groupsEl = document.getElementById("ml-groups");
+
+  GROUPS.forEach(g => {
+    const branchOpen = PROGRESS[g.gate] === true || PROGRESS[g.gate] === "complete";
+    const reached = {};
+    g.items.forEach(([n]) => { reached[n] = 0; });
+    const maxTier = Math.max(...g.items.map(i => i[1]));
+    const sec = document.createElement("article"); sec.className = "ml-group";
+    const tag = '<span class="ml-tag' + (branchOpen ? ' on' : '') + '">' + (branchOpen ? "Open" : g.gateLabel) + '</span>';
+    sec.innerHTML = '<div class="ml-ghead"><h3>' + g.name + '</h3>' + tag + '</div>';
+    const ladder = document.createElement("div"); ladder.className = "ml-ladder";
+    let prevOpen = true, prevGot = 0, prevSize = 0;
+    for (let t = 1; t <= maxTier; t++) {
+      const books = g.items.filter(([, m]) => m >= t).map(([n]) => n);
+      const cost = TIER_COST[t] || 0;
+      let open, meta;
+      if (t === 1) {
+        open = branchOpen;
+        meta = g.freeTier1 ? (branchOpen ? "free · on sale" : "free when the branch opens") : cost + " token each · " + (branchOpen ? "open" : "when the branch opens");
+      } else {
+        const need = Math.ceil(prevSize * GATE_SHARE);
+        open = prevOpen && prevGot >= need;
+        meta = cost + " tokens each · " + (open ? "open" : "needs " + need + " of " + prevSize + " Tier " + ROMAN[t-1] + " (" + Math.min(prevGot, need) + "/" + need + ")");
+      }
+      const chips = books.map(n => {
+        const p = pool[n + "|" + t];
+        const free = t === 1 && g.freeTier1 && branchOpen;
+        const label = n + " " + ROMAN[t];
+        if (p && !open) warnings.push(label + " has tokens on it, but its tier isn't open yet.");
+        else if (p && reached[n] < t - 1) warnings.push(label + " has tokens on it, but " + n + " " + ROMAN[t-1] + " isn't unlocked yet.");
+        if (p && p.tokens > cost) warnings.push(label + " has " + p.tokens + " tokens on it but only costs " + cost + ".");
+        if (open && reached[n] === t - 1 && (free || (p && p.tokens >= cost))) reached[n] = t;
+        if (reached[n] >= t) {
+          const title = free ? "Free with the Mystic Library" : "Paid by " + paidBy(p);
+          return '<span class="ml-chip got" title="' + esc(title) + '">' + label + '</span>';
+        }
+        if (p) {
+          funding.push({label, have:p.tokens, cost, by:paidBy(p)});
+          return '<span class="ml-chip ' + (open ? "open" : "sealed") + '" title="' + esc("Paid so far by " + paidBy(p)) + '">' + label + ' <small>' + p.tokens + '/' + cost + '</small></span>';
+        }
+        return '<span class="ml-chip ' + (open ? "open" : "sealed") + '">' + label + '</span>';
+      }).join("");
+      const got = books.filter(n => reached[n] >= t).length;
+      totalCount += books.length; gotCount += got;
+      const row = document.createElement("div"); row.className = "ml-tier" + (open ? "" : " sealed");
+      row.innerHTML = '<div class="ml-thead"><span class="ml-tname">TIER ' + ROMAN[t] + '</span><span class="ml-tmeta' + (open ? " open" : "") + '">' + meta + '</span></div>' +
+        '<div class="ml-chips">' + chips + '</div>';
+      ladder.appendChild(row);
+      prevOpen = open; prevGot = got; prevSize = books.length;
+    }
+    sec.appendChild(ladder); groupsEl.appendChild(sec);
+  });
+
+  // ----- Status row -----
+  const earnedTotal = Object.values(players).reduce((a, p) => a + p.earned, 0);
+  const spentTotal = Object.values(players).reduce((a, p) => a + p.spent, 0);
+  const stat = (k, v, cls) => '<div class="ml-stat"><span class="k">' + k + '</span><span class="v ' + cls + '">' + v + '</span></div>';
+  document.getElementById("ml-status").innerHTML =
+    stat("Mystic Library", {locked:"Opens after Breaking Bread", underway:"Underway", complete:"Complete"}[PROGRESS.mysticLibrary], PROGRESS.mysticLibrary === "complete" ? "done" : "wait") +
+    [["Armor","armorQuest"],["Melee","meleeQuest"],["Tools","toolsQuest"],["Ranged","rangedQuest"],["Fire","nether"],["Water","oceanMonument"]]
+      .map(([n, f]) => stat(n + " branch", PROGRESS[f] ? "Open" : "Sealed", PROGRESS[f] ? "done" : "wait")).join("") +
+    stat("Books unlocked", gotCount + " of " + totalCount, "") +
+    stat("Tokens", (earnedTotal - spentTotal) + " unspent · " + spentTotal + " spent", "");
+  document.getElementById("ml-costs").innerHTML =
+    '<span class="ml-cost">General &amp; Fishing Tier I <b>free</b></span>' +
+    Object.entries(TIER_COST).map(([t, c]) => '<span class="ml-cost">Tier ' + ROMAN[t] + ' <b>' + c + '</b> token' + (c > 1 ? 's' : '') + '</span>').join("");
+
+  // ----- Ledger -----
+  const table = (head, rows, empty) => rows.length
+    ? '<div class="ml-table-wrap"><table class="ml-table"><thead><tr>' + head.map(h => '<th' + (h.num ? ' class="num"' : '') + '>' + h.label + '</th>').join("") + '</tr></thead><tbody>' +
+      rows.map(r => '<tr>' + r.map((c, i) => '<td' + (head[i].num ? ' class="num"' : '') + '>' + c + '</td>').join("") + '</tr>').join("") + '</tbody></table></div>'
+    : '<p class="ml-empty">' + empty + '</p>';
+
+  Object.entries(players).forEach(([n, p]) => { if (p.spent > p.earned) warnings.push(n + " has spent " + p.spent + " tokens but only earned " + p.earned + "."); });
+  const playerRows = Object.entries(players)
+    .sort((a, b) => b[1].earned - a[1].earned || a[0].localeCompare(b[0]))
+    .map(([n, p]) => [esc(n), p.events, p.earned, p.spent, '<b>' + (p.earned - p.spent) + '</b>', esc(p.books.join(", ")) || "—"]);
+  document.getElementById("ml-players").innerHTML = table(
+    [{label:"Player"}, {label:"Events", num:1}, {label:"Earned", num:1}, {label:"Spent", num:1}, {label:"Left", num:1}, {label:"Put toward"}],
+    playerRows, "No tokens earned yet. Tokens start with the first event after the Mystic Library opens.");
+
+  document.getElementById("ml-funding").innerHTML = table(
+    [{label:"Book"}, {label:"Tokens", num:1}, {label:"Paid by"}],
+    funding.map(f => [esc(f.label), f.have + " of " + f.cost, esc(f.by)]),
+    "No books are partly paid for right now.");
+
+  document.getElementById("ml-events").innerHTML = table(
+    [{label:"Date"}, {label:"Event"}, {label:"Turnout", num:1}, {label:"Players"}],
+    EVENTS.slice().reverse().map(e => [esc(e.date), esc(e.name) + (e.tokens > 1 ? " <small>(" + e.tokens + " tokens each)</small>" : ""), (e.players || []).length, esc((e.players || []).join(", "))]),
+    "No events recorded yet.");
+
+  const warnEl = document.getElementById("ml-warnings");
+  if (warnings.length) {
+    warnEl.hidden = false;
+    warnEl.innerHTML = '<h2>Ledger Problems</h2><ul>' + warnings.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul>';
+  }
+
+  document.getElementById("ml-updated").textContent = "Mystic Library last updated " + PROGRESS.updated + ". Token costs and gates are drafts until the leadership group signs off.";
+})();
 </script>

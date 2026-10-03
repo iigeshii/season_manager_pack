@@ -161,6 +161,20 @@ by `scriptevent season:toggle`. To restore trading for a profession,
 look up that file's git history for the unmodified vanilla version
 committed just before it was emptied.
 
+**Don't restore these straight from vanilla.** Some professions come
+back with planned changes:
+
+- `cleric_trades.json` — the rotten flesh trade sells at twice the
+  vanilla rate: change its `wants` quantity from `32` to `16`
+  `minecraft:rotten_flesh` for 1 emerald.
+- `cartographer_trades.json` — village maps only at first. Leave out the
+  Woodland Mansion, Trial Chamber, Ocean Monument, Jungle Temple and Swamp
+  Hut explorer maps.
+- `farmer_trades.json` — keep the Golden Carrot and Glistering Melon
+  Slice trades (the "farmer specials").
+- `armorer_trades.json`, `tool_smith_trades.json`,
+  `weapon_smith_trades.json` — no diamond gear sales.
+
 ### Wandering Trader trades
 
 Unlike the villager professions above, the Wandering Trader isn't fully
