@@ -269,7 +269,7 @@ graph TD
     woolfrost["Wool and Frost<br/><i>Snowy</i>"]
     pelts["Pelts and Pines<br/><i>Taiga</i>"]
     masons["Masons of the Dunes<br/><i>Desert</i>"]
-    tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman<br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith"]
+    tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman, <i>tool books</i><br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith, <i>armor + melee books</i>"]
   end
   wtg["Trading on<br/>the Edge"]
   mansion["Woodland Mansion"]
@@ -572,9 +572,9 @@ graph TD
           <h4>Unlocks</h4>
           <ul>
             <li><strong>1 village:</strong> Cleric, Cartographer, Fletcher</li>
-            <li><strong>2 villages:</strong> Butcher, Farmer, Fisherman. Farmer specials: Golden Carrots and Glistering Melon Slices.</li>
+            <li><strong>2 villages:</strong> Butcher, Farmer, Fisherman. Farmer specials: Golden Carrots and Glistering Melon Slices. Tools books open in the <a href="#mystic-library">Mystic Library</a>.</li>
             <li><strong>3 villages:</strong> Shepherd, Leatherworker, Stone Mason</li>
-            <li><strong>4 villages:</strong> Armorer, Toolsmith, Weaponsmith, with diamond gear sales restricted</li>
+            <li><strong>4 villages:</strong> Armorer, Toolsmith, Weaponsmith, with diamond gear sales restricted. Armor and Melee books open in the <a href="#mystic-library">Mystic Library</a>.</li>
             <li><strong>All 5 kinds:</strong> opens <a href="#node-wtg">Trading on the Edge</a></li>
           </ul>
         </div>
@@ -938,7 +938,7 @@ graph TD
       <h2>How the Tree Climbs</h2>
       <ul>
         <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows Breaking Bread, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is never sold.</strong></li>
-        <li><strong>The other groups have their own questlines.</strong> Armor opens with an armorer questline and Melee with a weapons questline, which may also bring back diamond armor and diamond weapons. Tools opens with a mining questline, Ranged with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Finishing one opens that group's Tier I books for tokens.</li>
+        <li><strong>The other groups open as the season moves forward.</strong> Once the library is complete, Tools opens at 2 villages in the <a href="#village-milestones">Village Milestones</a> (alongside the Butcher, Farmer and Fisherman), and Armor and Melee open at 4 villages (alongside the Armorer, Toolsmith and Weaponsmith). Ranged opens with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Each one opens that group's Tier I books for tokens.</li>
         <li><strong>Everyone who takes part earns a token.</strong> Each participant in an event or questline earns 1 token and picks which open book it goes toward. Whatever gets unlocked is unlocked for everyone.</li>
         <li><strong>Each group climbs on its own.</strong> A tier opens once enough books in the tier below it are unlocked, so one book can't race to the top alone.</li>
         <li><strong>Every book after that costs tokens.</strong> Outside General and Fishing, a Tier I book costs 1 token, Tier II costs 2, Tier III costs 3, and so on.</li>
@@ -976,7 +976,6 @@ graph TD
       <ul>
         <li>Token payouts for bigger questlines, and whether the group starts with a token bank.</li>
         <li>Whether the gate should be three quarters of the tier below, or a fixed count per group.</li>
-        <li>The Armor, Melee and Tools questlines: their stories, criteria, and where they sit on the tree.</li>
       </ul>
     </div>
 
@@ -988,7 +987,7 @@ graph TD
     <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready. Future story planning and unlocks will be discussed and coordinated with the group, and decided by majority vote.</p>
     <ul>
       <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
-      <li><strong>Diamond gear.</strong> Tools, sword, spear, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the weapons/armor off a dedicated Diamond Gear node — neither exists in the tree anymore. Proposed homes now come from the <a href="#mystic-library">Mystic Library</a> questlines: diamond armor with the armorer questline that opens the Armor books, and the diamond sword and spear with the weapons questline that opens Melee. Diamond tools could fit the mining questline that opens Tools. None of these questlines is written yet. The Armorer, Toolsmith and Weaponsmith come back at 4 villages, but without their diamond gear sales.</li>
+      <li><strong>Diamond gear.</strong> Tools, sword, spear, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the weapons/armor off a dedicated Diamond Gear node — neither exists in the tree anymore. The whole diamond kit still needs a new unlock milestone. The Armorer, Toolsmith and Weaponsmith come back at 4 villages, but without their diamond gear sales.</li>
       <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
       <li><strong>Blaze powder and early potions.</strong> Blaze powder is removed on sight, so no brewing is possible before the Nether. One idea from Fredo: a witch storyline brings basic potion brewing in early (with Weakness possibly restricted), and a Cleric trade becomes a renewable source of blaze powder. Useful potions like Water Breathing and Fire Resistance would still wait for their own milestones, such as Water Breathing after the Ocean Monument. Not a skill tree, just a storyline.</li>
       <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
@@ -1023,9 +1022,7 @@ graph TD
 const PROGRESS = {
   updated: "October 3, 2026",
   mysticLibrary: "locked",  // "locked" until Breaking Bread is done, then "underway", then "complete" (opens General, Fishing)
-  armorQuest: false,      // Armor (armorer questline TBD, possibly with diamond armor)
-  meleeQuest: false,      // Melee (weapons questline TBD, possibly with diamond weapons)
-  toolsQuest: false,      // Tools (mining questline TBD)
+  villages: 0,            // villages done in the Village Milestones: Tools opens at 2, Armor and Melee at 4 (library must be complete)
   rangedQuest: false,     // Ranged (The Archery Contest)
   nether: false,          // Fire
   oceanMonument: false    // Water
@@ -1054,11 +1051,11 @@ const GATE_SHARE = 0.75;                        // share of the tier below neede
   const GROUPS = [
     {name:"General", ...LIBRARY, freeTier1:true, items:[["Unbreaking",3],["Feather Falling",4],["Thorns",3]]},
     {name:"Fishing", ...LIBRARY, freeTier1:true, items:[["Luck of the Sea",3],["Lure",3]]},
-    {name:"Armor",   gate:"armorQuest",    gateLabel:"Opens with the armorer questline",
+    {name:"Armor",   villages:4,           gateLabel:"Opens at 4 villages",
      items:[["Protection",4],["Blast Protection",4],["Projectile Protection",4]]},
-    {name:"Melee",   gate:"meleeQuest",    gateLabel:"Opens with the weapons questline",
+    {name:"Melee",   villages:4,           gateLabel:"Opens at 4 villages",
      items:[["Sharpness",5],["Smite",5],["Bane of Arthropods",5],["Knockback",2],["Looting",3]]},
-    {name:"Tools",   gate:"toolsQuest",    gateLabel:"Opens with the mining questline",
+    {name:"Tools",   villages:2,           gateLabel:"Opens at 2 villages",
      items:[["Efficiency",5],["Fortune",3],["Silk Touch",1]]},
     {name:"Ranged",  gate:"rangedQuest",   gateLabel:"Opens with The Archery Contest",
      items:[["Power",5],["Punch",2],["Infinity",1],["Piercing",4],["Quick Charge",3],["Multishot",1],["Flame",1]]},
@@ -1068,6 +1065,10 @@ const GATE_SHARE = 0.75;                        // share of the tier below neede
      items:[["Respiration",3],["Aqua Affinity",1],["Depth Strider",3],["Impaling",5],["Loyalty",3],["Riptide",3],["Channeling",1]]}
   ];
   const ROMAN = ["","I","II","III","IV","V"];
+  // Village-gated groups need the library complete and enough villages; the rest follow their flag.
+  const isOpen = g => g.villages
+    ? PROGRESS.mysticLibrary === "complete" && PROGRESS.villages >= g.villages
+    : PROGRESS[g.gate] === true || PROGRESS[g.gate] === "complete";
   const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
   const warnings = [];
@@ -1099,7 +1100,7 @@ const GATE_SHARE = 0.75;                        // share of the tier below neede
   const groupsEl = document.getElementById("ml-groups");
 
   GROUPS.forEach(g => {
-    const branchOpen = PROGRESS[g.gate] === true || PROGRESS[g.gate] === "complete";
+    const branchOpen = isOpen(g);
     const reached = {};
     g.items.forEach(([n]) => { reached[n] = 0; });
     const maxTier = Math.max(...g.items.map(i => i[1]));
@@ -1155,8 +1156,9 @@ const GATE_SHARE = 0.75;                        // share of the tier below neede
   const stat = (k, v, cls) => '<div class="ml-stat"><span class="k">' + k + '</span><span class="v ' + cls + '">' + v + '</span></div>';
   document.getElementById("ml-status").innerHTML =
     stat("Mystic Library", {locked:"Opens after Breaking Bread", underway:"Underway", complete:"Complete"}[PROGRESS.mysticLibrary], PROGRESS.mysticLibrary === "complete" ? "done" : "wait") +
-    [["Armor","armorQuest"],["Melee","meleeQuest"],["Tools","toolsQuest"],["Ranged","rangedQuest"],["Fire","nether"],["Water","oceanMonument"]]
-      .map(([n, f]) => stat(n + " branch", PROGRESS[f] ? "Open" : "Sealed", PROGRESS[f] ? "done" : "wait")).join("") +
+    stat("Villages", PROGRESS.villages + " of 5", "") +
+    GROUPS.filter(g => g.gate !== "mysticLibrary")
+      .map(g => stat(g.name + " branch", isOpen(g) ? "Open" : "Sealed", isOpen(g) ? "done" : "wait")).join("") +
     stat("Books unlocked", gotCount + " of " + totalCount, "") +
     stat("Tokens", (earnedTotal - spentTotal) + " unspent · " + spentTotal + " spent", "");
   document.getElementById("ml-costs").innerHTML =
