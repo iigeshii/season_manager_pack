@@ -482,8 +482,11 @@ villager.
   knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
   seconds by a watchdog in
-  [`main.js`](season_manager/season_pack/scripts/main.js), since potion
-  effects expire on their own and the stat components don't), and a
+  [`main.js`](season_manager/season_pack/scripts/main.js), with each
+  application lasting 30 seconds — well past the 5-second recheck — so
+  a server lag spike that delays the watchdog doesn't let the effects
+  lapse before the next one fires, since potion effects expire on their
+  own and the stat components don't), and a
   guaranteed enchanted iron sword plus a full iron armor set, trimmed
   bright red (Redstone material, Wayfinder pattern) on every piece so
   it's immediately recognizable as the boss instead of a regular
@@ -599,7 +602,12 @@ stacked on top of Speed I — it's one or the other). Checked and
 re-applied every 5 seconds by a watchdog in
 [`main.js`](season_manager/season_pack/scripts/main.js)
 (`LEATHER_ARMOR_SLOTS`), since potion effects expire on their own and
-armor doesn't trigger a re-check by itself. Mixing leather with other
+armor doesn't trigger a re-check by itself. Each application lasts 30
+seconds, not just a hair over the 5-second recheck — a real incident
+where a laggy mob farm slowed the server enough to delay the watchdog
+past the old, tighter margin caused the Speed buff to drop out early
+mid-fight, so the duration was widened well past anything a lag spike
+should plausibly cause. Mixing leather with other
 armor materials still counts each leather piece — a leather helmet with
 three diamond pieces is 1 leather piece worn (no buff), not disqualified
 from the count entirely.
@@ -613,7 +621,9 @@ Same idea as the Leather Armor Speed Bonus above, just Chainmail and
 Haste instead of Leather and Speed: 2 or 3 pieces of Chainmail armor
 worn grants Haste I, and a full 4-piece set grants Haste II instead (not
 stacked on top of Haste I). Same watchdog pattern too — checked and
-re-applied every 5 seconds (`CHAINMAIL_ARMOR_SLOTS` in
+re-applied every 5 seconds, each application lasting 30 seconds for the
+same lag-spike margin as the Leather bonus above
+(`CHAINMAIL_ARMOR_SLOTS` in
 [`main.js`](season_manager/season_pack/scripts/main.js)), and mixing
 Chainmail with other armor materials still counts each Chainmail piece
 individually toward the total.

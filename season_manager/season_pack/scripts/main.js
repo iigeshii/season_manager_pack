@@ -279,7 +279,7 @@ const ELITE_MOBS = [
 ];
 
 const ELITE_MOB_INTERVAL_TICKS = 100; // 5 seconds
-const ELITE_MOB_EFFECT_DURATION_TICKS = 240; // 12 seconds — comfortably outlasts the interval
+const ELITE_MOB_EFFECT_DURATION_TICKS = 600; // 30 seconds — wide margin over the interval so a server lag spike (e.g. a busy mob farm slowing tick processing) can't let this lapse before the next re-application fires
 
 system.runInterval(() => {
   const overworld = world.getDimension("overworld");
@@ -308,7 +308,7 @@ const LEATHER_ARMOR_SLOTS = [
 ];
 
 const LEATHER_SPEED_INTERVAL_TICKS = 100; // 5 seconds
-const LEATHER_SPEED_EFFECT_DURATION_TICKS = 140; // comfortably outlasts the interval
+const LEATHER_SPEED_EFFECT_DURATION_TICKS = 600; // 30 seconds — wide margin over the interval so a server lag spike (e.g. a busy mob farm slowing tick processing) can't let this lapse before the next re-application fires
 
 system.runInterval(() => {
   for (const player of world.getPlayers()) {
@@ -344,7 +344,7 @@ const CHAINMAIL_ARMOR_SLOTS = [
 ];
 
 const CHAINMAIL_HASTE_INTERVAL_TICKS = 100; // 5 seconds
-const CHAINMAIL_HASTE_EFFECT_DURATION_TICKS = 140; // comfortably outlasts the interval
+const CHAINMAIL_HASTE_EFFECT_DURATION_TICKS = 600; // 30 seconds — wide margin over the interval so a server lag spike (e.g. a busy mob farm slowing tick processing) can't let this lapse before the next re-application fires
 
 system.runInterval(() => {
   for (const player of world.getPlayers()) {
