@@ -62,3 +62,16 @@ regardless of when each piece was actually added:
   harder, he's tougher to put down, and he doesn't come alone anymore —
   expect a much rougher fight than before. Details are best discovered
   in person.
+
+## Season Manager v1.0.108 — The Livestock Update
+
+- **Farm animal population cap.** Bedrock has a hard 200-mob world
+  limit — once hit, ALL natural spawning stops everywhere, friendly and
+  hostile. Pigs, Chickens, Sheep, and Cows now have a combined cap of
+  160 world-wide; go over and the surplus despawns. You'll get a chat
+  message whenever it happens, so it's never a mystery why animals went
+  missing.
+- **Fixed: Leather's Speed boost and Chainmail's Haste boost could drop
+  out early during bad server lag** (e.g. a busy mob farm bogging things
+  down). Both now have a much wider safety margin so a lag spike can't
+  cause them to lapse before they're refreshed.
