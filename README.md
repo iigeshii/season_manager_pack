@@ -179,8 +179,8 @@ back with planned changes:
 
 Unlike the villager professions above, the Wandering Trader isn't fully
 disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading/economy_trades/wandering_trader_trades.json)
-replaces the vanilla trade list with a light-block-only one, plus one
-always-available staple trade, grouped into four rarity buckets:
+replaces the vanilla trade list with a light-block-and-mob-head one,
+plus one always-available staple trade, grouped into five buckets:
 
 - **Always available** — 1 Diamond for 4 Emeralds, a way to convert
   Diamonds into Emeralds rather than the other way around. This is its
@@ -205,6 +205,23 @@ always-available staple trade, grouped into four rarity buckets:
   Lantern, Sea Lantern, Shroomlight (6 each @ 2 Emeralds), and
   Ochre/Verdant/Pearlescent Froglight plus End Rod (4 each @ 3
   Emeralds).
+- **Mob heads** (picks 1 of 4) — Skeleton Skull or Zombie Head (10
+  Emeralds each), Creeper Head (12), or Player Head (16, and about half
+  as likely as the other three). `max_uses: 1` — each head only ever
+  sells once per trader, no repeat purchases. This version of Bedrock
+  uses separate item identifiers per head
+  (`minecraft:skeleton_skull`/`zombie_head`/`creeper_head`/`player_head`),
+  not the older `minecraft:skull` + data-value system, confirmed against
+  Mojang's current item metadata. The economy trade table format has no
+  real per-trade `weight` field (despite some docs suggesting
+  otherwise — vanilla's own trade tables never use one), so the Player
+  Head's lower odds come from entry duplication instead: Skeleton Skull,
+  Zombie Head, and Creeper Head each appear twice in the group and
+  Player Head appears once, so out of the group's 7 total entries
+  Player Head is picked 1/7 of the time versus 2/7 for each of the
+  others — exactly half as often. Wither Skeleton Skull, Dragon Head,
+  and Piglin Head are deliberately not offered (Wither Skeleton Skull
+  specifically because 3 of them let you summon the Wither early).
 
 Price climbs with rarity (1/2/3 Emeralds) rather than staying flat,
 matching vanilla's own convention of charging more for the less common
