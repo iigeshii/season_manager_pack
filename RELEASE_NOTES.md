@@ -75,3 +75,24 @@ regardless of when each piece was actually added:
   out early during bad server lag** (e.g. a busy mob farm bogging things
   down). Both now have a much wider safety margin so a lag spike can't
   cause them to lapse before they're refreshed.
+- **Named animals are safe.** Give any Pig, Chicken, Cow, or Sheep a
+  Name Tag and it's permanently protected from the population cap
+  above — it still counts toward the 160 total, but it will never be
+  the one despawned.
+
+## Season Manager v1.0.112 — The Copper Update
+
+- **Copper armor is a healer.** Wear 2-3 pieces for Regeneration I, or
+  a full 4-piece set for Regeneration II — same tiering as Leather's
+  Speed and Chainmail's Haste. Copper's defense is weak on its own, so
+  this is meant to be its real value.
+- **New cave combo: Copper Helmet + full Chainmail body (Chestplate,
+  Leggings, Boots) + a waxed Copper Lantern somewhere in your hotbar +
+  being below Y=40 grants Night Vision**, on top of the Haste I the 3
+  Chainmail pieces already give you. Climb back up, swap armor, or drop
+  the lantern and it fades out on its own rather than cutting off.
+- **Wandering Traders now also sell Mob Heads** — Skeleton Skull,
+  Zombie Head, Creeper Head, or a rarer Player Head. Each trader offers
+  exactly one, and it only sells once.
+
+![Armor set bonus tiers — Leather, Chainmail, Copper, and the Night Vision cave combo are all live; Gold and Iron are planned](docs/armor_bonus_tiers.svg)

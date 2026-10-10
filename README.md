@@ -609,6 +609,8 @@ Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
 not a season restriction.
 
+![Armor set bonus tiers — Leather, Chainmail, Copper, and the Night Vision cave combo are all live; Gold and Iron are planned](docs/armor_bonus_tiers.svg)
+
 ### Leather armor speed bonus
 
 Leather armor is crafted from Rabbit Hide now (see
@@ -650,24 +652,28 @@ bonus.
 
 ### Copper armor regeneration bonus
 
-Same watchdog shape as Leather/Chainmail above, but flat instead of
-two-tier: 2 or more pieces of Copper armor worn grants Regeneration I,
-and a full 4-piece set is still just Regeneration I — there's no
-amplifier bump for the 4th piece (`COPPER_ARMOR_SLOTS` in
-[`main.js`](season_manager/season_pack/scripts/main.js)).
+Same two-tier watchdog shape as Leather/Chainmail above: 2 or 3 pieces
+of Copper armor worn grants Regeneration I, and a full 4-piece set
+grants Regeneration II instead (not stacked on top of Regeneration I)
+(`COPPER_ARMOR_SLOTS` in [`main.js`](season_manager/season_pack/scripts/main.js)).
+Copper armor has low defense on its own, so the healing bonus is meant
+to be its real value — a full set competes with a maxed-out Beacon's
+Regeneration II (which costs a Nether Star and a full 4-layer pyramid,
+and only works in a fixed radius) by being cheap, portable, and
+permanent the moment it's worn instead.
 
 Regeneration needed one extra consideration the Speed/Haste bonuses
 didn't: its actual healing tick is paced by amplifier (every 50 ticks
-at Regeneration I), and that 50-tick cycle restarts from 0 every time a
-fresh instance of the effect is applied. Re-applying on too tight a
-loop — every single tick, for example — would restart the cycle before
-it ever reached tick 50, and the player would never actually heal. This
-re-applies every 100 ticks (5 seconds), the same cadence already used
-for Speed/Haste, which is coarser than the 50-tick heal cycle, so each
-5-second window comfortably contains a full heal before the next
-refresh restarts it. The 30-second duration on each application is
-still just the same lag-spike margin as the other bonuses, not a
-requirement for healing to work.
+at Regeneration I, every 25 at Regeneration II), and that cycle restarts
+from 0 every time a fresh instance of the effect is applied. Re-applying
+on too tight a loop — every single tick, for example — would restart
+the cycle before it ever reached tick 25/50, and the player would never
+actually heal. This re-applies every 100 ticks (5 seconds), the same
+cadence already used for Speed/Haste, which is coarser than either heal
+cycle, so each 5-second window comfortably contains at least one heal
+before the next refresh restarts it. The 30-second duration on each
+application is still just the same lag-spike margin as the other
+bonuses, not a requirement for healing to work.
 
 ### Cave combo: Night Vision
 

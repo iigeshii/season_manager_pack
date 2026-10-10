@@ -366,24 +366,24 @@ system.runInterval(() => {
 
 // ─────────────────────────────────────────────
 //  COPPER ARMOR REGENERATION BONUS
-//  Same shape as the Leather/Chainmail bonuses above, but flat instead
-//  of two-tier: 2 or more Copper armor pieces grants Regeneration I,
-//  and a full 4-piece set is still just Regeneration I (no amplifier
-//  bump for the 4th piece).
+//  Same two-tier shape as the Leather/Chainmail bonuses above: 2 or 3
+//  Copper armor pieces grants Regeneration I, and a full 4-piece set
+//  grants Regeneration II instead (not stacked on top of
+//  Regeneration I).
 //
 //  Regeneration's actual healing tick is paced by the effect's
-//  amplifier (every 50 ticks at amplifier 0), not by how much duration
-//  is left on it — but re-applying it on too tight a loop can still
-//  starve it in practice, because the moment a fresh instance is
-//  (re)applied, the internal 50-tick heal cycle restarts from 0. If a
-//  refresh happened every tick, that cycle would never reach tick 50
-//  and the player would never actually heal. This re-applies every 100
-//  ticks (5 seconds) — the same cadence as Speed/Haste above — which is
-//  coarser than the 50-tick heal cycle, so each 5-second window has
-//  room for the cycle to reach 50 and fire a heal before the next
-//  refresh restarts it. A long 30-second duration (vs. the 5-second
-//  recheck) is still used for the same lag-spike margin as the other
-//  bonuses, not because it's required for healing to work.
+//  amplifier (every 50 ticks at amplifier 0, every 25 at amplifier 1),
+//  not by how much duration is left on it — but re-applying it on too
+//  tight a loop can still starve it in practice, because the moment a
+//  fresh instance is (re)applied, that internal heal cycle restarts
+//  from 0. If a refresh happened every tick, the cycle would never
+//  reach tick 25/50 and the player would never actually heal. This
+//  re-applies every 100 ticks (5 seconds) — the same cadence as
+//  Speed/Haste above — which is coarser than either heal cycle, so each
+//  5-second window has room for at least one heal to fire before the
+//  next refresh restarts it. A long 30-second duration (vs. the
+//  5-second recheck) is still used for the same lag-spike margin as the
+//  other bonuses, not because it's required for healing to work.
 // ─────────────────────────────────────────────
 
 const COPPER_ARMOR_SLOTS = [
@@ -406,7 +406,9 @@ system.runInterval(() => {
       if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
     }
 
-    if (piecesWorn >= 2) {
+    if (piecesWorn >= 4) {
+      player.addEffect("regeneration", COPPER_REGEN_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    } else if (piecesWorn >= 2) {
       player.addEffect("regeneration", COPPER_REGEN_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
     }
   }
