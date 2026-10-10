@@ -631,6 +631,57 @@ individually toward the total.
 Not gated by `enabled`/`scriptevent season:toggle`, same as the Leather
 bonus.
 
+### Copper armor regeneration bonus
+
+Same watchdog shape as Leather/Chainmail above, but flat instead of
+two-tier: 2 or more pieces of Copper armor worn grants Regeneration I,
+and a full 4-piece set is still just Regeneration I — there's no
+amplifier bump for the 4th piece (`COPPER_ARMOR_SLOTS` in
+[`main.js`](season_manager/season_pack/scripts/main.js)).
+
+Regeneration needed one extra consideration the Speed/Haste bonuses
+didn't: its actual healing tick is paced by amplifier (every 50 ticks
+at Regeneration I), and that 50-tick cycle restarts from 0 every time a
+fresh instance of the effect is applied. Re-applying on too tight a
+loop — every single tick, for example — would restart the cycle before
+it ever reached tick 50, and the player would never actually heal. This
+re-applies every 100 ticks (5 seconds), the same cadence already used
+for Speed/Haste, which is coarser than the 50-tick heal cycle, so each
+5-second window comfortably contains a full heal before the next
+refresh restarts it. The 30-second duration on each application is
+still just the same lag-spike margin as the other bonuses, not a
+requirement for healing to work.
+
+### Cave combo: Night Vision
+
+A fifth bonus, layered across materials rather than tied to one: wear a
+Copper Helmet, a full Chainmail body (Chestplate + Leggings + Boots),
+carry a waxed Copper Lantern anywhere in the hotbar (any of the 4
+oxidation stages — `minecraft:waxed_copper_lantern`,
+`waxed_exposed_copper_lantern`, `waxed_weathered_copper_lantern`,
+`waxed_oxidized_copper_lantern`; an unwaxed lantern doesn't count), and
+be below Y=40 (`CAVE_COMBO_MAX_Y` in
+[`main.js`](season_manager/season_pack/scripts/main.js) — a single
+line to retune), and you get Night Vision on top of everything else.
+
+This doesn't change anything about the individual bonuses above: the 3
+Chainmail pieces still grant Haste I on their own exactly as before (2-3
+pieces = Haste I), and a lone Copper Helmet is below Copper's own
+2-piece threshold, so it grants nothing by itself — the combo only adds
+Night Vision once every condition lines up at once.
+
+Each application is a 30-second duration, refreshed every 5 seconds —
+comfortably over the 15-second floor Night Vision needs, since its
+screen effect starts fading/flickering under about 10 seconds
+remaining. When a condition stops being met (armor swapped, lantern
+dropped, player climbs back above Y=40), this simply stops
+re-applying and lets the existing Night Vision run out naturally rather
+than clearing it outright — clearing it would also strip Night Vision
+from an actual potion the player drank independently of the combo.
+
+Not gated by `enabled`/`scriptevent season:toggle`, same as the other
+armor bonuses.
+
 ### Farm animal population cap
 
 Bedrock's global mob cap is a flat 200 mobs world-wide — once that's

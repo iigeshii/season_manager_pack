@@ -365,6 +365,129 @@ system.runInterval(() => {
 }, CHAINMAIL_HASTE_INTERVAL_TICKS);
 
 // ─────────────────────────────────────────────
+//  COPPER ARMOR REGENERATION BONUS
+//  Same shape as the Leather/Chainmail bonuses above, but flat instead
+//  of two-tier: 2 or more Copper armor pieces grants Regeneration I,
+//  and a full 4-piece set is still just Regeneration I (no amplifier
+//  bump for the 4th piece).
+//
+//  Regeneration's actual healing tick is paced by the effect's
+//  amplifier (every 50 ticks at amplifier 0), not by how much duration
+//  is left on it — but re-applying it on too tight a loop can still
+//  starve it in practice, because the moment a fresh instance is
+//  (re)applied, the internal 50-tick heal cycle restarts from 0. If a
+//  refresh happened every tick, that cycle would never reach tick 50
+//  and the player would never actually heal. This re-applies every 100
+//  ticks (5 seconds) — the same cadence as Speed/Haste above — which is
+//  coarser than the 50-tick heal cycle, so each 5-second window has
+//  room for the cycle to reach 50 and fire a heal before the next
+//  refresh restarts it. A long 30-second duration (vs. the 5-second
+//  recheck) is still used for the same lag-spike margin as the other
+//  bonuses, not because it's required for healing to work.
+// ─────────────────────────────────────────────
+
+const COPPER_ARMOR_SLOTS = [
+  { slot: EquipmentSlot.Head, item: "minecraft:copper_helmet" },
+  { slot: EquipmentSlot.Chest, item: "minecraft:copper_chestplate" },
+  { slot: EquipmentSlot.Legs, item: "minecraft:copper_leggings" },
+  { slot: EquipmentSlot.Feet, item: "minecraft:copper_boots" },
+];
+
+const COPPER_REGEN_INTERVAL_TICKS = 100; // 5 seconds
+const COPPER_REGEN_EFFECT_DURATION_TICKS = 600; // 30 seconds — see header comment for why this margin doesn't fight the healing cycle
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    let piecesWorn = 0;
+    for (const { slot, item } of COPPER_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    }
+
+    if (piecesWorn >= 2) {
+      player.addEffect("regeneration", COPPER_REGEN_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+    }
+  }
+}, COPPER_REGEN_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  CAVE COMBO: NIGHT VISION
+//  A fifth, cross-material bonus layered on top of the single-material
+//  ones above: Copper Helmet + full Chainmail body (Chestplate/
+//  Leggings/Boots) + a waxed Copper Lantern carried anywhere in the
+//  hotbar + below a configurable Y level grants Night Vision. The 3
+//  Chainmail pieces still grant Haste I on their own via the watchdog
+//  above (2-3 pieces = Haste I) — this doesn't touch that. A lone
+//  Copper Helmet is below Copper's own 2-piece threshold, so it grants
+//  nothing by itself; the combo only adds Night Vision on top once
+//  every condition is met at once.
+//
+//  Conditions stop being met → this simply stops re-applying and lets
+//  the existing Night Vision run out on its own. It deliberately never
+//  calls removeEffect("night_vision"), since that would also strip
+//  Night Vision from an actual potion the player drank independently of
+//  this combo.
+//
+//  Each application is a 30-second duration (comfortably over the
+//  15-second floor — Night Vision's screen fades/flickers under about
+//  10 seconds left, so staying well clear of that matters), refreshed
+//  every 5 seconds, same cadence as the other bonuses.
+// ─────────────────────────────────────────────
+
+const CAVE_COMBO_HELMET_ITEM = "minecraft:copper_helmet";
+const CAVE_COMBO_CHEST_ITEM = "minecraft:chainmail_chestplate";
+const CAVE_COMBO_LEGS_ITEM = "minecraft:chainmail_leggings";
+const CAVE_COMBO_BOOTS_ITEM = "minecraft:chainmail_boots";
+
+// All 4 waxed Copper Lantern oxidation stages — verified against the
+// current Bedrock item ID list (see README for how that was checked
+// elsewhere in this pack). Unwaxed lanterns don't count.
+const CAVE_COMBO_WAXED_LANTERN_ITEMS = [
+  "minecraft:waxed_copper_lantern",
+  "minecraft:waxed_exposed_copper_lantern",
+  "minecraft:waxed_weathered_copper_lantern",
+  "minecraft:waxed_oxidized_copper_lantern",
+];
+
+const CAVE_COMBO_MAX_Y = 40; // "below Y=40" — change this one line to retune the threshold
+
+const CAVE_COMBO_INTERVAL_TICKS = 100; // 5 seconds
+const CAVE_COMBO_EFFECT_DURATION_TICKS = 600; // 30 seconds — well over the 15-second floor noted above
+
+function hasWaxedCopperLanternInHotbar(player) {
+  const inventory = player.getComponent("minecraft:inventory");
+  const container = inventory?.container;
+  if (!container) return false;
+
+  for (let slot = 0; slot < 9; slot++) {
+    const item = container.getItem(slot);
+    if (item && CAVE_COMBO_WAXED_LANTERN_ITEMS.includes(item.typeId)) return true;
+  }
+  return false;
+}
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    const wearingComboArmor =
+      equippable.getEquipment(EquipmentSlot.Head)?.typeId === CAVE_COMBO_HELMET_ITEM &&
+      equippable.getEquipment(EquipmentSlot.Chest)?.typeId === CAVE_COMBO_CHEST_ITEM &&
+      equippable.getEquipment(EquipmentSlot.Legs)?.typeId === CAVE_COMBO_LEGS_ITEM &&
+      equippable.getEquipment(EquipmentSlot.Feet)?.typeId === CAVE_COMBO_BOOTS_ITEM;
+
+    if (!wearingComboArmor) continue;
+    if (player.location.y >= CAVE_COMBO_MAX_Y) continue;
+    if (!hasWaxedCopperLanternInHotbar(player)) continue;
+
+    player.addEffect("night_vision", CAVE_COMBO_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+  }
+}, CAVE_COMBO_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
 //  FARM ANIMAL POPULATION CAP
 //  Bedrock's global mob cap is a flat 200 mobs world-wide; once that's
 //  hit, natural spawning of everything (zombies, skeletons, wildlife)
