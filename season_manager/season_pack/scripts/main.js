@@ -384,6 +384,15 @@ system.runInterval(() => {
 //  easily wipe out the 2 Cows just from bad luck. Babies and the
 //  Sheep-color preference (see pickCullTarget) are tie-breakers *within*
 //  whichever species gets picked, not a global override of this rule.
+//
+//  Named animals (a Name Tag applied) are absolutely protected — never
+//  a cull candidate, full stop, regardless of species count or any
+//  other factor. They still count toward the 160 total (they're still
+//  real entities eating into Bedrock's mob budget), but "largest
+//  species" and all cull selection only ever look at unnamed animals,
+//  so a named individual can never be the one removed. If every
+//  remaining animal over the cap happens to be named, the watchdog just
+//  stops for that pass rather than touching a protected one.
 // ─────────────────────────────────────────────
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
@@ -396,6 +405,10 @@ const DEFAULT_CULL_WEIGHT = 1;
 
 function isBabyAnimal(animal) {
   return animal.getComponent("minecraft:is_baby") !== undefined;
+}
+
+function isNamed(animal) {
+  return !!animal.nameTag;
 }
 
 function isUndyedSheep(animal) {
@@ -415,23 +428,31 @@ function pickWeighted(animals) {
   return animals[animals.length - 1]; // floating-point fallback
 }
 
-// Finds the species with the most individuals currently loaded, then
-// picks which one of that species to despawn: every baby of that
-// species goes before any adult of it (babies are usually a small
-// slice of the population at any moment, since they grow up in ~20
-// minutes, so anything less than an absolute rule barely reads as a
+// Finds the species with the most CULLABLE (unnamed) individuals
+// currently loaded — not total individuals, so a species that's mostly
+// named animals doesn't get targeted just because its total count is
+// high when there's nothing left in it this function is allowed to
+// touch — then picks which one of that species to despawn: every baby
+// of that species goes before any adult of it (babies are usually a
+// small slice of the population at any moment, since they grow up in
+// ~20 minutes, so anything less than an absolute rule barely reads as a
 // priority in practice); once no babies are left, white/undyed Sheep
 // are 3x more likely than other adults of that species, but not an
 // absolute rule — an earlier version made that absolute too and it
 // wiped out every white Sheep in one pass, since most naturally-spawned
-// Sheep are undyed to begin with.
-function pickCullTarget(animalsByType) {
-  let largestType = FARM_ANIMAL_TYPES[0];
+// Sheep are undyed to begin with. Returns null if every type's
+// cullable list is empty (everything left is named/protected).
+function pickCullTarget(cullableByType) {
+  let largestType = null;
   for (const type of FARM_ANIMAL_TYPES) {
-    if (animalsByType.get(type).length > animalsByType.get(largestType).length) largestType = type;
+    const list = cullableByType.get(type);
+    if (list.length > 0 && (!largestType || list.length > cullableByType.get(largestType).length)) {
+      largestType = type;
+    }
   }
+  if (!largestType) return null;
 
-  const candidates = animalsByType.get(largestType);
+  const candidates = cullableByType.get(largestType);
   const babies = candidates.filter(isBabyAnimal);
   if (babies.length > 0) {
     return { type: largestType, target: babies[Math.floor(Math.random() * babies.length)] };
@@ -447,10 +468,17 @@ system.runInterval(() => {
   let total = 0;
   for (const list of animalsByType.values()) total += list.length;
 
+  const cullableByType = new Map(
+    FARM_ANIMAL_TYPES.map((type) => [type, animalsByType.get(type).filter((animal) => !isNamed(animal))])
+  );
+
   let culled = 0;
   while (total > FARM_ANIMAL_CAP) {
-    const { type, target } = pickCullTarget(animalsByType);
-    const list = animalsByType.get(type);
+    const picked = pickCullTarget(cullableByType);
+    if (!picked) break; // everything left over the cap is named/protected
+
+    const { type, target } = picked;
+    const list = cullableByType.get(type);
     list.splice(list.indexOf(target), 1);
     target.remove();
     culled++;

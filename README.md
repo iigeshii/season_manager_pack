@@ -680,7 +680,17 @@ touching a colored one) and it wiped out every white Sheep in the world
 in one pass, since most naturally-spawned Sheep are undyed to begin
 with — weighting avoids repeating that, while babies stay a hard rule
 since there isn't the same "wipe out a whole species" risk with them
-(they regrow within minutes regardless). Not gated by
+(they regrow within minutes regardless).
+
+Named animals (given a Name Tag) are absolutely protected — never a
+cull candidate, full stop, no matter the species, species count, or
+anything else. They still count toward the 160 total, since they're
+still real entities on Bedrock's mob budget, but "largest species" and
+all target selection only ever look at unnamed animals, so a named
+individual can literally never be the one despawned. If every animal
+left over the cap happens to be named, the watchdog just does nothing
+that pass rather than touch a protected one — the cap can stay exceeded
+in that case, which is the intended trade-off. Not gated by
 `enabled`/`scriptevent season:toggle`, same as the other standalone
 watchdogs in this pack.
 
