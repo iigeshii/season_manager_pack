@@ -80,7 +80,7 @@ regardless of when each piece was actually added:
   above — it still counts toward the 160 total, but it will never be
   the one despawned.
 
-## Season Manager v1.0.112 — The Copper Update
+## Season Manager v1.0.113 — The Copper Update
 
 - **Copper armor is a healer.** Wear 2-3 pieces for Regeneration I, or
   a full 4-piece set for Regeneration II — same tiering as Leather's
