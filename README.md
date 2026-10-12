@@ -637,11 +637,10 @@ after that, via two additions in
 [`main.js`](season_manager/season_pack/scripts/main.js):
 
 - **Reinforcement waves, every 45 seconds.** A still-alive Elite Zombie
-  counts players within 50 blocks and spawns 2 guards per player beyond
-  the first, capped at **12 guards per wave** regardless of how many
-  players are actually there. A lone player gets nothing extra; a group
-  gets a real wave, but never a bigger one than the opening 12 felt
-  like.
+  counts players within 50 blocks and spawns 2 guards per player,
+  capped at **12 guards per wave** regardless of how many players are
+  actually there. A lone player gets 2 per wave; a group gets a bigger
+  wave, but never a bigger one than the opening 12 felt like.
 - **Enrage at half health.** A watchdog checks each Elite Zombie's
   current health against its max every 5 seconds. The first time it
   drops to 50% or below, it permanently gains Strength III/Speed II (on
@@ -672,11 +671,11 @@ to 0, buying a completely fresh 5 waves for the enraged half of the
 fight. The enrage buff and chat announcement always happen regardless
 of budget; only the extra guards are ever affected by it.
 
-Every call for reinforcements announces itself in chat — "The Elite
-Zombie calls for reinforcements...", followed by either "Reinforcements
-arrive — the Elite Zombie's escort grows by N." or, when fewer than 2
-players are within 50 blocks, "...but none answer" with the current
-player count. The wave that uses up a phase's budget also says so ("the
+Every wave announces itself in chat — "The Elite Zombie calls for
+reinforcements..." followed by "Reinforcements arrive — the Elite
+Zombie's escort grows by N." When no players are within 50 blocks,
+nobody is fighting, so the call stays silent and doesn't spend a wave.
+The wave that uses up a phase's budget also says so ("the
 last wave until the Elite Zombie is enraged", or "no more reinforcements
 are coming" once it's already enraged); after that the timer stays quiet
 instead of repeating the line every 45 seconds. The 45-second timer is

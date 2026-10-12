@@ -303,7 +303,7 @@ system.runInterval(() => {
 //     (45 seconds) — a still-alive elite zombie counts players within
 //     ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS and spawns
 //     ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER guards per player
-//     beyond the first, capped at ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE (12)
+//     (so a solo fight still gets 2), capped at ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE (12)
 //     regardless of how many players are actually there. So the fight
 //     stays a flat 12 at the start no matter the group size, and only
 //     grows from there the longer it's left running.
@@ -416,9 +416,8 @@ const ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE = 12; // no single reinforcement wave can
 const ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY = "season:last_reinforcement_tick";
 const ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS = 900; // 45 seconds
 
-// Every call announces itself, including the ones that spawn nothing, so a
-// quiet fight never leaves players wondering whether reinforcements broke.
-// The "spent" line only prints once, on the wave that uses up the budget —
+// Every wave announces itself, so players can always see reinforcements
+// coming. The "spent" line only prints once, on the wave that uses up the budget —
 // the timer watchdog keeps calling in here every 45 seconds after that, and
 // a repeat line each time would just be spam.
 function spawnReinforcementWave(overworld, eliteZombie) {
@@ -426,23 +425,18 @@ function spawnReinforcementWave(overworld, eliteZombie) {
   if (waveCount >= ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES) return; // this phase's 5 waves are already spent
 
   eliteZombie.setDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY, system.currentTick);
-  world.sendMessage("§6The Elite Zombie calls for reinforcements...");
 
   const nearbyPlayerCount = overworld.getPlayers({
     location: eliteZombie.location,
     maxDistance: ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS,
   }).length;
 
-  const extraPlayers = Math.max(0, nearbyPlayerCount - 1);
-  const guardCount = Math.min(extraPlayers * ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER, ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE);
-  if (guardCount === 0) {
-    // Nobody nearby to scale for — don't spend a wave on an empty spawn.
-    world.sendMessage(
-      `§7...but none answer. Reinforcements only come when 2 or more players are within ${ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS} blocks (${nearbyPlayerCount} now).`
-    );
-    return;
-  }
+  const guardCount = Math.min(nearbyPlayerCount * ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER, ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE);
+  // Nobody nearby means nobody is fighting — stay silent rather than
+  // broadcast to the whole server every 45 seconds, and don't spend a wave.
+  if (guardCount === 0) return;
 
+  world.sendMessage("§6The Elite Zombie calls for reinforcements...");
   eliteZombie.setDynamicProperty(ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY, waveCount + 1);
   spawnEliteGuardRing(overworld, eliteZombie.location, guardCount, ELITE_ZOMBIE_REINFORCEMENT_RING_RADIUS_BLOCKS);
   world.sendMessage(`§6Reinforcements arrive — the Elite Zombie's escort grows by ${guardCount}.`);
