@@ -270,6 +270,22 @@ a baby turtle growing into an adult, an entirely separate mechanic from
 this loot table. See `original_loot/loot_tables/entities/sea_turtle.json`
 for the unmodified vanilla version.
 
+### Minecart speed
+
+[`entities/minecart.json`](season_manager/season_pack/entities/minecart.json)
+and
+[`entities/chest_minecart.json`](season_manager/season_pack/entities/chest_minecart.json)
+override the vanilla Minecart and Minecart with Chest to raise their rail
+speed cap from 8 to 20 blocks per second. The only change is
+`minecraft:rail_movement`'s `max_speed`, set to `1.0` blocks per tick
+(vanilla leaves the component empty, which defaults to `0.4`). Powered
+rails are still what accelerate a cart toward the cap, so lines need
+enough of them to actually reach 20. Fast carts are more likely to
+overshoot corners and slopes, so test a line with turns after any change.
+The TNT and command block minecarts stay vanilla, and the hopper minecart
+is a locked recipe. See `original_loot/entities/minecart.json` and
+`chest_minecart.json` for the unmodified vanilla versions.
+
 ### Locked recipes
 
 Recipes in [`recipes/`](season_manager/season_pack/recipes/) override
@@ -494,7 +510,7 @@ villager.
   event — removes `minecraft:zombie_baby`/`minecraft:zombie_jockey` and
   re-adds the adult component groups, undoing that roll if it happened
   — before the elite stats get applied, guaranteeing a full-size Elite
-  Zombie every time. The zombie itself has 80 health (vanilla: 20), 6
+  Zombie every time. The zombie itself has 200 health (vanilla: 20), 6
   attack damage (vanilla: 3), full
   knockback resistance, a permanent Strength II / Resistance I /
   Fire Resistance / Regeneration effect stack (re-applied every 5
@@ -530,7 +546,7 @@ abandoned biome-trader villager work on `feature/biome_trader`.
 The same function also spawns a ring of 12 plain guard mobs around it —
 6 Zombies and 6 Skeletons alternating every 30° around a 12-block-radius
 circle, using `execute ... rotated <angle> 0` at each of the 12 compass
-directions off the Elite Zombie's position. Both guard types get 30
+directions off the Elite Zombie's position. Both guard types get 40
 health (vanilla: 20) via their component groups, tagged `season:elite_guard`,
 each given an Iron Helmet so they don't burn to death standing out in
 daylight during the event, plus a permanent Strength I (a modest damage
@@ -608,6 +624,68 @@ than for villagers.
 Requires cheats to be enabled. Not gated by
 `enabled`/`scriptevent season:toggle` — this is a standalone encounter,
 not a season restriction.
+
+#### Reinforcements and enrage
+
+Group feedback on the original fight was that it was too easy with a
+full squad, since it always spawned the same fixed 12 guards regardless
+of how many players showed up, and its stats never changed over the
+course of the fight. The fix deliberately keeps the *opening* fight at
+a flat 12 no matter the group size — the original 12 already felt like
+a lot to deal with at once — and puts all the scaling into what happens
+after that, via two additions in
+[`main.js`](season_manager/season_pack/scripts/main.js):
+
+- **Reinforcement waves, every 45 seconds.** A still-alive Elite Zombie
+  counts players within 50 blocks and spawns 2 guards per player beyond
+  the first, capped at **12 guards per wave** regardless of how many
+  players are actually there. A lone player gets nothing extra; a group
+  gets a real wave, but never a bigger one than the opening 12 felt
+  like.
+- **Enrage at half health.** A watchdog checks each Elite Zombie's
+  current health against its max every 5 seconds. The first time it
+  drops to 50% or below, it permanently gains Strength III/Speed II (on
+  top of its usual Strength II stack), announces itself in chat, and
+  immediately triggers the *exact same* reinforcement-wave formula as
+  above — then that wave's own timer reset means the next 45-second
+  wave counts from the enrage moment, not from whenever the last
+  scheduled wave happened to be, so the two don't stack back to back. A
+  tag (`season:elite_zombie_enraged`) stops the buff/announcement from
+  repeating, but reinforcement waves keep coming on their normal timer
+  afterward.
+
+Since the boss never despawns on its own, reinforcement waves aren't
+allowed to keep coming forever — but the budget is a count of **waves**,
+not a count of guards. Capping by guard count instead would mean a
+solo or two-player fight (where each wave is small, since the formula
+scales with player count) could rack up dozens of separate wave events
+before hitting the same ceiling a full group reaches in a handful — a
+lot of repeated interruptions even with a perfectly reasonable total
+mob count. Every Elite Zombie instead carries a dynamic property
+tracking how many waves have fired in the *current phase*, capped at
+**5 waves** regardless of group size (a wave with nobody nearby to
+scale for doesn't consume one — it just doesn't fire). If the
+pre-enrage phase runs long enough to use up all 5 on its own — a group
+really struggling to bring the boss down — reinforcements simply stop
+coming until enrage actually happens. At that point the counter resets
+to 0, buying a completely fresh 5 waves for the enraged half of the
+fight. The enrage buff and chat announcement always happen regardless
+of budget; only the extra guards are ever affected by it. This matters
+for the same reason the
+[Farm animal population cap](#farm-animal-population-cap) below exists:
+an encounter that's permanent and can keep spawning mobs needs its own
+bound on Bedrock's 200-mob world budget, same as an unattended farm
+does.
+
+Every reinforcement wave spawns guards through the same
+`spawnEliteGuard`/`spawnEliteGuardRing` helpers the base 12 effectively
+use too, so they get identical tagging, armor, effects, and despawn
+protection — nothing about them is a lesser copy of the original ring.
+They also spawn 8 blocks above the boss's current position and rely on
+their own Slow Falling to bring them down
+(`ELITE_GUARD_SPAWN_HEIGHT_OFFSET_BLOCKS`), so hilly or uneven ground
+near the fight can't land one partially embedded in a slope — same
+reasoning as the boss's own `^5` elevated spawn offset above.
 
 ![Armor set bonus tiers — Leather, Chainmail, Copper, and the Night Vision cave combo are all live; Gold and Iron are planned](docs/armor_bonus_tiers.svg)
 

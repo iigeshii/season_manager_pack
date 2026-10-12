@@ -42,6 +42,11 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   Hard) before the real pack's version added a `season:elite_guard_skeleton`
   component group that fires arrows every 1 second, applied only to
   Skeletons summoned as guards for the Elite Zombie event.
+- `entities/minecart.json`, `chest_minecart.json` — the vanilla Minecart
+  and Minecart with Chest entity definitions, pulled 2026-10-11. Kept to
+  show the empty `minecraft:rail_movement` component (default
+  `max_speed` 0.4 blocks per tick, 8 blocks per second) before the real
+  pack's versions set it to 1.0 (20 blocks per second).
 - `loot_tables/entities/sea_turtle.json` — the vanilla Turtle loot table
   (the entity is `minecraft:turtle`, but vanilla names the loot table
   file `sea_turtle.json`), pulled 2026-09-26. Vanilla only drops
