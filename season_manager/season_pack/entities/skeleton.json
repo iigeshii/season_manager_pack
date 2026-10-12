@@ -673,8 +673,8 @@
       },
       "season:elite_guard_skeleton": {
         "minecraft:health": {
-          "max": 30,
-          "value": 30
+          "max": 40,
+          "value": 40
         },
         "minecraft:behavior.ranged_attack": {
           "attack_interval": {

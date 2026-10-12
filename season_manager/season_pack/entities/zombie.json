@@ -787,8 +787,8 @@
       },
       "season:elite_zombie": {
         "minecraft:health": {
-          "max": 80,
-          "value": 80
+          "max": 200,
+          "value": 200
         },
         "minecraft:attack": {
           "damage": 6
@@ -877,8 +877,8 @@
       },
       "season:elite_guard_zombie": {
         "minecraft:health": {
-          "max": 30,
-          "value": 30
+          "max": 40,
+          "value": 40
         },
         "minecraft:type_family": {
           "family": [

@@ -1,4 +1,4 @@
-import { world, system, EquipmentSlot } from "@minecraft/server";
+import { world, system, EquipmentSlot, ItemStack } from "@minecraft/server";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -289,6 +289,185 @@ system.runInterval(() => {
         mob.addEffect(effect, ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier, showParticles: false });
       }
     }
+  }
+}, ELITE_MOB_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  ELITE ZOMBIE ENCOUNTER SCALING
+//  Two additions on top of the base 12-guard ring from
+//  summon_elite_zombie.mcfunction, aimed at the "too easy with a full
+//  group" feedback without the opening fight itself growing past what
+//  12 guards already felt like to deal with at once:
+//
+//  1. Reinforcement waves, every ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS
+//     (45 seconds) — a still-alive elite zombie counts players within
+//     ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS and spawns
+//     ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER guards per player
+//     beyond the first, capped at ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE (12)
+//     regardless of how many players are actually there. So the fight
+//     stays a flat 12 at the start no matter the group size, and only
+//     grows from there the longer it's left running.
+//
+//  2. Enrage at half health — the watchdog below checks each elite
+//     zombie's current health against its max every pass. The first
+//     time it drops to half or below, it gets a one-time permanent
+//     Strength III/Speed II buff (on top of its usual Strength II
+//     stack), a chat announcement, and immediately triggers the exact
+//     same reinforcement-wave formula as #1 above — then resets that
+//     45-second timer, so a wave that just landed from the enrage
+//     trigger doesn't get another one stacked right on top of it moments
+//     later. `season:elite_zombie_enraged` marks it as already triggered
+//     so the buff/announcement can't repeat, though reinforcement waves
+//     keep coming on their normal timer afterward.
+//
+//  Since the boss never despawns on its own (see the FARM ANIMAL
+//  POPULATION CAP header below for what "never despawn" costs on
+//  Bedrock's mob budget — the same kind of concern applies here, just
+//  from one encounter instead of a farm), reinforcement waves aren't
+//  allowed to keep coming forever. The budget is a count of *waves*,
+//  not a count of guards — capping by guard count instead would mean a
+//  solo or two-player fight (where each wave is small, since the
+//  formula is player-count-driven) could rack up dozens of separate
+//  wave events before hitting the same numeric ceiling a full group
+//  would reach in a handful, which is a lot of repeated interruptions
+//  even though the total mob count stayed reasonable. Every elite
+//  zombie carries a dynamic property
+//  (ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY) tracking how many
+//  waves have fired in the *current phase*, capped at
+//  ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES (5) regardless of group size.
+//  If the pre-enrage phase runs long enough to use up all 5 on its own
+//  (players struggling to bring the boss down), reinforcements simply
+//  stop until enrage actually happens — at which point this counter
+//  resets to 0, buying a full fresh 5 waves for the enraged half of the
+//  fight. The enrage buff and chat announcement always happen
+//  regardless of budget; only the extra guards are ever affected by it.
+//
+//  Reinforcement guards go through the exact same setup as the
+//  mcfunction's own 12 (tag, armor, effects, the custom
+//  become_elite_guard_* event) via spawnEliteGuard below, so they're
+//  indistinguishable from the original ring — same despawn protection,
+//  same friendly-fire immunity, same stats.
+// ─────────────────────────────────────────────
+
+const ELITE_GUARD_SPAWN_HEIGHT_OFFSET_BLOCKS = 8; // spawn high and let Slow Falling bring them down, so hilly/uneven ground near the boss can't land one partially embedded in a slope
+
+function spawnEliteGuard(overworld, center, angleRadians, radiusBlocks, type) {
+  const position = {
+    x: center.x + radiusBlocks * Math.cos(angleRadians),
+    y: center.y + ELITE_GUARD_SPAWN_HEIGHT_OFFSET_BLOCKS,
+    z: center.z + radiusBlocks * Math.sin(angleRadians),
+  };
+
+  const guard = overworld.spawnEntity(type, position);
+  guard.addTag("season:elite_guard");
+  guard.addEffect("strength", 1000000, { amplifier: 0, showParticles: false });
+  guard.addEffect("speed", 1000000, { amplifier: 0, showParticles: false });
+  guard.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
+
+  const equippable = guard.getComponent("minecraft:equippable");
+  if (equippable) equippable.setEquipment(EquipmentSlot.Head, new ItemStack("minecraft:iron_helmet"));
+
+  guard.triggerEvent(type === "minecraft:zombie" ? "season:become_elite_guard_zombie" : "season:become_elite_guard_skeleton");
+  return guard;
+}
+
+function spawnEliteGuardRing(overworld, center, count, radiusBlocks) {
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * 2 * Math.PI;
+    const type = i % 2 === 0 ? "minecraft:zombie" : "minecraft:skeleton";
+    spawnEliteGuard(overworld, center, angle, radiusBlocks, type);
+  }
+}
+
+const ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY = "season:reinforcement_wave_count";
+const ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES = 5; // per phase (pre-enrage, then again post-enrage) — a wave count, not a guard count, see the header comment above for why
+
+function getEliteZombieReinforcementWaveCount(eliteZombie) {
+  return eliteZombie.getDynamicProperty(ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY) ?? 0;
+}
+
+// summon_elite_zombie.mcfunction tags the freshly-summoned boss with
+// season:elite_zombie_needs_scaling alongside season:elite_zombie,
+// purely so this can find it without relying on event.sourceEntity —
+// that's only populated when a scriptevent is triggered from NPC
+// dialogue, undefined for a command run by a player or a function,
+// which this always is. No reinforcements spawn here — this just starts
+// the reinforcement timer so the periodic watchdog below knows this
+// boss is ready to be checked.
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:elite_zombie_spawned") return;
+
+  const overworld = world.getDimension("overworld");
+  const freshlySpawned = overworld.getEntities({
+    type: "minecraft:zombie",
+    tags: ["season:elite_zombie_needs_scaling"],
+  });
+
+  for (const eliteZombie of freshlySpawned) {
+    eliteZombie.removeTag("season:elite_zombie_needs_scaling");
+    eliteZombie.setDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY, system.currentTick);
+  }
+});
+
+const ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS = 50; // matches the Elite Zombie's own aggro/follow range
+const ELITE_ZOMBIE_REINFORCEMENT_RING_RADIUS_BLOCKS = 8; // lands right on top of the ongoing fight, not out at the opening ring's distance
+const ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER = 2; // same formula whether this wave was triggered by the 45-second timer or by enrage
+const ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE = 12; // no single reinforcement wave can ever exceed this, regardless of player count — the opening 12 already felt like a lot at once, and no later wave should dump a bigger pile than that in one go
+const ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY = "season:last_reinforcement_tick";
+const ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS = 900; // 45 seconds
+
+function spawnReinforcementWave(overworld, eliteZombie) {
+  const waveCount = getEliteZombieReinforcementWaveCount(eliteZombie);
+  if (waveCount >= ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES) return; // this phase's 5 waves are already spent
+
+  eliteZombie.setDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY, system.currentTick);
+
+  const nearbyPlayerCount = overworld.getPlayers({
+    location: eliteZombie.location,
+    maxDistance: ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS,
+  }).length;
+
+  const extraPlayers = Math.max(0, nearbyPlayerCount - 1);
+  const guardCount = Math.min(extraPlayers * ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER, ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE);
+  if (guardCount === 0) return; // nobody nearby to scale for — don't spend a wave on an empty spawn
+
+  eliteZombie.setDynamicProperty(ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY, waveCount + 1);
+  spawnEliteGuardRing(overworld, eliteZombie.location, guardCount, ELITE_ZOMBIE_REINFORCEMENT_RING_RADIUS_BLOCKS);
+  world.sendMessage(`§6Reinforcements arrive — the Elite Zombie's escort grows by ${guardCount}.`);
+}
+
+const ELITE_ZOMBIE_ENRAGE_TAG = "season:elite_zombie_enraged";
+const ELITE_ZOMBIE_ENRAGE_HEALTH_FRACTION = 0.5;
+
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const mob of overworld.getEntities({ type: "minecraft:zombie", tags: ["season:elite_zombie"] })) {
+    if (mob.hasTag(ELITE_ZOMBIE_ENRAGE_TAG)) continue;
+
+    const health = mob.getComponent("minecraft:health");
+    if (!health || health.currentValue > health.effectiveMax * ELITE_ZOMBIE_ENRAGE_HEALTH_FRACTION) continue;
+
+    mob.addTag(ELITE_ZOMBIE_ENRAGE_TAG);
+    mob.addEffect("strength", ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier: 2, showParticles: false });
+    mob.addEffect("speed", ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    world.sendMessage("§cThe Elite Zombie lets out a guttural roar and calls in reinforcements!");
+    // A fresh 5-wave budget for the enraged half of the fight — if the
+    // pre-enrage phase already used up all 5 (players struggling to
+    // bring it down), reinforcements don't stay capped out forever;
+    // enrage always buys another full round of them.
+    mob.setDynamicProperty(ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY, 0);
+    spawnReinforcementWave(overworld, mob);
+  }
+}, ELITE_MOB_INTERVAL_TICKS);
+
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const mob of overworld.getEntities({ type: "minecraft:zombie", tags: ["season:elite_zombie"] })) {
+    const lastTick = mob.getDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY);
+    if (lastTick === undefined) continue; // not finished spawning in yet — the scriptevent handler above hasn't run
+    if (system.currentTick - lastTick < ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS) continue;
+
+    spawnReinforcementWave(overworld, mob);
   }
 }, ELITE_MOB_INTERVAL_TICKS);
 
