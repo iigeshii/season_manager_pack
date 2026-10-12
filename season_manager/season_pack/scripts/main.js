@@ -416,11 +416,17 @@ const ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE = 12; // no single reinforcement wave can
 const ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY = "season:last_reinforcement_tick";
 const ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS = 900; // 45 seconds
 
+// Every call announces itself, including the ones that spawn nothing, so a
+// quiet fight never leaves players wondering whether reinforcements broke.
+// The "spent" line only prints once, on the wave that uses up the budget —
+// the timer watchdog keeps calling in here every 45 seconds after that, and
+// a repeat line each time would just be spam.
 function spawnReinforcementWave(overworld, eliteZombie) {
   const waveCount = getEliteZombieReinforcementWaveCount(eliteZombie);
   if (waveCount >= ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES) return; // this phase's 5 waves are already spent
 
   eliteZombie.setDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY, system.currentTick);
+  world.sendMessage("§6The Elite Zombie calls for reinforcements...");
 
   const nearbyPlayerCount = overworld.getPlayers({
     location: eliteZombie.location,
@@ -429,11 +435,24 @@ function spawnReinforcementWave(overworld, eliteZombie) {
 
   const extraPlayers = Math.max(0, nearbyPlayerCount - 1);
   const guardCount = Math.min(extraPlayers * ELITE_ZOMBIE_REINFORCEMENT_GUARDS_PER_PLAYER, ELITE_ZOMBIE_MAX_GUARDS_PER_WAVE);
-  if (guardCount === 0) return; // nobody nearby to scale for — don't spend a wave on an empty spawn
+  if (guardCount === 0) {
+    // Nobody nearby to scale for — don't spend a wave on an empty spawn.
+    world.sendMessage(
+      `§7...but none answer. Reinforcements only come when 2 or more players are within ${ELITE_ZOMBIE_REINFORCEMENT_RADIUS_BLOCKS} blocks (${nearbyPlayerCount} now).`
+    );
+    return;
+  }
 
   eliteZombie.setDynamicProperty(ELITE_ZOMBIE_REINFORCEMENT_WAVE_COUNT_PROPERTY, waveCount + 1);
   spawnEliteGuardRing(overworld, eliteZombie.location, guardCount, ELITE_ZOMBIE_REINFORCEMENT_RING_RADIUS_BLOCKS);
   world.sendMessage(`§6Reinforcements arrive — the Elite Zombie's escort grows by ${guardCount}.`);
+  if (waveCount + 1 >= ELITE_ZOMBIE_MAX_REINFORCEMENT_WAVES) {
+    world.sendMessage(
+      eliteZombie.hasTag(ELITE_ZOMBIE_ENRAGE_TAG)
+        ? "§7That was the last wave — no more reinforcements are coming."
+        : "§7That was the last wave until the Elite Zombie is enraged."
+    );
+  }
 }
 
 const ELITE_ZOMBIE_ENRAGE_TAG = "season:elite_zombie_enraged";
@@ -450,7 +469,7 @@ system.runInterval(() => {
     mob.addTag(ELITE_ZOMBIE_ENRAGE_TAG);
     mob.addEffect("strength", ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier: 2, showParticles: false });
     mob.addEffect("speed", ELITE_MOB_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
-    world.sendMessage("§cThe Elite Zombie lets out a guttural roar and calls in reinforcements!");
+    world.sendMessage("§cThe Elite Zombie lets out a guttural roar!");
     // A fresh 5-wave budget for the enraged half of the fight — if the
     // pre-enrage phase already used up all 5 (players struggling to
     // bring it down), reinforcements don't stay capped out forever;
@@ -465,6 +484,14 @@ system.runInterval(() => {
   for (const mob of overworld.getEntities({ type: "minecraft:zombie", tags: ["season:elite_zombie"] })) {
     const lastTick = mob.getDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY);
     if (lastTick === undefined) continue; // not finished spawning in yet — the scriptevent handler above hasn't run
+    if (lastTick > system.currentTick) {
+      // system.currentTick restarts at 0 every server session, but the
+      // stored tick survives on the boss — without this, a boss that
+      // outlives a restart would wait until the new session's tick count
+      // caught up to the old one before its next wave.
+      mob.setDynamicProperty(ELITE_ZOMBIE_LAST_REINFORCEMENT_TICK_PROPERTY, system.currentTick);
+      continue;
+    }
     if (system.currentTick - lastTick < ELITE_ZOMBIE_REINFORCEMENT_INTERVAL_TICKS) continue;
 
     spawnReinforcementWave(overworld, mob);

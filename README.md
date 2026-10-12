@@ -670,7 +670,20 @@ really struggling to bring the boss down — reinforcements simply stop
 coming until enrage actually happens. At that point the counter resets
 to 0, buying a completely fresh 5 waves for the enraged half of the
 fight. The enrage buff and chat announcement always happen regardless
-of budget; only the extra guards are ever affected by it. This matters
+of budget; only the extra guards are ever affected by it.
+
+Every call for reinforcements announces itself in chat — "The Elite
+Zombie calls for reinforcements...", followed by either "Reinforcements
+arrive — the Elite Zombie's escort grows by N." or, when fewer than 2
+players are within 50 blocks, "...but none answer" with the current
+player count. The wave that uses up a phase's budget also says so ("the
+last wave until the Elite Zombie is enraged", or "no more reinforcements
+are coming" once it's already enraged); after that the timer stays quiet
+instead of repeating the line every 45 seconds. The 45-second timer is
+stored on the boss as a game tick, and `system.currentTick` restarts at
+0 each server session, so the watchdog resets a stored tick that's
+ahead of the current one — otherwise a boss that outlived a restart
+would go quiet until the new session's tick count caught up. This matters
 for the same reason the
 [Farm animal population cap](#farm-animal-population-cap) below exists:
 an encounter that's permanent and can keep spawning mobs needs its own
