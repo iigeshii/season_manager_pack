@@ -701,6 +701,14 @@ system.runInterval(() => {
 
 const FARM_ANIMAL_TYPES = ["minecraft:pig", "minecraft:chicken", "minecraft:cow", "minecraft:sheep"];
 
+// Singular/plural names for the despawn message, one line per species.
+const FARM_ANIMAL_NAMES = {
+  "minecraft:pig": ["pig", "pigs"],
+  "minecraft:chicken": ["chicken", "chickens"],
+  "minecraft:cow": ["cow", "cows"],
+  "minecraft:sheep": ["sheep", "sheep"],
+};
+
 const FARM_ANIMAL_CAP = 160;
 const FARM_ANIMAL_INTERVAL_TICKS = 100; // 5 seconds
 
@@ -776,7 +784,7 @@ system.runInterval(() => {
     FARM_ANIMAL_TYPES.map((type) => [type, animalsByType.get(type).filter((animal) => !isNamed(animal))])
   );
 
-  let culled = 0;
+  const culledByType = new Map(FARM_ANIMAL_TYPES.map((type) => [type, 0]));
   while (total > FARM_ANIMAL_CAP) {
     const picked = pickCullTarget(cullableByType);
     if (!picked) break; // everything left over the cap is named/protected
@@ -785,11 +793,13 @@ system.runInterval(() => {
     const list = cullableByType.get(type);
     list.splice(list.indexOf(target), 1);
     target.remove();
-    culled++;
+    culledByType.set(type, culledByType.get(type) + 1);
     total--;
   }
 
-  if (culled > 0) {
-    world.sendMessage(`§e${culled} farm animal${culled === 1 ? "" : "s"} despawned (mob cap).`);
+  for (const [type, count] of culledByType) {
+    if (count === 0) continue;
+    const [singular, plural] = FARM_ANIMAL_NAMES[type];
+    world.sendMessage(`§e${count} ${count === 1 ? singular : plural} despawned (mob cap).`);
   }
 }, FARM_ANIMAL_INTERVAL_TICKS);

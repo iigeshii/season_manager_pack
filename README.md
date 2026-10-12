@@ -803,8 +803,8 @@ of the map both count against the same combined cap as long as both are
 loaded. It despawns rather than kills (`.remove()`, not
 `.kill()`) specifically so this can't be exploited as a free meat/wool
 farm — no death event, no loot drop, no XP. Whenever a cull happens,
-every player gets a short chat message (`§e3 farm animals despawned
-(mob cap).`).
+every player gets a short chat message, one line per species culled
+(`§e3 pigs despawned (mob cap).`, `§e1 sheep despawned (mob cap).`).
 
 Each despawn comes from whichever of the 4 species currently has the
 most individuals loaded, recalculated after every single removal — it's
