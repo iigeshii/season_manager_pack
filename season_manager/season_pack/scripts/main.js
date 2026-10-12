@@ -1,4 +1,4 @@
-import { world, system, EquipmentSlot, ItemStack } from "@minecraft/server";
+import { world, system, EquipmentSlot } from "@minecraft/server";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -364,8 +364,11 @@ function spawnEliteGuard(overworld, center, angleRadians, radiusBlocks, type) {
   guard.addEffect("speed", 1000000, { amplifier: 0, showParticles: false });
   guard.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
 
-  const equippable = guard.getComponent("minecraft:equippable");
-  if (equippable) equippable.setEquipment(EquipmentSlot.Head, new ItemStack("minecraft:iron_helmet"));
+  // The equippable component only exists on players in Bedrock, so on a
+  // zombie/skeleton it comes back undefined — use the same replaceitem
+  // command summon_elite_zombie.mcfunction gives the opening ring, or
+  // these burn in daylight.
+  guard.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
 
   guard.triggerEvent(type === "minecraft:zombie" ? "season:become_elite_guard_zombie" : "season:become_elite_guard_skeleton");
   return guard;
