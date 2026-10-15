@@ -96,3 +96,24 @@ regardless of when each piece was actually added:
   exactly one, and it only sells once.
 
 ![Armor set bonus tiers — Leather, Chainmail, Copper, and the Night Vision cave combo are all live; Gold and Iron are planned](docs/armor_bonus_tiers.svg)
+
+## Season Manager v1.0.127 — The Wanderer's Update
+
+- **Wandering Traders now sell Banner Patterns and Pottery Sherds.**
+  Every trader carries exactly one random banner pattern (all 10
+  patterns, 8-16 Emeralds, sold once) and one random pottery sherd (all
+  23 sherds, 1 Emerald each, up to 4 — enough to decorate a whole pot).
+- **Minecarts are much faster.** Minecarts and Chest Minecarts now top
+  out at 20 blocks per second instead of 8, faster than the best horse.
+  Powered rails are still what get them up to speed, so a well-powered
+  line is what earns the full 20. **Watch the bends:** at full speed a
+  cart can fly off a curve, so slow down before turns (a few unpowered
+  Powered Rails make a good brake) until that's smoothed out.
+- **The Elite Zombie fight got tougher, and louder.** The boss and its
+  guards have more health, and reinforcements now scale with everyone
+  in the fight, solo players included — 2 more guards per player each
+  wave. Every wave announces itself in chat, so you'll always know when
+  more are coming and when the last one has landed.
+- **Farm animal cap messages now say what was removed** — one line per
+  animal type, like "3 pigs despawned (mob cap)." instead of a single
+  total.
