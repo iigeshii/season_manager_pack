@@ -235,10 +235,12 @@ grouped into seven buckets:
   trades, Guster and Flow behind Trial Chamber vaults — on purpose:
   they're decoration only, so gating them just adds friction. Patterns
   aren't consumed by the loom, so one purchase is all anyone needs.
-- **Pottery sherds** (picks 1 of 23) — all 23 sherds, 4 Emeralds each,
-  `max_uses: 1`. Any one sherd only shows up on about 1 trader in 23, so
-  finding a specific one stays a lucky find rather than a shop purchase
-  (sherds are used up when you craft a pot). Kept in their own group
+- **Pottery sherds** (picks 1 of 23) — all 23 sherds, 1 Emerald each,
+  `max_uses: 4` — enough of the trader's one sherd to cover all four
+  faces of a Decorated Pot, since sherds are used up when you craft one.
+  Kept cheap because rarity already does the work: any one sherd only
+  shows up on about 1 trader in 23, so finding a specific one stays a
+  lucky find rather than a shop purchase. Kept in their own group
   rather than merged into Uncommon/Rare, where 23 sherds would have
   crowded out the 8 lights the same way candles once crowded out the
   Common pool.
