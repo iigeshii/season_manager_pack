@@ -271,9 +271,11 @@ graph TD
     masons["Masons of the Dunes<br/><i>Desert</i>"]
     tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman, <i>tool books</i><br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith, <i>armor + melee books</i>"]
   end
-  wtg["Trading on<br/>the Edge"]
+  trial["Trial Chamber"]
+  mechanisms["The Age of<br/>Mechanisms"]
+  mansionhook["??? — Story TBD"]
   mansion["Woodland Mansion"]
-  trials["Trials &amp; the<br/>Ancient City"]
+  ancient["Ancient City"]
   nether["The Nether Opens /<br/>Cult of the Wither"]
   porko["Road to El Porko"]
   atlantis["Atlantis Ahoy"]
@@ -285,20 +287,22 @@ graph TD
 
   camp -->|village contact| bread
   camp -->|village contact| hall
-  hall -->|raid tracking| bread
-  bread -->|village maps| mystic
+  hall -->|legacy tracking| bread
+  bread -->|village trust| mystic
   mystic -->|enchanted books| archery
-  hall -->|raid tracking| archery
-  hall -->|raid tracking| shipwreck
-  shipwreck -->|conduit recipe| atlantis
+  hall -->|legacy tracking| shipwreck
+  shipwreck -->|monument map &amp; conduit| atlantis
   bread -->|village maps| feathered & woolfrost & pelts & masons
   feathered & woolfrost & pelts & masons --> tally
   bread -->|first village| tally
-  tally -->|all 5 kinds| wtg
-  wtg -->|trader trades| mansion
-  wtg -->|trader trades| forge
-  mansion -->|ancient city map| trials
-  trials -->|nether access| nether
+  mystic -->|chamber map| trial
+  trial -->|hopper tech| mechanisms
+  bread --> mansionhook
+  mansionhook -->|mansion map released| mansion
+  tally --> ancient
+  mansion -->|ancient city map| ancient
+  ancient -->|forge knowledge| forge
+  forge -->|diamond tools| nether
   nether -->|bastion locations| porko
   atlantis -->|gibliria clues| gibliria
   porko -->|netherite gear| endm
@@ -320,9 +324,11 @@ graph TD
   click masons "#node-masons"
   click tally "#village-milestones"
   click shipwreck "#node-shipwreck"
-  click wtg "#node-wtg"
+  click trial "#node-trial"
+  click mechanisms "#node-mechanisms"
+  click mansionhook "#node-mansionhook"
   click mansion "#node-mansion"
-  click trials "#node-trials"
+  click ancient "#node-ancient"
   click nether "#node-nether"
   click porko "#node-porko"
   click atlantis "#node-atlantis"
@@ -335,14 +341,14 @@ graph TD
   classDef tentative fill:#f5e8c8,stroke:#a3760f,stroke-width:2px,stroke-dasharray: 4 3,color:#3a2c05;
   classDef complete fill:#d9f0e3,stroke:#1f9d63,stroke-width:2px,color:#0d6b40;
   style villages fill:none,stroke:#8b9080,stroke-width:1px,stroke-dasharray: 6 4
-  class mystic,archery,forge,mansion,trials,nether,porko,gibliria,endm,twisty,lorre,finale tentative
+  class mystic,archery,forge,mansionhook,mansion,trial,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
   class camp complete
     </pre>
   </div>
   <div class="diagram-legend">
     <span><span class="legend-swatch"></span> required prerequisite, labeled with the short version of what the node you're leaving just unlocked</span>
     <span><span class="legend-swatch-box" style="border:2px solid var(--emerald);background:var(--emerald-bg)"></span> Complete</span>
-    <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Trading on the Edge onward, and Gibliria onward</span>
+    <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Trial Chamber/Woodland Mansion onward, and Gibliria onward</span>
     <span>click any box to jump to its write-up below</span>
   </div>
 
@@ -401,7 +407,7 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a>, <a href="#node-shipwreck">Shipwreck &amp; Treasure</a>, <a href="#node-archery">The Archery Contest</a></p>
+      <p class="leads-to">Leads to: <a href="#node-bread">Breaking Bread</a>, <a href="#node-shipwreck">Shipwreck &amp; Treasure</a></p>
     </section>
 
     <section class="chapter is-current" id="node-bread">
@@ -453,12 +459,12 @@ graph TD
           <ul>
             <li>Counts as the first village toward the <a href="#village-milestones">Village Milestones</a></li>
             <li>Cleric trades restored</li>
-            <li>Cartographer trades restored, village maps only</li>
+            <li>Cartographer trades restored — Village map goes on sale. Trial Chamber waits for <a href="#node-mystic">The Mystic Library</a>; Ocean Monument waits for <a href="#node-shipwreck">Shipwreck &amp; Treasure</a>; Woodland Mansion waits for <a href="#node-mansionhook">its own story</a> — none of the other three maps are available this early.</li>
             <li>Fletcher trades restored</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a>, the other village storylines, <a href="#village-milestones">Village Milestones</a></p>
+      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a>, the other village storylines, <a href="#village-milestones">Village Milestones</a>, <a href="#node-mansionhook">??? — Story TBD</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-mystic">
@@ -477,14 +483,15 @@ graph TD
           <ul>
             <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens. Mending is never sold.</li>
             <li>The token tree opens, so higher tiers can be bought with tokens earned at events</li>
+            <li>The cartographer's table gains the Trial Chambers Explorer Map trade</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#mystic-library">the Mystic Library enchanting tree</a>, which keeps growing through the rest of the season; <a href="#node-archery">The Archery Contest</a></p>
+      <p class="leads-to">Leads to: <a href="#mystic-library">the Mystic Library enchanting tree</a>, which keeps growing through the rest of the season; <a href="#node-archery">The Archery Contest</a>; <a href="#node-trial">Trial Chamber</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-archery">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-mystic">The Mystic Library</a> and <a href="#node-hall">Hall of Heroes</a> <span class="tentative-badge">Story TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-mystic">The Mystic Library</a> <span class="tentative-badge">Story TBD</span></div>
       <h3 class="chapter-title">The Archery Contest</h3>
       <p class="chapter-story">The librarians won't teach the bow books to a settlement that can't shoot straight. It's up to the players to prove otherwise: design an archery game, make it genuinely hard to pass, and hold a contest where at least half the group can still clear it.</p>
       <div class="chapter-grid">
@@ -507,9 +514,9 @@ graph TD
     </section>
 
     <section class="chapter is-tentative" id="node-forge">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trading on the Edge</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-ancient">Ancient City</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">The Forge Reopens</h3>
-      <p class="chapter-story">Gear takes a beating faster than anyone expected, and there's no fixing a cracked pickaxe or a chipped sword by wishing at it. After five villages' worth of raids and a season of hauling trade goods, the toll is finally too much to ignore — the group can spare the hands and the iron to build out a proper smithy and actually staff it, which is what brings the anvil ban down.</p>
+      <p class="chapter-story">Whatever the group recovered from the Ancient City, it's enough to put a real forge back together — not just repairs, but proper smithing, the kind the old world did before diamond gear became a memory. Gear's been taking a beating all season with no way to fix a cracked pickaxe or a chipped sword beyond wishing at it, and now there's finally a reason and the means to build out a proper smithy and staff it for good.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -521,7 +528,8 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Anvils usable again (repairing and renaming gear is back on the table) — <em>already happened separately</em>: the group voted anvils back directly, specifically for nametags, without this milestone actually being cleared. This node is still unreached; whatever it unlocks going forward needs deciding.</li>
+            <li>Diamond tools, weapons, and armor become craftable again</li>
+            <li>Anvils usable again (repairing and renaming gear is back on the table) — <em>already happened separately</em>: the group voted anvils back directly, specifically for nametags, well before this milestone is reached. Left as-is; anvils just aren't gated on this node.</li>
           </ul>
         </div>
       </div>
@@ -575,11 +583,11 @@ graph TD
             <li><strong>2 villages:</strong> Butcher, Farmer, Fisherman. Farmer specials: Golden Carrots and Glistering Melon Slices. Tools books open in the <a href="#mystic-library">Mystic Library</a>.</li>
             <li><strong>3 villages:</strong> Shepherd, Leatherworker, Stone Mason</li>
             <li><strong>4 villages:</strong> Armorer, Toolsmith, Weaponsmith, with diamond gear sales restricted. Armor and Melee books open in the <a href="#mystic-library">Mystic Library</a>.</li>
-            <li><strong>All 5 kinds:</strong> opens <a href="#node-wtg">Trading on the Edge</a></li>
+            <li><strong>All 5 kinds:</strong> one of the two requirements for <a href="#node-ancient">Ancient City</a>, alongside <a href="#node-mansion">Woodland Mansion</a></li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-wtg">Trading on the Edge</a></p>
+      <p class="leads-to">Leads to: <a href="#node-ancient">Ancient City</a></p>
     </section>
 
     <section class="chapter" id="node-feathered">
@@ -682,31 +690,81 @@ graph TD
       <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
-    <section class="chapter" id="node-wtg">
-      <div class="chapter-kicker kicker">Requires: all five kinds of village in the <a href="#village-milestones">Village Milestones</a></div>
-      <h3 class="chapter-title">Trading on the Edge</h3>
-      <p class="chapter-story">Five villages defended, one of every kind there is — word of that travels through backroads faster than New Haven ever expected, and the Wandering Traders finally approach. They've decided New Haven is worth dealing with, and they're ready to open their own trades for good. The catch is where they want to set up shop: demand for pale wood has spiked somewhere down their trade routes, and they want their headquarters built right on the edge of the nearest Pale Garden to keep the supply moving. Building it here is just the opening move — whatever's deeper in that Garden is a different problem for a different day.</p>
+    <section class="chapter is-tentative" id="node-trial">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> to start, <a href="#node-mystic">The Mystic Library</a> to finish <span class="tentative-badge">Story TBD</span></div>
+      <h3 class="chapter-title">Trial Chamber</h3>
+      <p class="chapter-story">New Haven has earned something more valuable than emeralds: the beginnings of trust. The cartographer, now that the library has given New Haven a reason to go digging through old charts, turns up a weathered map pointing to a Trial Chamber — a sealed, mechanical complex older than anything the group's found so far. What it's actually worth to New Haven is the hopper: a simple device for moving items between containers, promising storage and farms that don't need a person standing over them. Whoever drew the original map, and why they never came back for it, is still an open question.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>A Wandering Trader waystation is built near a Pale Garden</li>
+            <li>The group receives and follows its own Trial Chambers map from the cartographer — not a chamber someone already cleared solo beforehand</li>
+            <li>A marked route is established from New Haven to the chamber</li>
+            <li>The chamber is entered, explored, and its trials survived together as a group</li>
+            <li>Evidence of hopper technology is recovered</li>
+            <li>New Haven's first hopper-powered machine is built</li>
+            <li>The expedition and its discoveries are recorded in the <a href="#node-hall">Hall of Heroes</a> — noting when it happened and who took part</li>
+            <li>The findings are presented to the cartographer and the village</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Special Wandering Trader trades unlocked</li>
+            <li>Hopper-based automation approved for settlement projects</li>
+            <li>Automated farming and item-storage projects become available</li>
+            <li>The cartographer can document additional unexplored locations</li>
+            <li>New Haven gains a research lead into who built the ancient chambers</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-mansion">Woodland Mansion</a>, <a href="#node-forge">The Forge Reopens</a></p>
+      <p class="leads-to">Leads to: <a href="#node-mechanisms">The Age of Mechanisms</a></p>
+    </section>
+
+    <section class="chapter is-tentative" id="node-mechanisms">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-trial">Trial Chamber</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
+      <h3 class="chapter-title">The Age of Mechanisms</h3>
+      <p class="chapter-story">A side line off Trial Chamber, not a gate to anything else — doesn't block <a href="#node-ancient">Ancient City</a> or anything downstream of it. With hoppers in hand, New Haven starts experimenting with real automation: what that actually looks like, and what it takes to prove the group has pulled it off, isn't written yet. Up for whoever wants to pitch it.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Not yet written</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Not yet written</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter is-tentative" id="node-mansionhook">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> <span class="tentative-badge">Story TBD</span></div>
+      <h3 class="chapter-title">??? — Story TBD</h3>
+      <p class="chapter-story">Nobody's written this one yet. Something has to happen — a rumor, a journal, a trader with a warning — before the group even learns there's a Mansion out there at all, and the cartographer's Woodland Mansion map doesn't go up for sale until it does. That's deliberate: Mansions are rare and spread far apart, nowhere near as common as Trial Chambers or Ocean Monuments, so the map shouldn't be buyable the moment someone feels like wandering off alone. Whoever writes this is also deciding when the group is "ready" — that's the real content of this node, not just flavor text.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Story and trigger condition not yet written</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Woodland Mansion Explorer Map goes on sale at the cartographer</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-mansion">Woodland Mansion</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-mansion">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-wtg">Trading on the Edge</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-mansionhook">??? — Story TBD</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">Woodland Mansion</h3>
-      <p class="chapter-story">A Woodland Mansion turns up somewhere out past the Dark Forest, deeper and darker than anything the group's raided so far — stacked with more Evokers than any single fight has thrown at them yet. Whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground. Exactly how the group first hears about this place is still an open question — this whole entry point needs a real story, not just a placeholder connection to Trading on the Edge.</p>
+      <p class="chapter-story">A Woodland Mansion turns up somewhere out past the Dark Forest, deeper and darker than anything the group's raided so far — stacked with more Evokers than any single fight has thrown at them yet. Whatever's hiding in there matters to the bigger mystery Commonhold Rise exists to answer, and clearing it is what finally turns up a map worth following underground. What clearing it is actually worth is still open — this node is shown so the destination is real, but the reward is deliberately left for whoever wants to pitch it.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -717,39 +775,38 @@ graph TD
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Trial Chambers and Ancient City locations known</li>
+            <li>Ancient City location known</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-trials">Trials &amp; the Ancient City</a></p>
+      <p class="leads-to">Leads to: <a href="#node-ancient">Ancient City</a></p>
     </section>
 
-    <section class="chapter is-tentative" id="node-trials">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-mansion">Woodland Mansion</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
-      <h3 class="chapter-title">Trials &amp; the Ancient City</h3>
-      <p class="chapter-story">Two of the game's harder challenges land back-to-back here. The Mansion's map points to a Trial Chambers complex — clear it, and the Mace is finally in reach. From there it's a straight line to the Ancient City itself, guarded by wardens and worth raiding for the Silence trim alone. Clearing both is what finally earns the group leadership's sign-off to open the Nether — the first dimension gate the season lifts.</p>
+    <section class="chapter is-tentative" id="node-ancient">
+      <div class="chapter-kicker kicker">Requires: all five kinds of village in the <a href="#village-milestones">Village Milestones</a> and <a href="#node-mansion">Woodland Mansion</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
+      <h3 class="chapter-title">Ancient City</h3>
+      <p class="chapter-story">Everything New Haven has settled and everything it's dug up so far all points the same direction once the Mansion's map is followed down. The City itself is guarded by wardens and worth raiding for the Silence trim alone — but what the group actually finds down there is knowledge of how the old world forged its gear, knowledge nobody in New Haven has had reason to use until now.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>Trial Chambers cleared (Mace obtained)</li>
             <li>Ancient City raided (Silence trim recovered)</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Nether access approved; portal lock lifts for the Nether</li>
+            <li>Forge knowledge recovered — <a href="#node-forge">The Forge Reopens</a> becomes available</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-nether">The Nether Opens</a></p>
+      <p class="leads-to">Leads to: <a href="#node-forge">The Forge Reopens</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-nether">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-trials">Trials &amp; the Ancient City</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-forge">The Forge Reopens</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">The Nether Opens / Cult of the Wither</h3>
-      <p class="chapter-story">The gate finally lifts — but only one of them. This stage is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back at Founding the Camp — is still sitting on the table, unresolved.</p>
+      <p class="chapter-story">The gate finally lifts — but only one of them, and only because the forge is running: an obsidian pickaxe swing needs diamond, and until now nobody had the legal means to make one. This stage is about actually using the Nether once it's open: a proper hub, first contact with whatever built the shrines scattered through the wastes, and the Wither fight those shrines were clearly building toward. The End stays sealed throughout, and the Elytra question — raised back at Founding the Camp — is still sitting on the table, unresolved.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
@@ -987,8 +1044,7 @@ graph TD
     <p class="unplanned-dek">Things that are real standing restrictions today but don't have a real story or milestone attached yet — parked here on purpose instead of forcing them onto a node that isn't ready. Future story planning and unlocks will be discussed and coordinated with the group, and decided by majority vote.</p>
     <ul>
       <li><strong>Pistons and dispensers.</strong> Banned since Founding the Camp. Used to hang off a "Witch's Hovel" idea that wasn't developed enough to commit to — cut for now. Needs a real replacement milestone.</li>
-      <li><strong>Diamond gear.</strong> Tools, sword, spear, and armor all banned since Founding the Camp. Tools used to hang off Illager Outpost and the weapons/armor off a dedicated Diamond Gear node — neither exists in the tree anymore. The whole diamond kit still needs a new unlock milestone. The Armorer, Toolsmith and Weaponsmith come back at 4 villages, but without their diamond gear sales.</li>
-      <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Trading on the Edge. Needs its own story.</li>
+      <li><strong>How the group first finds the Woodland Mansion.</strong> The node itself is fully built out (Pass Criteria, Unlocks, everything downstream), but the discovery hook — how they even learn it's out there — is currently just a placeholder pointing at Breaking Bread. Needs its own story.</li>
       <li><strong>Blaze powder and early potions.</strong> Blaze powder is removed on sight, so no brewing is possible before the Nether. One idea from Fredo: a witch storyline brings basic potion brewing in early (with Weakness possibly restricted), and a Cleric trade becomes a renewable source of blaze powder. Useful potions like Water Breathing and Fire Resistance would still wait for their own milestones, such as Water Breathing after the Ocean Monument. Not a skill tree, just a storyline.</li>
       <li><strong>Comparator and Daylight Detector.</strong> Banned since Founding the Camp, same as the diamond kit — locked from day one, before the Nether even exists to get quartz from. The idea is that once <a href="#node-nether">The Nether Opens</a>, quartz itself and everything built purely from Quartz Block stays fair game, but these two redstone components stay off-limits until a real milestone says otherwise.</li>
     </ul>
