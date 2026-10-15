@@ -83,16 +83,16 @@
         {
           "num_to_select": 1,
           "trades": [
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:flower_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:field_masoned_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:bordure_indented_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 5, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:creeper_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 5, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:skull_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 5, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:globe_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 5, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:piglin_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:mojang_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:guster_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:flow_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false }
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:flower_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:field_masoned_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 8, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:bordure_indented_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 12, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:creeper_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 12, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:skull_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 12, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:globe_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 12, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:piglin_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 16, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:mojang_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 16, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:guster_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 16, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:flow_banner_pattern", "quantity": 1 }], "trader_exp": 0, "max_uses": 1, "reward_exp": false }
           ]
         },
         {

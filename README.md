@@ -224,9 +224,12 @@ grouped into seven buckets:
   and Piglin Head are deliberately not offered (Wither Skeleton Skull
   specifically because 3 of them let you summon the Wither early).
 - **Banner patterns** (picks 1 of 10) — all 10 loom patterns, `max_uses:
-  1`: Flower Charge, Field Masoned and Bordure Indented (3 Emeralds),
+  1`: Flower Charge, Field Masoned and Bordure Indented (8 Emeralds),
   Creeper Charge, Skull Charge, Globe and Snout (`piglin_banner_pattern`)
-  (5), and Thing (`mojang_banner_pattern`), Guster and Flow (8). This
+  (12), and Thing (`mojang_banner_pattern`), Guster and Flow (16). Priced
+  like the mob heads rather than the consumable trades, since a pattern
+  is never used up in the loom and can be passed around — one purchase
+  covers the whole server for good, so it should be a real buy. This
   includes patterns whose normal sources are still locked here — Skull
   Charge and Snout behind the Nether, Globe behind the cartographer's
   trades, Guster and Flow behind Trial Chamber vaults — on purpose:
