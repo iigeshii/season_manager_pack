@@ -179,8 +179,9 @@ back with planned changes:
 
 Unlike the villager professions above, the Wandering Trader isn't fully
 disabled — [`wandering_trader_trades.json`](season_manager/season_pack/trading/economy_trades/wandering_trader_trades.json)
-replaces the vanilla trade list with a light-block-and-mob-head one,
-plus one always-available staple trade, grouped into five buckets:
+replaces the vanilla trade list with a light-block, mob-head, banner
+pattern and pottery sherd one, plus one always-available staple trade,
+grouped into seven buckets:
 
 - **Always available** — 1 Diamond for 4 Emeralds, a way to convert
   Diamonds into Emeralds rather than the other way around. This is its
@@ -222,6 +223,27 @@ plus one always-available staple trade, grouped into five buckets:
   others — exactly half as often. Wither Skeleton Skull, Dragon Head,
   and Piglin Head are deliberately not offered (Wither Skeleton Skull
   specifically because 3 of them let you summon the Wither early).
+- **Banner patterns** (picks 1 of 10) — all 10 loom patterns, `max_uses:
+  1`: Flower Charge, Field Masoned and Bordure Indented (3 Emeralds),
+  Creeper Charge, Skull Charge, Globe and Snout (`piglin_banner_pattern`)
+  (5), and Thing (`mojang_banner_pattern`), Guster and Flow (8). This
+  includes patterns whose normal sources are still locked here — Skull
+  Charge and Snout behind the Nether, Globe behind the cartographer's
+  trades, Guster and Flow behind Trial Chamber vaults — on purpose:
+  they're decoration only, so gating them just adds friction. Patterns
+  aren't consumed by the loom, so one purchase is all anyone needs.
+- **Pottery sherds** (picks 1 of 23) — all 23 sherds, 4 Emeralds each,
+  `max_uses: 1`. Any one sherd only shows up on about 1 trader in 23, so
+  finding a specific one stays a lucky find rather than a shop purchase
+  (sherds are used up when you craft a pot). Kept in their own group
+  rather than merged into Uncommon/Rare, where 23 sherds would have
+  crowded out the 8 lights the same way candles once crowded out the
+  Common pool.
+
+Every banner pattern and sherd ID was checked against
+[Mojang's item ID list](https://github.com/Mojang/bedrock-samples/blob/main/metadata/vanilladata_modules/mojang-items.json)
+before being added — these 10 patterns and 23 sherds are the complete
+sets on current Bedrock.
 
 Price climbs with rarity (1/2/3 Emeralds) rather than staying flat,
 matching vanilla's own convention of charging more for the less common
