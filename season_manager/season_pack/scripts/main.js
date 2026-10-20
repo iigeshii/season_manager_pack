@@ -934,13 +934,13 @@ function despawnSniperTowers(dimension, towers) {
   }
 }
 
-// Test-only hooks until the Skeleton Sniper boss itself exists — run via
-// /function season/spawn_sniper_towers and /function season/despawn_sniper_towers,
-// which tag the calling player before firing the scriptevent (event.sourceEntity
-// is only populated for NPC-dialogue-triggered scriptevents — see the Elite
-// Zombie section above for the same workaround). Swap "centered on the
-// player" for "centered on the boss" once the boss is built, and drop these
-// two handlers.
+// Standalone preview hooks, separate from the real Elite Sniper fight
+// below — run via /function season/spawn_sniper_towers and
+// /function season/despawn_sniper_towers to check tower placement/spacing
+// without spawning the full encounter. Both tag the calling player before
+// firing the scriptevent (event.sourceEntity is only populated for
+// NPC-dialogue-triggered scriptevents — see the Elite Zombie section above
+// for the same workaround).
 system.afterEvents.scriptEventReceive.subscribe((event) => {
   if (event.id !== "season:spawn_sniper_towers") return;
 
@@ -963,5 +963,281 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     despawnSniperTowers(player.dimension, JSON.parse(stored));
     player.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, undefined);
     player.sendMessage("§6Sniper roost towers cleared.");
+  }
+});
+
+// ─────────────────────────────────────────────
+//  ELITE SNIPER ENCOUNTER
+//  A ranged, kiting mini-boss built around the roost towers above —
+//  opposite of the Elite Zombie's stand-and-tank fight: lower HP for a
+//  boss, hits hard from range, and actively avoids melee instead of
+//  soaking it.
+//
+//  On spawn: 12 towers go up around the boss (spawnSniperTowers, see
+//  above), the boss moves onto one of them and gets a heavily-enchanted
+//  bow, and 6 Stray guards (the slowness-tipped-arrow skeleton variant,
+//  not plain skeletons, so the escort is ranged pressure too rather than
+//  another melee swarm) spawn on 6 of the towers. Every guard and the
+//  boss itself independently re-teleport to a random tower on their own
+//  random timer for the rest of the fight — not a shared schedule — so
+//  the roosts never settle into a predictable rotation.
+//
+//  Fight mechanics:
+//  - Kiting: a player within ELITE_SNIPER_SWARM_RADIUS_BLOCKS teleports
+//    the boss to a different random tower (cooldown-gated so it can't
+//    blink every tick with someone stood next to it).
+//  - Volley: every ~20s the boss telegraphs, winds up, then fires a
+//    5-arrow spread at wherever the nearest player was standing when it
+//    fired.
+//  - Enrage at half health: faster attack interval, and every hit it
+//    lands afterward applies Slowness — done through
+//    projectileHitEntity below rather than real tipped-arrow items,
+//    since minecraft:shooter has no way to carry a potion effect on a
+//    mob's own shots the way a held tipped arrow does for a player.
+//  - A dead guard is replaced ELITE_SNIPER_GUARD_RESPAWN_DELAY_TICKS
+//    (30s) later, for as long as the boss is alive, keeping the escort
+//    back at 6. The moment the boss dies, every remaining guard and
+//    every tower comes down with it.
+//
+//  Assumes one Elite Sniper fight at a time, same as the Elite Zombie
+//  above — nothing here is scoped per-fight beyond the tower list each
+//  entity carries on its own dynamic property.
+// ─────────────────────────────────────────────
+
+const ELITE_SNIPER_GUARD_COUNT = 6;
+const ELITE_SNIPER_GUARD_RESPAWN_DELAY_TICKS = 600; // 30 seconds
+const ELITE_SNIPER_GUARD_ROTATION_MIN_TICKS = 300; // 15 seconds
+const ELITE_SNIPER_GUARD_ROTATION_MAX_TICKS = 900; // 45 seconds
+const ELITE_SNIPER_SWARM_RADIUS_BLOCKS = 3;
+const ELITE_SNIPER_TELEPORT_COOLDOWN_TICKS = 160; // 8 seconds
+const ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY = "season:last_teleport_tick";
+const ELITE_SNIPER_VOLLEY_INTERVAL_TICKS = 400; // 20 seconds
+const ELITE_SNIPER_VOLLEY_WINDUP_TICKS = 30; // 1.5 seconds
+const ELITE_SNIPER_VOLLEY_ARROW_COUNT = 5;
+const ELITE_SNIPER_VOLLEY_SPREAD_RADIANS = 0.2;
+const ELITE_SNIPER_VOLLEY_SPEED = 3;
+const ELITE_SNIPER_VOLLEY_RANGE_BLOCKS = 64;
+const ELITE_SNIPER_ENRAGE_TAG = "season:elite_sniper_enraged";
+const ELITE_SNIPER_ENRAGE_HEALTH_FRACTION = 0.5;
+const ELITE_SNIPER_ENRAGE_SLOWNESS_DURATION_TICKS = 100; // 5 seconds
+
+function findNearestPlayer(dimension, location, maxDistance) {
+  let nearest = null;
+  let nearestDistSq = Infinity;
+  for (const player of dimension.getPlayers({ location, maxDistance })) {
+    const dx = player.location.x - location.x;
+    const dy = player.location.y - location.y;
+    const dz = player.location.z - location.z;
+    const distSq = dx * dx + dy * dy + dz * dz;
+    if (distSq < nearestDistSq) {
+      nearestDistSq = distSq;
+      nearest = player;
+    }
+  }
+  return nearest;
+}
+
+function sniperTowerStandLocation(tower) {
+  return {
+    x: tower.x + 0.5,
+    y: tower.baseY + tower.height + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS + 1,
+    z: tower.z + 0.5,
+  };
+}
+
+function pickRandomTower(towers, excludeFloorXZ) {
+  const options = excludeFloorXZ
+    ? towers.filter((t) => t.x !== excludeFloorXZ.x || t.z !== excludeFloorXZ.z)
+    : towers;
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+// Every guard (and the boss) carries its own copy of the tower list —
+// simpler than looking the boss up again on every rotation, and it's a
+// small enough JSON string not to matter.
+function getStoredTowers(entity) {
+  const stored = entity.getDynamicProperty(SNIPER_TOWER_LIST_PROPERTY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function isEliteSniperFightActive(dimension) {
+  return dimension.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }).length > 0;
+}
+
+// Reschedules itself with a fresh random delay every time, so rotations
+// never settle into a visible pattern across guards. Stops on its own
+// once the entity is no longer valid (dead/removed) rather than needing
+// to be cancelled from anywhere else.
+function scheduleRoostRotation(entity) {
+  const delay = randomIntInclusive(ELITE_SNIPER_GUARD_ROTATION_MIN_TICKS, ELITE_SNIPER_GUARD_ROTATION_MAX_TICKS);
+  system.runTimeout(() => {
+    if (!entity.isValid()) return;
+
+    const towers = getStoredTowers(entity);
+    const current = { x: Math.floor(entity.location.x), z: Math.floor(entity.location.z) };
+    const target = pickRandomTower(towers, current);
+    if (target) entity.teleport(sniperTowerStandLocation(target));
+
+    scheduleRoostRotation(entity);
+  }, delay);
+}
+
+function spawnEliteSniperGuard(dimension, towers) {
+  const guard = dimension.spawnEntity("minecraft:stray", sniperTowerStandLocation(pickRandomTower(towers)));
+  guard.addTag("season:elite_guard_stray");
+  guard.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
+
+  // Same reasoning as the Elite Zombie's guards — burns_in_daylight is
+  // still on by default, and the equippable component only exists on
+  // players, so this is the only way to get a helmet onto a mob.
+  guard.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
+  guard.triggerEvent("season:become_elite_guard_stray");
+  scheduleRoostRotation(guard);
+  return guard;
+}
+
+function fireSniperVolley(dimension, boss, targetLocation) {
+  const origin = { x: boss.location.x, y: boss.location.y + 1.6, z: boss.location.z };
+  const dx = targetLocation.x - origin.x;
+  const dy = targetLocation.y - origin.y;
+  const dz = targetLocation.z - origin.z;
+  const baseAngle = Math.atan2(dz, dx);
+  const pitch = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
+
+  for (let i = 0; i < ELITE_SNIPER_VOLLEY_ARROW_COUNT; i++) {
+    const angle = baseAngle + (Math.random() * 2 - 1) * ELITE_SNIPER_VOLLEY_SPREAD_RADIANS;
+    const velocity = {
+      x: Math.cos(angle) * Math.cos(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
+      y: Math.sin(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
+      z: Math.sin(angle) * Math.cos(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
+    };
+    const arrow = dimension.spawnEntity("minecraft:arrow", origin);
+    arrow.getComponent("minecraft:projectile")?.shoot(velocity);
+  }
+}
+
+// Reschedules itself the same way roost rotation does, stopping on its
+// own once the boss is gone.
+function scheduleSniperVolley(dimension, boss) {
+  system.runTimeout(() => {
+    if (!boss.isValid()) return;
+
+    const target = findNearestPlayer(dimension, boss.location, ELITE_SNIPER_VOLLEY_RANGE_BLOCKS);
+    if (target) {
+      world.sendMessage("§6The Elite Sniper draws back a heavy volley...");
+      const targetLocation = target.location;
+      system.runTimeout(() => {
+        if (boss.isValid()) fireSniperVolley(dimension, boss, targetLocation);
+      }, ELITE_SNIPER_VOLLEY_WINDUP_TICKS);
+    }
+
+    scheduleSniperVolley(dimension, boss);
+  }, ELITE_SNIPER_VOLLEY_INTERVAL_TICKS);
+}
+
+// summon_elite_sniper.mcfunction tags the freshly-summoned boss with
+// season:elite_sniper_needs_setup alongside season:elite_sniper, the
+// same event.sourceEntity workaround as the Elite Zombie above.
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:elite_sniper_spawned") return;
+
+  const overworld = world.getDimension("overworld");
+  const freshlySpawned = overworld.getEntities({
+    type: "minecraft:skeleton",
+    tags: ["season:elite_sniper_needs_setup"],
+  });
+
+  for (const boss of freshlySpawned) {
+    boss.removeTag("season:elite_sniper_needs_setup");
+
+    const towers = spawnSniperTowers(overworld, boss.location);
+    boss.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
+    boss.teleport(sniperTowerStandLocation(pickRandomTower(towers)));
+
+    boss.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:bow");
+    boss.runCommand("enchant @s power 5");
+    boss.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
+
+    for (let i = 0; i < ELITE_SNIPER_GUARD_COUNT; i++) {
+      spawnEliteSniperGuard(overworld, towers);
+    }
+
+    scheduleRoostRotation(boss);
+    scheduleSniperVolley(overworld, boss);
+    world.sendMessage("§cA sniper has taken position. Watch the towers.");
+  }
+});
+
+// Kiting watchdog — teleports the boss away from anyone who gets too
+// close, cooldown-gated so it can't blink every pass while someone's
+// stood right next to it.
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const boss of overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] })) {
+    const lastTeleportTick = boss.getDynamicProperty(ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY) ?? 0;
+    if (system.currentTick - lastTeleportTick < ELITE_SNIPER_TELEPORT_COOLDOWN_TICKS) continue;
+    if (!findNearestPlayer(overworld, boss.location, ELITE_SNIPER_SWARM_RADIUS_BLOCKS)) continue;
+
+    const towers = getStoredTowers(boss);
+    const current = { x: Math.floor(boss.location.x), z: Math.floor(boss.location.z) };
+    const target = pickRandomTower(towers, current);
+    if (!target) continue;
+
+    boss.teleport(sniperTowerStandLocation(target));
+    boss.setDynamicProperty(ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY, system.currentTick);
+  }
+}, ELITE_MOB_INTERVAL_TICKS);
+
+// Enrage at half health — faster shots via the season:elite_sniper_enrage
+// event (skeleton.json swaps in a shorter ranged_attack interval), plus
+// projectileHitEntity below starts applying Slowness on every hit this
+// boss lands from this point on.
+system.runInterval(() => {
+  const overworld = world.getDimension("overworld");
+  for (const boss of overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] })) {
+    if (boss.hasTag(ELITE_SNIPER_ENRAGE_TAG)) continue;
+
+    const health = boss.getComponent("minecraft:health");
+    if (!health || health.currentValue > health.effectiveMax * ELITE_SNIPER_ENRAGE_HEALTH_FRACTION) continue;
+
+    boss.addTag(ELITE_SNIPER_ENRAGE_TAG);
+    boss.triggerEvent("season:elite_sniper_enrage");
+    world.sendMessage("§cThe Elite Sniper's shots grow faster — and colder.");
+  }
+}, ELITE_MOB_INTERVAL_TICKS);
+
+world.afterEvents.projectileHitEntity.subscribe((event) => {
+  if (!event.source?.hasTag(ELITE_SNIPER_ENRAGE_TAG)) return;
+
+  const hit = event.getEntityHit().entity;
+  if (!hit || hit.typeId !== "minecraft:player") return;
+
+  hit.addEffect("slowness", ELITE_SNIPER_ENRAGE_SLOWNESS_DURATION_TICKS, { amplifier: 1, showParticles: true });
+});
+
+// Guard replenishment and boss-death cleanup hang off the same event — a
+// dead elite_guard_stray gets a replacement 30 seconds later as long as
+// the fight is still on, and a dead elite_sniper takes every remaining
+// guard and every tower down with it.
+world.afterEvents.entityDie.subscribe((event) => {
+  const { deadEntity } = event;
+
+  if (deadEntity.typeId === "minecraft:stray" && deadEntity.hasTag("season:elite_guard_stray")) {
+    const overworld = world.getDimension("overworld");
+    system.runTimeout(() => {
+      if (!isEliteSniperFightActive(overworld)) return;
+      const [boss] = overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] });
+      spawnEliteSniperGuard(overworld, getStoredTowers(boss));
+    }, ELITE_SNIPER_GUARD_RESPAWN_DELAY_TICKS);
+    return;
+  }
+
+  if (deadEntity.typeId === "minecraft:skeleton" && deadEntity.hasTag("season:elite_sniper")) {
+    const overworld = world.getDimension("overworld");
+    despawnSniperTowers(overworld, getStoredTowers(deadEntity));
+    for (const guard of overworld.getEntities({ type: "minecraft:stray", tags: ["season:elite_guard_stray"] })) {
+      guard.remove();
+    }
+    world.sendMessage("§6The Elite Sniper falls — the towers come down with it.");
   }
 });
