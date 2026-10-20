@@ -1074,17 +1074,6 @@ function sniperTowerStandLocation(tower) {
   };
 }
 
-// season:elite_sniper_targeting is split out from the boss's main group
-// specifically so this can force a fresh target pick (remove+add the
-// same group resets the AI goal) without also resetting health or
-// anything else bundled into it — see skeleton.json. The guards reuse
-// season:elite_guard_skeleton wholesale (no such split), so there's
-// nothing to retarget there — this only ever applies to the boss, which
-// is why it's keyed off the boss's own tag rather than its typeId (both
-// the boss and the guards are plain minecraft:skeleton now).
-function sniperRetargetEventId(entity) {
-  return entity.hasTag("season:elite_sniper") ? "season:elite_sniper_retarget" : null;
-}
 
 function pickRandomTower(towers, excludeFloorXZ) {
   const options = excludeFloorXZ
@@ -1158,26 +1147,14 @@ function scheduleRoostRotation(entity) {
     const towers = getStoredTowers(entity);
     const current = { x: Math.floor(entity.location.x), z: Math.floor(entity.location.z) };
     const target = pickUnoccupiedTower(entity.dimension, towers, entity, current);
-    if (target) {
-      entity.teleport(sniperTowerStandLocation(target));
-      // New vantage point — pick a fresh target instead of staying
-      // locked onto whoever it had before. Guards don't have a
-      // retarget event (see sniperRetargetEventId), so this is a no-op
-      // for them.
-      const retargetEvent = sniperRetargetEventId(entity);
-      if (retargetEvent) entity.triggerEvent(retargetEvent);
-    }
+    if (target) entity.teleport(sniperTowerStandLocation(target));
 
     scheduleRoostRotation(entity);
   }, delay);
 }
 
 // Reuses season:elite_guard_skeleton wholesale — the exact same escort
-// the Elite Zombie fight already relies on, crossbow equipment and all.
-// No separate targeting group here (unlike the boss's
-// season:elite_sniper_targeting), so these guards don't get the
-// teleport-triggered retarget — a minor loss next to having an escort
-// that reliably fights at all.
+// the Elite Zombie fight already relies on.
 function spawnEliteSniperGuard(dimension, towers) {
   const guard = dimension.spawnEntity("minecraft:skeleton", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
   guard.addTag("season:elite_sniper_guard");
@@ -1188,11 +1165,11 @@ function spawnEliteSniperGuard(dimension, towers) {
   // triggerEvent (below) is too late for it to take effect. Equip
   // directly instead of trusting that timing, same fix as the boss's bow.
   try {
-    guard.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:crossbow");
-    guard.runCommand("enchant @s multishot 1");
     // Same reasoning as the Elite Zombie's own guards — burns_in_daylight
     // is still on by default, and the equippable component only exists
     // on players, so this is the only way to get a helmet onto a mob.
+    // No weapon equip here — shooter/ranged_attack fire regardless of
+    // what's in hand, so it's purely cosmetic and not worth the risk.
     guard.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
   } catch (error) {
     console.warn(`Elite Sniper guard equip failed: ${error}`);
@@ -1449,7 +1426,6 @@ system.runInterval(() => {
     if (!target) continue;
 
     boss.teleport(sniperTowerStandLocation(target));
-    boss.triggerEvent(sniperRetargetEventId(boss));
     boss.setDynamicProperty(ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY, system.currentTick);
   }
 }, ELITE_MOB_INTERVAL_TICKS);
@@ -1486,8 +1462,6 @@ system.runInterval(() => {
     if (!target) continue;
 
     sniper.teleport(sniperTowerStandLocation(target));
-    const retargetEvent = sniperRetargetEventId(sniper);
-    if (retargetEvent) sniper.triggerEvent(retargetEvent);
   }
 }, ELITE_SNIPER_PERCH_CHECK_INTERVAL_TICKS);
 

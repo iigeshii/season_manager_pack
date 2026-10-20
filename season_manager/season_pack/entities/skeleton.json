@@ -831,19 +831,6 @@
             }
           ]
         },
-        "minecraft:follow_range": {
-          "value": 64,
-          "max": 64
-        },
-        "minecraft:despawn": {
-          "filters": {
-            "test": "is_family",
-            "subject": "self",
-            "value": "season_never_despawns"
-          }
-        }
-      },
-      "season:elite_sniper_targeting": {
         "minecraft:behavior.nearest_attackable_target": {
           "reselect_targets": true,
           "must_see": true,
@@ -858,6 +845,17 @@
             }
           ],
           "priority": 2
+        },
+        "minecraft:follow_range": {
+          "value": 64,
+          "max": 64
+        },
+        "minecraft:despawn": {
+          "filters": {
+            "test": "is_family",
+            "subject": "self",
+            "value": "season_never_despawns"
+          }
         }
       }
     },
@@ -1011,26 +1009,13 @@
       "season:become_elite_sniper": {
         "add": {
           "component_groups": [
-            "season:elite_sniper",
-            "season:elite_sniper_targeting"
+            "season:elite_sniper"
           ]
         },
         "remove": {
           "component_groups": [
             "minecraft:ranged_attack",
             "minecraft:ranged_attack_hard"
-          ]
-        }
-      },
-      "season:elite_sniper_retarget": {
-        "remove": {
-          "component_groups": [
-            "season:elite_sniper_targeting"
-          ]
-        },
-        "add": {
-          "component_groups": [
-            "season:elite_sniper_targeting"
           ]
         }
       }
