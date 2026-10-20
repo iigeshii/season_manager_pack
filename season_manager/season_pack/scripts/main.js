@@ -1027,10 +1027,15 @@ const ELITE_SNIPER_TELEPORT_COOLDOWN_TICKS = 160; // 8 seconds
 const ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY = "season:last_teleport_tick";
 const ELITE_SNIPER_VOLLEY_INTERVAL_TICKS = 400; // 20 seconds
 const ELITE_SNIPER_VOLLEY_WINDUP_TICKS = 30; // 1.5 seconds
-const ELITE_SNIPER_VOLLEY_ARROW_COUNT = 5;
-const ELITE_SNIPER_VOLLEY_SPREAD_RADIANS = 0.2;
 const ELITE_SNIPER_VOLLEY_SPEED = 6; // flatter, faster arc than a default bow shot
 const ELITE_SNIPER_VOLLEY_RANGE_BLOCKS = 64;
+const ELITE_SNIPER_ARENA_CENTER_PROPERTY = "season:arena_center";
+const ELITE_SNIPER_RAIN_RADIUS_BLOCKS = 50; // covers the whole tower ring, not just the area right around the boss
+const ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS = 4; // candidate drop points, 4 blocks apart
+const ELITE_SNIPER_RAIN_COVERAGE_FRACTION = 0.6; // ~60% of those candidate points actually get an arrow
+const ELITE_SNIPER_RAIN_DROP_HEIGHT_BLOCKS = 40; // high enough to clear terrain variation across the whole arena; gravity does the rest
+const ELITE_SNIPER_RAIN_FALL_SPEED = 1.5;
+const ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS = 40; // 2 seconds — spreads out when each arrow actually spawns
 const ELITE_SNIPER_REGULAR_ARROW_COUNT = 3; // every normal shot is a small spread, not a single arrow
 const ELITE_SNIPER_REGULAR_SPREAD_RADIANS = 0.08; // tighter than the heavy volley's spread
 const ELITE_SNIPER_REGULAR_FIRE_INTERVAL_TICKS = 90; // 4.5 seconds, replaces the vanilla ranged_attack interval this boss no longer uses
@@ -1081,6 +1086,47 @@ function pickRandomTower(towers, excludeFloorXZ) {
   return options[Math.floor(Math.random() * options.length)];
 }
 
+function sniperTowerKey(x, z) {
+  return `${x},${z}`;
+}
+
+// Which towers currently have a sniper (boss or guard) standing on them,
+// identified by rounding each one's live position down to a tower's own
+// integer coordinates — so this doesn't need any separate bookkeeping
+// that could drift out of sync with where everyone actually is.
+// `excludeEntity` leaves the entity doing the picking out of its own
+// occupancy count, so it isn't blocked from picking a tower it could
+// freely move to just because it's about to vacate its current one.
+function getOccupiedTowerKeys(dimension, excludeEntity) {
+  const occupied = new Set();
+  const snipers = [
+    ...dimension.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }),
+    ...dimension.getEntities({ type: "minecraft:stray", tags: ["season:elite_guard_stray"] }),
+  ];
+  for (const sniper of snipers) {
+    if (excludeEntity && sniper.id === excludeEntity.id) continue;
+    occupied.add(sniperTowerKey(Math.floor(sniper.location.x), Math.floor(sniper.location.z)));
+  }
+  return occupied;
+}
+
+// Same as pickRandomTower, but also avoids any tower another sniper is
+// currently standing on, so they stop stacking up on the same one. Falls
+// back to allowing occupied towers only if every single one is taken
+// (12 towers vs. at most 7 snipers, so this is just a safety net).
+function pickUnoccupiedTower(dimension, towers, entity, excludeFloorXZ) {
+  const occupied = getOccupiedTowerKeys(dimension, entity);
+  const isFree = (t) => !occupied.has(sniperTowerKey(t.x, t.z));
+
+  const free = towers.filter((t) => isFree(t) && (!excludeFloorXZ || t.x !== excludeFloorXZ.x || t.z !== excludeFloorXZ.z));
+  if (free.length > 0) return free[Math.floor(Math.random() * free.length)];
+
+  const freeIgnoringCurrent = towers.filter(isFree);
+  if (freeIgnoringCurrent.length > 0) return freeIgnoringCurrent[Math.floor(Math.random() * freeIgnoringCurrent.length)];
+
+  return pickRandomTower(towers, excludeFloorXZ);
+}
+
 // Every guard (and the boss) carries its own copy of the tower list —
 // simpler than looking the boss up again on every rotation, and it's a
 // small enough JSON string not to matter.
@@ -1104,7 +1150,7 @@ function scheduleRoostRotation(entity) {
 
     const towers = getStoredTowers(entity);
     const current = { x: Math.floor(entity.location.x), z: Math.floor(entity.location.z) };
-    const target = pickRandomTower(towers, current);
+    const target = pickUnoccupiedTower(entity.dimension, towers, entity, current);
     if (target) {
       entity.teleport(sniperTowerStandLocation(target));
       entity.triggerEvent(sniperRetargetEventId(entity)); // new vantage point — pick a fresh target instead of staying locked onto whoever it had before
@@ -1115,7 +1161,7 @@ function scheduleRoostRotation(entity) {
 }
 
 function spawnEliteSniperGuard(dimension, towers) {
-  const guard = dimension.spawnEntity("minecraft:stray", sniperTowerStandLocation(pickRandomTower(towers)));
+  const guard = dimension.spawnEntity("minecraft:stray", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
   guard.addTag("season:elite_guard_stray");
   guard.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
 
@@ -1135,6 +1181,7 @@ function spawnEliteSniperGuard(dimension, towers) {
 // ranged_attack groups), so this is the only thing that ever puts an
 // arrow in the air for this boss.
 const ELITE_SNIPER_ARROW_SPAWN_OFFSET_BLOCKS = 0.8; // clears the boss's own hitbox so a fresh arrow can't immediately clip it
+const ELITE_SNIPER_ARROW_LIFETIME_TICKS = 100; // 5 seconds — plenty of time to land a hit, not enough to stick around as free loot
 
 function fireSniperArrows(dimension, boss, targetLocation, arrowCount, spreadRadians) {
   const eyeLocation = { x: boss.location.x, y: boss.location.y + 1.6, z: boss.location.z };
@@ -1171,6 +1218,60 @@ function fireSniperArrows(dimension, boss, targetLocation, arrowCount, spreadRad
         z: forward.z * ELITE_SNIPER_VOLLEY_SPEED,
       });
     }
+
+    // Arrows fired by vanilla mob AI come out flagged non-pickupable;
+    // these are spawned directly rather than through that pipeline, and
+    // there's no exposed way to set that flag from script. Despawning
+    // them shortly after firing avoids leaving free, pickupable arrows
+    // lying around, which is the actual vanilla-consistent behavior here.
+    system.runTimeout(() => {
+      if (arrow.isValid()) arrow.remove();
+    }, ELITE_SNIPER_ARROW_LIFETIME_TICKS);
+  }
+}
+
+function getArenaCenter(entity) {
+  const stored = entity.getDynamicProperty(ELITE_SNIPER_ARENA_CENTER_PROPERTY);
+  return stored ? JSON.parse(stored) : entity.location;
+}
+
+// The heavy volley's actual effect — not aimed at anyone. Covers the
+// whole arena (the full tower ring, not just around the boss) with
+// arrows dropping straight down from above, so it reads as area denial
+// — get under cover or in the open and take your chances — rather than
+// a bigger version of the regular aimed shots.
+function fireSniperArrowRain(dimension, boss) {
+  const center = getArenaCenter(boss);
+  const dropY = center.y + ELITE_SNIPER_RAIN_DROP_HEIGHT_BLOCKS;
+  const r = ELITE_SNIPER_RAIN_RADIUS_BLOCKS;
+
+  const candidates = [];
+  for (let x = -r; x <= r; x += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
+    for (let z = -r; z <= r; z += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
+      if (x * x + z * z <= r * r) candidates.push({ x: center.x + x, z: center.z + z });
+    }
+  }
+
+  for (const { x, z } of candidates) {
+    if (Math.random() >= ELITE_SNIPER_RAIN_COVERAGE_FRACTION) continue;
+
+    // Staggered over a couple seconds instead of all spawning in the same
+    // tick — spreads the entity-creation cost out, and reads more like
+    // rain falling than a single instant wall of arrows.
+    const spawnDelay = Math.floor(Math.random() * ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS);
+    system.runTimeout(() => {
+      if (!boss.isValid()) return;
+
+      const arrow = dimension.spawnEntity("minecraft:arrow", { x, y: dropY, z });
+      const projectile = arrow.getComponent("minecraft:projectile");
+      if (projectile) {
+        projectile.owner = boss;
+        projectile.shoot({ x: 0, y: -ELITE_SNIPER_RAIN_FALL_SPEED, z: 0 });
+      }
+      system.runTimeout(() => {
+        if (arrow.isValid()) arrow.remove();
+      }, ELITE_SNIPER_ARROW_LIFETIME_TICKS);
+    }, spawnDelay);
   }
 }
 
@@ -1201,12 +1302,12 @@ function scheduleSniperVolley(dimension, boss) {
   system.runTimeout(() => {
     if (!boss.isValid()) return;
 
-    const target = findNearestPlayer(dimension, boss.location, ELITE_SNIPER_VOLLEY_RANGE_BLOCKS);
-    if (target) {
-      world.sendMessage("§6The Elite Sniper draws back a heavy volley...");
-      const targetLocation = target.location;
+    // Still gated on someone being nearby, just not aimed at them —
+    // no point raining arrows across an empty arena.
+    if (findNearestPlayer(dimension, boss.location, ELITE_SNIPER_VOLLEY_RANGE_BLOCKS)) {
+      world.sendMessage("§6The Elite Sniper draws back a heavy volley — arrows are about to rain across the arena!");
       system.runTimeout(() => {
-        if (boss.isValid()) fireSniperArrows(dimension, boss, targetLocation, ELITE_SNIPER_VOLLEY_ARROW_COUNT, ELITE_SNIPER_VOLLEY_SPREAD_RADIANS);
+        if (boss.isValid()) fireSniperArrowRain(dimension, boss);
       }, ELITE_SNIPER_VOLLEY_WINDUP_TICKS);
     }
 
@@ -1228,6 +1329,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 
   for (const boss of freshlySpawned) {
     boss.removeTag("season:elite_sniper_needs_setup");
+
+    boss.setDynamicProperty(ELITE_SNIPER_ARENA_CENTER_PROPERTY, JSON.stringify(boss.location));
 
     const towers = spawnSniperTowers(overworld, boss.location);
     boss.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
@@ -1274,7 +1377,7 @@ system.runInterval(() => {
 
     const towers = getStoredTowers(boss);
     const current = { x: Math.floor(boss.location.x), z: Math.floor(boss.location.z) };
-    const target = pickRandomTower(towers, current);
+    const target = pickUnoccupiedTower(overworld, towers, boss, current);
     if (!target) continue;
 
     boss.teleport(sniperTowerStandLocation(target));
@@ -1311,7 +1414,7 @@ system.runInterval(() => {
     if (isOnSniperTowerPerch(overworld, sniper)) continue;
 
     const towers = getStoredTowers(sniper);
-    const target = pickRandomTower(towers);
+    const target = pickUnoccupiedTower(overworld, towers, sniper);
     if (!target) continue;
 
     sniper.teleport(sniperTowerStandLocation(target));

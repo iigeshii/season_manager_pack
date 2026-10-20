@@ -28,6 +28,9 @@
           "def": "minecraft:arrow",
           "sound": "bow"
         },
+        "minecraft:equipment": {
+          "table": "loot_tables/entities/season_elite_guard_stray_equipment.json"
+        },
         "minecraft:type_family": {
           "family": [
             "skeleton",
