@@ -858,11 +858,9 @@ const SNIPER_TOWER_SLAB_BLOCK = "minecraft:stone_slab";
 const SNIPER_TOWER_FENCE_BLOCK = "minecraft:oak_fence";
 const SNIPER_TOWER_FOOTPRINT_RADIUS = 2; // 2 blocks either side of center = 5x5
 const SNIPER_TOWER_FENCE_HEIGHT_BLOCKS = 3;
-const SNIPER_TOWER_MIN_COUNT = 5;
-const SNIPER_TOWER_MAX_COUNT = 10;
-const SNIPER_TOWER_MIN_HEIGHT_BLOCKS = 3;
-const SNIPER_TOWER_MAX_HEIGHT_BLOCKS = 10;
-const SNIPER_TOWER_CIRCLE_SLOTS = 12; // evenly-spaced slots around the scatter ring, so towers can never land on top of each other
+const SNIPER_TOWER_MIN_HEIGHT_BLOCKS = 5;
+const SNIPER_TOWER_MAX_HEIGHT_BLOCKS = 15;
+const SNIPER_TOWER_CIRCLE_SLOTS = 12; // every slot gets a tower, evenly spaced so none can land on top of each other
 const SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS = 26;
 const SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS = 4;
 const SNIPER_TOWER_CIRCLE_ANGLE_JITTER_RADIANS = (Math.PI / SNIPER_TOWER_CIRCLE_SLOTS) * 0.4; // stays within its own slot, never drifts into a neighbor's
@@ -870,17 +868,6 @@ const SNIPER_TOWER_LIST_PROPERTY = "season:sniper_towers";
 
 function randomIntInclusive(min, max) {
   return min + Math.floor(Math.random() * (max - min + 1));
-}
-
-// Fisher-Yates shuffle of the 12 slot indices, so picking the first N
-// gives N distinct, non-adjacent-guaranteed slots in random order.
-function shuffledCircleSlots() {
-  const slots = Array.from({ length: SNIPER_TOWER_CIRCLE_SLOTS }, (_, i) => i);
-  for (let i = slots.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [slots[i], slots[j]] = [slots[j], slots[i]];
-  }
-  return slots;
 }
 
 function sniperTowerCorners(cx, cz) {
@@ -919,19 +906,15 @@ function buildSniperTower(dimension, x, z) {
   return { x: cx, z: cz, baseY, height };
 }
 
-// One tower always lands centered exactly on `center`; the rest scatter
-// around it on a large ring, each assigned its own one of 12 evenly-spaced
-// slots (picked without repeats) so they can't land on top of each other,
-// with a little random jitter in angle and radius so the ring doesn't
+// One tower per slot, all 12 evenly spaced around a large ring centered on
+// `center`, with a little random jitter in angle and radius so it doesn't
 // look too mechanically perfect. Returns every tower's descriptor for the
 // caller to store (e.g. on the boss entity) and hand to
 // despawnSniperTowers later.
 function spawnSniperTowers(dimension, center) {
-  const towers = [buildSniperTower(dimension, center.x, center.z)];
+  const towers = [];
 
-  const scatterCount = randomIntInclusive(SNIPER_TOWER_MIN_COUNT, SNIPER_TOWER_MAX_COUNT) - 1;
-  const slots = shuffledCircleSlots().slice(0, scatterCount);
-  for (const slot of slots) {
+  for (let slot = 0; slot < SNIPER_TOWER_CIRCLE_SLOTS; slot++) {
     const baseAngle = (slot / SNIPER_TOWER_CIRCLE_SLOTS) * 2 * Math.PI;
     const angle = baseAngle + (Math.random() * 2 - 1) * SNIPER_TOWER_CIRCLE_ANGLE_JITTER_RADIANS;
     const radius = SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS + (Math.random() * 2 - 1) * SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS;
