@@ -1074,13 +1074,16 @@ function sniperTowerStandLocation(tower) {
   };
 }
 
-// Component groups holding nearest_attackable_target are split out on
-// both entities specifically so this can force a fresh target pick
-// (remove+add the same group resets the AI goal) without also resetting
-// health or anything else bundled into the main elite group — see
-// skeleton.json/stray.json.
+// season:elite_sniper_targeting is split out from the boss's main group
+// specifically so this can force a fresh target pick (remove+add the
+// same group resets the AI goal) without also resetting health or
+// anything else bundled into it — see skeleton.json. The guards reuse
+// season:elite_guard_skeleton wholesale (no such split), so there's
+// nothing to retarget there — this only ever applies to the boss, which
+// is why it's keyed off the boss's own tag rather than its typeId (both
+// the boss and the guards are plain minecraft:skeleton now).
 function sniperRetargetEventId(entity) {
-  return entity.typeId === "minecraft:skeleton" ? "season:elite_sniper_retarget" : "season:elite_guard_pillager_retarget";
+  return entity.hasTag("season:elite_sniper") ? "season:elite_sniper_retarget" : null;
 }
 
 function pickRandomTower(towers, excludeFloorXZ) {
@@ -1105,7 +1108,7 @@ function getOccupiedTowerKeys(dimension, excludeEntity) {
   const occupied = new Set();
   const snipers = [
     ...dimension.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }),
-    ...dimension.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] }),
+    ...dimension.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper_guard"] }),
   ];
   for (const sniper of snipers) {
     if (excludeEntity && sniper.id === excludeEntity.id) continue;
@@ -1157,35 +1160,45 @@ function scheduleRoostRotation(entity) {
     const target = pickUnoccupiedTower(entity.dimension, towers, entity, current);
     if (target) {
       entity.teleport(sniperTowerStandLocation(target));
-      entity.triggerEvent(sniperRetargetEventId(entity)); // new vantage point — pick a fresh target instead of staying locked onto whoever it had before
+      // New vantage point — pick a fresh target instead of staying
+      // locked onto whoever it had before. Guards don't have a
+      // retarget event (see sniperRetargetEventId), so this is a no-op
+      // for them.
+      const retargetEvent = sniperRetargetEventId(entity);
+      if (retargetEvent) entity.triggerEvent(retargetEvent);
     }
 
     scheduleRoostRotation(entity);
   }, delay);
 }
 
+// Reuses season:elite_guard_skeleton wholesale — the exact same escort
+// the Elite Zombie fight already relies on, crossbow equipment and all.
+// No separate targeting group here (unlike the boss's
+// season:elite_sniper_targeting), so these guards don't get the
+// teleport-triggered retarget — a minor loss next to having an escort
+// that reliably fights at all.
 function spawnEliteSniperGuard(dimension, towers) {
-  const guard = dimension.spawnEntity("minecraft:pillager", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
-  guard.addTag("season:elite_guard_pillager");
+  const guard = dimension.spawnEntity("minecraft:skeleton", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
+  guard.addTag("season:elite_sniper_guard");
   guard.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
 
   // minecraft:equipment only rolls at the moment the entity is actually
   // created — adding the component group a moment later via
-  // triggerEvent (below) is too late for it to take effect, leaving the
-  // guard with nothing in hand. Equip it directly instead of trusting
-  // that timing. (Firing itself goes through the scripted
-  // shooter/ranged_attack components below, not native crossbow_attack —
-  // that never actually fired even once armed, so this is purely visual.)
+  // triggerEvent (below) is too late for it to take effect. Equip
+  // directly instead of trusting that timing, same fix as the boss's bow.
   try {
     guard.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:crossbow");
     guard.runCommand("enchant @s multishot 1");
+    // Same reasoning as the Elite Zombie's own guards — burns_in_daylight
+    // is still on by default, and the equippable component only exists
+    // on players, so this is the only way to get a helmet onto a mob.
+    guard.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
   } catch (error) {
-    console.warn(`Elite Sniper guard crossbow equip failed: ${error}`);
+    console.warn(`Elite Sniper guard equip failed: ${error}`);
   }
 
-  // Pillagers aren't undead and don't burn in daylight, unlike the
-  // Strays these replaced — no helmet workaround needed here.
-  guard.triggerEvent("season:become_elite_guard_pillager");
+  guard.triggerEvent("season:become_elite_guard_skeleton");
   scheduleRoostRotation(guard);
   return guard;
 }
@@ -1462,7 +1475,7 @@ system.runInterval(() => {
   const overworld = world.getDimension("overworld");
   const snipers = [
     ...overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }),
-    ...overworld.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] }),
+    ...overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper_guard"] }),
   ];
 
   for (const sniper of snipers) {
@@ -1473,7 +1486,8 @@ system.runInterval(() => {
     if (!target) continue;
 
     sniper.teleport(sniperTowerStandLocation(target));
-    sniper.triggerEvent(sniperRetargetEventId(sniper));
+    const retargetEvent = sniperRetargetEventId(sniper);
+    if (retargetEvent) sniper.triggerEvent(retargetEvent);
   }
 }, ELITE_SNIPER_PERCH_CHECK_INTERVAL_TICKS);
 
@@ -1517,13 +1531,13 @@ world.afterEvents.projectileHitEntity.subscribe((event) => {
 });
 
 // Guard replenishment and boss-death cleanup hang off the same event — a
-// dead elite_guard_pillager gets a replacement 30 seconds later as long
-// as the fight is still on, and a dead elite_sniper takes every
-// remaining guard and every tower down with it.
+// dead elite_sniper_guard gets a replacement 30 seconds later as long as
+// the fight is still on, and a dead elite_sniper takes every remaining
+// guard and every tower down with it.
 world.afterEvents.entityDie.subscribe((event) => {
   const { deadEntity } = event;
 
-  if (deadEntity.typeId === "minecraft:pillager" && deadEntity.hasTag("season:elite_guard_pillager")) {
+  if (deadEntity.typeId === "minecraft:skeleton" && deadEntity.hasTag("season:elite_sniper_guard")) {
     const overworld = world.getDimension("overworld");
     system.runTimeout(() => {
       if (!isEliteSniperFightActive(overworld)) return;
@@ -1541,7 +1555,7 @@ world.afterEvents.entityDie.subscribe((event) => {
     // silently did nothing — queue those for the retry watchdog below
     // instead of losing track of them.
     queuePendingTowerCleanup(towers.filter((tower) => sniperTowerStillStanding(overworld, tower)));
-    for (const guard of overworld.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] })) {
+    for (const guard of overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper_guard"] })) {
       guard.remove();
     }
     world.sendMessage("§6The Elite Sniper falls — the towers come down with it.");
