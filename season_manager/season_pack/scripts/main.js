@@ -827,3 +827,144 @@ system.runInterval(() => {
     world.sendMessage(`§e${count} ${count === 1 ? singular : plural} despawned (mob cap).`);
   }
 }, FARM_ANIMAL_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  SNIPER ROOST TOWERS
+//  Scaffolding for the Skeleton Sniper mini-boss being designed (still
+//  pre-build — HP, kiting, and the volley attack aren't written yet):
+//  a scattered handful of lookout towers the boss can perch on and
+//  teleport between when swarmed, built fresh around the fight's center
+//  each time rather than requiring anyone to hand-place them.
+//
+//  Each tower is a solid 5x5 column rooted at the ground (via the same
+//  findSurfaceNear helper the dimension-bounce logic above uses), random
+//  height, topped with a 5x5 slab platform and a 3-tall fence post at
+//  each of its four corners. One tower always lands centered exactly on
+//  the fight's origin point; the rest scatter at random angles/distances
+//  around it.
+//
+//  Blocks can't carry tags the way entities can (addTag/getTags only
+//  exist on entities), so cleanup doesn't try to remember every placed
+//  block. Instead spawnSniperTowers returns one small descriptor per
+//  tower (its center X/Z, base Y, and height) — enough to recompute the
+//  exact same fill regions and clear them back to air later. Whatever
+//  eventually owns the fight (the boss entity itself, once built) should
+//  store that descriptor list and hand it to despawnSniperTowers when
+//  the fight ends.
+// ─────────────────────────────────────────────
+
+const SNIPER_TOWER_BODY_BLOCK = "minecraft:cobblestone";
+const SNIPER_TOWER_SLAB_BLOCK = "minecraft:stone_slab";
+const SNIPER_TOWER_FENCE_BLOCK = "minecraft:oak_fence";
+const SNIPER_TOWER_FOOTPRINT_RADIUS = 2; // 2 blocks either side of center = 5x5
+const SNIPER_TOWER_FENCE_HEIGHT_BLOCKS = 3;
+const SNIPER_TOWER_MIN_COUNT = 5;
+const SNIPER_TOWER_MAX_COUNT = 10;
+const SNIPER_TOWER_MIN_HEIGHT_BLOCKS = 3;
+const SNIPER_TOWER_MAX_HEIGHT_BLOCKS = 10;
+const SNIPER_TOWER_MIN_SCATTER_RADIUS_BLOCKS = 6; // keeps scattered towers clear of the one centered on the fight's origin
+const SNIPER_TOWER_MAX_SCATTER_RADIUS_BLOCKS = 20;
+const SNIPER_TOWER_LIST_PROPERTY = "season:sniper_towers";
+
+function randomIntInclusive(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function sniperTowerCorners(cx, cz) {
+  const r = SNIPER_TOWER_FOOTPRINT_RADIUS;
+  return [
+    [cx - r, cz - r],
+    [cx - r, cz + r],
+    [cx + r, cz - r],
+    [cx + r, cz + r],
+  ];
+}
+
+// Builds one tower and returns its descriptor. Rooted at the first open
+// space above solid ground rather than floating, so it reads as a
+// lookout tower rather than a platform dropped from the sky.
+function buildSniperTower(dimension, x, z) {
+  const cx = Math.round(x);
+  const cz = Math.round(z);
+  const r = SNIPER_TOWER_FOOTPRINT_RADIUS;
+  const baseY = Math.floor(findSurfaceNear(dimension, cx, cz).y);
+  const height = randomIntInclusive(SNIPER_TOWER_MIN_HEIGHT_BLOCKS, SNIPER_TOWER_MAX_HEIGHT_BLOCKS);
+
+  dimension.runCommand(
+    `fill ${cx - r} ${baseY} ${cz - r} ${cx + r} ${baseY + height - 1} ${cz + r} ${SNIPER_TOWER_BODY_BLOCK}`
+  );
+  dimension.runCommand(
+    `fill ${cx - r} ${baseY + height} ${cz - r} ${cx + r} ${baseY + height} ${cz + r} ${SNIPER_TOWER_SLAB_BLOCK}`
+  );
+
+  const fenceBottom = baseY + height + 1;
+  const fenceTop = fenceBottom + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS - 1;
+  for (const [fx, fz] of sniperTowerCorners(cx, cz)) {
+    dimension.runCommand(`fill ${fx} ${fenceBottom} ${fz} ${fx} ${fenceTop} ${fz} ${SNIPER_TOWER_FENCE_BLOCK}`);
+  }
+
+  return { x: cx, z: cz, baseY, height };
+}
+
+// One tower always lands centered exactly on `center`; the rest scatter
+// randomly around it. Returns every tower's descriptor for the caller to
+// store (e.g. on the boss entity) and hand to despawnSniperTowers later.
+function spawnSniperTowers(dimension, center) {
+  const towers = [buildSniperTower(dimension, center.x, center.z)];
+
+  const scatterCount = randomIntInclusive(SNIPER_TOWER_MIN_COUNT, SNIPER_TOWER_MAX_COUNT) - 1;
+  for (let i = 0; i < scatterCount; i++) {
+    const angle = Math.random() * 2 * Math.PI;
+    const radius = randomIntInclusive(SNIPER_TOWER_MIN_SCATTER_RADIUS_BLOCKS, SNIPER_TOWER_MAX_SCATTER_RADIUS_BLOCKS);
+    towers.push(buildSniperTower(dimension, center.x + radius * Math.cos(angle), center.z + radius * Math.sin(angle)));
+  }
+
+  return towers;
+}
+
+// Re-fills each tower's body/slab/corner regions with air, from nothing
+// but the descriptors spawnSniperTowers returned.
+function despawnSniperTowers(dimension, towers) {
+  const r = SNIPER_TOWER_FOOTPRINT_RADIUS;
+  for (const { x: cx, z: cz, baseY, height } of towers) {
+    dimension.runCommand(`fill ${cx - r} ${baseY} ${cz - r} ${cx + r} ${baseY + height} ${cz + r} air`);
+
+    const fenceBottom = baseY + height + 1;
+    const fenceTop = fenceBottom + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS - 1;
+    for (const [fx, fz] of sniperTowerCorners(cx, cz)) {
+      dimension.runCommand(`fill ${fx} ${fenceBottom} ${fz} ${fx} ${fenceTop} ${fz} air`);
+    }
+  }
+}
+
+// Test-only hooks until the Skeleton Sniper boss itself exists — run via
+// /function season/spawn_sniper_towers and /function season/despawn_sniper_towers,
+// which tag the calling player before firing the scriptevent (event.sourceEntity
+// is only populated for NPC-dialogue-triggered scriptevents — see the Elite
+// Zombie section above for the same workaround). Swap "centered on the
+// player" for "centered on the boss" once the boss is built, and drop these
+// two handlers.
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:spawn_sniper_towers") return;
+
+  for (const player of world.getPlayers({ tags: ["season:sniper_towers_pending"] })) {
+    player.removeTag("season:sniper_towers_pending");
+    const towers = spawnSniperTowers(player.dimension, player.location);
+    player.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
+    player.sendMessage(`§6${towers.length} sniper roost towers built.`);
+  }
+});
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:despawn_sniper_towers") return;
+
+  for (const player of world.getPlayers({ tags: ["season:sniper_towers_despawn_pending"] })) {
+    player.removeTag("season:sniper_towers_despawn_pending");
+    const stored = player.getDynamicProperty(SNIPER_TOWER_LIST_PROPERTY);
+    if (!stored) continue;
+
+    despawnSniperTowers(player.dimension, JSON.parse(stored));
+    player.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, undefined);
+    player.sendMessage("§6Sniper roost towers cleared.");
+  }
+});

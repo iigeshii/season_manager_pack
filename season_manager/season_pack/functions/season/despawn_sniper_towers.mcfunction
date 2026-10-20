@@ -1,0 +1,2 @@
+tag @s add season:sniper_towers_despawn_pending
+scriptevent season:despawn_sniper_towers
