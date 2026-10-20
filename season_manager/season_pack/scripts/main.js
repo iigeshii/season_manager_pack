@@ -1172,9 +1172,10 @@ function spawnEliteSniperGuard(dimension, towers) {
   // minecraft:equipment only rolls at the moment the entity is actually
   // created — adding the component group a moment later via
   // triggerEvent (below) is too late for it to take effect, leaving the
-  // guard with nothing in hand. crossbow_attack can't fire without a
-  // crossbow equipped, which is exactly "not attacking." Equip it
-  // directly instead of trusting that timing.
+  // guard with nothing in hand. Equip it directly instead of trusting
+  // that timing. (Firing itself goes through the scripted
+  // shooter/ranged_attack components below, not native crossbow_attack —
+  // that never actually fired even once armed, so this is purely visual.)
   try {
     guard.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:crossbow");
     guard.runCommand("enchant @s multishot 1");
@@ -1402,8 +1403,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     // gets a guaranteed direct equip here too — the same
     // equipment-rolls-too-late-to-matter issue that left the Pillager
     // guards unarmed could just as easily be silently leaving this bow
-    // unequipped, and unlike the guards' crossbow_attack, nothing here
-    // actually depends on it being in hand (every shot is scripted), so
+    // unequipped, and unlike the guards, nothing here actually depends
+    // on it being in hand (every shot is scripted), so
     // there was no functional symptom to notice it by.
     try {
       boss.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:bow");
@@ -1493,13 +1494,26 @@ system.runInterval(() => {
   }
 }, ELITE_MOB_INTERVAL_TICKS);
 
+// Minecraft's own arrow damage is based on the projectile's velocity at
+// impact, and the manually-set velocities this boss's arrows use aren't
+// registering meaningful damage through that path — reported in-game as
+// shots that land but don't hurt. Applying damage directly here sidesteps
+// whatever's going wrong with the native calculation for a scripted
+// velocity, for every arrow this boss owns (regular fire, the heavy
+// volley, and the arena-wide rain all set the same owner).
+const ELITE_SNIPER_ARROW_DAMAGE = 6;
+
 world.afterEvents.projectileHitEntity.subscribe((event) => {
-  if (!event.source?.hasTag(ELITE_SNIPER_ENRAGE_TAG)) return;
+  if (!event.source?.hasTag("season:elite_sniper")) return;
 
   const hit = event.getEntityHit().entity;
   if (!hit || hit.typeId !== "minecraft:player") return;
 
-  hit.addEffect("slowness", ELITE_SNIPER_ENRAGE_SLOWNESS_DURATION_TICKS, { amplifier: 1, showParticles: true });
+  hit.applyDamage(ELITE_SNIPER_ARROW_DAMAGE, { cause: "arrow", damagingEntity: event.source });
+
+  if (event.source.hasTag(ELITE_SNIPER_ENRAGE_TAG)) {
+    hit.addEffect("slowness", ELITE_SNIPER_ENRAGE_SLOWNESS_DURATION_TICKS, { amplifier: 1, showParticles: true });
+  }
 });
 
 // Guard replenishment and boss-death cleanup hang off the same event — a

@@ -13,6 +13,21 @@
           "max": 40,
           "value": 40
         },
+        "minecraft:behavior.ranged_attack": {
+          "attack_interval": {
+            "min": 1.0,
+            "max": 3.0
+          },
+          "attack_range": {
+            "min": 0.0,
+            "max": 32.0
+          },
+          "priority": 0
+        },
+        "minecraft:shooter": {
+          "def": "minecraft:arrow",
+          "sound": "crossbow.shoot"
+        },
         "minecraft:equipment": {
           "table": "loot_tables/entities/season_elite_guard_pillager_equipment.json"
         },
