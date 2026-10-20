@@ -1032,10 +1032,12 @@ const ELITE_SNIPER_VOLLEY_RANGE_BLOCKS = 64;
 const ELITE_SNIPER_ARENA_CENTER_PROPERTY = "season:arena_center";
 const ELITE_SNIPER_RAIN_RADIUS_BLOCKS = 50; // covers the whole tower ring, not just the area right around the boss
 const ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS = 4; // candidate drop points, 4 blocks apart
-const ELITE_SNIPER_RAIN_COVERAGE_FRACTION = 0.6; // ~60% of those candidate points actually get an arrow
+const ELITE_SNIPER_RAIN_COVERAGE_FRACTION = 0.95; // ~95% of those candidate points get an arrow, per pass
 const ELITE_SNIPER_RAIN_DROP_HEIGHT_BLOCKS = 40; // high enough to clear terrain variation across the whole arena; gravity does the rest
 const ELITE_SNIPER_RAIN_FALL_SPEED = 1.5;
-const ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS = 40; // 2 seconds — spreads out when each arrow actually spawns
+const ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS = 40; // 2 seconds — spreads out when each arrow actually spawns within a pass
+const ELITE_SNIPER_RAIN_PASS_COUNT = 5;
+const ELITE_SNIPER_RAIN_PASS_INTERVAL_TICKS = 30; // 1.5 seconds between the start of each pass
 const ELITE_SNIPER_REGULAR_ARROW_COUNT = 3; // every normal shot is a small spread, not a single arrow
 const ELITE_SNIPER_REGULAR_SPREAD_RADIANS = 0.08; // tighter than the heavy volley's spread
 const ELITE_SNIPER_REGULAR_FIRE_INTERVAL_TICKS = 90; // 4.5 seconds, replaces the vanilla ranged_attack interval this boss no longer uses
@@ -1076,7 +1078,7 @@ function sniperTowerStandLocation(tower) {
 // health or anything else bundled into the main elite group — see
 // skeleton.json/stray.json.
 function sniperRetargetEventId(entity) {
-  return entity.typeId === "minecraft:skeleton" ? "season:elite_sniper_retarget" : "season:elite_guard_stray_retarget";
+  return entity.typeId === "minecraft:skeleton" ? "season:elite_sniper_retarget" : "season:elite_guard_pillager_retarget";
 }
 
 function pickRandomTower(towers, excludeFloorXZ) {
@@ -1101,7 +1103,7 @@ function getOccupiedTowerKeys(dimension, excludeEntity) {
   const occupied = new Set();
   const snipers = [
     ...dimension.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }),
-    ...dimension.getEntities({ type: "minecraft:stray", tags: ["season:elite_guard_stray"] }),
+    ...dimension.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] }),
   ];
   for (const sniper of snipers) {
     if (excludeEntity && sniper.id === excludeEntity.id) continue;
@@ -1161,15 +1163,13 @@ function scheduleRoostRotation(entity) {
 }
 
 function spawnEliteSniperGuard(dimension, towers) {
-  const guard = dimension.spawnEntity("minecraft:stray", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
-  guard.addTag("season:elite_guard_stray");
+  const guard = dimension.spawnEntity("minecraft:pillager", sniperTowerStandLocation(pickUnoccupiedTower(dimension, towers)));
+  guard.addTag("season:elite_guard_pillager");
   guard.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
 
-  // Same reasoning as the Elite Zombie's guards — burns_in_daylight is
-  // still on by default, and the equippable component only exists on
-  // players, so this is the only way to get a helmet onto a mob.
-  guard.runCommand("replaceitem entity @s slot.armor.head 0 minecraft:iron_helmet");
-  guard.triggerEvent("season:become_elite_guard_stray");
+  // Pillagers aren't undead and don't burn in daylight, unlike the
+  // Strays these replaced — no helmet workaround needed here.
+  guard.triggerEvent("season:become_elite_guard_pillager");
   scheduleRoostRotation(guard);
   return guard;
 }
@@ -1240,18 +1240,10 @@ function getArenaCenter(entity) {
 // arrows dropping straight down from above, so it reads as area denial
 // — get under cover or in the open and take your chances — rather than
 // a bigger version of the regular aimed shots.
-function fireSniperArrowRain(dimension, boss) {
-  const center = getArenaCenter(boss);
-  const dropY = center.y + ELITE_SNIPER_RAIN_DROP_HEIGHT_BLOCKS;
-  const r = ELITE_SNIPER_RAIN_RADIUS_BLOCKS;
-
-  const candidates = [];
-  for (let x = -r; x <= r; x += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
-    for (let z = -r; z <= r; z += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
-      if (x * x + z * z <= r * r) candidates.push({ x: center.x + x, z: center.z + z });
-    }
-  }
-
+// One wave of the rain — candidates are the same grid every pass, but
+// which ~95% of them actually get an arrow is re-rolled each time, so
+// five passes don't just repeat the same pattern.
+function fireSniperArrowRainPass(dimension, boss, dropY, candidates) {
   for (const { x, z } of candidates) {
     if (Math.random() >= ELITE_SNIPER_RAIN_COVERAGE_FRACTION) continue;
 
@@ -1272,6 +1264,25 @@ function fireSniperArrowRain(dimension, boss) {
         if (arrow.isValid()) arrow.remove();
       }, ELITE_SNIPER_ARROW_LIFETIME_TICKS);
     }, spawnDelay);
+  }
+}
+
+function fireSniperArrowRain(dimension, boss) {
+  const center = getArenaCenter(boss);
+  const dropY = center.y + ELITE_SNIPER_RAIN_DROP_HEIGHT_BLOCKS;
+  const r = ELITE_SNIPER_RAIN_RADIUS_BLOCKS;
+
+  const candidates = [];
+  for (let x = -r; x <= r; x += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
+    for (let z = -r; z <= r; z += ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS) {
+      if (x * x + z * z <= r * r) candidates.push({ x: center.x + x, z: center.z + z });
+    }
+  }
+
+  for (let pass = 0; pass < ELITE_SNIPER_RAIN_PASS_COUNT; pass++) {
+    system.runTimeout(() => {
+      if (boss.isValid()) fireSniperArrowRainPass(dimension, boss, dropY, candidates);
+    }, pass * ELITE_SNIPER_RAIN_PASS_INTERVAL_TICKS);
   }
 }
 
@@ -1407,7 +1418,7 @@ system.runInterval(() => {
   const overworld = world.getDimension("overworld");
   const snipers = [
     ...overworld.getEntities({ type: "minecraft:skeleton", tags: ["season:elite_sniper"] }),
-    ...overworld.getEntities({ type: "minecraft:stray", tags: ["season:elite_guard_stray"] }),
+    ...overworld.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] }),
   ];
 
   for (const sniper of snipers) {
@@ -1449,13 +1460,13 @@ world.afterEvents.projectileHitEntity.subscribe((event) => {
 });
 
 // Guard replenishment and boss-death cleanup hang off the same event — a
-// dead elite_guard_stray gets a replacement 30 seconds later as long as
-// the fight is still on, and a dead elite_sniper takes every remaining
-// guard and every tower down with it.
+// dead elite_guard_pillager gets a replacement 30 seconds later as long
+// as the fight is still on, and a dead elite_sniper takes every
+// remaining guard and every tower down with it.
 world.afterEvents.entityDie.subscribe((event) => {
   const { deadEntity } = event;
 
-  if (deadEntity.typeId === "minecraft:stray" && deadEntity.hasTag("season:elite_guard_stray")) {
+  if (deadEntity.typeId === "minecraft:pillager" && deadEntity.hasTag("season:elite_guard_pillager")) {
     const overworld = world.getDimension("overworld");
     system.runTimeout(() => {
       if (!isEliteSniperFightActive(overworld)) return;
@@ -1473,7 +1484,7 @@ world.afterEvents.entityDie.subscribe((event) => {
     // silently did nothing — queue those for the retry watchdog below
     // instead of losing track of them.
     queuePendingTowerCleanup(towers.filter((tower) => sniperTowerStillStanding(overworld, tower)));
-    for (const guard of overworld.getEntities({ type: "minecraft:stray", tags: ["season:elite_guard_stray"] })) {
+    for (const guard of overworld.getEntities({ type: "minecraft:pillager", tags: ["season:elite_guard_pillager"] })) {
       guard.remove();
     }
     world.sendMessage("§6The Elite Sniper falls — the towers come down with it.");
