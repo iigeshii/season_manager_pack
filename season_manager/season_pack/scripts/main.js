@@ -1038,6 +1038,8 @@ const ELITE_SNIPER_RAIN_FALL_SPEED = 1.5;
 const ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS = 40; // 2 seconds — spreads out when each arrow actually spawns within a pass
 const ELITE_SNIPER_RAIN_PASS_COUNT = 5;
 const ELITE_SNIPER_RAIN_PASS_INTERVAL_TICKS = 30; // 1.5 seconds between the start of each pass
+const ELITE_SNIPER_RAIN_NEAR_PLAYER_JITTER_BLOCKS = 2; // close enough to actually threaten, not a guaranteed point-blank hit
+const ELITE_SNIPER_RAIN_NEAR_PLAYER_SPAWN_WINDOW_TICKS = 10; // short on purpose — reacts to where the player is now, not where the full window would let them wander off to
 const ELITE_SNIPER_REGULAR_ARROW_COUNT = 3; // every normal shot is a small spread, not a single arrow
 const ELITE_SNIPER_REGULAR_SPREAD_RADIANS = 0.08; // tighter than the heavy volley's spread
 const ELITE_SNIPER_REGULAR_FIRE_INTERVAL_TICKS = 90; // 4.5 seconds, replaces the vanilla ranged_attack interval this boss no longer uses
@@ -1167,6 +1169,19 @@ function spawnEliteSniperGuard(dimension, towers) {
   guard.addTag("season:elite_guard_pillager");
   guard.setDynamicProperty(SNIPER_TOWER_LIST_PROPERTY, JSON.stringify(towers));
 
+  // minecraft:equipment only rolls at the moment the entity is actually
+  // created — adding the component group a moment later via
+  // triggerEvent (below) is too late for it to take effect, leaving the
+  // guard with nothing in hand. crossbow_attack can't fire without a
+  // crossbow equipped, which is exactly "not attacking." Equip it
+  // directly instead of trusting that timing.
+  try {
+    guard.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:crossbow");
+    guard.runCommand("enchant @s multishot 1");
+  } catch (error) {
+    console.warn(`Elite Sniper guard crossbow equip failed: ${error}`);
+  }
+
   // Pillagers aren't undead and don't burn in daylight, unlike the
   // Strays these replaced — no helmet workaround needed here.
   guard.triggerEvent("season:become_elite_guard_pillager");
@@ -1240,30 +1255,49 @@ function getArenaCenter(entity) {
 // arrows dropping straight down from above, so it reads as area denial
 // — get under cover or in the open and take your chances — rather than
 // a bigger version of the regular aimed shots.
-// One wave of the rain — candidates are the same grid every pass, but
-// which ~95% of them actually get an arrow is re-rolled each time, so
-// five passes don't just repeat the same pattern.
-function fireSniperArrowRainPass(dimension, boss, dropY, candidates) {
+// A single falling arrow at a given (x, z) — shared by both the random
+// grid drops and the guaranteed near-player ones below.
+function dropSniperRainArrow(dimension, boss, x, dropY, z, spawnDelay) {
+  system.runTimeout(() => {
+    if (!boss.isValid()) return;
+
+    const arrow = dimension.spawnEntity("minecraft:arrow", { x, y: dropY, z });
+    const projectile = arrow.getComponent("minecraft:projectile");
+    if (projectile) {
+      projectile.owner = boss;
+      projectile.shoot({ x: 0, y: -ELITE_SNIPER_RAIN_FALL_SPEED, z: 0 });
+    }
+    system.runTimeout(() => {
+      if (arrow.isValid()) arrow.remove();
+    }, ELITE_SNIPER_ARROW_LIFETIME_TICKS);
+  }, spawnDelay);
+}
+
+// One wave of the rain. The grid gives the "whole arena is getting
+// pelted" visual, but a fixed 4-block lattice falling at fixed points is
+// coarse next to a player's hitbox and easy to just not be standing on —
+// each candidate gets randomized within its own cell so repeated casts
+// don't land in identical spots, and every player actually in the arena
+// also gets a guaranteed close call near their current position (short
+// delay, so it reacts to where they are now rather than where they were
+// a full window of time ago) so the rain is a real threat, not scenery.
+function fireSniperArrowRainPass(dimension, boss, center, radius, dropY, candidates) {
+  const half = ELITE_SNIPER_RAIN_GRID_SPACING_BLOCKS / 2;
   for (const { x, z } of candidates) {
     if (Math.random() >= ELITE_SNIPER_RAIN_COVERAGE_FRACTION) continue;
 
+    const jitterX = x + (Math.random() * 2 - 1) * half;
+    const jitterZ = z + (Math.random() * 2 - 1) * half;
     // Staggered over a couple seconds instead of all spawning in the same
     // tick — spreads the entity-creation cost out, and reads more like
     // rain falling than a single instant wall of arrows.
-    const spawnDelay = Math.floor(Math.random() * ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS);
-    system.runTimeout(() => {
-      if (!boss.isValid()) return;
+    dropSniperRainArrow(dimension, boss, jitterX, dropY, jitterZ, Math.floor(Math.random() * ELITE_SNIPER_RAIN_SPAWN_WINDOW_TICKS));
+  }
 
-      const arrow = dimension.spawnEntity("minecraft:arrow", { x, y: dropY, z });
-      const projectile = arrow.getComponent("minecraft:projectile");
-      if (projectile) {
-        projectile.owner = boss;
-        projectile.shoot({ x: 0, y: -ELITE_SNIPER_RAIN_FALL_SPEED, z: 0 });
-      }
-      system.runTimeout(() => {
-        if (arrow.isValid()) arrow.remove();
-      }, ELITE_SNIPER_ARROW_LIFETIME_TICKS);
-    }, spawnDelay);
+  for (const player of dimension.getPlayers({ location: center, maxDistance: radius })) {
+    const nearX = player.location.x + (Math.random() * 2 - 1) * ELITE_SNIPER_RAIN_NEAR_PLAYER_JITTER_BLOCKS;
+    const nearZ = player.location.z + (Math.random() * 2 - 1) * ELITE_SNIPER_RAIN_NEAR_PLAYER_JITTER_BLOCKS;
+    dropSniperRainArrow(dimension, boss, nearX, dropY, nearZ, Math.floor(Math.random() * ELITE_SNIPER_RAIN_NEAR_PLAYER_SPAWN_WINDOW_TICKS));
   }
 }
 
@@ -1281,7 +1315,7 @@ function fireSniperArrowRain(dimension, boss) {
 
   for (let pass = 0; pass < ELITE_SNIPER_RAIN_PASS_COUNT; pass++) {
     system.runTimeout(() => {
-      if (boss.isValid()) fireSniperArrowRainPass(dimension, boss, dropY, candidates);
+      if (boss.isValid()) fireSniperArrowRainPass(dimension, boss, center, r, dropY, candidates);
     }, pass * ELITE_SNIPER_RAIN_PASS_INTERVAL_TICKS);
   }
 }
@@ -1361,13 +1395,22 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       }
     }
 
-    // Bow (Power V) and a copper/eye-trimmed iron armor set — distinct
-    // from both the icy Stray guards and the Elite Zombie's
-    // redstone/wayfinder trim — both come from
+    // The copper/eye-trimmed iron armor set comes from
     // season_elite_sniper_equipment.json via the minecraft:equipment
-    // component on season:elite_sniper, the same proven loot-table
-    // pattern the Elite Zombie already uses, rather than NBT-guessing
-    // through runCommand (the earlier customColor attempt didn't work).
+    // component on season:elite_sniper (same proven loot-table pattern
+    // the Elite Zombie already uses). The bow is also in that table, but
+    // gets a guaranteed direct equip here too — the same
+    // equipment-rolls-too-late-to-matter issue that left the Pillager
+    // guards unarmed could just as easily be silently leaving this bow
+    // unequipped, and unlike the guards' crossbow_attack, nothing here
+    // actually depends on it being in hand (every shot is scripted), so
+    // there was no functional symptom to notice it by.
+    try {
+      boss.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:bow");
+      boss.runCommand("enchant @s power 5");
+    } catch (error) {
+      console.warn(`Elite Sniper bow equip failed: ${error}`);
+    }
 
     scheduleRoostRotation(boss);
     scheduleSniperRegularFire(overworld, boss);
