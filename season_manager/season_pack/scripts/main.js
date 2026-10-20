@@ -862,12 +862,25 @@ const SNIPER_TOWER_MIN_COUNT = 5;
 const SNIPER_TOWER_MAX_COUNT = 10;
 const SNIPER_TOWER_MIN_HEIGHT_BLOCKS = 3;
 const SNIPER_TOWER_MAX_HEIGHT_BLOCKS = 10;
-const SNIPER_TOWER_MIN_SCATTER_RADIUS_BLOCKS = 6; // keeps scattered towers clear of the one centered on the fight's origin
-const SNIPER_TOWER_MAX_SCATTER_RADIUS_BLOCKS = 20;
+const SNIPER_TOWER_CIRCLE_SLOTS = 12; // evenly-spaced slots around the scatter ring, so towers can never land on top of each other
+const SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS = 26;
+const SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS = 4;
+const SNIPER_TOWER_CIRCLE_ANGLE_JITTER_RADIANS = (Math.PI / SNIPER_TOWER_CIRCLE_SLOTS) * 0.4; // stays within its own slot, never drifts into a neighbor's
 const SNIPER_TOWER_LIST_PROPERTY = "season:sniper_towers";
 
 function randomIntInclusive(min, max) {
   return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+// Fisher-Yates shuffle of the 12 slot indices, so picking the first N
+// gives N distinct, non-adjacent-guaranteed slots in random order.
+function shuffledCircleSlots() {
+  const slots = Array.from({ length: SNIPER_TOWER_CIRCLE_SLOTS }, (_, i) => i);
+  for (let i = slots.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [slots[i], slots[j]] = [slots[j], slots[i]];
+  }
+  return slots;
 }
 
 function sniperTowerCorners(cx, cz) {
@@ -893,29 +906,35 @@ function buildSniperTower(dimension, x, z) {
   dimension.runCommand(
     `fill ${cx - r} ${baseY} ${cz - r} ${cx + r} ${baseY + height - 1} ${cz + r} ${SNIPER_TOWER_BODY_BLOCK}`
   );
-  dimension.runCommand(
-    `fill ${cx - r} ${baseY + height} ${cz - r} ${cx + r} ${baseY + height} ${cz + r} ${SNIPER_TOWER_SLAB_BLOCK}`
-  );
 
-  const fenceBottom = baseY + height + 1;
+  const fenceBottom = baseY + height;
   const fenceTop = fenceBottom + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS - 1;
   for (const [fx, fz] of sniperTowerCorners(cx, cz)) {
     dimension.runCommand(`fill ${fx} ${fenceBottom} ${fz} ${fx} ${fenceTop} ${fz} ${SNIPER_TOWER_FENCE_BLOCK}`);
   }
 
+  const roofY = fenceTop + 1;
+  dimension.runCommand(`fill ${cx - r} ${roofY} ${cz - r} ${cx + r} ${roofY} ${cz + r} ${SNIPER_TOWER_SLAB_BLOCK}`);
+
   return { x: cx, z: cz, baseY, height };
 }
 
 // One tower always lands centered exactly on `center`; the rest scatter
-// randomly around it. Returns every tower's descriptor for the caller to
-// store (e.g. on the boss entity) and hand to despawnSniperTowers later.
+// around it on a large ring, each assigned its own one of 12 evenly-spaced
+// slots (picked without repeats) so they can't land on top of each other,
+// with a little random jitter in angle and radius so the ring doesn't
+// look too mechanically perfect. Returns every tower's descriptor for the
+// caller to store (e.g. on the boss entity) and hand to
+// despawnSniperTowers later.
 function spawnSniperTowers(dimension, center) {
   const towers = [buildSniperTower(dimension, center.x, center.z)];
 
   const scatterCount = randomIntInclusive(SNIPER_TOWER_MIN_COUNT, SNIPER_TOWER_MAX_COUNT) - 1;
-  for (let i = 0; i < scatterCount; i++) {
-    const angle = Math.random() * 2 * Math.PI;
-    const radius = randomIntInclusive(SNIPER_TOWER_MIN_SCATTER_RADIUS_BLOCKS, SNIPER_TOWER_MAX_SCATTER_RADIUS_BLOCKS);
+  const slots = shuffledCircleSlots().slice(0, scatterCount);
+  for (const slot of slots) {
+    const baseAngle = (slot / SNIPER_TOWER_CIRCLE_SLOTS) * 2 * Math.PI;
+    const angle = baseAngle + (Math.random() * 2 - 1) * SNIPER_TOWER_CIRCLE_ANGLE_JITTER_RADIANS;
+    const radius = SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS + (Math.random() * 2 - 1) * SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS;
     towers.push(buildSniperTower(dimension, center.x + radius * Math.cos(angle), center.z + radius * Math.sin(angle)));
   }
 
@@ -927,13 +946,8 @@ function spawnSniperTowers(dimension, center) {
 function despawnSniperTowers(dimension, towers) {
   const r = SNIPER_TOWER_FOOTPRINT_RADIUS;
   for (const { x: cx, z: cz, baseY, height } of towers) {
-    dimension.runCommand(`fill ${cx - r} ${baseY} ${cz - r} ${cx + r} ${baseY + height} ${cz + r} air`);
-
-    const fenceBottom = baseY + height + 1;
-    const fenceTop = fenceBottom + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS - 1;
-    for (const [fx, fz] of sniperTowerCorners(cx, cz)) {
-      dimension.runCommand(`fill ${fx} ${fenceBottom} ${fz} ${fx} ${fenceTop} ${fz} air`);
-    }
+    const roofY = baseY + height + SNIPER_TOWER_FENCE_HEIGHT_BLOCKS; // body, corner posts, and roof all fall within the same 5x5 footprint, so one fill clears the whole thing
+    dimension.runCommand(`fill ${cx - r} ${baseY} ${cz - r} ${cx + r} ${roofY} ${cz + r} air`);
   }
 }
 
