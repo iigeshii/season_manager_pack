@@ -861,8 +861,8 @@ const SNIPER_TOWER_FENCE_HEIGHT_BLOCKS = 3;
 const SNIPER_TOWER_MIN_HEIGHT_BLOCKS = 5;
 const SNIPER_TOWER_MAX_HEIGHT_BLOCKS = 15;
 const SNIPER_TOWER_CIRCLE_SLOTS = 12; // every slot gets a tower, evenly spaced so none can land on top of each other
-const SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS = 26;
-const SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS = 4;
+const SNIPER_TOWER_CIRCLE_RADIUS_BLOCKS = 45;
+const SNIPER_TOWER_CIRCLE_RADIUS_JITTER_BLOCKS = 6;
 const SNIPER_TOWER_CIRCLE_ANGLE_JITTER_RADIANS = (Math.PI / SNIPER_TOWER_CIRCLE_SLOTS) * 0.4; // stays within its own slot, never drifts into a neighbor's
 const SNIPER_TOWER_LIST_PROPERTY = "season:sniper_towers";
 
