@@ -775,21 +775,6 @@
         "minecraft:movement": {
           "value": 0.2
         },
-        "minecraft:behavior.ranged_attack": {
-          "attack_interval": {
-            "min": 4.0,
-            "max": 5.0
-          },
-          "attack_range": {
-            "min": 0.0,
-            "max": 50.0
-          },
-          "priority": 0
-        },
-        "minecraft:shooter": {
-          "def": "minecraft:arrow",
-          "sound": "bow"
-        },
         "minecraft:type_family": {
           "family": [
             "skeleton",
@@ -810,6 +795,10 @@
                 }
               },
               "deals_damage": "no"
+            },
+            {
+              "cause": "fall",
+              "deals_damage": false
             }
           ]
         },
@@ -861,19 +850,6 @@
             "subject": "self",
             "value": "season_never_despawns"
           }
-        }
-      },
-      "season:elite_sniper_enraged": {
-        "minecraft:behavior.ranged_attack": {
-          "attack_interval": {
-            "min": 2.5,
-            "max": 3.0
-          },
-          "attack_range": {
-            "min": 0.0,
-            "max": 50.0
-          },
-          "priority": 0
         }
       }
     },
@@ -1029,12 +1005,11 @@
           "component_groups": [
             "season:elite_sniper"
           ]
-        }
-      },
-      "season:elite_sniper_enrage": {
-        "add": {
+        },
+        "remove": {
           "component_groups": [
-            "season:elite_sniper_enraged"
+            "minecraft:ranged_attack",
+            "minecraft:ranged_attack_hard"
           ]
         }
       }
