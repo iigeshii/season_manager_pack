@@ -2,7 +2,10 @@
   "format_version": "1.26.50",
   "minecraft:entity": {
     "description": {
-      "identifier": "minecraft:stray"
+      "identifier": "minecraft:stray",
+      "is_summonable": true,
+      "is_spawnable": true,
+      "spawn_category": "monster"
     },
     "component_groups": {
       "season:elite_guard_stray": {
@@ -76,6 +79,19 @@
             }
           ]
         },
+        "minecraft:follow_range": {
+          "value": 48,
+          "max": 48
+        },
+        "minecraft:despawn": {
+          "filters": {
+            "test": "is_family",
+            "subject": "self",
+            "value": "season_never_despawns"
+          }
+        }
+      },
+      "season:elite_guard_stray_targeting": {
         "minecraft:behavior.nearest_attackable_target": {
           "reselect_targets": true,
           "must_see": true,
@@ -90,17 +106,6 @@
             }
           ],
           "priority": 2
-        },
-        "minecraft:follow_range": {
-          "value": 48,
-          "max": 48
-        },
-        "minecraft:despawn": {
-          "filters": {
-            "test": "is_family",
-            "subject": "self",
-            "value": "season_never_despawns"
-          }
         }
       }
     },
@@ -108,7 +113,20 @@
       "season:become_elite_guard_stray": {
         "add": {
           "component_groups": [
-            "season:elite_guard_stray"
+            "season:elite_guard_stray",
+            "season:elite_guard_stray_targeting"
+          ]
+        }
+      },
+      "season:elite_guard_stray_retarget": {
+        "remove": {
+          "component_groups": [
+            "season:elite_guard_stray_targeting"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "season:elite_guard_stray_targeting"
           ]
         }
       }

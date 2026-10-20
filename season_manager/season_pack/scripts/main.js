@@ -1018,9 +1018,6 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  entity carries on its own dynamic property.
 // ─────────────────────────────────────────────
 
-const ELITE_SNIPER_ARMOR_DYE_COLOR = 9109504; // 0x8B0000, dark red — the boss's own visual identity, distinct from the icy Stray guards
-const ELITE_SNIPER_ARMOR_PIECE_BY_SLOT = { head: "helmet", chest: "chestplate", legs: "leggings", feet: "boots" };
-const ELITE_SNIPER_ARMOR_SLOTS = Object.keys(ELITE_SNIPER_ARMOR_PIECE_BY_SLOT);
 const ELITE_SNIPER_GUARD_COUNT = 6;
 const ELITE_SNIPER_GUARD_RESPAWN_DELAY_TICKS = 600; // 30 seconds
 const ELITE_SNIPER_GUARD_ROTATION_MIN_TICKS = 300; // 15 seconds
@@ -1068,6 +1065,15 @@ function sniperTowerStandLocation(tower) {
   };
 }
 
+// Component groups holding nearest_attackable_target are split out on
+// both entities specifically so this can force a fresh target pick
+// (remove+add the same group resets the AI goal) without also resetting
+// health or anything else bundled into the main elite group — see
+// skeleton.json/stray.json.
+function sniperRetargetEventId(entity) {
+  return entity.typeId === "minecraft:skeleton" ? "season:elite_sniper_retarget" : "season:elite_guard_stray_retarget";
+}
+
 function pickRandomTower(towers, excludeFloorXZ) {
   const options = excludeFloorXZ
     ? towers.filter((t) => t.x !== excludeFloorXZ.x || t.z !== excludeFloorXZ.z)
@@ -1099,7 +1105,10 @@ function scheduleRoostRotation(entity) {
     const towers = getStoredTowers(entity);
     const current = { x: Math.floor(entity.location.x), z: Math.floor(entity.location.z) };
     const target = pickRandomTower(towers, current);
-    if (target) entity.teleport(sniperTowerStandLocation(target));
+    if (target) {
+      entity.teleport(sniperTowerStandLocation(target));
+      entity.triggerEvent(sniperRetargetEventId(entity)); // new vantage point — pick a fresh target instead of staying locked onto whoever it had before
+    }
 
     scheduleRoostRotation(entity);
   }, delay);
@@ -1125,24 +1134,43 @@ function spawnEliteSniperGuard(dimension, towers) {
 // (see season:become_elite_sniper stripping vanilla's default
 // ranged_attack groups), so this is the only thing that ever puts an
 // arrow in the air for this boss.
+const ELITE_SNIPER_ARROW_SPAWN_OFFSET_BLOCKS = 0.8; // clears the boss's own hitbox so a fresh arrow can't immediately clip it
+
 function fireSniperArrows(dimension, boss, targetLocation, arrowCount, spreadRadians) {
-  const origin = { x: boss.location.x, y: boss.location.y + 1.6, z: boss.location.z };
-  const dx = targetLocation.x - origin.x;
-  const dy = targetLocation.y - origin.y;
-  const dz = targetLocation.z - origin.z;
+  const eyeLocation = { x: boss.location.x, y: boss.location.y + 1.6, z: boss.location.z };
+  const dx = targetLocation.x - eyeLocation.x;
+  const dy = targetLocation.y - eyeLocation.y;
+  const dz = targetLocation.z - eyeLocation.z;
   const baseAngle = Math.atan2(dz, dx);
   const pitch = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
 
   boss.runCommand("playsound bow.shoot @a ~ ~ ~");
   for (let i = 0; i < arrowCount; i++) {
     const angle = baseAngle + (Math.random() * 2 - 1) * spreadRadians;
-    const velocity = {
-      x: Math.cos(angle) * Math.cos(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
-      y: Math.sin(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
-      z: Math.sin(angle) * Math.cos(pitch) * ELITE_SNIPER_VOLLEY_SPEED,
+    const forward = {
+      x: Math.cos(angle) * Math.cos(pitch),
+      y: Math.sin(pitch),
+      z: Math.sin(angle) * Math.cos(pitch),
+    };
+    // Spawn out along the aim direction rather than at the boss's own
+    // chest — without this it spawns inside its own hitbox and, with no
+    // owner set (below), has nothing telling it not to hit the thing it
+    // spawned inside of.
+    const origin = {
+      x: eyeLocation.x + forward.x * ELITE_SNIPER_ARROW_SPAWN_OFFSET_BLOCKS,
+      y: eyeLocation.y + forward.y * ELITE_SNIPER_ARROW_SPAWN_OFFSET_BLOCKS,
+      z: eyeLocation.z + forward.z * ELITE_SNIPER_ARROW_SPAWN_OFFSET_BLOCKS,
     };
     const arrow = dimension.spawnEntity("minecraft:arrow", origin);
-    arrow.getComponent("minecraft:projectile")?.shoot(velocity);
+    const projectile = arrow.getComponent("minecraft:projectile");
+    if (projectile) {
+      projectile.owner = boss; // also excludes the shooter from the projectile's own collision
+      projectile.shoot({
+        x: forward.x * ELITE_SNIPER_VOLLEY_SPEED,
+        y: forward.y * ELITE_SNIPER_VOLLEY_SPEED,
+        z: forward.z * ELITE_SNIPER_VOLLEY_SPEED,
+      });
+    }
   }
 }
 
@@ -1219,21 +1247,13 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       }
     }
 
-    try {
-      boss.runCommand("replaceitem entity @s slot.weapon.mainhand 0 minecraft:bow");
-      boss.runCommand("enchant @s power 5");
-      // A full dyed-leather set, distinct from both the icy Stray guards
-      // and the Elite Zombie's iron-and-redstone-trim look. Any helmet
-      // material blocks sun damage, not just iron, so leather still
-      // covers the burns_in_daylight risk.
-      for (const slot of ELITE_SNIPER_ARMOR_SLOTS) {
-        boss.runCommand(
-          `replaceitem entity @s slot.armor.${slot} 0 minecraft:leather_${ELITE_SNIPER_ARMOR_PIECE_BY_SLOT[slot]} 1 0 {"customColor":${ELITE_SNIPER_ARMOR_DYE_COLOR}}`
-        );
-      }
-    } catch (error) {
-      console.warn(`Elite Sniper equip failed: ${error}`);
-    }
+    // Bow (Power V) and a copper/eye-trimmed iron armor set — distinct
+    // from both the icy Stray guards and the Elite Zombie's
+    // redstone/wayfinder trim — both come from
+    // season_elite_sniper_equipment.json via the minecraft:equipment
+    // component on season:elite_sniper, the same proven loot-table
+    // pattern the Elite Zombie already uses, rather than NBT-guessing
+    // through runCommand (the earlier customColor attempt didn't work).
 
     scheduleRoostRotation(boss);
     scheduleSniperRegularFire(overworld, boss);
@@ -1258,6 +1278,7 @@ system.runInterval(() => {
     if (!target) continue;
 
     boss.teleport(sniperTowerStandLocation(target));
+    boss.triggerEvent(sniperRetargetEventId(boss));
     boss.setDynamicProperty(ELITE_SNIPER_LAST_TELEPORT_TICK_PROPERTY, system.currentTick);
   }
 }, ELITE_MOB_INTERVAL_TICKS);
@@ -1294,6 +1315,7 @@ system.runInterval(() => {
     if (!target) continue;
 
     sniper.teleport(sniperTowerStandLocation(target));
+    sniper.triggerEvent(sniperRetargetEventId(sniper));
   }
 }, ELITE_SNIPER_PERCH_CHECK_INTERVAL_TICKS);
 
