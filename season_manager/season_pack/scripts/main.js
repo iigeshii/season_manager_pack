@@ -1099,6 +1099,9 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
   for (const player of world.getPlayers({ tags: ["season:death_log_pending"] })) {
     player.removeTag("season:death_log_pending");
 
+    const { active, count, max } = deathLog.status();
+    player.sendMessage(`§7[buffer ${active}: ${count}/${max}]`);
+
     const log = deathLog.readAll();
     if (log.length === 0) {
       player.sendMessage("§6No deaths recorded yet.");
