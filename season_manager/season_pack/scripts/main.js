@@ -1138,66 +1138,15 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
   }
 });
 
-// ─────────────────────────────────────────────
-//  CHAT LOG
-//  Local-only record of in-game chat, for pulling up after the fact if
-//  something happens that needs a decision (harassment, hate speech,
-//  anything requiring intervention) — not a live feed, not broadcast or
-//  relayed anywhere. Deliberately kept entirely in-world: the one thing
-//  the group was explicit about is that in-game chat stays in-game, and
-//  this never leaves it the way a Discord relay would.
-//
-//  Chat is much higher volume than the other logs and messages are
-//  variable length, so this uses a smaller per-buffer cap and truncates
-//  stored message text — both exist to keep a safe margin under the
-//  32767-byte dynamic property limit (same reasoning as the other logs'
-//  rotation, just a tighter per-buffer budget here since one entry can
-//  be much bigger than a fixed-shape login/grief record). Rotates across
-//  10 buffers instead of 2, for ~1500 entries of retained history total
-//  instead of ~600 — chat is the log most worth having deeper history on.
-// ─────────────────────────────────────────────
-
-const chatLog = createRotatingLog("chat", 10, 150);
-const CHAT_LOG_MESSAGE_MAX_LENGTH = 150;
-
-// beforeEvents, not afterEvents — afterEvents.chatSend.subscribe can't be
-// called in early-execution mode (the context this top-level script
-// registration runs in), while beforeEvents.chatSend.subscribe can. Not
-// cancelling the message here (no event.cancel) means it still sends
-// normally; this is purely observing it, same pattern as the Portal Lock
-// section's beforeEvents.itemUseOn above.
-world.beforeEvents.chatSend.subscribe((event) => {
-  const message = event.message.length > CHAT_LOG_MESSAGE_MAX_LENGTH
-    ? event.message.slice(0, CHAT_LOG_MESSAGE_MAX_LENGTH) + "…"
-    : event.message;
-  chatLog.append({ name: event.sender.name, message, time: new Date().toISOString() });
-});
-
-// /function season/chat_log prints the most recent entries to the
-// caller — same tag-then-scriptevent workaround as everywhere else.
-const CHAT_LOG_DISPLAY_COUNT = 20;
-
-system.afterEvents.scriptEventReceive.subscribe((event) => {
-  if (event.id !== "season:chat_log") return;
-
-  for (const player of world.getPlayers({ tags: ["season:chat_log_pending"] })) {
-    player.removeTag("season:chat_log_pending");
-
-    const { active, count, max } = chatLog.status();
-    player.sendMessage(`§7[buffer ${active}: ${count}/${max}]`);
-
-    const log = chatLog.readAll();
-    if (log.length === 0) {
-      player.sendMessage("§6No chat activity recorded yet.");
-      continue;
-    }
-
-    player.sendMessage(`§6Last ${Math.min(CHAT_LOG_DISPLAY_COUNT, log.length)} chat messages:`);
-    for (const entry of log.slice(-CHAT_LOG_DISPLAY_COUNT)) {
-      player.sendMessage(`§7${entry.time} — ${entry.name}: ${entry.message}`);
-    }
-  }
-});
+// Chat logging was attempted here and deferred — world.beforeEvents.chatSend
+// (and afterEvents.chatSend) don't exist at the @minecraft/server module
+// version this pack currently targets (1.x); they require the 2.x
+// generation, which in turn removed itemUseOn entirely (used by Portal
+// Lock and most of the grief log's item detection) in favor of a
+// per-item ItemCustomComponent model. That's a bigger, separate migration
+// — see branch feature/chat-log-api-2.0, which has a working chat log
+// built against @minecraft/server 2.x, kept on ice until that migration
+// is worth doing.
 
 // /function season/clear_logs wipes every buffer (and the active marker)
 // for all four logs — same tag-then-scriptevent workaround as everywhere
@@ -1211,8 +1160,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     loginLog.clear();
     griefLog.clear();
     deathLog.clear();
-    chatLog.clear();
 
-    player.sendMessage("§6All logs cleared (login, grief, death, chat).");
+    player.sendMessage("§6All logs cleared (login, grief, death).");
   }
 });
