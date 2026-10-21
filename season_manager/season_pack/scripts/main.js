@@ -841,23 +841,21 @@ system.runInterval(() => {
 //  single property ever gets close to the limit.
 // ─────────────────────────────────────────────
 
-function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
-  const propertyA = `season:${name}_log_a`;
-  const propertyB = `season:${name}_log_b`;
+function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
+  function bufferProperty(index) {
+    return `season:${name}_log_${index}`;
+  }
   const activeProperty = `season:${name}_log_active`;
 
-  function bufferProperty(buffer) {
-    return buffer === "a" ? propertyA : propertyB;
-  }
-
   function append(entry) {
-    let active = world.getDynamicProperty(activeProperty) ?? "a";
+    let active = world.getDynamicProperty(activeProperty) ?? 0;
     let log = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
 
     if (log.length >= maxEntriesPerBuffer) {
-      // This buffer's full — swap to the other one (overwriting whatever
-      // it held from two cycles ago) and start it fresh.
-      active = active === "a" ? "b" : "a";
+      // This buffer's full — advance to the next one in the ring
+      // (overwriting whatever it held from bufferCount cycles ago) and
+      // start it fresh.
+      active = (active + 1) % bufferCount;
       world.setDynamicProperty(activeProperty, active);
       log = [];
     }
@@ -866,21 +864,25 @@ function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
     world.setDynamicProperty(bufferProperty(active), JSON.stringify(log));
   }
 
-  // The inactive buffer is strictly older than the active one by
-  // construction, so concatenating inactive-then-active is already in
-  // chronological order — no sorting needed.
+  // Buffers fill in index order and wrap around, so the one right after
+  // "active" is always the oldest surviving buffer (next in line to be
+  // overwritten), and "active" itself is always the newest. Walking the
+  // ring starting just past active and ending at active therefore reads
+  // oldest-to-newest with no sorting needed.
   function readAll() {
-    const active = world.getDynamicProperty(activeProperty) ?? "a";
-    const inactive = active === "a" ? "b" : "a";
-    const older = JSON.parse(world.getDynamicProperty(bufferProperty(inactive)) ?? "[]");
-    const newer = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
-    return [...older, ...newer];
+    const active = world.getDynamicProperty(activeProperty) ?? 0;
+    const entries = [];
+    for (let i = 1; i <= bufferCount; i++) {
+      const index = (active + i) % bufferCount;
+      entries.push(...JSON.parse(world.getDynamicProperty(bufferProperty(index)) ?? "[]"));
+    }
+    return entries;
   }
 
   // Which buffer is currently being written to, and how full it is —
-  // mainly useful for confirming the swap actually happens at the cap.
+  // mainly useful for confirming the rotation actually happens at the cap.
   function status() {
-    const active = world.getDynamicProperty(activeProperty) ?? "a";
+    const active = world.getDynamicProperty(activeProperty) ?? 0;
     const count = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]").length;
     return { active, count, max: maxEntriesPerBuffer };
   }
@@ -896,7 +898,7 @@ function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
 //  restart.
 // ─────────────────────────────────────────────
 
-const loginLog = createDoubleBufferedLog("login", 10); // TODO: back to 300 once rollover is confirmed working
+const loginLog = createRotatingLog("login", 2, 300);
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   if (!initialSpawn) return; // respawn-after-death also fires this; only the first spawn of a session is a real join
@@ -954,7 +956,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  as the login log, same reasoning for why.
 // ─────────────────────────────────────────────
 
-const griefLog = createDoubleBufferedLog("grief", 10); // TODO: back to 300 once rollover is confirmed working
+const griefLog = createRotatingLog("grief", 2, 300);
 
 function appendGriefLog(name, item, location) {
   griefLog.append({
@@ -995,6 +997,98 @@ world.afterEvents.entityDie.subscribe((event) => {
   appendGriefLog(killer.name, `killed named ${species} "${deadEntity.nameTag}"`, deadEntity.location);
 });
 
+// ─────────────────────────────────────────────
+//  DEATH LOG
+//  A record of every player death, phrased like vanilla's own death
+//  messages (which already appear in chat, but scroll away and aren't
+//  retrievable afterward) — who died, how, and by whom if it was PvP.
+//  Same local-only, op-only retrieval as the other logs.
+// ─────────────────────────────────────────────
+
+const deathLog = createRotatingLog("death", 2, 300);
+
+// Mirrors vanilla's own death message phrasing closely enough to read
+// naturally, without trying to reproduce every one of Mojang's randomized
+// variants per cause — one representative phrase per cause is enough for
+// a log entry, since this is for record-keeping, not the live chat line.
+function describeDeathCause(victim, damageSource) {
+  const attacker = damageSource.damagingEntity;
+  const attackerName = attacker
+    ? attacker.typeId === "minecraft:player"
+      ? attacker.name
+      : attacker.nameTag || attacker.typeId.replace("minecraft:", "")
+    : null;
+
+  switch (damageSource.cause) {
+    case "fall":
+      return `${victim} fell from a high place`;
+    case "lava":
+      return `${victim} tried to swim in lava`;
+    case "fire":
+    case "fireTick":
+      return `${victim} burned to death`;
+    case "drowning":
+      return `${victim} drowned`;
+    case "suffocation":
+      return `${victim} suffocated in a wall`;
+    case "starve":
+      return `${victim} starved to death`;
+    case "void":
+      return `${victim} fell out of the world`;
+    case "freezing":
+      return `${victim} froze to death`;
+    case "fallingBlock":
+      return `${victim} was squashed by a falling block`;
+    case "anvil":
+      return `${victim} was squashed by a falling anvil`;
+    case "contact":
+      return `${victim} was pricked to death`;
+    case "magic":
+      return `${victim} was killed by magic`;
+    case "selfDestruct":
+      return `${victim} blew up`;
+    case "entityAttack":
+      return attackerName ? `${victim} was slain by ${attackerName}` : `${victim} was slain`;
+    case "projectile":
+      return attackerName ? `${victim} was shot by ${attackerName}` : `${victim} was shot`;
+    default:
+      return attackerName ? `${victim} died (${damageSource.cause}), killed by ${attackerName}` : `${victim} died (${damageSource.cause})`;
+  }
+}
+
+world.afterEvents.entityDie.subscribe((event) => {
+  const { deadEntity, damageSource } = event;
+  if (deadEntity.typeId !== "minecraft:player") return;
+
+  deathLog.append({
+    message: describeDeathCause(deadEntity.name, damageSource),
+    time: new Date().toISOString(),
+  });
+});
+
+// /function season/death_log prints the most recent entries to the
+// caller — same tag-then-scriptevent workaround as everywhere else.
+const DEATH_LOG_DISPLAY_COUNT = 20;
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:death_log") return;
+
+  for (const player of world.getPlayers({ tags: ["season:death_log_pending"] })) {
+    player.removeTag("season:death_log_pending");
+
+    const log = deathLog.readAll();
+    if (log.length === 0) {
+      player.sendMessage("§6No deaths recorded yet.");
+      continue;
+    }
+
+    player.sendMessage(`§6Last ${Math.min(DEATH_LOG_DISPLAY_COUNT, log.length)} deaths:`);
+    for (const entry of log.slice(-DEATH_LOG_DISPLAY_COUNT)) {
+      player.sendMessage(`§7${entry.time} — ${entry.message}`);
+    }
+  }
+});
+
 // /function season/grief_log prints the most recent entries to the
 // caller — same tag-then-scriptevent workaround as everywhere else.
 const GRIEF_LOG_DISPLAY_COUNT = 20;
@@ -1017,6 +1111,61 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     player.sendMessage(`§6Last ${Math.min(GRIEF_LOG_DISPLAY_COUNT, log.length)} grief-log events:`);
     for (const entry of log.slice(-GRIEF_LOG_DISPLAY_COUNT)) {
       player.sendMessage(`§7${entry.time} — ${entry.name} used ${entry.item} at ${entry.x} ${entry.y} ${entry.z}`);
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHAT LOG
+//  Local-only record of in-game chat, for pulling up after the fact if
+//  something happens that needs a decision (harassment, hate speech,
+//  anything requiring intervention) — not a live feed, not broadcast or
+//  relayed anywhere. Deliberately kept entirely in-world: the one thing
+//  the group was explicit about is that in-game chat stays in-game, and
+//  this never leaves it the way a Discord relay would.
+//
+//  Chat is much higher volume than the other logs and messages are
+//  variable length, so this uses a smaller per-buffer cap and truncates
+//  stored message text — both exist to keep a safe margin under the
+//  32767-byte dynamic property limit (same reasoning as the other logs'
+//  rotation, just a tighter per-buffer budget here since one entry can
+//  be much bigger than a fixed-shape login/grief record). Rotates across
+//  10 buffers instead of 2, for ~1500 entries of retained history total
+//  instead of ~600 — chat is the log most worth having deeper history on.
+// ─────────────────────────────────────────────
+
+const chatLog = createRotatingLog("chat", 10, 150);
+const CHAT_LOG_MESSAGE_MAX_LENGTH = 150;
+
+world.afterEvents.chatSend.subscribe((event) => {
+  const message = event.message.length > CHAT_LOG_MESSAGE_MAX_LENGTH
+    ? event.message.slice(0, CHAT_LOG_MESSAGE_MAX_LENGTH) + "…"
+    : event.message;
+  chatLog.append({ name: event.sender.name, message, time: new Date().toISOString() });
+});
+
+// /function season/chat_log prints the most recent entries to the
+// caller — same tag-then-scriptevent workaround as everywhere else.
+const CHAT_LOG_DISPLAY_COUNT = 20;
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:chat_log") return;
+
+  for (const player of world.getPlayers({ tags: ["season:chat_log_pending"] })) {
+    player.removeTag("season:chat_log_pending");
+
+    const { active, count, max } = chatLog.status();
+    player.sendMessage(`§7[buffer ${active}: ${count}/${max}]`);
+
+    const log = chatLog.readAll();
+    if (log.length === 0) {
+      player.sendMessage("§6No chat activity recorded yet.");
+      continue;
+    }
+
+    player.sendMessage(`§6Last ${Math.min(CHAT_LOG_DISPLAY_COUNT, log.length)} chat messages:`);
+    for (const entry of log.slice(-CHAT_LOG_DISPLAY_COUNT)) {
+      player.sendMessage(`§7${entry.time} — ${entry.name}: ${entry.message}`);
     }
   }
 });
