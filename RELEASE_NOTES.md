@@ -118,7 +118,7 @@ regardless of when each piece was actually added:
   animal type, like "3 pigs despawned (mob cap)." instead of a single
   total.
 
-## Season Manager v1.0.144 — The Jukebox Update
+## Season Manager v1.0.142 — The Jukebox Update
 
 - **Wandering Traders now sell Music Discs.** One random disc per
   trader (all 22, including the newest ones), priced by rarity, sold
