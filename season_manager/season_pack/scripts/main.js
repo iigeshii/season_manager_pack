@@ -900,7 +900,17 @@ function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
     return { active, count, max: maxEntriesPerBuffer };
   }
 
-  return { append, readAll, status };
+  // Removes every buffer and the active marker entirely (not just
+  // setting them to "[]") so there's nothing left over to confuse a
+  // future format change the way the old "a"/"b" data did.
+  function clear() {
+    for (let i = 0; i < bufferCount; i++) {
+      world.setDynamicProperty(bufferProperty(i), undefined);
+    }
+    world.setDynamicProperty(activeProperty, undefined);
+  }
+
+  return { append, readAll, status, clear };
 }
 
 // ─────────────────────────────────────────────
@@ -1186,5 +1196,23 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     for (const entry of log.slice(-CHAT_LOG_DISPLAY_COUNT)) {
       player.sendMessage(`§7${entry.time} — ${entry.name}: ${entry.message}`);
     }
+  }
+});
+
+// /function season/clear_logs wipes every buffer (and the active marker)
+// for all four logs — same tag-then-scriptevent workaround as everywhere
+// else. Irreversible: there's no undo once these are cleared.
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:clear_logs") return;
+
+  for (const player of world.getPlayers({ tags: ["season:clear_logs_pending"] })) {
+    player.removeTag("season:clear_logs_pending");
+
+    loginLog.clear();
+    griefLog.clear();
+    deathLog.clear();
+    chatLog.clear();
+
+    player.sendMessage("§6All logs cleared (login, grief, death, chat).");
   }
 });
