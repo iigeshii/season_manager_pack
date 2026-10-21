@@ -827,3 +827,171 @@ system.runInterval(() => {
     world.sendMessage(`§e${count} ${count === 1 ? singular : plural} despawned (mob cap).`);
   }
 }, FARM_ANIMAL_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  DOUBLE-BUFFERED LOG
+//  Shared storage for the login log and the grief log below. A single
+//  dynamic property tops out at 32767 bytes, and at roughly 75-100 bytes
+//  per entry that's only a few hundred entries before writes start
+//  failing outright. Double-buffered instead: two properties, each
+//  capped well under that limit — fill one, and once it's full, freeze
+//  it and start filling the other; once that one fills, wrap back and
+//  overwrite the first. Reading combines both, so up to ~2x
+//  maxEntriesPerBuffer of history is available at once even though no
+//  single property ever gets close to the limit.
+// ─────────────────────────────────────────────
+
+function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
+  const propertyA = `season:${name}_log_a`;
+  const propertyB = `season:${name}_log_b`;
+  const activeProperty = `season:${name}_log_active`;
+
+  function bufferProperty(buffer) {
+    return buffer === "a" ? propertyA : propertyB;
+  }
+
+  function append(entry) {
+    let active = world.getDynamicProperty(activeProperty) ?? "a";
+    let log = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
+
+    if (log.length >= maxEntriesPerBuffer) {
+      // This buffer's full — swap to the other one (overwriting whatever
+      // it held from two cycles ago) and start it fresh.
+      active = active === "a" ? "b" : "a";
+      world.setDynamicProperty(activeProperty, active);
+      log = [];
+    }
+
+    log.push(entry);
+    world.setDynamicProperty(bufferProperty(active), JSON.stringify(log));
+  }
+
+  // The inactive buffer is strictly older than the active one by
+  // construction, so concatenating inactive-then-active is already in
+  // chronological order — no sorting needed.
+  function readAll() {
+    const active = world.getDynamicProperty(activeProperty) ?? "a";
+    const inactive = active === "a" ? "b" : "a";
+    const older = JSON.parse(world.getDynamicProperty(bufferProperty(inactive)) ?? "[]");
+    const newer = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
+    return [...older, ...newer];
+  }
+
+  return { append, readAll };
+}
+
+// ─────────────────────────────────────────────
+//  LOGIN LOG
+//  A simple join/leave record — who was on and when, pulled up on
+//  demand rather than announced live. Real calendar timestamps via Date,
+//  not system.currentTick, so "when" still means something after a
+//  restart.
+// ─────────────────────────────────────────────
+
+const loginLog = createDoubleBufferedLog("login", 300);
+
+world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
+  if (!initialSpawn) return; // respawn-after-death also fires this; only the first spawn of a session is a real join
+  loginLog.append({ name: player.name, kind: "joined", time: new Date().toISOString() });
+});
+
+world.afterEvents.playerLeave.subscribe(({ playerName }) => {
+  loginLog.append({ name: playerName, kind: "left", time: new Date().toISOString() });
+});
+
+// /function season/login_log prints the most recent entries to the
+// caller — tag-then-scriptevent, the same workaround used throughout
+// this file for event.sourceEntity being unreliable from a function.
+const LOGIN_LOG_DISPLAY_COUNT = 20;
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:login_log") return;
+
+  for (const player of world.getPlayers({ tags: ["season:login_log_pending"] })) {
+    player.removeTag("season:login_log_pending");
+
+    const log = loginLog.readAll();
+    if (log.length === 0) {
+      player.sendMessage("§6No login activity recorded yet.");
+      continue;
+    }
+
+    player.sendMessage(`§6Last ${Math.min(LOGIN_LOG_DISPLAY_COUNT, log.length)} login events:`);
+    for (const entry of log.slice(-LOGIN_LOG_DISPLAY_COUNT)) {
+      player.sendMessage(`§7${entry.time} — ${entry.name} ${entry.kind}`);
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  GRIEF LOG
+//  Attribution for the realm's no-griefing rule — who placed TNT, used
+//  flint and steel, or emptied a lava bucket, where, and when. Not a
+//  live alert; pulled up after the fact to cross-reference against
+//  whatever was actually found destroyed. Same double-buffered storage
+//  as the login log, same reasoning for why.
+// ─────────────────────────────────────────────
+
+const griefLog = createDoubleBufferedLog("grief", 300);
+
+function appendGriefLog(name, item, location) {
+  griefLog.append({
+    name,
+    item,
+    x: Math.floor(location.x),
+    y: Math.floor(location.y),
+    z: Math.floor(location.z),
+    time: new Date().toISOString(),
+  });
+}
+
+world.afterEvents.playerPlaceBlock.subscribe(({ block, player }) => {
+  if (block.typeId !== "minecraft:tnt") return;
+  appendGriefLog(player.name, "TNT placed", block.location);
+});
+
+const GRIEF_LOG_ITEMS = new Set(["minecraft:flint_and_steel", "minecraft:lava_bucket", "minecraft:water_bucket"]);
+
+world.afterEvents.itemUseOn.subscribe((event) => {
+  const itemId = event.itemStack?.typeId;
+  if (!itemId || !GRIEF_LOG_ITEMS.has(itemId)) return;
+  appendGriefLog(event.source.name, itemId, event.block.location);
+});
+
+// Named animals/pets are a deliberate, low-noise signal — normal play
+// rarely involves killing something someone bothered to name. PvP
+// (player killing player) is a different category and not covered here.
+world.afterEvents.entityDie.subscribe((event) => {
+  const { deadEntity, damageSource } = event;
+  if (deadEntity.typeId === "minecraft:player") return;
+  if (!deadEntity.nameTag) return;
+
+  const killer = damageSource.damagingEntity;
+  if (killer?.typeId !== "minecraft:player") return;
+
+  const species = deadEntity.typeId.replace("minecraft:", "");
+  appendGriefLog(killer.name, `killed named ${species} "${deadEntity.nameTag}"`, deadEntity.location);
+});
+
+// /function season/grief_log prints the most recent entries to the
+// caller — same tag-then-scriptevent workaround as everywhere else.
+const GRIEF_LOG_DISPLAY_COUNT = 20;
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:grief_log") return;
+
+  for (const player of world.getPlayers({ tags: ["season:grief_log_pending"] })) {
+    player.removeTag("season:grief_log_pending");
+
+    const log = griefLog.readAll();
+    if (log.length === 0) {
+      player.sendMessage("§6No grief-log activity recorded yet.");
+      continue;
+    }
+
+    player.sendMessage(`§6Last ${Math.min(GRIEF_LOG_DISPLAY_COUNT, log.length)} grief-log events:`);
+    for (const entry of log.slice(-GRIEF_LOG_DISPLAY_COUNT)) {
+      player.sendMessage(`§7${entry.time} — ${entry.name} used ${entry.item} at ${entry.x} ${entry.y} ${entry.z}`);
+    }
+  }
+});
