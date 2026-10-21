@@ -903,8 +903,19 @@ world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   loginLog.append({ name: player.name, kind: "joined", time: new Date().toISOString() });
 });
 
-world.afterEvents.playerLeave.subscribe(({ playerName }) => {
-  loginLog.append({ name: playerName, kind: "left", time: new Date().toISOString() });
+world.afterEvents.playerLeave.subscribe(({ playerId, playerName }) => {
+  // Diagnostic: confirms whether this handler fires at all before trying
+  // the write, since console output doesn't depend on the world-save
+  // pipeline the way setDynamicProperty's persistence does — if a
+  // singleplayer world shuts down fast enough on exit, the dynamic
+  // property write might never get flushed even though the handler ran.
+  console.warn(`playerLeave fired: id=${playerId} name=${playerName}`);
+  try {
+    loginLog.append({ name: playerName, kind: "left", time: new Date().toISOString() });
+    console.warn("playerLeave: loginLog.append completed without throwing");
+  } catch (error) {
+    console.warn(`playerLeave: loginLog.append threw: ${error}`);
+  }
 });
 
 // /function season/login_log prints the most recent entries to the
