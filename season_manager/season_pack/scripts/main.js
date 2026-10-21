@@ -847,8 +847,21 @@ function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
   }
   const activeProperty = `season:${name}_log_active`;
 
+  // Validates the stored active-buffer index rather than just checking
+  // for null/undefined — a world that still has the old "a"/"b" string
+  // format from before this was generalized to numbered buffers would
+  // otherwise pass straight through here and turn every index downstream
+  // into NaN (e.g. ("a" + 1) % bufferCount), silently pointing every read
+  // and write at the same garbage key. Anything that isn't a valid index
+  // for this log is treated as "never set" and defaults to 0 — any old
+  // lettered data is orphaned, but new entries record cleanly.
+  function getActiveIndex() {
+    const stored = world.getDynamicProperty(activeProperty);
+    return Number.isInteger(stored) && stored >= 0 && stored < bufferCount ? stored : 0;
+  }
+
   function append(entry) {
-    let active = world.getDynamicProperty(activeProperty) ?? 0;
+    let active = getActiveIndex();
     let log = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
 
     if (log.length >= maxEntriesPerBuffer) {
@@ -870,7 +883,7 @@ function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
   // ring starting just past active and ending at active therefore reads
   // oldest-to-newest with no sorting needed.
   function readAll() {
-    const active = world.getDynamicProperty(activeProperty) ?? 0;
+    const active = getActiveIndex();
     const entries = [];
     for (let i = 1; i <= bufferCount; i++) {
       const index = (active + i) % bufferCount;
@@ -882,7 +895,7 @@ function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
   // Which buffer is currently being written to, and how full it is —
   // mainly useful for confirming the rotation actually happens at the cap.
   function status() {
-    const active = world.getDynamicProperty(activeProperty) ?? 0;
+    const active = getActiveIndex();
     const count = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]").length;
     return { active, count, max: maxEntriesPerBuffer };
   }
@@ -1137,7 +1150,13 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 const chatLog = createRotatingLog("chat", 10, 150);
 const CHAT_LOG_MESSAGE_MAX_LENGTH = 150;
 
-world.afterEvents.chatSend.subscribe((event) => {
+// beforeEvents, not afterEvents — afterEvents.chatSend.subscribe can't be
+// called in early-execution mode (the context this top-level script
+// registration runs in), while beforeEvents.chatSend.subscribe can. Not
+// cancelling the message here (no event.cancel) means it still sends
+// normally; this is purely observing it, same pattern as the Portal Lock
+// section's beforeEvents.itemUseOn above.
+world.beforeEvents.chatSend.subscribe((event) => {
   const message = event.message.length > CHAT_LOG_MESSAGE_MAX_LENGTH
     ? event.message.slice(0, CHAT_LOG_MESSAGE_MAX_LENGTH) + "…"
     : event.message;
