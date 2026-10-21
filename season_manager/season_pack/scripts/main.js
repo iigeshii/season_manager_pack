@@ -877,7 +877,15 @@ function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
     return [...older, ...newer];
   }
 
-  return { append, readAll };
+  // Which buffer is currently being written to, and how full it is —
+  // mainly useful for confirming the swap actually happens at the cap.
+  function status() {
+    const active = world.getDynamicProperty(activeProperty) ?? "a";
+    const count = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]").length;
+    return { active, count, max: maxEntriesPerBuffer };
+  }
+
+  return { append, readAll, status };
 }
 
 // ─────────────────────────────────────────────
@@ -888,7 +896,7 @@ function createDoubleBufferedLog(name, maxEntriesPerBuffer) {
 //  restart.
 // ─────────────────────────────────────────────
 
-const loginLog = createDoubleBufferedLog("login", 300);
+const loginLog = createDoubleBufferedLog("login", 10); // TODO: back to 300 once rollover is confirmed working
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   if (!initialSpawn) return; // respawn-after-death also fires this; only the first spawn of a session is a real join
@@ -909,6 +917,9 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 
   for (const player of world.getPlayers({ tags: ["season:login_log_pending"] })) {
     player.removeTag("season:login_log_pending");
+
+    const { active, count, max } = loginLog.status();
+    player.sendMessage(`§7[buffer ${active}: ${count}/${max}]`);
 
     const log = loginLog.readAll();
     if (log.length === 0) {
@@ -932,7 +943,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 //  as the login log, same reasoning for why.
 // ─────────────────────────────────────────────
 
-const griefLog = createDoubleBufferedLog("grief", 300);
+const griefLog = createDoubleBufferedLog("grief", 10); // TODO: back to 300 once rollover is confirmed working
 
 function appendGriefLog(name, item, location) {
   griefLog.append({
@@ -982,6 +993,9 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 
   for (const player of world.getPlayers({ tags: ["season:grief_log_pending"] })) {
     player.removeTag("season:grief_log_pending");
+
+    const { active, count, max } = griefLog.status();
+    player.sendMessage(`§7[buffer ${active}: ${count}/${max}]`);
 
     const log = griefLog.readAll();
     if (log.length === 0) {
