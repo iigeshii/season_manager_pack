@@ -6,23 +6,17 @@
     },
     "tags": ["crafting_table"],
     "pattern": [
-      "G G",
-      "C C"
+      "R R",
+      "R R"
     ],
     "key": {
-      "G": {
-        "item": "minecraft:gold_ingot"
-      },
-      "C": {
-        "item": "minecraft:copper_ingot"
+      "R": {
+        "item": "newhaven:rose_gold_ingot"
       }
     },
     "unlock": [
       {
-        "item": "minecraft:gold_ingot"
-      },
-      {
-        "item": "minecraft:copper_ingot"
+        "item": "newhaven:rose_gold_ingot"
       }
     ],
     "result": {

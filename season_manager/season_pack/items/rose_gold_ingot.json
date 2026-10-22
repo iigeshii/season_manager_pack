@@ -1,0 +1,16 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "newhaven:rose_gold_ingot",
+      "menu_category": {
+        "category": "items",
+        "group": "minecraft:itemGroup.name.ingot"
+      }
+    },
+    "components": {
+      "minecraft:icon": "newhaven:rose_gold_ingot",
+      "minecraft:max_stack_size": 64
+    }
+  }
+}

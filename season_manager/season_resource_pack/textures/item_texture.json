@@ -11,6 +11,9 @@
     },
     "newhaven:rose_gold_boots": {
       "textures": "textures/items/rose_gold_boots"
+    },
+    "newhaven:rose_gold_ingot": {
+      "textures": "textures/items/rose_gold_ingot"
     }
   }
 }

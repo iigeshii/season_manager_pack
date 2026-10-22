@@ -25,6 +25,10 @@
       "minecraft:repairable": {
         "repair_items": [
           {
+            "items": ["newhaven:rose_gold_ingot"],
+            "repair_amount": "q.max_durability * 0.5"
+          },
+          {
             "items": ["minecraft:gold_ingot", "minecraft:copper_ingot"],
             "repair_amount": "q.max_durability * 0.25"
           }
