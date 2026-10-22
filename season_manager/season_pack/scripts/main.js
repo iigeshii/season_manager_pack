@@ -618,6 +618,76 @@ system.runInterval(() => {
 }, COPPER_REGEN_INTERVAL_TICKS);
 
 // ─────────────────────────────────────────────
+//  IRON ARMOR RESISTANCE BONUS
+//  Same two-tier shape as the Leather/Chainmail/Copper bonuses above: 2
+//  or 3 Iron armor pieces grants Resistance I, and a full 4-piece set
+//  grants Resistance II instead (not stacked on top of Resistance I).
+// ─────────────────────────────────────────────
+
+const IRON_ARMOR_SLOTS = [
+  { slot: EquipmentSlot.Head, item: "minecraft:iron_helmet" },
+  { slot: EquipmentSlot.Chest, item: "minecraft:iron_chestplate" },
+  { slot: EquipmentSlot.Legs, item: "minecraft:iron_leggings" },
+  { slot: EquipmentSlot.Feet, item: "minecraft:iron_boots" },
+];
+
+const IRON_RESISTANCE_INTERVAL_TICKS = 100; // 5 seconds
+const IRON_RESISTANCE_EFFECT_DURATION_TICKS = 600; // 30 seconds — wide margin over the interval so a server lag spike (e.g. a busy mob farm slowing tick processing) can't let this lapse before the next re-application fires
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    let piecesWorn = 0;
+    for (const { slot, item } of IRON_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    }
+
+    if (piecesWorn >= 4) {
+      player.addEffect("resistance", IRON_RESISTANCE_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    } else if (piecesWorn >= 2) {
+      player.addEffect("resistance", IRON_RESISTANCE_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+    }
+  }
+}, IRON_RESISTANCE_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
+//  ROSE GOLD ARMOR STRENGTH BONUS
+//  Same two-tier shape as the bonuses above: 2 or 3 Rose Gold armor
+//  pieces grants Strength I, and a full 4-piece set grants Strength II
+//  instead (not stacked on top of Strength I).
+// ─────────────────────────────────────────────
+
+const ROSE_GOLD_ARMOR_SLOTS = [
+  { slot: EquipmentSlot.Head, item: "newhaven:rose_gold_helmet" },
+  { slot: EquipmentSlot.Chest, item: "newhaven:rose_gold_chestplate" },
+  { slot: EquipmentSlot.Legs, item: "newhaven:rose_gold_leggings" },
+  { slot: EquipmentSlot.Feet, item: "newhaven:rose_gold_boots" },
+];
+
+const ROSE_GOLD_STRENGTH_INTERVAL_TICKS = 100; // 5 seconds
+const ROSE_GOLD_STRENGTH_EFFECT_DURATION_TICKS = 600; // 30 seconds — wide margin over the interval so a server lag spike (e.g. a busy mob farm slowing tick processing) can't let this lapse before the next re-application fires
+
+system.runInterval(() => {
+  for (const player of world.getPlayers()) {
+    const equippable = player.getComponent("minecraft:equippable");
+    if (!equippable) continue;
+
+    let piecesWorn = 0;
+    for (const { slot, item } of ROSE_GOLD_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    }
+
+    if (piecesWorn >= 4) {
+      player.addEffect("strength", ROSE_GOLD_STRENGTH_EFFECT_DURATION_TICKS, { amplifier: 1, showParticles: false });
+    } else if (piecesWorn >= 2) {
+      player.addEffect("strength", ROSE_GOLD_STRENGTH_EFFECT_DURATION_TICKS, { amplifier: 0, showParticles: false });
+    }
+  }
+}, ROSE_GOLD_STRENGTH_INTERVAL_TICKS);
+
+// ─────────────────────────────────────────────
 //  CAVE COMBO: NIGHT VISION
 //  A fifth, cross-material bonus layered on top of the single-material
 //  ones above: Copper Helmet + full Chainmail body (Chestplate/

@@ -21,17 +21,17 @@
     <text x="431" y="90" font-size="14" font-weight="700" fill="#5eead4" text-anchor="middle">Copper</text>
     <text x="431" y="107" font-size="11" fill="#5eead4" text-anchor="middle">Live</text>
   </g>
-  <!-- Gold -->
-  <g>
-    <rect x="522" y="70" width="150" height="46" rx="8" fill="#241f3d" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="597" y="90" font-size="14" font-weight="700" fill="#c4b5fd" text-anchor="middle">Gold</text>
-    <text x="597" y="107" font-size="11" fill="#c4b5fd" text-anchor="middle">Planned</text>
-  </g>
   <!-- Iron -->
   <g>
-    <rect x="688" y="70" width="150" height="46" rx="8" fill="#241f3d" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="763" y="90" font-size="14" font-weight="700" fill="#c4b5fd" text-anchor="middle">Iron</text>
-    <text x="763" y="107" font-size="11" fill="#c4b5fd" text-anchor="middle">Planned</text>
+    <rect x="522" y="70" width="150" height="46" rx="8" fill="#163430" stroke="#2dd4bf" stroke-width="1.5"/>
+    <text x="597" y="90" font-size="14" font-weight="700" fill="#5eead4" text-anchor="middle">Iron</text>
+    <text x="597" y="107" font-size="11" fill="#5eead4" text-anchor="middle">Live</text>
+  </g>
+  <!-- Rose Gold -->
+  <g>
+    <rect x="688" y="70" width="150" height="46" rx="8" fill="#163430" stroke="#2dd4bf" stroke-width="1.5"/>
+    <text x="763" y="90" font-size="14" font-weight="700" fill="#5eead4" text-anchor="middle">Rose Gold</text>
+    <text x="763" y="107" font-size="11" fill="#5eead4" text-anchor="middle">Live</text>
   </g>
 
   <!-- tier 1 row -->
@@ -51,14 +51,14 @@
     <text x="431" y="166" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Regen I</text>
   </g>
   <g>
-    <rect x="522" y="126" width="150" height="56" rx="8" fill="#1d1a33" stroke="#3a3464" stroke-width="1"/>
+    <rect x="522" y="126" width="150" height="56" rx="8" fill="#10211f" stroke="#1f4842" stroke-width="1"/>
     <text x="597" y="148" font-size="11.5" fill="#aeb4bb" text-anchor="middle">2-3 pieces</text>
-    <text x="597" y="166" font-size="13" font-weight="700" fill="#c4b5fd" text-anchor="middle">Strength I</text>
+    <text x="597" y="166" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Resistance I</text>
   </g>
   <g>
-    <rect x="688" y="126" width="150" height="56" rx="8" fill="#1d1a33" stroke="#3a3464" stroke-width="1"/>
+    <rect x="688" y="126" width="150" height="56" rx="8" fill="#10211f" stroke="#1f4842" stroke-width="1"/>
     <text x="763" y="148" font-size="11.5" fill="#aeb4bb" text-anchor="middle">2-3 pieces</text>
-    <text x="763" y="166" font-size="13" font-weight="700" fill="#c4b5fd" text-anchor="middle">Resistance I</text>
+    <text x="763" y="166" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Strength I</text>
   </g>
 
   <!-- tier 2 row (full set) -->
@@ -78,14 +78,14 @@
     <text x="431" y="232" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Regen II</text>
   </g>
   <g>
-    <rect x="522" y="192" width="150" height="56" rx="8" fill="#221e3a" stroke="#473f73" stroke-width="1"/>
+    <rect x="522" y="192" width="150" height="56" rx="8" fill="#132823" stroke="#275a51" stroke-width="1"/>
     <text x="597" y="214" font-size="11.5" fill="#aeb4bb" text-anchor="middle">Full set</text>
-    <text x="597" y="232" font-size="13" font-weight="700" fill="#c4b5fd" text-anchor="middle">Strength II</text>
+    <text x="597" y="232" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Resistance II</text>
   </g>
   <g>
-    <rect x="688" y="192" width="150" height="56" rx="8" fill="#221e3a" stroke="#473f73" stroke-width="1"/>
+    <rect x="688" y="192" width="150" height="56" rx="8" fill="#132823" stroke="#275a51" stroke-width="1"/>
     <text x="763" y="214" font-size="11.5" fill="#aeb4bb" text-anchor="middle">Full set</text>
-    <text x="763" y="232" font-size="13" font-weight="700" fill="#c4b5fd" text-anchor="middle">Resistance II</text>
+    <text x="763" y="232" font-size="13" font-weight="700" fill="#5eead4" text-anchor="middle">Strength II</text>
   </g>
 
   <!-- descriptor row -->
@@ -106,16 +106,16 @@
   </g>
   <g>
     <rect x="522" y="258" width="150" height="56" rx="8" fill="#1b1f26" stroke="#2a2f38" stroke-width="1"/>
-    <text x="597" y="282" font-size="11.5" fill="#8b95a1" text-anchor="middle">More melee</text>
+    <text x="597" y="282" font-size="11.5" fill="#8b95a1" text-anchor="middle">Take less</text>
     <text x="597" y="298" font-size="11.5" fill="#8b95a1" text-anchor="middle">damage</text>
   </g>
   <g>
     <rect x="688" y="258" width="150" height="56" rx="8" fill="#1b1f26" stroke="#2a2f38" stroke-width="1"/>
-    <text x="763" y="282" font-size="11.5" fill="#8b95a1" text-anchor="middle">Take less</text>
+    <text x="763" y="282" font-size="11.5" fill="#8b95a1" text-anchor="middle">More melee</text>
     <text x="763" y="298" font-size="11.5" fill="#8b95a1" text-anchor="middle">damage</text>
   </g>
 
-  <!-- cave combo section — live, same treatment as Leather/Chainmail/Copper -->
+  <!-- cave combo section — live, same treatment as the rest -->
   <text x="24" y="348" font-size="14" font-weight="700" fill="#f1f3f5">Cave combo, all four required</text>
   <text x="246" y="348" font-size="11" font-weight="700" fill="#5eead4">LIVE</text>
 
@@ -149,8 +149,5 @@
   <g>
     <rect x="24" y="440" width="18" height="18" rx="4" fill="#163430" stroke="#2dd4bf" stroke-width="1.5"/>
     <text x="50" y="453" font-size="12.5" fill="#c7ccd1">Live</text>
-
-    <rect x="120" y="440" width="18" height="18" rx="4" fill="#241f3d" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="146" y="453" font-size="12.5" fill="#c7ccd1">Planned</text>
   </g>
 </svg>
