@@ -1,4 +1,4 @@
-# Attribution — Armed and Varied (rose gold armor textures)
+# Attribution — Armed and Varied (rose gold armor, tools, and weapons)
 
 **Source:** Armed and Varied by Jouto
 **Repo:** https://github.com/Jouto25/armed-and-varied
@@ -21,8 +21,10 @@ otherwise, so this is being treated as MIT for the textures used here.
 
 ## What's being used
 
-Only the rose gold **armor** assets — nothing else from this mod:
+Rose gold **armor, tool, and weapon** assets and stat numbers — nothing
+else from this mod:
 
+Textures:
 - `assets/armedandvaried/textures/item/rose_gold_helmet.png`
 - `assets/armedandvaried/textures/item/rose_gold_chestplate.png`
 - `assets/armedandvaried/textures/item/rose_gold_leggings.png`
@@ -31,6 +33,33 @@ Only the rose gold **armor** assets — nothing else from this mod:
   (helmet/chestplate/boots on-player render)
 - `assets/armedandvaried/textures/models/armor/rose_gold_layer_2.png`
   (leggings on-player render)
+- `assets/armedandvaried/textures/item/rose_gold_ingot.png`
+- `assets/armedandvaried/textures/item/rose_gold_sword.png`
+- `assets/armedandvaried/textures/item/rose_gold_axe.png`
+- `assets/armedandvaried/textures/item/rose_gold_pickaxe.png`
+- `assets/armedandvaried/textures/item/rose_gold_shovel.png`
+- `assets/armedandvaried/textures/item/rose_gold_hoe.png`
+- `assets/armedandvaried/textures/block/rose_gold_block.png` (storage block,
+  cube_all — same texture on all 6 faces)
+
+Tool/weapon stat numbers (durability, mining speed, attack damage/speed,
+mining tier, enchantability), read directly out of the compiled
+`ModToolMaterial.class` and `ModItems.class` bytecode (the mod ships no
+source, so these weren't in a readable JSON/data file — they're literal
+constructor arguments baked into the `.class` files, recovered by
+disassembling the `<clinit>` methods):
+
+- **Material tier** (`ModToolMaterial.ROSE_GOLD_INGOT`): durability 250,
+  mining speed 8.0, attack damage bonus 3.0, mining level 3
+  (diamond-tier ore/block access), enchantability 14.
+- **Per-item base damage/speed** (`ModItems`, before adding the material
+  bonus above): sword damage 3 @ speed 1.6, axe damage 5 @ speed 1.0,
+  pickaxe damage 1 @ speed 1.2, shovel damage 1.5 @ speed 1.0, hoe
+  damage -3 @ speed 4.0.
+- These were ported into Bedrock's data model as closely as its item
+  components allow (e.g. Bedrock's `minecraft:damage` is a single flat
+  integer rather than Java's base+material split, so the two were summed
+  and rounded; Bedrock has no attack-speed field on weapons at all).
 
 ## Required MIT notice
 

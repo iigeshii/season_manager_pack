@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "newhaven:rose_gold_block"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "RRR",
+      "RRR",
+      "RRR"
+    ],
+    "key": {
+      "R": {
+        "item": "newhaven:rose_gold_ingot"
+      }
+    },
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "newhaven:rose_gold_block"
+    }
+  }
+}

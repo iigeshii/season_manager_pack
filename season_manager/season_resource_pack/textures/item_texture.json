@@ -14,6 +14,21 @@
     },
     "newhaven:rose_gold_ingot": {
       "textures": "textures/items/rose_gold_ingot"
+    },
+    "newhaven:rose_gold_sword": {
+      "textures": "textures/items/rose_gold_sword"
+    },
+    "newhaven:rose_gold_axe": {
+      "textures": "textures/items/rose_gold_axe"
+    },
+    "newhaven:rose_gold_pickaxe": {
+      "textures": "textures/items/rose_gold_pickaxe"
+    },
+    "newhaven:rose_gold_shovel": {
+      "textures": "textures/items/rose_gold_shovel"
+    },
+    "newhaven:rose_gold_hoe": {
+      "textures": "textures/items/rose_gold_hoe"
     }
   }
 }

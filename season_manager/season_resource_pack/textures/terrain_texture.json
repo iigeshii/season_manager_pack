@@ -1,0 +1,11 @@
+{
+  "resource_pack_name": "season_manager_resources",
+  "texture_name": "atlas.terrain",
+  "padding": 8,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "rose_gold_block": {
+      "textures": "textures/blocks/rose_gold_block"
+    }
+  }
+}

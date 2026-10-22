@@ -2,13 +2,16 @@
 
 This resource pack includes the following third-party assets.
 
-## Rose Gold Armor Textures
+## Rose Gold Armor, Tool, and Weapon Textures
 
 **Source:** Armed and Varied by Jouto — https://github.com/Jouto25/armed-and-varied
 **License:** MIT
-**Used:** the 4 rose gold armor item icons and the 2 rose gold armor layer
-textures (`textures/items/rose_gold_*.png`,
-`textures/models/armor/rose_gold_layer_*.png`)
+**Used:** the 4 rose gold armor item icons, the 2 rose gold armor layer
+textures, the rose gold ingot icon, the 5 rose gold tool/weapon icons
+(sword, axe, pickaxe, shovel, hoe), and the rose gold storage block texture
+(`textures/items/rose_gold_*.png`,
+`textures/models/armor/rose_gold_layer_*.png`,
+`textures/blocks/rose_gold_block.png`)
 
 ```
 MIT License
