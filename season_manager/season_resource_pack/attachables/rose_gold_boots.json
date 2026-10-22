@@ -9,17 +9,15 @@
       },
       "textures": {
         "default": "textures/models/armor/rose_gold_layer_1",
-        "enchanted": "textures/misc/enchanted_actor_glint",
-        "baby": "textures/models/armor/rose_gold_layer_1"
+        "enchanted": "textures/misc/enchanted_actor_glint"
       },
       "geometry": {
-        "default": "geometry.humanoid.armor.boots",
-        "baby": "geometry.humanoid.baby.armor.boots"
+        "default": "geometry.humanoid.armor.boots"
       },
       "scripts": {
-        "parent_setup": "v.boot_layer_visible = false; v.use_baby_geo = q.is_baby;"
+        "parent_setup": "v.boot_layer_visible = false;"
       },
-      "render_controllers": ["controller.render.armor.v2"]
+      "render_controllers": ["controller.render.armor"]
     }
   }
 }
