@@ -5,7 +5,7 @@
     "description": "Textures and visuals for Season Manager custom content. (v__BUILD_VERSION__, __BUILD_SHA__)",
     "uuid": "df2759b3-4682-4a35-8dc0-7c45cb95b79a",
     "version": [2, 0, 0],
-    "min_engine_version": [1, 21, 130]
+    "min_engine_version": [1, 21, 0]
   },
   "metadata": {
     "authors": ["Gesh Giezel"],

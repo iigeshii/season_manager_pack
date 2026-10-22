@@ -29,9 +29,6 @@
     },
     "newhaven:rose_gold_hoe": {
       "textures": "textures/items/rose_gold_hoe"
-    },
-    "newhaven:rose_gold_spear": {
-      "textures": "textures/items/rose_gold_spear"
     }
   }
 }
