@@ -1,9 +1,11 @@
-# Build output — mcpack releases get committed, everything else (the
-# transient _stage/ dir, stray zips, dirty builds) stays ignored. A dirty
-# build isn't tied to a clean commit, so it's not a real release.
+# Build output — mcpack/mcaddon releases get committed, everything else
+# (the transient _stage/ dir, stray zips, dirty builds) stays ignored. A
+# dirty build isn't tied to a clean commit, so it's not a real release.
 /dist/*
 !/dist/*.mcpack
+!/dist/*.mcaddon
 /dist/*-dirty.mcpack
+/dist/*-dirty.mcaddon
 
 # OS cruft
 Thumbs.db
