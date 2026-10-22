@@ -124,3 +124,17 @@ regardless of when each piece was actually added:
   trader (all 22, including the newest ones), priced by rarity, sold
   once.
 - Better logging of login/logout times, and recording of specific types of griefing events.
+
+## Season Manager v2.0.14 — The Rose Gold Update
+
+- **New Haven's Rose Gold gear**, a tier between Iron and Diamond:
+  Rose Gold Ingot (1 Gold + 1 Copper), a full armor set, Sword, Axe,
+  Pickaxe, Shovel, Hoe, and a Block of Rose Gold (craftable both ways,
+  9 Ingots ↔ 1 Block).
+- **Rose Gold armor grants Strength, and Iron armor now grants
+  Resistance** — same tiering as Leather/Chainmail/Copper: 2-3 pieces
+  for tier I, a full set for tier II.
+- **Repair Rose Gold gear with Rose Gold Ingots** (or raw Gold/Copper
+  Ingots at half the effect).
+
+![Armor set bonus tiers — Leather, Chainmail, Copper, Iron, and Rose Gold are all live, plus the Night Vision cave combo](docs/armor_bonus_tiers.svg)
