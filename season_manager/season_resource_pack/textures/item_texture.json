@@ -1,0 +1,16 @@
+{
+  "texture_data": {
+    "newhaven:rose_gold_helmet": {
+      "textures": "textures/items/rose_gold_helmet"
+    },
+    "newhaven:rose_gold_chestplate": {
+      "textures": "textures/items/rose_gold_chestplate"
+    },
+    "newhaven:rose_gold_leggings": {
+      "textures": "textures/items/rose_gold_leggings"
+    },
+    "newhaven:rose_gold_boots": {
+      "textures": "textures/items/rose_gold_boots"
+    }
+  }
+}

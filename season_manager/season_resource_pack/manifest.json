@@ -1,0 +1,28 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Season Manager Resources",
+    "description": "Textures and visuals for Season Manager custom content. (v__BUILD_VERSION__, __BUILD_SHA__)",
+    "uuid": "df2759b3-4682-4a35-8dc0-7c45cb95b79a",
+    "version": [2, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "metadata": {
+    "authors": ["Gesh Giezel"],
+    "url": "https://github.com/iigeshii/season_manager_pack",
+    "license": "MIT"
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "e5388829-3f66-4c5f-84a3-9a0c5f272517",
+      "version": [2, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "3712a2a7-b912-4be1-871d-57fa9c984a6a",
+      "version": [2, 0, 0]
+    }
+  ]
+}
