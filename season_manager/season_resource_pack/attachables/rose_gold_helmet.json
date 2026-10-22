@@ -9,14 +9,15 @@
       },
       "textures": {
         "default": "textures/models/armor/rose_gold_layer_1",
-        "enchanted": "textures/misc/enchanted_actor_glint"
+        "enchanted": "textures/misc/enchanted_actor_glint",
+        "baby": "textures/models/armor/rose_gold_layer_1"
       },
       "geometry": {
         "default": "geometry.humanoid.armor.helmet",
         "baby": "geometry.humanoid.baby.armor.helmet"
       },
       "scripts": {
-        "parent_setup": "v.helmet_layer_visible = false;"
+        "parent_setup": "v.helmet_layer_visible = false; v.use_baby_geo = c.is_baby;"
       },
       "render_controllers": ["controller.render.armor.v2"]
     }
