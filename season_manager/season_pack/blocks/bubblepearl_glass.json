@@ -1,0 +1,38 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:block": {
+    "description": {
+      "identifier": "newhaven:bubblepearl_glass",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "bubblepearl_glass",
+          "render_method": "blend",
+          "face_dimming": false,
+          "ambient_occlusion": 0
+        }
+      },
+      "minecraft:item_visual": {
+        "geometry": "minecraft:geometry.full_block",
+        "material_instances": {
+          "*": {
+            "texture": "bubblepearl_glass",
+            "render_method": "blend"
+          }
+        }
+      },
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.3
+      },
+      "minecraft:map_color": "#c9d8d2"
+    }
+  }
+}

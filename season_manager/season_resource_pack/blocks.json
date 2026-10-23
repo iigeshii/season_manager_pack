@@ -14,5 +14,8 @@
   },
   "newhaven:bubblepearl_lantern": {
     "sound": "glass"
+  },
+  "newhaven:bubblepearl_glass": {
+    "sound": "glass"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "newhaven:furnace_bubblepearl_glass"
+    },
+    "unlock": [
+      {
+        "item": "newhaven:bubblepearl"
+      }
+    ],
+    "tags": ["furnace"],
+    "input": {
+      "item": "newhaven:bubblepearl"
+    },
+    "output": "newhaven:bubblepearl_glass",
+    "priority": 300
+  }
+}
