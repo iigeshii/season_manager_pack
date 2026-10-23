@@ -24,59 +24,9 @@
         "use_efficiency": true,
         "destroy_speeds": [
           {
-            "block": "minecraft:dirt",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:grass_block",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:sand",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:red_sand",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:gravel",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:clay",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:snow",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:snow_layer",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:soul_sand",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:soul_soil",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:mycelium",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:podzol",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:farmland",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:mud",
+            "block": {
+              "tags": "query.any_tag('minecraft:is_shovel_item_destructible')"
+            },
             "speed": 8
           }
         ]

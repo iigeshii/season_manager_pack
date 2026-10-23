@@ -25,7 +25,7 @@
         "destroy_speeds": [
           {
             "block": {
-              "tags": "query.any_tag('wood')"
+              "tags": "query.any_tag('minecraft:is_axe_item_destructible')"
             },
             "speed": 8
           }

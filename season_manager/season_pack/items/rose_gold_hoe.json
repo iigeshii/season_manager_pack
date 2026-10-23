@@ -24,27 +24,9 @@
         "use_efficiency": true,
         "destroy_speeds": [
           {
-            "block": "minecraft:hay_block",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:nether_wart_block",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:warped_wart_block",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:dried_kelp_block",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:sponge",
-            "speed": 8
-          },
-          {
-            "block": "minecraft:target",
+            "block": {
+              "tags": "query.any_tag('minecraft:is_hoe_item_destructible')"
+            },
             "speed": 8
           }
         ]
