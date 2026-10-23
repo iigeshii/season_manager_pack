@@ -39,21 +39,35 @@
       "minecraft:destructible_by_explosion": {
         "explosion_resistance": 0.3
       },
-      "minecraft:map_color": "#e8c5e0",
-      "minecraft:collision_box": true,
-      "minecraft:selection_box": true
+      "minecraft:map_color": "#e8c5e0"
     },
     "permutations": [
       {
         "condition": "query.block_state('minecraft:vertical_half') == 'bottom'",
         "components": {
-          "minecraft:transformation": { "rotation": [0, 0, 0] }
+          "minecraft:transformation": { "rotation": [0, 0, 0] },
+          "minecraft:collision_box": {
+            "origin": [-8, 0, -8],
+            "size": [16, 8, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [-8, 0, -8],
+            "size": [16, 8, 16]
+          }
         }
       },
       {
         "condition": "query.block_state('minecraft:vertical_half') == 'top'",
         "components": {
-          "minecraft:transformation": { "rotation": [180, 0, 0] }
+          "minecraft:transformation": { "rotation": [180, 0, 0] },
+          "minecraft:collision_box": {
+            "origin": [-8, 8, -8],
+            "size": [16, 8, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [-8, 8, -8],
+            "size": [16, 8, 16]
+          }
         }
       }
     ]
