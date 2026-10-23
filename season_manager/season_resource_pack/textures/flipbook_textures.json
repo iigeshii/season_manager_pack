@@ -16,5 +16,11 @@
     "atlas_tile": "bubblepearl_glass",
     "ticks_per_frame": 8,
     "frames": 8
+  },
+  {
+    "flipbook_texture": "textures/blocks/bubblepearl_pillar_side",
+    "atlas_tile": "bubblepearl_pillar_side",
+    "ticks_per_frame": 8,
+    "frames": 8
   }
 ]

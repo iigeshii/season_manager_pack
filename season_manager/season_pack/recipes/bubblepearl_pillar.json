@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "newhaven:bubblepearl_pillar"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "B",
+      "B"
+    ],
+    "key": {
+      "B": {
+        "item": "newhaven:bubblepearl"
+      }
+    },
+    "unlock": [
+      {
+        "item": "newhaven:bubblepearl"
+      }
+    ],
+    "result": {
+      "item": "newhaven:bubblepearl_pillar",
+      "count": 2
+    }
+  }
+}

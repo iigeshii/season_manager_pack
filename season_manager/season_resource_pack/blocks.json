@@ -17,5 +17,8 @@
   },
   "newhaven:bubblepearl_glass": {
     "sound": "glass"
+  },
+  "newhaven:bubblepearl_pillar": {
+    "sound": "glass"
   }
 }

@@ -15,6 +15,9 @@
     },
     "bubblepearl_glass": {
       "textures": "textures/blocks/bubblepearl_glass"
+    },
+    "bubblepearl_pillar_side": {
+      "textures": "textures/blocks/bubblepearl_pillar_side"
     }
   }
 }

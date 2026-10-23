@@ -1,0 +1,78 @@
+{
+  "format_version": "1.21.70",
+  "minecraft:block": {
+    "description": {
+      "identifier": "newhaven:bubblepearl_pillar",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": ["minecraft:facing_direction"]
+        }
+      }
+    },
+    "components": {
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "up": {
+          "texture": "bubblepearl",
+          "render_method": "opaque",
+          "face_dimming": false,
+          "ambient_occlusion": 0
+        },
+        "down": {
+          "texture": "bubblepearl",
+          "render_method": "opaque",
+          "face_dimming": false,
+          "ambient_occlusion": 0
+        },
+        "*": {
+          "texture": "bubblepearl_pillar_side",
+          "render_method": "opaque",
+          "face_dimming": false,
+          "ambient_occlusion": 0
+        }
+      },
+      "minecraft:item_visual": {
+        "geometry": "minecraft:geometry.full_block",
+        "material_instances": {
+          "up": {
+            "texture": "bubblepearl",
+            "render_method": "opaque"
+          },
+          "down": {
+            "texture": "bubblepearl",
+            "render_method": "opaque"
+          },
+          "*": {
+            "texture": "bubblepearl_pillar_side",
+            "render_method": "opaque"
+          }
+        }
+      },
+      "minecraft:light_emission": 15,
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.3
+      },
+      "minecraft:map_color": "#e8c5e0"
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('minecraft:facing_direction') == 'north' || query.block_state('minecraft:facing_direction') == 'south'",
+        "components": {
+          "minecraft:transformation": { "rotation": [90, 0, 0] }
+        }
+      },
+      {
+        "condition": "query.block_state('minecraft:facing_direction') == 'east' || query.block_state('minecraft:facing_direction') == 'west'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 0, 90] }
+        }
+      }
+    ]
+  }
+}
