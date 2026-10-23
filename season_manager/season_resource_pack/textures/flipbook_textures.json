@@ -1,0 +1,8 @@
+[
+  {
+    "flipbook_texture": "textures/blocks/bubblepearl",
+    "atlas_tile": "bubblepearl",
+    "ticks_per_frame": 8,
+    "frames": 8
+  }
+]
