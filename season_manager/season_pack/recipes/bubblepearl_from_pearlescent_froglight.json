@@ -1,19 +1,23 @@
 {
   "format_version": "1.20.10",
-  "minecraft:recipe_shapeless": {
+  "minecraft:recipe_shaped": {
     "description": {
       "identifier": "newhaven:bubblepearl_from_pearlescent_froglight"
     },
     "tags": ["crafting_table"],
-    "ingredients": [
-      {
-        "item": "minecraft:pearlescent_froglight"
-      },
-      {
-        "item": "minecraft:quartz",
-        "count": 4
-      }
+    "pattern": [
+      "QQQ",
+      " F ",
+      " Q "
     ],
+    "key": {
+      "Q": {
+        "item": "minecraft:quartz"
+      },
+      "F": {
+        "item": "minecraft:pearlescent_froglight"
+      }
+    },
     "unlock": [
       {
         "item": "minecraft:pearlescent_froglight"
