@@ -1,0 +1,24 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "newhaven:stonecutter_bubblepearl_slab"
+    },
+    "tags": ["stonecutter"],
+    "priority": 2,
+    "ingredients": [
+      {
+        "item": "newhaven:bubblepearl"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:bubblepearl"
+      }
+    ],
+    "result": {
+      "item": "newhaven:bubblepearl_slab",
+      "count": 2
+    }
+  }
+}

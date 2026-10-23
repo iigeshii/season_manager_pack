@@ -8,5 +8,8 @@
   },
   "newhaven:bubblepearl_stairs": {
     "sound": "glass"
+  },
+  "newhaven:bubblepearl_slab": {
+    "sound": "glass"
   }
 }

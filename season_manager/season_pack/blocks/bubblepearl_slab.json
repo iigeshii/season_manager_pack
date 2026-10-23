@@ -1,0 +1,61 @@
+{
+  "format_version": "1.21.70",
+  "minecraft:block": {
+    "description": {
+      "identifier": "newhaven:bubblepearl_slab",
+      "menu_category": {
+        "category": "construction",
+        "group": "minecraft:itemGroup.name.slab"
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": ["minecraft:vertical_half"]
+        }
+      }
+    },
+    "components": {
+      "minecraft:geometry": "geometry.bubblepearl_slab",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "bubblepearl",
+          "render_method": "opaque",
+          "face_dimming": false,
+          "ambient_occlusion": 0
+        }
+      },
+      "minecraft:item_visual": {
+        "geometry": "geometry.bubblepearl_slab",
+        "material_instances": {
+          "*": {
+            "texture": "bubblepearl",
+            "render_method": "opaque"
+          }
+        }
+      },
+      "minecraft:light_emission": 15,
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.3
+      },
+      "minecraft:map_color": "#e8c5e0",
+      "minecraft:collision_box": true,
+      "minecraft:selection_box": true
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('minecraft:vertical_half') == 'bottom'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 0, 0] }
+        }
+      },
+      {
+        "condition": "query.block_state('minecraft:vertical_half') == 'top'",
+        "components": {
+          "minecraft:transformation": { "rotation": [180, 0, 0] }
+        }
+      }
+    ]
+  }
+}

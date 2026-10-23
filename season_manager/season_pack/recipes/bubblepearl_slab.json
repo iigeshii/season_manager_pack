@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "newhaven:bubblepearl_slab"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "BBB"
+    ],
+    "key": {
+      "B": {
+        "item": "newhaven:bubblepearl"
+      }
+    },
+    "unlock": [
+      {
+        "item": "newhaven:bubblepearl"
+      }
+    ],
+    "result": {
+      "item": "newhaven:bubblepearl_slab",
+      "count": 6
+    }
+  }
+}
