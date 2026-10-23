@@ -4,5 +4,11 @@
     "atlas_tile": "bubblepearl",
     "ticks_per_frame": 8,
     "frames": 8
+  },
+  {
+    "flipbook_texture": "textures/blocks/bubblepearl_lantern",
+    "atlas_tile": "bubblepearl_lantern",
+    "ticks_per_frame": 8,
+    "frames": 8
   }
 ]

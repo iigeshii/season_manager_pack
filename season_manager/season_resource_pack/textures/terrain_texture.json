@@ -9,6 +9,9 @@
     },
     "bubblepearl": {
       "textures": "textures/blocks/bubblepearl"
+    },
+    "bubblepearl_lantern": {
+      "textures": "textures/blocks/bubblepearl_lantern"
     }
   }
 }
