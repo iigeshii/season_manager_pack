@@ -12,7 +12,9 @@
       "minecraft:material_instances": {
         "*": {
           "texture": "bubblepearl",
-          "render_method": "opaque"
+          "render_method": "opaque",
+          "face_dimming": false,
+          "ambient_occlusion": 0
         }
       },
       "minecraft:item_visual": {
