@@ -5,6 +5,11 @@
       "identifier": "newhaven:bubblepearl_lantern",
       "menu_category": {
         "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": ["minecraft:block_face"]
+        }
       }
     },
     "components": {
@@ -42,6 +47,22 @@
         "origin": [-3, 0, -3],
         "size": [6, 11, 6]
       }
-    }
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('minecraft:block_face') == 'down'",
+        "components": {
+          "minecraft:geometry": "geometry.bubblepearl_lantern_hanging",
+          "minecraft:collision_box": {
+            "origin": [-3, 5, -3],
+            "size": [6, 11, 6]
+          },
+          "minecraft:selection_box": {
+            "origin": [-3, 5, -3],
+            "size": [6, 11, 6]
+          }
+        }
+      }
+    ]
   }
 }
