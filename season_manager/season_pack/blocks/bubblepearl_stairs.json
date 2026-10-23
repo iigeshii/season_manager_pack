@@ -27,7 +27,7 @@
         }
       },
       "minecraft:item_visual": {
-        "geometry": "geometry.bubblepearl_stairs",
+        "geometry": "geometry.bubblepearl_stairs_icon",
         "material_instances": {
           "*": {
             "texture": "bubblepearl",

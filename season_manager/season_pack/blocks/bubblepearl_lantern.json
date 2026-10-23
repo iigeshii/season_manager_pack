@@ -35,12 +35,12 @@
       },
       "minecraft:map_color": "#e8c5e0",
       "minecraft:collision_box": {
-        "origin": [-4, 0, -4],
-        "size": [8, 13, 8]
+        "origin": [-3, 0, -3],
+        "size": [6, 11, 6]
       },
       "minecraft:selection_box": {
-        "origin": [-4, 0, -4],
-        "size": [8, 13, 8]
+        "origin": [-3, 0, -3],
+        "size": [6, 11, 6]
       }
     }
   }
