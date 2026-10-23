@@ -41,9 +41,6 @@ Textures:
 - `assets/armedandvaried/textures/item/rose_gold_hoe.png`
 - `assets/armedandvaried/textures/block/rose_gold_block.png` (storage block,
   cube_all — same texture on all 6 faces)
-- `assets/armedandvaried/textures/trims/color_palettes/rose_gold_ingot.png`
-  (armor trim color palette, 8x1 — already in Bedrock's exact expected
-  format, same as vanilla's own `textures/trims/color_palettes/gold.png`)
 
 Tool/weapon stat numbers (durability, mining speed, attack damage/speed,
 mining tier, enchantability), read directly out of the compiled
