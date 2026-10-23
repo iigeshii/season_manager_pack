@@ -6,8 +6,9 @@
 **License:** MIT
 **Used:** the 4 rose gold armor item icons, the 2 rose gold armor layer
 textures, the rose gold ingot icon, the 5 rose gold tool/weapon icons
-(sword, axe, pickaxe, shovel, hoe), and the rose gold storage block
-texture, under `season_manager/season_resource_pack/textures/`.
+(sword, axe, pickaxe, shovel, hoe), the rose gold storage block texture,
+and the rose gold armor trim color palette, under
+`season_manager/season_resource_pack/textures/`.
 
 - Full license text, and how it was verified (the repo's own
   `LICENSE.txt`/`CREDITS.txt` are unrelated Minecraft Forge template

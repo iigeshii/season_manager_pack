@@ -8,10 +8,12 @@ This resource pack includes the following third-party assets.
 **License:** MIT
 **Used:** the 4 rose gold armor item icons, the 2 rose gold armor layer
 textures, the rose gold ingot icon, the 5 rose gold tool/weapon icons
-(sword, axe, pickaxe, shovel, hoe), and the rose gold storage block texture
+(sword, axe, pickaxe, shovel, hoe), the rose gold storage block texture,
+and the rose gold armor trim color palette
 (`textures/items/rose_gold_*.png`,
 `textures/models/armor/rose_gold_layer_*.png`,
-`textures/blocks/rose_gold_block.png`)
+`textures/blocks/rose_gold_block.png`,
+`textures/trims/color_palettes/rose_gold_ingot.png`)
 
 ```
 MIT License
