@@ -144,3 +144,12 @@ regardless of when each piece was actually added:
   Ingots at half the effect).
 
 ![Armor set bonus tiers — Leather, Chainmail, Copper, Iron, and Rose Gold are all live, plus the Night Vision cave combo](docs/armor_bonus_tiers.svg)
+
+## Season Manager v2.0.41 — The Durability Fix
+
+- **Fixed: Rose Gold Pickaxe, Shovel, Axe, and Hoe weren't losing
+  durability while mining.** Bedrock never depletes a custom tool's
+  durability from breaking blocks on its own — only from hitting
+  something in combat — so these four were only taking damage as
+  weapons. They now wear down per block broken at the same rate (and
+  with the same Unbreaking behavior) as any vanilla tool.
