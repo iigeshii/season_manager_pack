@@ -48,7 +48,7 @@
           { "block": "minecraft:emerald_ore", "speed": 12 },
           { "block": "minecraft:lapis_ore", "speed": 12 },
           { "block": "minecraft:redstone_ore", "speed": 12 },
-          { "block": "minecraft:nether_quartz_ore", "speed": 12 },
+          { "block": "minecraft:quartz_ore", "speed": 12 },
           { "block": "minecraft:nether_gold_ore", "speed": 12 },
           { "block": "minecraft:deepslate_coal_ore", "speed": 12 },
           { "block": "minecraft:deepslate_iron_ore", "speed": 12 },
