@@ -694,20 +694,24 @@ system.runInterval(() => {
 //  ANY custom (non-vanilla) tool, confirmed via wiki.bedrock.dev's
 //  item-components reference ("Even if the item is a digger, it will
 //  not be damaged when mining blocks."). This manually replicates that
-//  loss for the Rose Gold mining tools, respecting Unbreaking the same
-//  way the durability component's own getDamageChance() does.
+//  loss for the Rose Gold tools, respecting Unbreaking the same way the
+//  durability component's own getDamageChance() does. The Sword costs 2
+//  durability per block (vanilla's standard penalty for mining with a
+//  sword instead of the correct tool) where the other four cost 1.
 // ─────────────────────────────────────────────
 
-const ROSE_GOLD_MINING_TOOLS = new Set([
-  "newhaven:rose_gold_pickaxe",
-  "newhaven:rose_gold_shovel",
-  "newhaven:rose_gold_axe",
-  "newhaven:rose_gold_hoe",
+const ROSE_GOLD_MINING_TOOLS = new Map([
+  ["newhaven:rose_gold_pickaxe", 1],
+  ["newhaven:rose_gold_shovel", 1],
+  ["newhaven:rose_gold_axe", 1],
+  ["newhaven:rose_gold_hoe", 1],
+  ["newhaven:rose_gold_sword", 2],
 ]);
 
 world.afterEvents.playerBreakBlock.subscribe((event) => {
   const { player, itemStackBeforeBreak } = event;
-  if (!itemStackBeforeBreak || !ROSE_GOLD_MINING_TOOLS.has(itemStackBeforeBreak.typeId)) return;
+  const damagePerBlock = itemStackBeforeBreak && ROSE_GOLD_MINING_TOOLS.get(itemStackBeforeBreak.typeId);
+  if (!damagePerBlock) return;
 
   const durability = itemStackBeforeBreak.getComponent("minecraft:durability");
   if (!durability) return;
@@ -718,7 +722,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
   const equippable = player.getComponent("minecraft:equippable");
   if (!equippable) return;
 
-  durability.damage += 1;
+  durability.damage += damagePerBlock;
   if (durability.damage >= durability.maxDurability) {
     equippable.setEquipment(EquipmentSlot.Mainhand, undefined);
     player.dimension.playSound("random.break", player.location);
