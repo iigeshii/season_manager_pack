@@ -688,6 +688,46 @@ system.runInterval(() => {
 }, ROSE_GOLD_STRENGTH_INTERVAL_TICKS);
 
 // ─────────────────────────────────────────────
+//  ROSE GOLD TOOL MINING DURABILITY
+//  Bedrock's built-in minecraft:durability component only takes damage
+//  from hitting entities — breaking blocks never costs durability for
+//  ANY custom (non-vanilla) tool, confirmed via wiki.bedrock.dev's
+//  item-components reference ("Even if the item is a digger, it will
+//  not be damaged when mining blocks."). This manually replicates that
+//  loss for the Rose Gold mining tools, respecting Unbreaking the same
+//  way the durability component's own getDamageChance() does.
+// ─────────────────────────────────────────────
+
+const ROSE_GOLD_MINING_TOOLS = new Set([
+  "newhaven:rose_gold_pickaxe",
+  "newhaven:rose_gold_shovel",
+  "newhaven:rose_gold_axe",
+  "newhaven:rose_gold_hoe",
+]);
+
+world.afterEvents.playerBreakBlock.subscribe((event) => {
+  const { player, itemStackBeforeBreak } = event;
+  if (!itemStackBeforeBreak || !ROSE_GOLD_MINING_TOOLS.has(itemStackBeforeBreak.typeId)) return;
+
+  const durability = itemStackBeforeBreak.getComponent("minecraft:durability");
+  if (!durability) return;
+
+  const unbreakingLevel = itemStackBeforeBreak.getComponent("minecraft:enchantable")?.getEnchantment("unbreaking")?.level ?? 0;
+  if (Math.random() * 100 >= durability.getDamageChance(unbreakingLevel)) return;
+
+  const equippable = player.getComponent("minecraft:equippable");
+  if (!equippable) return;
+
+  durability.damage += 1;
+  if (durability.damage >= durability.maxDurability) {
+    equippable.setEquipment(EquipmentSlot.Mainhand, undefined);
+    player.dimension.playSound("random.break", player.location);
+  } else {
+    equippable.setEquipment(EquipmentSlot.Mainhand, itemStackBeforeBreak);
+  }
+});
+
+// ─────────────────────────────────────────────
 //  CAVE COMBO: NIGHT VISION
 //  A fifth, cross-material bonus layered on top of the single-material
 //  ones above: Copper Helmet + full Chainmail body (Chestplate/
