@@ -125,12 +125,18 @@ regardless of when each piece was actually added:
   once.
 - Better logging of login/logout times, and recording of specific types of griefing events.
 
-## Season Manager v2.0.14 — The Rose Gold Update
+## Season Manager v2.0.36 — The New Haven Update
 
 - **New Haven's Rose Gold gear**, a tier between Iron and Diamond:
   Rose Gold Ingot (1 Gold + 1 Copper), a full armor set, Sword, Axe,
   Pickaxe, Shovel, Hoe, and a Block of Rose Gold (craftable both ways,
   9 Ingots ↔ 1 Block).
+- **New Haven's Bubblepearl**, a glowing, animated pastel block line:
+  Block, Stairs, Slab, Lantern (stands or hangs from a ceiling), Glass,
+  and Pillar. Crafted from any Froglight color + Quartz.
+- **Wandering Traders now also sell Bubblepearl and Bubblepearl
+  Lantern**, in the same rotating light-source selection as Froglights
+  and the vanilla Lanterns.
 - **Rose Gold armor grants Strength, and Iron armor now grants
   Resistance** — same tiering as Leather/Chainmail/Copper: 2-3 pieces
   for tier I, a full set for tier II.

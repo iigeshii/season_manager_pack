@@ -8,12 +8,33 @@ under the [MIT License](LICENSE).
 
 ## Layout
 
-- `season_manager/season_pack/` — the behavior pack itself
+- `season_manager/season_pack/` — the behavior pack
   (`manifest.json`, `scripts/main.js`, `functions/`, `trading/`,
-  `recipes/`, `loot_tables/`, `entities/`)
-- `scripts/build.sh` — packages the behavior pack into a `.mcpack`
-- `dist/` — build output; the `.mcpack` files get committed for release,
-  everything else in here is git-ignored
+  `recipes/`, `loot_tables/`, `entities/`, `items/`, `blocks/`)
+- `season_manager/season_resource_pack/` — the paired resource pack
+  (`manifest.json`, `textures/`, `models/`, `attachables/`, `texts/`) —
+  required for any custom item/block added from v2.0.0 onward to render
+  at all (see [Two-pack structure](#two-pack-structure) below)
+- `scripts/build.sh` — packages both packs into one `.mcaddon`
+- `dist/` — build output; the `.mcaddon` files get committed for
+  release, everything else in here is git-ignored
+- `docs/` — standalone reference images (e.g. `armor_bonus_tiers.svg`,
+  linked from this README and the release notes)
+- `tps/` — third-party source material kept for license verification
+  (e.g. the Armed and Varied mod jar); see `CREDITS.md`
+- `CREDITS.md` — third-party asset attribution, also embedded inside the
+  built resource pack itself so it ships with the `.mcaddon`
+
+## Two-pack structure
+
+Starting at v2.0.0, custom items and blocks (the New Haven Rose Gold and
+Bubblepearl content — see below) need both a behavior pack entry *and* a
+matching resource pack entry (texture, model/attachable, lang name) to
+work at all; a BP-only addition loads without errors but renders
+invisible or with a missing-texture purple/black checker. The two packs
+declare a two-way `dependencies` entry on each other's UUID in
+`manifest.json`, so activating either one in a world turns on both, and
+removing one prompts removal of the other.
 
 ## Building
 
@@ -21,20 +42,26 @@ under the [MIT License](LICENSE).
 ./scripts/build.sh
 ```
 
-Produces `dist/season_manager-<version>.mcpack` (e.g.
-`dist/season_manager-1.0.42.mcpack`), versioned so each build gets its own
-file instead of overwriting the last one. Double-click it (with Minecraft
-installed) or copy it into your `development_behavior_packs` folder to
-install.
+Produces `dist/season_manager-<version>.mcaddon` (e.g.
+`dist/season_manager-2.0.34.mcaddon`) — a renamed `.zip` with both pack
+folders at its root, so one import installs both packs at once.
+Versioned so each build gets its own file instead of overwriting the
+last one. Double-click it (with Minecraft installed) or copy it into
+your `development_behavior_packs`/`development_resource_packs` folders
+to install.
 
-Every build stamps the patch digit of both `manifest.json` `"version"`
-arrays (header and script module) with the repo's current commit count,
-so it always increases — the tracked source keeps `[1, 0, 0]` as a
-placeholder. Minecraft only replaces an already-imported pack if the new
-one has a higher version, so without this a rebuilt `.mcpack` can silently
-get ignored on reimport. This means the version only advances when you
-actually commit — if you're testing uncommitted changes, the reimport
-won't be seen as an update.
+Every build stamps the patch digit of every `"version"` array across
+both manifests (and both module entries) with the number of commits
+since the last major.minor bump — not the repo's lifetime commit count,
+so a fresh bump like 1.x → 2.0 starts its first build at `.0` instead of
+jumping straight to wherever the commit count happens to be. The
+tracked source keeps the patch digit at `0` as a placeholder. Minecraft
+only replaces an already-imported pack if the new one has a higher
+version, so without this a rebuilt `.mcaddon` can silently get ignored
+on reimport. This means the version only advances when you actually
+commit — if you're testing uncommitted changes, the build is tagged
+`-dirty` and the reimport won't be seen as an update over a clean build
+of the same commit.
 
 ## Usage
 
@@ -791,6 +818,27 @@ cycle, so each 5-second window comfortably contains at least one heal
 before the next refresh restarts it. The 30-second duration on each
 application is still just the same lag-spike margin as the other
 bonuses, not a requirement for healing to work.
+
+### Iron armor resistance bonus
+
+Same two-tier watchdog shape as Leather/Chainmail/Copper above: 2 or 3
+pieces of Iron armor worn grants Resistance I, and a full 4-piece set
+grants Resistance II instead (not stacked on top of Resistance I)
+(`IRON_ARMOR_SLOTS` in [`main.js`](season_manager/season_pack/scripts/main.js)).
+Rounds out the armor-bonus grid shown in
+[`docs/armor_bonus_tiers.svg`](docs/armor_bonus_tiers.svg) — Iron was
+the last vanilla-material gap between Chainmail and Diamond.
+
+### Rose Gold armor strength bonus
+
+Same shape again, this time for New Haven's custom Rose Gold armor (see
+[Rose Gold gear](#rose-gold-gear) below): 2 or 3 pieces worn grants
+Strength I, a full 4-piece set grants Strength II instead
+(`ROSE_GOLD_ARMOR_SLOTS` in
+[`main.js`](season_manager/season_pack/scripts/main.js), keyed off the
+`newhaven:rose_gold_*` armor identifiers). Rose Gold's own stats already
+sit between Iron and Diamond (see below), so Strength is its reward for
+actually reaching that tier rather than its only selling point.
 
 ### Cave combo: Night Vision
 

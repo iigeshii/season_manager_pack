@@ -62,10 +62,12 @@
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:soul_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:sea_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:shroomlight", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 2, "price_multiplier": 0.05 }], "gives": [{ "item": "newhaven:bubblepearl_lantern", "quantity": 6 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:ochre_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:verdant_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
             { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:pearlescent_froglight", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
-            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:end_rod", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "minecraft:end_rod", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false },
+            { "wants": [{ "item": "minecraft:emerald", "quantity": 3, "price_multiplier": 0.05 }], "gives": [{ "item": "newhaven:bubblepearl", "quantity": 4 }], "trader_exp": 0, "max_uses": 3, "reward_exp": false }
           ]
         },
         {
