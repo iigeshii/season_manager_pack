@@ -16,7 +16,7 @@
         "slot": "hoe",
         "value": 14
       },
-      "minecraft:damage": 1,
+      "minecraft:damage": 5,
       "minecraft:durability": {
         "max_durability": 906
       },

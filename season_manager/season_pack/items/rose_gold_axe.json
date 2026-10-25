@@ -16,7 +16,7 @@
         "slot": "axe",
         "value": 14
       },
-      "minecraft:damage": 8,
+      "minecraft:damage": 6,
       "minecraft:durability": {
         "max_durability": 906
       },

@@ -16,7 +16,7 @@
         "slot": "pickaxe",
         "value": 14
       },
-      "minecraft:damage": 4,
+      "minecraft:damage": 5,
       "minecraft:durability": {
         "max_durability": 906
       },
