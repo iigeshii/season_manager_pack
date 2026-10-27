@@ -271,7 +271,7 @@ graph TD
     masons["Masons of the Dunes<br/><i>Desert</i>"]
     tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman, <i>tool books</i><br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith, <i>armor + melee books</i>"]
   end
-  trial["Trial Chamber"]
+  trial["The Unclaimed Trial"]
   mechanisms["The Age of<br/>Mechanisms"]
   mansionhook["??? — Story TBD"]
   mansion["Woodland Mansion"]
@@ -295,7 +295,8 @@ graph TD
   bread -->|village maps| feathered & woolfrost & pelts & masons
   feathered & woolfrost & pelts & masons --> tally
   bread -->|first village| tally
-  mystic -->|chamber map| trial
+  camp -->|village contact| trial
+  hall -->|legacy tracking| trial
   trial -->|hopper tech| mechanisms
   bread --> mansionhook
   mansionhook -->|mansion map released| mansion
@@ -341,14 +342,14 @@ graph TD
   classDef tentative fill:#f5e8c8,stroke:#a3760f,stroke-width:2px,stroke-dasharray: 4 3,color:#3a2c05;
   classDef complete fill:#d9f0e3,stroke:#1f9d63,stroke-width:2px,color:#0d6b40;
   style villages fill:none,stroke:#8b9080,stroke-width:1px,stroke-dasharray: 6 4
-  class mystic,archery,forge,mansionhook,mansion,trial,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
+  class mystic,archery,forge,mansionhook,mansion,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
   class camp complete
     </pre>
   </div>
   <div class="diagram-legend">
     <span><span class="legend-swatch"></span> required prerequisite, labeled with the short version of what the node you're leaving just unlocked</span>
     <span><span class="legend-swatch-box" style="border:2px solid var(--emerald);background:var(--emerald-bg)"></span> Complete</span>
-    <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Trial Chamber/Woodland Mansion onward, and Gibliria onward</span>
+    <span><span class="legend-swatch-box"></span> Story &amp; Unlocks still being planned — Woodland Mansion onward, and Gibliria onward</span>
     <span>click any box to jump to its write-up below</span>
   </div>
 
@@ -459,7 +460,7 @@ graph TD
           <ul>
             <li>Counts as the first village toward the <a href="#village-milestones">Village Milestones</a></li>
             <li>Cleric trades restored</li>
-            <li>Cartographer trades restored — Village map goes on sale. Trial Chamber waits for <a href="#node-mystic">The Mystic Library</a>; Ocean Monument waits for <a href="#node-shipwreck">Shipwreck &amp; Treasure</a>; Woodland Mansion waits for <a href="#node-mansionhook">its own story</a> — none of the other three maps are available this early.</li>
+            <li>Cartographer trades restored — Village map goes on sale. <a href="#node-trial">The Unclaimed Trial</a>'s map comes separately, granted directly rather than bought; Ocean Monument waits for <a href="#node-shipwreck">Shipwreck &amp; Treasure</a>; Woodland Mansion waits for <a href="#node-mansionhook">its own story</a> — neither of those two is available this early.</li>
             <li>Fletcher trades restored</li>
           </ul>
         </div>
@@ -483,11 +484,10 @@ graph TD
           <ul>
             <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens. Mending is never sold.</li>
             <li>The token tree opens, so higher tiers can be bought with tokens earned at events</li>
-            <li>The cartographer's table gains the Trial Chambers Explorer Map trade</li>
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#mystic-library">the Mystic Library enchanting tree</a>, which keeps growing through the rest of the season; <a href="#node-archery">The Archery Contest</a>; <a href="#node-trial">Trial Chamber</a></p>
+      <p class="leads-to">Leads to: <a href="#mystic-library">the Mystic Library enchanting tree</a>, which keeps growing through the rest of the season; <a href="#node-archery">The Archery Contest</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-archery">
@@ -690,21 +690,17 @@ graph TD
       <p class="leads-to">Leads to: <a href="#village-milestones">Village Milestones</a></p>
     </section>
 
-    <section class="chapter is-tentative" id="node-trial">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> to start, <a href="#node-mystic">The Mystic Library</a> to finish <span class="tentative-badge">Story TBD</span></div>
-      <h3 class="chapter-title">Trial Chamber</h3>
-      <p class="chapter-story">New Haven has earned something more valuable than emeralds: the beginnings of trust. The cartographer, now that the library has given New Haven a reason to go digging through old charts, turns up a weathered map pointing to a Trial Chamber — a sealed, mechanical complex older than anything the group's found so far. What it's actually worth to New Haven is the hopper: a simple device for moving items between containers, promising storage and farms that don't need a person standing over them. Whoever drew the original map, and why they never came back for it, is still an open question.</p>
+    <section class="chapter is-current" id="node-trial">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a> to start, <a href="#node-hall">Hall of Heroes</a> to finish — the win has to be recorded there. <span class="current-badge">Current</span></div>
+      <h3 class="chapter-title">The Unclaimed Trial</h3>
+      <p class="chapter-story">New Haven hasn't finished proving itself to the village yet. The hotel's going up, the farms are in, the market and town hall are both underway. Still, the cartographer's seen enough already. She's watched this crew show up morning after morning to keep digging in, long before anyone owed them anything for it, and that's rare enough on its own that she decides not to wait for a finished job to act on it. From beneath her table she produces a map she's kept folded away since before anyone can remember — water-stained, marked in a hand that isn't hers, pointing to a sealed mechanical complex far older than anything else charted in this land. She hands it over as a bet on who New Haven is becoming, not a reward for who they've already proven to be. What she can't tell the group is what's waiting inside, only that whoever drew it never came back to collect it — and that was a long time ago. Nobody in New Haven knows what's actually down there. That's exactly why it's worth going.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>The group receives and follows its own Trial Chambers map from the cartographer — not a chamber someone already cleared solo beforehand</li>
-            <li>A marked route is established from New Haven to the chamber</li>
-            <li>The chamber is entered, explored, and its trials survived together as a group</li>
-            <li>Evidence of hopper technology is recovered</li>
-            <li>New Haven's first hopper-powered machine is built</li>
-            <li>The expedition and its discoveries are recorded in the <a href="#node-hall">Hall of Heroes</a> — noting when it happened and who took part</li>
-            <li>The findings are presented to the cartographer and the village</li>
+            <li>The group receives and follows its own Trial Chambers map from the cartographer. The map must lead to a pristine, unraided trial chamber</li>
+            <li>The chamber is found and cleared together as a group — at least 4 people take part, see the Commonhold Ethos. All vaults must be opened by each player, including the ominous vaults</li>
+            <li>The expedition is recorded in the <a href="#node-hall">Hall of Heroes</a> — noting when it happened and who took part</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
@@ -712,8 +708,6 @@ graph TD
           <ul>
             <li>Hopper-based automation approved for settlement projects</li>
             <li>Automated farming and item-storage projects become available</li>
-            <li>The cartographer can document additional unexplored locations</li>
-            <li>New Haven gains a research lead into who built the ancient chambers</li>
           </ul>
         </div>
       </div>
@@ -721,9 +715,9 @@ graph TD
     </section>
 
     <section class="chapter is-tentative" id="node-mechanisms">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-trial">Trial Chamber</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-trial">The Unclaimed Trial</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
       <h3 class="chapter-title">The Age of Mechanisms</h3>
-      <p class="chapter-story">A side line off Trial Chamber, not a gate to anything else — doesn't block <a href="#node-ancient">Ancient City</a> or anything downstream of it. With hoppers in hand, New Haven starts experimenting with real automation: what that actually looks like, and what it takes to prove the group has pulled it off, isn't written yet. Up for whoever wants to pitch it.</p>
+      <p class="chapter-story">A side line off The Unclaimed Trial, not a gate to anything else — doesn't block <a href="#node-ancient">Ancient City</a> or anything downstream of it. With hoppers in hand, New Haven starts experimenting with real automation: what that actually looks like, and what it takes to prove the group has pulled it off, isn't written yet. Up for whoever wants to pitch it.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
