@@ -145,6 +145,17 @@ regardless of when each piece was actually added:
 
 ![Armor set bonus tiers — Leather, Chainmail, Copper, Iron, and Rose Gold are all live, plus the Night Vision cave combo](docs/armor_bonus_tiers.svg)
 
+## Season Manager v2.0.44 — The Durability Fix
+
+- **Fixed: Rose Gold tools weren't losing durability while mining.**
+  Bedrock never depletes a custom tool's durability from breaking
+  blocks on its own — only from hitting something in combat — so the
+  Pickaxe, Shovel, Axe, Hoe, and Sword were only taking damage as
+  weapons. They now wear down per block broken, at the same rate (and
+  with the same Unbreaking behavior) as any vanilla tool — the Sword
+  costs double, same as a vanilla sword used to mine instead of the
+  correct tool.
+
 ## Season Manager v2.0.49 — The Unclaimed Trial
 
 - **New storyline: The Unclaimed Trial.** The village cartographer,
@@ -167,14 +178,3 @@ regardless of when each piece was actually added:
   and Fishing Rod catches already were. With all three restored, the
   fishing loot table matches vanilla exactly, so the override file was
   removed outright.
-
-## Season Manager v2.0.44 — The Durability Fix
-
-- **Fixed: Rose Gold tools weren't losing durability while mining.**
-  Bedrock never depletes a custom tool's durability from breaking
-  blocks on its own — only from hitting something in combat — so the
-  Pickaxe, Shovel, Axe, Hoe, and Sword were only taking damage as
-  weapons. They now wear down per block broken, at the same rate (and
-  with the same Unbreaking behavior) as any vanilla tool — the Sword
-  costs double, same as a vanilla sword used to mine instead of the
-  correct tool.
