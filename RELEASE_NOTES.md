@@ -145,6 +145,29 @@ regardless of when each piece was actually added:
 
 ![Armor set bonus tiers — Leather, Chainmail, Copper, Iron, and Rose Gold are all live, plus the Night Vision cave combo](docs/armor_bonus_tiers.svg)
 
+## Season Manager v2.0.49 — The Unclaimed Trial
+
+- **New storyline: The Unclaimed Trial.** The village cartographer,
+  impressed by New Haven's progress even before Breaking Bread is
+  finished, starts selling a map to a sealed, unexplored Trial Chamber
+  — a bet on who the settlement is becoming, not a reward for who
+  it's already proven to be. Find and clear it together as a group,
+  open every vault (ominous included), and record the win in the Hall
+  of Heroes to unlock hopper-based automation.
+- **The cartographer sells the Trial Chambers Explorer Map** (12
+  Emeralds + 1 Compass) to support it — the first cartographer trade
+  turned back on since trading was disabled season-wide.
+- **Rose Gold damage values corrected to Bedrock's real numbers.**
+  They'd been carried over from the source mod's Java-based math,
+  which doesn't match Bedrock's own (different) damage scale. Sword,
+  Axe, Pickaxe, Shovel, and Hoe are now all set to Bedrock's real
+  Iron-tier damage — strictly below Diamond, matching every other
+  Rose Gold stat.
+- **Fishing: Book catches can come pre-enchanted again**, same as Bow
+  and Fishing Rod catches already were. With all three restored, the
+  fishing loot table matches vanilla exactly, so the override file was
+  removed outright.
+
 ## Season Manager v2.0.44 — The Durability Fix
 
 - **Fixed: Rose Gold tools weren't losing durability while mining.**

@@ -304,15 +304,14 @@ llamas, etc. — nothing else about the entity was touched).
 
 ### Fishing
 
-[`loot_tables/gameplay/fishing/treasure.json`](season_manager/season_pack/loot_tables/gameplay/fishing/treasure.json)
-overrides the vanilla treasure pool (shared by both the regular and
-jungle fishing tables). Bow and Fishing Rod catches restore vanilla's
-`enchant_with_levels` (30 levels, treasure-only enchants), so they can
-come pre-enchanted again same as vanilla. Book catches keep that function
-removed — a fished-up book still never comes pre-enchanted. Fish and junk
-pools are untouched. See
-`original_loot/loot_tables/gameplay/fishing/treasure.json` for the
-unmodified vanilla version.
+Fishing is fully vanilla now — no override file. Bow, Fishing Rod, and
+Book treasure catches can all come pre-enchanted again (`enchant_with_levels`,
+30 levels, treasure-only enchants), same as stock Minecraft. Earlier
+versions of this pack stripped that function from Book catches only;
+once it was restored, the override matched vanilla byte-for-byte and
+was removed rather than kept as a no-op copy. See
+`original_loot/loot_tables/gameplay/fishing/treasure.json` for
+reference.
 
 ### Turtle scute drop
 
