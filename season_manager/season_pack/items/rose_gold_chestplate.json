@@ -9,12 +9,7 @@
       }
     },
     "components": {
-      "minecraft:icon": {
-        "textures": {
-          "default": "newhaven:rose_gold_chestplate",
-          "dyed": "newhaven:rose_gold_chestplate_icon_gray"
-        }
-      },
+      "minecraft:icon": "newhaven:rose_gold_chestplate",
       "minecraft:max_stack_size": 1,
       "minecraft:enchantable": {
         "slot": "armor_torso",
@@ -24,26 +19,32 @@
         "slot": "slot.armor.chest",
         "protection": 7
       },
-      "minecraft:dyeable": {
-        "default_color": "#feb8a8"
-      },
       "minecraft:durability": {
         "max_durability": 384
       },
       "minecraft:repairable": {
         "repair_items": [
           {
-            "items": ["newhaven:rose_gold_ingot"],
+            "items": [
+              "newhaven:rose_gold_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.5"
           },
           {
-            "items": ["minecraft:gold_ingot", "minecraft:copper_ingot"],
+            "items": [
+              "minecraft:gold_ingot",
+              "minecraft:copper_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.25"
           }
         ]
       },
       "minecraft:tags": {
-        "tags": ["minecraft:is_armor", "minecraft:trimmable_armors", "newhaven:rg_chestplate"]
+        "tags": [
+          "minecraft:is_armor",
+          "minecraft:trimmable_armors",
+          "newhaven:rg_chestplate"
+        ]
       }
     }
   }

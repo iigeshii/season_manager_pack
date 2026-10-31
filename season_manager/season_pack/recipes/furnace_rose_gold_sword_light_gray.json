@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "newhaven:furnace_rose_gold_sword_light_gray"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_sword_light_gray"
+      }
+    ],
+    "input": "newhaven:rose_gold_sword_light_gray",
+    "output": "newhaven:rose_gold_nugget",
+    "priority": 130
+  }
+}

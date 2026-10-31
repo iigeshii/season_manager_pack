@@ -1,22 +1,24 @@
 {
   "format_version": "1.20.10",
-  "minecraft:recipe_shapeless": {
+  "minecraft:recipe_shaped": {
     "description": {
       "identifier": "newhaven:rose_gold_boots_cyan"
     },
     "tags": [
       "crafting_table"
     ],
-    "ingredients": [
-      {
-        "item": "newhaven:rose_gold_ingot",
-        "count": 4
-      },
-      {
-        "item": "minecraft:cyan_dye",
-        "count": 1
-      }
+    "pattern": [
+      "RDR",
+      "R R"
     ],
+    "key": {
+      "R": {
+        "item": "newhaven:rose_gold_ingot"
+      },
+      "D": {
+        "item": "minecraft:cyan_dye"
+      }
+    },
     "unlock": [
       {
         "item": "newhaven:rose_gold_ingot"

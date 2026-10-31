@@ -9,17 +9,9 @@
       }
     },
     "components": {
-      "minecraft:icon": {
-        "textures": {
-          "default": "newhaven:rose_gold_sword",
-          "dyed": "newhaven:rose_gold_sword_icon_gray"
-        }
-      },
+      "minecraft:icon": "newhaven:rose_gold_sword",
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
-      "minecraft:dyeable": {
-        "default_color": "#feb8a8"
-      },
       "minecraft:enchantable": {
         "slot": "sword",
         "value": 14
@@ -44,17 +36,26 @@
       "minecraft:repairable": {
         "repair_items": [
           {
-            "items": ["newhaven:rose_gold_ingot"],
+            "items": [
+              "newhaven:rose_gold_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.5"
           },
           {
-            "items": ["minecraft:gold_ingot", "minecraft:copper_ingot"],
+            "items": [
+              "minecraft:gold_ingot",
+              "minecraft:copper_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.25"
           }
         ]
       },
       "minecraft:tags": {
-        "tags": ["minecraft:is_sword", "minecraft:diamond_tier", "newhaven:rg_sword"]
+        "tags": [
+          "minecraft:is_sword",
+          "minecraft:diamond_tier",
+          "newhaven:rg_sword"
+        ]
       }
     }
   }

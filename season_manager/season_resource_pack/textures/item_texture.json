@@ -3,59 +3,35 @@
     "newhaven:rose_gold_helmet": {
       "textures": "textures/items/rose_gold_helmet"
     },
-    "newhaven:rose_gold_helmet_icon_gray": {
-      "textures": "textures/items/rose_gold_helmet_icon_gray"
-    },
     "newhaven:rose_gold_chestplate": {
       "textures": "textures/items/rose_gold_chestplate"
-    },
-    "newhaven:rose_gold_chestplate_icon_gray": {
-      "textures": "textures/items/rose_gold_chestplate_icon_gray"
     },
     "newhaven:rose_gold_leggings": {
       "textures": "textures/items/rose_gold_leggings"
     },
-    "newhaven:rose_gold_leggings_icon_gray": {
-      "textures": "textures/items/rose_gold_leggings_icon_gray"
-    },
     "newhaven:rose_gold_boots": {
       "textures": "textures/items/rose_gold_boots"
-    },
-    "newhaven:rose_gold_boots_icon_gray": {
-      "textures": "textures/items/rose_gold_boots_icon_gray"
     },
     "newhaven:rose_gold_ingot": {
       "textures": "textures/items/rose_gold_ingot"
     },
+    "newhaven:rose_gold_nugget": {
+      "textures": "textures/items/rose_gold_nugget"
+    },
     "newhaven:rose_gold_sword": {
       "textures": "textures/items/rose_gold_sword"
-    },
-    "newhaven:rose_gold_sword_icon_gray": {
-      "textures": "textures/items/rose_gold_sword_icon_gray"
     },
     "newhaven:rose_gold_axe": {
       "textures": "textures/items/rose_gold_axe"
     },
-    "newhaven:rose_gold_axe_icon_gray": {
-      "textures": "textures/items/rose_gold_axe_icon_gray"
-    },
     "newhaven:rose_gold_pickaxe": {
       "textures": "textures/items/rose_gold_pickaxe"
-    },
-    "newhaven:rose_gold_pickaxe_icon_gray": {
-      "textures": "textures/items/rose_gold_pickaxe_icon_gray"
     },
     "newhaven:rose_gold_shovel": {
       "textures": "textures/items/rose_gold_shovel"
     },
-    "newhaven:rose_gold_shovel_icon_gray": {
-      "textures": "textures/items/rose_gold_shovel_icon_gray"
-    },
     "newhaven:rose_gold_hoe": {
       "textures": "textures/items/rose_gold_hoe"
-    },
-    "newhaven:rose_gold_hoe_icon_gray": {
-      "textures": "textures/items/rose_gold_hoe_icon_gray"
     },
     "newhaven:rose_gold_sword_white": {
       "textures": "textures/items/rose_gold_sword_white"

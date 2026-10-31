@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "newhaven:rose_gold_ingot_from_nuggets"
+    },
+    "tags": ["crafting_table"],
+    "group": "rose_gold_ingot",
+    "pattern": [
+      "###",
+      "###",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": "newhaven:rose_gold_nugget"
+      }
+    },
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_nugget"
+      }
+    ],
+    "result": {
+      "item": "newhaven:rose_gold_ingot"
+    }
+  }
+}

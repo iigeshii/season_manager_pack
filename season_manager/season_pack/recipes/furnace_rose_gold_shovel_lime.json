@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "newhaven:furnace_rose_gold_shovel_lime"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_shovel_lime"
+      }
+    ],
+    "input": "newhaven:rose_gold_shovel_lime",
+    "output": "newhaven:rose_gold_nugget",
+    "priority": 130
+  }
+}

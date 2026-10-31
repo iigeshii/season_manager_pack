@@ -1,26 +1,28 @@
 {
   "format_version": "1.20.10",
-  "minecraft:recipe_shapeless": {
+  "minecraft:recipe_shaped": {
     "description": {
       "identifier": "newhaven:rose_gold_pickaxe_white"
     },
     "tags": [
       "crafting_table"
     ],
-    "ingredients": [
-      {
-        "item": "newhaven:rose_gold_ingot",
-        "count": 3
-      },
-      {
-        "item": "minecraft:stick",
-        "count": 2
-      },
-      {
-        "item": "minecraft:white_dye",
-        "count": 1
-      }
+    "pattern": [
+      "RRR",
+      "DS ",
+      " S "
     ],
+    "key": {
+      "R": {
+        "item": "newhaven:rose_gold_ingot"
+      },
+      "D": {
+        "item": "minecraft:white_dye"
+      },
+      "S": {
+        "item": "minecraft:stick"
+      }
+    },
     "unlock": [
       {
         "item": "newhaven:rose_gold_ingot"

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "newhaven:furnace_rose_gold_hoe_magenta"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_hoe_magenta"
+      }
+    ],
+    "input": "newhaven:rose_gold_hoe_magenta",
+    "output": "newhaven:rose_gold_nugget",
+    "priority": 130
+  }
+}
