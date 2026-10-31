@@ -9,9 +9,17 @@
       }
     },
     "components": {
-      "minecraft:icon": "newhaven:rose_gold_pickaxe",
+      "minecraft:icon": {
+        "textures": {
+          "default": "newhaven:rose_gold_pickaxe",
+          "dyed": "newhaven:rose_gold_pickaxe_icon_gray"
+        }
+      },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
+      "minecraft:dyeable": {
+        "default_color": "#feb8a8"
+      },
       "minecraft:enchantable": {
         "slot": "pickaxe",
         "value": 14

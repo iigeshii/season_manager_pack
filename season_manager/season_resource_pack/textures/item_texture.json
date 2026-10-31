@@ -30,17 +30,32 @@
     "newhaven:rose_gold_sword": {
       "textures": "textures/items/rose_gold_sword"
     },
+    "newhaven:rose_gold_sword_icon_gray": {
+      "textures": "textures/items/rose_gold_sword_icon_gray"
+    },
     "newhaven:rose_gold_axe": {
       "textures": "textures/items/rose_gold_axe"
+    },
+    "newhaven:rose_gold_axe_icon_gray": {
+      "textures": "textures/items/rose_gold_axe_icon_gray"
     },
     "newhaven:rose_gold_pickaxe": {
       "textures": "textures/items/rose_gold_pickaxe"
     },
+    "newhaven:rose_gold_pickaxe_icon_gray": {
+      "textures": "textures/items/rose_gold_pickaxe_icon_gray"
+    },
     "newhaven:rose_gold_shovel": {
       "textures": "textures/items/rose_gold_shovel"
     },
+    "newhaven:rose_gold_shovel_icon_gray": {
+      "textures": "textures/items/rose_gold_shovel_icon_gray"
+    },
     "newhaven:rose_gold_hoe": {
       "textures": "textures/items/rose_gold_hoe"
+    },
+    "newhaven:rose_gold_hoe_icon_gray": {
+      "textures": "textures/items/rose_gold_hoe_icon_gray"
     }
   }
 }
