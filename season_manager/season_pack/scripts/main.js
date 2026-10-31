@@ -56,8 +56,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 
 // Every currently-banned item except diamond tools/weapon/armor ends up
 // here now, on top of whatever recipe lock also exists for it (see
-// recipes/) — a trial chambers run turned up a loose hopper, proving a
-// recipe lock alone doesn't stop something found rather than crafted.
+// recipes/) — a loose item found rather than crafted (e.g. a dungeon
+// chest) would otherwise slip past a recipe lock alone.
 // elytra has no vanilla recipe at all, so this is its only restriction.
 // dispenser, dropper, sticky_piston, and piston went further: their
 // recipe lock files were removed entirely, since dropper/sticky_piston/
@@ -69,7 +69,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
 // wear states) is also deliberately NOT here anymore — not because The
 // Forge Reopens milestone was reached (it hasn't been), but because the
 // group directly voted to allow anvils back, specifically for renaming
-// items with nametags.
+// items with nametags. hopper and hopper_minecart are also no longer
+// here — The Unclaimed Trial unlocked hopper-based automation.
 const CLEANUP_ITEMS = [
   "elytra",
   "dispenser",
@@ -77,8 +78,6 @@ const CLEANUP_ITEMS = [
   "sticky_piston",
   "piston",
   "conduit",
-  "hopper",
-  "hopper_minecart",
   "crafter",
   "observer",
   "blaze_powder",
