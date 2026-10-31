@@ -43,7 +43,7 @@
         ]
       },
       "minecraft:tags": {
-        "tags": ["minecraft:is_armor", "minecraft:trimmable_armors"]
+        "tags": ["minecraft:is_armor", "minecraft:trimmable_armors", "newhaven:rg_boots"]
       }
     }
   }

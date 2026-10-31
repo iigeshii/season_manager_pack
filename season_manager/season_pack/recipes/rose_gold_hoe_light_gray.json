@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "newhaven:rose_gold_hoe_light_gray"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "newhaven:rose_gold_ingot",
+        "count": 2
+      },
+      {
+        "item": "minecraft:stick",
+        "count": 2
+      },
+      {
+        "item": "minecraft:light_gray_dye",
+        "count": 1
+      }
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "newhaven:rose_gold_hoe_light_gray"
+    }
+  }
+}

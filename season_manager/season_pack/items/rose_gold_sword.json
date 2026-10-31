@@ -54,7 +54,7 @@
         ]
       },
       "minecraft:tags": {
-        "tags": ["minecraft:is_sword", "minecraft:diamond_tier"]
+        "tags": ["minecraft:is_sword", "minecraft:diamond_tier", "newhaven:rg_sword"]
       }
     }
   }

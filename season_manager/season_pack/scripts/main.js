@@ -658,11 +658,15 @@ system.runInterval(() => {
 //  instead (not stacked on top of Strength I).
 // ─────────────────────────────────────────────
 
+// Matched by family tag (e.g. "newhaven:rg_helmet"), not exact item ID —
+// every color variant of a Rose Gold armor piece carries the same family
+// tag alongside its own unique typeId, so this works across all of them
+// without listing each one out.
 const ROSE_GOLD_ARMOR_SLOTS = [
-  { slot: EquipmentSlot.Head, item: "newhaven:rose_gold_helmet" },
-  { slot: EquipmentSlot.Chest, item: "newhaven:rose_gold_chestplate" },
-  { slot: EquipmentSlot.Legs, item: "newhaven:rose_gold_leggings" },
-  { slot: EquipmentSlot.Feet, item: "newhaven:rose_gold_boots" },
+  { slot: EquipmentSlot.Head, tag: "newhaven:rg_helmet" },
+  { slot: EquipmentSlot.Chest, tag: "newhaven:rg_chestplate" },
+  { slot: EquipmentSlot.Legs, tag: "newhaven:rg_leggings" },
+  { slot: EquipmentSlot.Feet, tag: "newhaven:rg_boots" },
 ];
 
 const ROSE_GOLD_STRENGTH_INTERVAL_TICKS = 100; // 5 seconds
@@ -674,8 +678,8 @@ system.runInterval(() => {
     if (!equippable) continue;
 
     let piecesWorn = 0;
-    for (const { slot, item } of ROSE_GOLD_ARMOR_SLOTS) {
-      if (equippable.getEquipment(slot)?.typeId === item) piecesWorn++;
+    for (const { slot, tag } of ROSE_GOLD_ARMOR_SLOTS) {
+      if (equippable.getEquipment(slot)?.hasTag(tag)) piecesWorn++;
     }
 
     if (piecesWorn >= 4) {
@@ -697,19 +701,31 @@ system.runInterval(() => {
 //  durability component's own getDamageChance() does. The Sword costs 2
 //  durability per block (vanilla's standard penalty for mining with a
 //  sword instead of the correct tool) where the other four cost 1.
+//  Matched by family tag (e.g. "newhaven:rg_pickaxe"), not exact item ID
+//  — every color variant of a Rose Gold tool carries the same family tag
+//  alongside its own unique typeId, so this works across all of them
+//  without listing each one out.
 // ─────────────────────────────────────────────
 
-const ROSE_GOLD_MINING_TOOLS = new Map([
-  ["newhaven:rose_gold_pickaxe", 1],
-  ["newhaven:rose_gold_shovel", 1],
-  ["newhaven:rose_gold_axe", 1],
-  ["newhaven:rose_gold_hoe", 1],
-  ["newhaven:rose_gold_sword", 2],
+const ROSE_GOLD_MINING_TOOL_TAGS = new Map([
+  ["newhaven:rg_pickaxe", 1],
+  ["newhaven:rg_shovel", 1],
+  ["newhaven:rg_axe", 1],
+  ["newhaven:rg_hoe", 1],
+  ["newhaven:rg_sword", 2],
 ]);
 
 world.afterEvents.playerBreakBlock.subscribe((event) => {
   const { player, itemStackBeforeBreak } = event;
-  const damagePerBlock = itemStackBeforeBreak && ROSE_GOLD_MINING_TOOLS.get(itemStackBeforeBreak.typeId);
+  if (!itemStackBeforeBreak) return;
+
+  let damagePerBlock;
+  for (const [tag, amount] of ROSE_GOLD_MINING_TOOL_TAGS) {
+    if (itemStackBeforeBreak.hasTag(tag)) {
+      damagePerBlock = amount;
+      break;
+    }
+  }
   if (!damagePerBlock) return;
 
   const durability = itemStackBeforeBreak.getComponent("minecraft:durability");

@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "newhaven:rose_gold_axe_light_blue"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "newhaven:rose_gold_ingot",
+        "count": 3
+      },
+      {
+        "item": "minecraft:stick",
+        "count": 2
+      },
+      {
+        "item": "minecraft:light_blue_dye",
+        "count": 1
+      }
+    ],
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "newhaven:rose_gold_axe_light_blue"
+    }
+  }
+}
