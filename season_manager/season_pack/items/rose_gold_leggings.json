@@ -19,6 +19,9 @@
         "slot": "slot.armor.legs",
         "protection": 5
       },
+      "minecraft:dyeable": {
+        "default_color": "#feb8a8"
+      },
       "minecraft:durability": {
         "max_durability": 360
       },
