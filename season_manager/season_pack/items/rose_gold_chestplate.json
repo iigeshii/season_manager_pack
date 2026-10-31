@@ -9,7 +9,12 @@
       }
     },
     "components": {
-      "minecraft:icon": "newhaven:rose_gold_chestplate",
+      "minecraft:icon": {
+        "textures": {
+          "default": "newhaven:rose_gold_chestplate",
+          "dyed": "newhaven:rose_gold_chestplate_icon_gray"
+        }
+      },
       "minecraft:max_stack_size": 1,
       "minecraft:enchantable": {
         "slot": "armor_torso",

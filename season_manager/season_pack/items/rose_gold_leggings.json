@@ -9,7 +9,12 @@
       }
     },
     "components": {
-      "minecraft:icon": "newhaven:rose_gold_leggings",
+      "minecraft:icon": {
+        "textures": {
+          "default": "newhaven:rose_gold_leggings",
+          "dyed": "newhaven:rose_gold_leggings_icon_gray"
+        }
+      },
       "minecraft:max_stack_size": 1,
       "minecraft:enchantable": {
         "slot": "armor_legs",
