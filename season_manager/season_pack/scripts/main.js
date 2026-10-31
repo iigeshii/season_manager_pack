@@ -1281,3 +1281,48 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     player.sendMessage("§6All logs cleared (login, grief, death).");
   }
 });
+
+// ─────────────────────────────────────────────
+//  RESET CARTOGRAPHER
+//  A villager's trade list locks permanently the moment she completes
+//  her first trade — breaking/replacing her job site does nothing after
+//  that point, and there's no scripting API that can read or rewrite an
+//  existing villager's trade offers (EntityComponentTypes has no
+//  trade-related component at all). The only real fix is a clean
+//  replace: despawn her (remove(), so no death animation or drops) and
+//  spawn a fresh minecraft:villager_v2 in her exact spot, carrying over
+//  her name tag and facing, then trigger her back into the Cartographer
+//  profession so she rolls brand new trades from whatever's currently in
+//  cartographer_trades.json.
+//  /function season/reset_cartographer, aimed at her — same
+//  tag-then-scriptevent workaround used throughout this file for
+//  event.sourceEntity being unreliable from a function.
+// ─────────────────────────────────────────────
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:reset_cartographer") return;
+
+  for (const player of world.getPlayers({ tags: ["season:reset_cartographer_pending"] })) {
+    player.removeTag("season:reset_cartographer_pending");
+
+    const hit = player.getEntitiesFromViewDirection({ maxDistance: 8 }).find((h) => h.entity.typeId === "minecraft:villager_v2");
+    if (!hit) {
+      player.sendMessage("§cLook directly at the villager you want to reset (within 8 blocks).");
+      continue;
+    }
+
+    const villager = hit.entity;
+    const { location, dimension } = villager;
+    const rotation = villager.getRotation();
+    const nameTag = villager.nameTag;
+
+    villager.remove();
+
+    const replacement = dimension.spawnEntity("minecraft:villager_v2", location);
+    replacement.setRotation(rotation);
+    if (nameTag) replacement.nameTag = nameTag;
+    replacement.triggerEvent("minecraft:become_cartographer");
+
+    player.sendMessage(`§aReset ${nameTag || "the villager"}. Give her a Cartography Table to roll fresh trades.`);
+  }
+});
