@@ -25,17 +25,26 @@
       "minecraft:repairable": {
         "repair_items": [
           {
-            "items": ["newhaven:rose_gold_ingot"],
+            "items": [
+              "newhaven:rose_gold_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.5"
           },
           {
-            "items": ["minecraft:gold_ingot", "minecraft:copper_ingot"],
+            "items": [
+              "minecraft:gold_ingot",
+              "minecraft:copper_ingot"
+            ],
             "repair_amount": "q.max_durability * 0.25"
           }
         ]
       },
       "minecraft:tags": {
-        "tags": ["minecraft:is_armor", "minecraft:trimmable_armors"]
+        "tags": [
+          "minecraft:is_armor",
+          "minecraft:trimmable_armors",
+          "newhaven:rg_helmet"
+        ]
       }
     }
   }

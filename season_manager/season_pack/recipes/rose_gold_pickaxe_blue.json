@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "newhaven:rose_gold_pickaxe_blue"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "RRR",
+      "DS ",
+      " S "
+    ],
+    "key": {
+      "R": {
+        "item": "newhaven:rose_gold_ingot"
+      },
+      "D": {
+        "item": "minecraft:blue_dye"
+      },
+      "S": {
+        "item": "minecraft:stick"
+      }
+    },
+    "unlock": [
+      {
+        "item": "newhaven:rose_gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "newhaven:rose_gold_pickaxe_blue"
+    }
+  }
+}

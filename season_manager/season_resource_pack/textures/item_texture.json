@@ -29,6 +29,144 @@
     },
     "newhaven:rose_gold_hoe": {
       "textures": "textures/items/rose_gold_hoe"
+    },
+    "newhaven:rose_gold_nugget": {
+      "textures": "textures/items/rose_gold_nugget"
+    },
+    "newhaven:rose_gold_sword_red": {
+      "textures": "textures/items/rose_gold_sword_red"
+    },
+    "newhaven:rose_gold_sword_green": {
+      "textures": "textures/items/rose_gold_sword_green"
+    },
+    "newhaven:rose_gold_sword_blue": {
+      "textures": "textures/items/rose_gold_sword_blue"
+    },
+    "newhaven:rose_gold_sword_black": {
+      "textures": "textures/items/rose_gold_sword_black"
+    },
+    "newhaven:rose_gold_sword_brown": {
+      "textures": "textures/items/rose_gold_sword_brown"
+    },
+    "newhaven:rose_gold_axe_red": {
+      "textures": "textures/items/rose_gold_axe_red"
+    },
+    "newhaven:rose_gold_axe_green": {
+      "textures": "textures/items/rose_gold_axe_green"
+    },
+    "newhaven:rose_gold_axe_blue": {
+      "textures": "textures/items/rose_gold_axe_blue"
+    },
+    "newhaven:rose_gold_axe_black": {
+      "textures": "textures/items/rose_gold_axe_black"
+    },
+    "newhaven:rose_gold_axe_brown": {
+      "textures": "textures/items/rose_gold_axe_brown"
+    },
+    "newhaven:rose_gold_pickaxe_red": {
+      "textures": "textures/items/rose_gold_pickaxe_red"
+    },
+    "newhaven:rose_gold_pickaxe_green": {
+      "textures": "textures/items/rose_gold_pickaxe_green"
+    },
+    "newhaven:rose_gold_pickaxe_blue": {
+      "textures": "textures/items/rose_gold_pickaxe_blue"
+    },
+    "newhaven:rose_gold_pickaxe_black": {
+      "textures": "textures/items/rose_gold_pickaxe_black"
+    },
+    "newhaven:rose_gold_pickaxe_brown": {
+      "textures": "textures/items/rose_gold_pickaxe_brown"
+    },
+    "newhaven:rose_gold_shovel_red": {
+      "textures": "textures/items/rose_gold_shovel_red"
+    },
+    "newhaven:rose_gold_shovel_green": {
+      "textures": "textures/items/rose_gold_shovel_green"
+    },
+    "newhaven:rose_gold_shovel_blue": {
+      "textures": "textures/items/rose_gold_shovel_blue"
+    },
+    "newhaven:rose_gold_shovel_black": {
+      "textures": "textures/items/rose_gold_shovel_black"
+    },
+    "newhaven:rose_gold_shovel_brown": {
+      "textures": "textures/items/rose_gold_shovel_brown"
+    },
+    "newhaven:rose_gold_hoe_red": {
+      "textures": "textures/items/rose_gold_hoe_red"
+    },
+    "newhaven:rose_gold_hoe_green": {
+      "textures": "textures/items/rose_gold_hoe_green"
+    },
+    "newhaven:rose_gold_hoe_blue": {
+      "textures": "textures/items/rose_gold_hoe_blue"
+    },
+    "newhaven:rose_gold_hoe_black": {
+      "textures": "textures/items/rose_gold_hoe_black"
+    },
+    "newhaven:rose_gold_hoe_brown": {
+      "textures": "textures/items/rose_gold_hoe_brown"
+    },
+    "newhaven:rose_gold_helmet_red": {
+      "textures": "textures/items/rose_gold_helmet_red"
+    },
+    "newhaven:rose_gold_helmet_green": {
+      "textures": "textures/items/rose_gold_helmet_green"
+    },
+    "newhaven:rose_gold_helmet_blue": {
+      "textures": "textures/items/rose_gold_helmet_blue"
+    },
+    "newhaven:rose_gold_helmet_black": {
+      "textures": "textures/items/rose_gold_helmet_black"
+    },
+    "newhaven:rose_gold_helmet_brown": {
+      "textures": "textures/items/rose_gold_helmet_brown"
+    },
+    "newhaven:rose_gold_chestplate_red": {
+      "textures": "textures/items/rose_gold_chestplate_red"
+    },
+    "newhaven:rose_gold_chestplate_green": {
+      "textures": "textures/items/rose_gold_chestplate_green"
+    },
+    "newhaven:rose_gold_chestplate_blue": {
+      "textures": "textures/items/rose_gold_chestplate_blue"
+    },
+    "newhaven:rose_gold_chestplate_black": {
+      "textures": "textures/items/rose_gold_chestplate_black"
+    },
+    "newhaven:rose_gold_chestplate_brown": {
+      "textures": "textures/items/rose_gold_chestplate_brown"
+    },
+    "newhaven:rose_gold_leggings_red": {
+      "textures": "textures/items/rose_gold_leggings_red"
+    },
+    "newhaven:rose_gold_leggings_green": {
+      "textures": "textures/items/rose_gold_leggings_green"
+    },
+    "newhaven:rose_gold_leggings_blue": {
+      "textures": "textures/items/rose_gold_leggings_blue"
+    },
+    "newhaven:rose_gold_leggings_black": {
+      "textures": "textures/items/rose_gold_leggings_black"
+    },
+    "newhaven:rose_gold_leggings_brown": {
+      "textures": "textures/items/rose_gold_leggings_brown"
+    },
+    "newhaven:rose_gold_boots_red": {
+      "textures": "textures/items/rose_gold_boots_red"
+    },
+    "newhaven:rose_gold_boots_green": {
+      "textures": "textures/items/rose_gold_boots_green"
+    },
+    "newhaven:rose_gold_boots_blue": {
+      "textures": "textures/items/rose_gold_boots_blue"
+    },
+    "newhaven:rose_gold_boots_black": {
+      "textures": "textures/items/rose_gold_boots_black"
+    },
+    "newhaven:rose_gold_boots_brown": {
+      "textures": "textures/items/rose_gold_boots_brown"
     }
   }
 }
