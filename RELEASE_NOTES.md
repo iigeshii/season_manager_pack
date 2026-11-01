@@ -178,3 +178,22 @@ regardless of when each piece was actually added:
   and Fishing Rod catches already were. With all three restored, the
   fishing loot table matches vanilla exactly, so the override file was
   removed outright.
+
+## Season Manager v2.0.54 — Trial's End, Hoppers Begin
+
+- **The Unclaimed Trial is complete, and hoppers are open.** New
+  Haven's first group expedition into a Trial Chamber — found by its
+  own map, cleared together, every vault opened — paid off: Hoppers
+  and Hopper Minecarts are no longer auto-cleared on pickup, and their
+  real crafting recipes work again. Automated farming and item-storage
+  projects are on the table.
+- **New: Rose Gold color variants.** Choose Red, Green, Blue, Black, or
+  Brown at craft time by adding the matching dye into an already-empty
+  slot of the item's normal recipe — same shape, same ingredients,
+  just one dye added. There's no way to re-dye a piece after it's
+  made, which is deliberate: it keeps durability and enchantments safe
+  from ever being reset by a recolor.
+- **New: Rose Gold Nugget.** Melt any Rose Gold tool, armor piece, or
+  color variant down to 1 nugget, matching vanilla's gold-gear
+  smelting exactly, and craft 9 nuggets back into 1 Rose Gold Ingot —
+  a way to recover some value from a piece you don't want anymore.
