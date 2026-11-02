@@ -43,7 +43,8 @@
         "tags": [
           "minecraft:is_armor",
           "minecraft:trimmable_armors",
-          "newhaven:rg_chestplate"
+          "newhaven:rg_chestplate",
+          "minecraft:transformable_items"
         ]
       }
     }
