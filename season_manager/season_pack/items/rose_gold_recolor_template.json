@@ -1,0 +1,15 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "newhaven:rose_gold_recolor_template",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "newhaven:rose_gold_recolor_template",
+      "minecraft:max_stack_size": 64
+    }
+  }
+}

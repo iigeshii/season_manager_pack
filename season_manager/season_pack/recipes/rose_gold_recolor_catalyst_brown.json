@@ -2,17 +2,13 @@
   "format_version": "1.20.10",
   "minecraft:recipe_shapeless": {
     "description": {
-      "identifier": "newhaven:rose_gold_recolor_template_brown"
+      "identifier": "newhaven:rose_gold_recolor_catalyst_brown"
     },
     "tags": [
       "crafting_table"
     ],
-    "group": "rose_gold_recolor_template",
+    "group": "rose_gold_recolor_catalyst",
     "ingredients": [
-      {
-        "item": "newhaven:rose_gold_ingot",
-        "count": 4
-      },
       {
         "item": "newhaven:rose_gold_nugget"
       },
@@ -22,11 +18,11 @@
     ],
     "unlock": [
       {
-        "item": "newhaven:rose_gold_ingot"
+        "item": "newhaven:rose_gold_nugget"
       }
     ],
     "result": {
-      "item": "newhaven:rose_gold_recolor_template_brown"
+      "item": "newhaven:rose_gold_recolor_catalyst_brown"
     }
   }
 }

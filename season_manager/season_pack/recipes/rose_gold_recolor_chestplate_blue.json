@@ -7,9 +7,9 @@
     "tags": [
       "smithing_table"
     ],
-    "template": "newhaven:rose_gold_recolor_template_blue",
+    "template": "newhaven:rose_gold_recolor_template",
     "base": "newhaven:rose_gold_chestplate",
-    "addition": "newhaven:rose_gold_nugget",
+    "addition": "newhaven:rose_gold_recolor_catalyst_blue",
     "result": "newhaven:rose_gold_chestplate_blue"
   }
 }
