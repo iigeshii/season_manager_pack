@@ -1,0 +1,15 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_smithing_transform": {
+    "description": {
+      "identifier": "newhaven:rose_gold_recolor_pickaxe_brown"
+    },
+    "tags": [
+      "smithing_table"
+    ],
+    "template": "newhaven:rose_gold_recolor_template",
+    "base": "newhaven:rose_gold_pickaxe",
+    "addition": "minecraft:brown_dye",
+    "result": "newhaven:rose_gold_pickaxe_brown"
+  }
+}
