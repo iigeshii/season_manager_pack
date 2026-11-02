@@ -54,7 +54,8 @@
         "tags": [
           "minecraft:is_sword",
           "minecraft:diamond_tier",
-          "newhaven:rg_sword"
+          "newhaven:rg_sword",
+          "minecraft:transformable_items"
         ]
       }
     }

@@ -1,0 +1,15 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_smithing_transform": {
+    "description": {
+      "identifier": "newhaven:rose_gold_recolor_shovel_black_to_green"
+    },
+    "tags": [
+      "smithing_table"
+    ],
+    "template": "newhaven:rose_gold_recolor_template",
+    "base": "newhaven:rose_gold_shovel_black",
+    "addition": "newhaven:rose_gold_recolor_catalyst_green",
+    "result": "newhaven:rose_gold_shovel_green"
+  }
+}

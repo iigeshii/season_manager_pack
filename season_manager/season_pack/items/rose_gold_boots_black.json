@@ -43,7 +43,8 @@
         "tags": [
           "minecraft:is_armor",
           "minecraft:trimmable_armors",
-          "newhaven:rg_boots"
+          "newhaven:rg_boots",
+          "minecraft:transformable_items"
         ]
       }
     }

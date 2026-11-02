@@ -53,7 +53,8 @@
           "minecraft:is_pickaxe",
           "minecraft:is_tool",
           "minecraft:diamond_tier",
-          "newhaven:rg_pickaxe"
+          "newhaven:rg_pickaxe",
+          "minecraft:transformable_items"
         ]
       }
     }

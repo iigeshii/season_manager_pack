@@ -1,0 +1,15 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_smithing_transform": {
+    "description": {
+      "identifier": "newhaven:rose_gold_recolor_leggings_brown_to_original"
+    },
+    "tags": [
+      "smithing_table"
+    ],
+    "template": "newhaven:rose_gold_recolor_template",
+    "base": "newhaven:rose_gold_leggings_brown",
+    "addition": "newhaven:rose_gold_recolor_catalyst_original",
+    "result": "newhaven:rose_gold_leggings"
+  }
+}

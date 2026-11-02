@@ -15,6 +15,9 @@
     "newhaven:rose_gold_recolor_template": {
       "textures": "textures/items/rose_gold_recolor_template"
     },
+    "newhaven:rose_gold_recolor_catalyst_original": {
+      "textures": "textures/items/rose_gold_recolor_catalyst_original"
+    },
     "newhaven:rose_gold_recolor_catalyst_red": {
       "textures": "textures/items/rose_gold_recolor_catalyst_red"
     },

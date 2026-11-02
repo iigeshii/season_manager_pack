@@ -53,7 +53,8 @@
           "minecraft:is_shovel",
           "minecraft:is_tool",
           "minecraft:diamond_tier",
-          "newhaven:rg_shovel"
+          "newhaven:rg_shovel",
+          "minecraft:transformable_items"
         ]
       }
     }

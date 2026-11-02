@@ -1,0 +1,15 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_smithing_transform": {
+    "description": {
+      "identifier": "newhaven:rose_gold_recolor_axe_blue_to_red"
+    },
+    "tags": [
+      "smithing_table"
+    ],
+    "template": "newhaven:rose_gold_recolor_template",
+    "base": "newhaven:rose_gold_axe_blue",
+    "addition": "newhaven:rose_gold_recolor_catalyst_red",
+    "result": "newhaven:rose_gold_axe_red"
+  }
+}
