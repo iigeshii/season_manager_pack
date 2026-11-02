@@ -8,8 +8,6 @@
     "template": "newhaven:rose_gold_recolor_template",
     "base": "newhaven:rose_gold_sword_red",
     "addition": "newhaven:rose_gold_blue_catalyst",
-    "result": {
-      "item": "newhaven:rose_gold_sword_blue"
-    }
+    "result": "newhaven:rose_gold_sword_blue"
   }
 }
