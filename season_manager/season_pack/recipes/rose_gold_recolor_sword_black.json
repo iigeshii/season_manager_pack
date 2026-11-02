@@ -7,9 +7,9 @@
     "tags": [
       "smithing_table"
     ],
-    "template": "newhaven:rose_gold_recolor_template",
+    "template": "newhaven:rose_gold_recolor_template_black",
     "base": "newhaven:rose_gold_sword",
-    "addition": "minecraft:black_dye",
+    "addition": "newhaven:rose_gold_nugget",
     "result": "newhaven:rose_gold_sword_black"
   }
 }

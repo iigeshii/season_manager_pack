@@ -7,9 +7,9 @@
     "tags": [
       "smithing_table"
     ],
-    "template": "newhaven:rose_gold_recolor_template",
+    "template": "newhaven:rose_gold_recolor_template_red",
     "base": "newhaven:rose_gold_pickaxe",
-    "addition": "minecraft:red_dye",
+    "addition": "newhaven:rose_gold_nugget",
     "result": "newhaven:rose_gold_pickaxe_red"
   }
 }

@@ -12,8 +12,20 @@
     "newhaven:rose_gold_boots": {
       "textures": "textures/items/rose_gold_boots"
     },
-    "newhaven:rose_gold_recolor_template": {
-      "textures": "textures/items/rose_gold_recolor_template"
+    "newhaven:rose_gold_recolor_template_red": {
+      "textures": "textures/items/rose_gold_recolor_template_red"
+    },
+    "newhaven:rose_gold_recolor_template_green": {
+      "textures": "textures/items/rose_gold_recolor_template_green"
+    },
+    "newhaven:rose_gold_recolor_template_blue": {
+      "textures": "textures/items/rose_gold_recolor_template_blue"
+    },
+    "newhaven:rose_gold_recolor_template_black": {
+      "textures": "textures/items/rose_gold_recolor_template_black"
+    },
+    "newhaven:rose_gold_recolor_template_brown": {
+      "textures": "textures/items/rose_gold_recolor_template_brown"
     },
     "newhaven:rose_gold_ingot": {
       "textures": "textures/items/rose_gold_ingot"
