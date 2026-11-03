@@ -1,5 +1,7 @@
 # Season Manager — Release Notes
 
+
+
 ## Season Manager v1.0.61 — Standing Rules
 
 The baseline ruleset for the season. This is what's true right now,
@@ -197,3 +199,19 @@ regardless of when each piece was actually added:
   color variant down to 1 nugget, matching vanilla's gold-gear
   smelting exactly, and craft 9 nuggets back into 1 Rose Gold Ingot —
   a way to recover some value from a piece you don't want anymore.
+
+## Season Manager v2.0.68 — The Recolor Update
+
+- **New: Rose Gold Recolor Template.** Change the color of an
+  already-enchanted piece of Rose Gold gear at the smithing table,
+  enchantments intact — no more need to start over just to switch
+  colors. Craft a Template (4 Rose Gold Ingot + 1 Rose Gold Nugget),
+  pick a Recolor Catalyst for the color you want, and combine it with
+  your gear at a smithing table. Plain Rose Gold can become any of the
+  5 colors, any color can switch to any other, and the Original Color
+  Catalyst strips a piece back to its plain, undyed look.
+- **New: Recolor Catalysts.** Red, Green, Blue, Black, Brown, and
+  Original — each crafted from 1 Rose Gold Nugget (the colored ones
+  also need the matching dye).
+- **New recipe: Rose Gold Ingot → 9 Nuggets**, the reverse of the
+  existing Nuggets → Ingot recipe, matching vanilla gold's conversion.
