@@ -260,6 +260,7 @@ graph TD
   camp["Founding the Camp"]
   bread["Breaking Bread"]
   hall["Hall of Heroes"]
+  gate["The Ruined Gate"]
   mystic["The Mystic Library"]
   archery["The Archery Contest"]
   forge["The Forge Reopens"]
@@ -288,7 +289,10 @@ graph TD
   camp -->|village contact| bread
   camp -->|village contact| hall
   hall -->|legacy tracking| bread
+  camp -->|cartographer's tale| gate
+  hall -->|legacy tracking| gate
   bread -->|village trust| mystic
+  gate -->|mending librarian| mystic
   mystic -->|enchanted books| archery
   hall -->|legacy tracking| shipwreck
   shipwreck -->|monument map &amp; conduit| atlantis
@@ -310,12 +314,13 @@ graph TD
   gibliria -->|dragon fight| endm
   endm -->|end gateways| twisty
   endm -->|end gateways| lorre
-  twisty -->|mending villager| finale
+  twisty -->|elytra decision| finale
   lorre -->|lorre location| finale
 
   click camp "#node-camp"
   click bread "#node-bread"
   click hall "#node-hall"
+  click gate "#node-gate"
   click mystic "#node-mystic"
   click archery "#node-archery"
   click forge "#node-forge"
@@ -342,7 +347,7 @@ graph TD
   classDef tentative fill:#f5e8c8,stroke:#a3760f,stroke-width:2px,stroke-dasharray: 4 3,color:#3a2c05;
   classDef complete fill:#d9f0e3,stroke:#1f9d63,stroke-width:2px,color:#0d6b40;
   style villages fill:none,stroke:#8b9080,stroke-width:1px,stroke-dasharray: 6 4
-  class mystic,archery,forge,mansionhook,mansion,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
+  class gate,mystic,archery,forge,mansionhook,mansion,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
   class camp,trial complete
     </pre>
   </div>
@@ -468,21 +473,49 @@ graph TD
       <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a>, the other village storylines, <a href="#village-milestones">Village Milestones</a>, <a href="#node-mansionhook">??? — Story TBD</a></p>
     </section>
 
-    <section class="chapter is-tentative" id="node-mystic">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
-      <h3 class="chapter-title">The Mystic Library</h3>
-      <p class="chapter-story">There are no enchanting tables in New Haven. Whatever the old world knew about enchanting didn't survive the crossing intact. Once the village trusts New Haven enough to talk, its librarians admit they've kept what's left of that knowledge, but have nowhere fit to study it. Building them a proper library, a place to learn and focus, is how enchanted books come back into the world: not from a table, but from people. From then on, the community decides together which books the librarians learn next.</p>
+    <section class="chapter is-tentative" id="node-gate">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a> to start, <a href="#node-hall">Hall of Heroes</a> to finish. Runs alongside Breaking Bread. <span class="tentative-badge">Story &amp; Dungeon TBD</span></div>
+      <h3 class="chapter-title">The Ruined Gate</h3>
+      <p class="chapter-story">The village cartographer has been watching New Haven work, and she finally tells the group a story she's kept to herself. Long ago there was a librarian who wrote books of mending, books that could make worn gear whole again. That kind of power didn't go unnoticed. The illagers took him, locked him away in the Nether, and banned Nether travel and diamond tools so nobody could ever go after him. They didn't count on the piglins. Curious about the Overworld, the piglins have started scouting it through an old ruined portal, and they're halfway to reopening it. That half-finished gate is New Haven's one chance. The group restores the ancient portal, crosses over once, storms the piglin-held jail, and brings the librarian home before the gate closes again. This isn't the Nether opening: it's one planned trip in and back out. Getting him out is only half of it, though. He's lost everything, and he won't write a single book until he has a proper library to work in.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>The Mystic Library is built for the librarians (design and requirements still to be written)</li>
+            <li>The ruined portal is restored, not built new: its missing frame is filled in where it stands</li>
+            <li>The jail in the Nether is stormed: piglins and piglin brutes defeated (dungeon design still to be written)</li>
+            <li>The Mending Librarian is brought back to the Overworld alive</li>
+            <li>At least 4 people take part — see the Commonhold Ethos</li>
+            <li>The rescue is recorded in the Hall of Heroes — noting when it happened and who took part</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens. Mending is never sold.</li>
+            <li>The Mending Librarian joins New Haven. He won't trade until <a href="#node-mystic">The Mystic Library</a> is built for him, where he becomes head librarian.</li>
+            <li>The group gets its first sight of the Nether. The Nether itself stays closed afterward, until <a href="#node-nether">The Nether Opens</a>.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a></p>
+    </section>
+
+    <section class="chapter is-tentative" id="node-mystic">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> and <a href="#node-gate">The Ruined Gate</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
+      <h3 class="chapter-title">The Mystic Library</h3>
+      <p class="chapter-story">There are no enchanting tables in New Haven. Whatever the old world knew about enchanting didn't survive the crossing intact. Once the village trusts New Haven enough to talk, its librarians admit they've kept what's left of that knowledge, but have nowhere fit to study it. The Mending Librarian rescued from the Nether is in the same position, and he's the one who'll run the place. Building them a proper library, a place to learn and focus, is how enchanted books come back into the world: not from a table, but from people. From then on, the community decides together which books the librarians learn next.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>The Mystic Library is built for the librarians (design and requirements still to be written)</li>
+            <li>The Mending Librarian rescued in <a href="#node-gate">The Ruined Gate</a> moves in as head librarian</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens.</li>
+            <li>The head librarian starts selling Mending</li>
             <li>The token tree opens, so higher tiers can be bought with tokens earned at events</li>
           </ul>
         </div>
@@ -912,19 +945,18 @@ graph TD
     <section class="chapter is-tentative" id="node-twisty">
       <div class="chapter-kicker kicker">Requires: <a href="#node-endm">Free the End</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">Twisty Edges</h3>
-      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is the actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
+      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. End ships out there are where Elytra actually turn up, so this is what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
             <li>Outer End islands explored</li>
-            <li>Mending Librarian located and rescued</li>
+            <li>An End ship located and looted</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Mending now available — run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (the only unlock on this page that's a live in-game command instead of a configuration update)</li>
             <li>Elytra policy decided</li>
           </ul>
         </div>
@@ -981,14 +1013,14 @@ graph TD
     <div class="masthead">
       <h2>The Mystic Library</h2>
     </div>
-    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-bread">Breaking Bread</a> is complete.</p>
+    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-bread">Breaking Bread</a> and <a href="#node-gate">The Ruined Gate</a> are complete.</p>
 
     <div class="ml-status" id="ml-status" aria-label="Mystic Library progress"></div>
 
     <div class="season-plan">
       <h2>How the Tree Climbs</h2>
       <ul>
-        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows Breaking Bread, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is never sold.</strong></li>
+        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows Breaking Bread and The Ruined Gate, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is sold by the head librarian, the Mending Librarian rescued in <a href="#node-gate">The Ruined Gate</a>, not through the token tree.</strong></li>
         <li><strong>The other groups open as the season moves forward.</strong> Once the library is complete, Tools opens at 2 villages in the <a href="#village-milestones">Village Milestones</a> (alongside the Butcher, Farmer and Fisherman), and Armor and Melee open at 4 villages (alongside the Armorer, Toolsmith and Weaponsmith). Ranged opens with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Each one opens that group's Tier I books for tokens.</li>
         <li><strong>Everyone who takes part earns a token.</strong> Each participant in an event or questline earns 1 token and picks which open book it goes toward. Whatever gets unlocked is unlocked for everyone.</li>
         <li><strong>Each group climbs on its own.</strong> A tier opens once enough books in the tier below it are unlocked, so one book can't race to the top alone.</li>
