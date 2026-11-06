@@ -41,10 +41,11 @@
   html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--ink); font-family: var(--font-body); margin: 0; }
   main { max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
-  main [id] { scroll-margin-top: 4rem; }
+  main [id] { scroll-margin-top: calc(var(--nav-h, 3rem) + 1rem); }
 
   .site-nav { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); }
-  .site-nav ul { list-style: none; max-width: 1040px; margin: 0 auto; padding: .7rem 1.5rem; display: flex; gap: .4rem 1.3rem; overflow-x: auto; white-space: nowrap; }
+  .site-nav ul { list-style: none; max-width: 1040px; margin: 0 auto; padding: .7rem 1.5rem; display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; }
+  .site-nav li { white-space: nowrap; }
   .site-nav a { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; }
   .site-nav a:hover { color: var(--emerald-ink); }
   .site-nav .nav-current { color: var(--emerald-ink); font-weight: 500; }
@@ -1105,6 +1106,17 @@ graph TD
       var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
       if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
     });
+  })();
+
+  // The nav wraps onto more lines on narrow screens; keep anchor targets clear of it.
+  (function () {
+    var nav = document.querySelector('.site-nav');
+    if (!nav) return;
+    function setNavHeight() { document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px'); }
+    setNavHeight();
+    // Also catches the "Current" link text being filled in below and web fonts loading.
+    if (window.ResizeObserver) new ResizeObserver(setNavHeight).observe(nav);
+    else window.addEventListener('resize', setNavHeight);
   })();
 
   // Point the nav's "Current" link at the chapters marked is-current (the first one is the link target).
