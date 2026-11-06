@@ -123,6 +123,10 @@
   .chapter-block li > strong { color: var(--ink); font-weight: 600; }
   .chapter-block ul ul { margin-top: .35rem; margin-bottom: .2rem; }
   .chapter-block ul ul li { margin-bottom: .25rem; }
+  .chapter-teaser { margin-top: 1rem; }
+  .chapter-teaser h4 { color: var(--amber-ink); }
+  .chapter-teaser p { font-size: .85rem; line-height: 1.55; color: var(--ink-soft); margin: 0 0 .65rem; font-style: italic; }
+  .chapter-teaser ul { list-style: none; padding-left: 0; }
 
   .season-plan-sub { margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px dashed var(--border); }
   .season-plan-sub h3 { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .07em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .6rem; }
@@ -272,6 +276,7 @@ graph TD
     tally["<b>Village tally</b><br/>1 · cleric, cartographer, fletcher<br/>2 · butcher, farmer, fisherman, <i>tool books</i><br/>3 · shepherd, leatherworker, mason<br/>4 · armorer, toolsmith, weaponsmith, <i>armor + melee books</i>"]
   end
   trial["The Unclaimed Trial"]
+  mending["Rescue the Librarian"]
   mechanisms["The Age of<br/>Mechanisms"]
   mansionhook["??? — Story TBD"]
   mansion["Woodland Mansion"]
@@ -288,7 +293,7 @@ graph TD
   camp -->|village contact| bread
   camp -->|village contact| hall
   hall -->|legacy tracking| bread
-  bread -->|village trust| mystic
+  mending -->|head librarian| mystic
   mystic -->|enchanted books| archery
   hall -->|legacy tracking| shipwreck
   shipwreck -->|monument map &amp; conduit| atlantis
@@ -298,6 +303,7 @@ graph TD
   camp -->|village contact| trial
   hall -->|legacy tracking| trial
   trial -->|hopper tech| mechanisms
+  trial -->|Walda's tale| mending
   bread --> mansionhook
   mansionhook -->|mansion map released| mansion
   tally --> ancient
@@ -310,7 +316,7 @@ graph TD
   gibliria -->|dragon fight| endm
   endm -->|end gateways| twisty
   endm -->|end gateways| lorre
-  twisty -->|mending villager| finale
+  twisty -->|elytra policy| finale
   lorre -->|lorre location| finale
 
   click camp "#node-camp"
@@ -326,6 +332,7 @@ graph TD
   click tally "#village-milestones"
   click shipwreck "#node-shipwreck"
   click trial "#node-trial"
+  click mending "#node-mending"
   click mechanisms "#node-mechanisms"
   click mansionhook "#node-mansionhook"
   click mansion "#node-mansion"
@@ -465,24 +472,25 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a>, the other village storylines, <a href="#village-milestones">Village Milestones</a>, <a href="#node-mansionhook">??? — Story TBD</a></p>
+      <p class="leads-to">Leads to: the other village storylines,<a href="#village-milestones">Village Milestones</a>, <a href="#node-mansionhook">??? — Story TBD</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-mystic">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-bread">Breaking Bread</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
+      <div class="chapter-kicker kicker">Requires: <a href="#node-mending">Rescue the Librarian</a> <span class="tentative-badge">Story &amp; Criteria TBD</span></div>
       <h3 class="chapter-title">The Mystic Library</h3>
-      <p class="chapter-story">There are no enchanting tables in New Haven. Whatever the old world knew about enchanting didn't survive the crossing intact. Once the village trusts New Haven enough to talk, its librarians admit they've kept what's left of that knowledge, but have nowhere fit to study it. Building them a proper library, a place to learn and focus, is how enchanted books come back into the world: not from a table, but from people. From then on, the community decides together which books the librarians learn next.</p>
+      <p class="chapter-story">There are no enchanting tables in New Haven. Whatever the old world knew about enchanting didn't survive the crossing intact. With the Mending Librarian home from the Nether, the village's librarians admit they've kept what's left of that knowledge, but have nowhere fit to study it, and he has nowhere to teach. Building them a proper library, a place to learn and focus, is how enchanted books come back into the world: not from a table, but from people. From then on, the community decides together which books the librarians learn next.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>The Mystic Library is built for the librarians (design and requirements still to be written)</li>
+            <li>The Mystic Library is built for the librarians, with the Mending Librarian as its head librarian (design and requirements still to be written)</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens. Mending is never sold.</li>
+            <li>The Mending Librarian starts selling Mending</li>
+            <li>Mystic Library librarians start selling enchanted books: every Tier I book in General and Fishing goes on sale free of tokens</li>
             <li>The token tree opens, so higher tiers can be bought with tokens earned at events</li>
           </ul>
         </div>
@@ -711,7 +719,40 @@ graph TD
           </ul>
         </div>
       </div>
-      <p class="leads-to">Leads to: <a href="#node-mechanisms">The Age of Mechanisms</a></p>
+      <p class="leads-to">Leads to: <a href="#node-mending">Rescue the Librarian</a>, <a href="#node-mechanisms">The Age of Mechanisms</a></p>
+    </section>
+
+    <section class="chapter" id="node-mending">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-trial">The Unclaimed Trial</a> <span class="tentative-badge">Coming Soon</span></div>
+      <h3 class="chapter-title">Rescue the Librarian</h3>
+      <p class="chapter-story">After our glorious run of the <a href="#node-trial">Trial Chamber</a>, Walda let us in on an old tale of their people. Many years ago, a knowledgeable villager studied magic and discovered the Mending enchantment. When the Illagers found out, they had him imprisoned deep in the Nether, and he hasn't been seen since.</p>
+      <p class="chapter-story">Now the villagers have spotted a Piglin patrol opening up a ruined portal nearby. It won't stay open for long, but it gives us a shot at rescuing him. If we can help rescue him, maybe he'll share the secret of Mending with us.</p>
+      <div class="chapter-grid">
+        <div class="chapter-block chapter-criteria">
+          <h4>Pass Criteria</h4>
+          <ul>
+            <li>Locate the ancient portal the Piglin patrol opened</li>
+            <li>Restore it</li>
+            <li>Enter the Nether, at least 4 people together</li>
+            <li>Storm the Illager prison</li>
+            <li>Rescue the librarian and bring him home</li>
+            <li>The rescue is recorded in the <a href="#node-hall">Hall of Heroes</a>, noting when it happened and who took part</li>
+          </ul>
+        </div>
+        <div class="chapter-block chapter-progress">
+          <h4>Unlocks</h4>
+          <ul>
+            <li>The Mending Librarian returns to the village</li>
+            <li>He won't sell Mending until he has a library to work in — see <a href="#node-mystic">The Mystic Library</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="chapter-block chapter-teaser">
+        <h4>Inside the Prison</h4>
+        <p>The Illagers built this prison to keep him, and they built it deep: eight chambers, one below the next, each sealed until the one before it is cleared. Piglins stand guard throughout. Getting him out will take climbing, puzzles that need the whole group, traps, and a fight against the prison's warden. Nobody gets through alone: it takes at least four to open the gate, and everyone goes the whole way together.</p>
+        <p>The portal is a one-time way in. The Nether stays closed beyond the prison walls.</p>
+      </div>
+      <p class="leads-to">Leads to: <a href="#node-mystic">The Mystic Library</a></p>
     </section>
 
     <section class="chapter is-tentative" id="node-mechanisms">
@@ -912,19 +953,17 @@ graph TD
     <section class="chapter is-tentative" id="node-twisty">
       <div class="chapter-kicker kicker">Requires: <a href="#node-endm">Free the End</a> <span class="tentative-badge">Story &amp; Unlocks TBD</span></div>
       <h3 class="chapter-title">Twisty Edges</h3>
-      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Buried somewhere out there is the Mending Librarian, and rescuing her is the actual objective: a permanent, single-trade villager who can grant Mending even while normal villager trading everywhere else is still fully disabled. Her rescue is also what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
+      <p class="chapter-story">With the Gateways open, the outer End islands are finally worth the trip — chorus fruit, end cities, shulkers, all of it. Exploring them is what finally forces a real decision on the Elytra question that's been open since Founding the Camp.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
             <li>Outer End islands explored</li>
-            <li>Mending Librarian located and rescued</li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
           <h4>Unlocks</h4>
           <ul>
-            <li>Mending now available — run <code>/function season/summon_mending_librarian</code> to spawn the permanent Mending Librarian (the only unlock on this page that's a live in-game command instead of a configuration update)</li>
             <li>Elytra policy decided</li>
           </ul>
         </div>
@@ -981,14 +1020,14 @@ graph TD
     <div class="masthead">
       <h2>The Mystic Library</h2>
     </div>
-    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-bread">Breaking Bread</a> is complete.</p>
+    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-mending">the Mending Librarian</a> is rescued.</p>
 
     <div class="ml-status" id="ml-status" aria-label="Mystic Library progress"></div>
 
     <div class="season-plan">
       <h2>How the Tree Climbs</h2>
       <ul>
-        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows Breaking Bread, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is never sold.</strong></li>
+        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows <a href="#node-mending">Rescue the Librarian</a>, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is sold only by the Mending Librarian, the library's head.</strong></li>
         <li><strong>The other groups open as the season moves forward.</strong> Once the library is complete, Tools opens at 2 villages in the <a href="#village-milestones">Village Milestones</a> (alongside the Butcher, Farmer and Fisherman), and Armor and Melee open at 4 villages (alongside the Armorer, Toolsmith and Weaponsmith). Ranged opens with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Each one opens that group's Tier I books for tokens.</li>
         <li><strong>Everyone who takes part earns a token.</strong> Each participant in an event or questline earns 1 token and picks which open book it goes toward. Whatever gets unlocked is unlocked for everyone.</li>
         <li><strong>Each group climbs on its own.</strong> A tier opens once enough books in the tier below it are unlocked, so one book can't race to the top alone.</li>
@@ -1071,7 +1110,7 @@ graph TD
 // Each flag opens its groups. General and Fishing Tier I books come free when the library is complete; every other book costs tokens.
 const PROGRESS = {
   updated: "October 3, 2026",
-  mysticLibrary: "locked",  // "locked" until Breaking Bread is done, then "underway", then "complete" (opens General, Fishing)
+  mysticLibrary: "locked",  // "locked" until Rescue the Librarian is done, then "underway", then "complete" (opens General, Fishing)
   villages: 0,            // villages done in the Village Milestones: Tools opens at 2, Armor and Melee at 4 (library must be complete)
   rangedQuest: false,     // Ranged (The Archery Contest)
   nether: false,          // Fire
@@ -1205,7 +1244,7 @@ const GATE_SHARE = 0.75;                        // share of the tier below neede
   const spentTotal = Object.values(players).reduce((a, p) => a + p.spent, 0);
   const stat = (k, v, cls) => '<div class="ml-stat"><span class="k">' + k + '</span><span class="v ' + cls + '">' + v + '</span></div>';
   document.getElementById("ml-status").innerHTML =
-    stat("Mystic Library", {locked:"Opens after Breaking Bread", underway:"Underway", complete:"Complete"}[PROGRESS.mysticLibrary], PROGRESS.mysticLibrary === "complete" ? "done" : "wait") +
+    stat("Mystic Library", {locked:"Opens after the Mending rescue", underway:"Underway", complete:"Complete"}[PROGRESS.mysticLibrary], PROGRESS.mysticLibrary === "complete" ? "done" : "wait") +
     stat("Villages", PROGRESS.villages + " of 5", "") +
     GROUPS.filter(g => g.gate !== "mysticLibrary")
       .map(g => stat(g.name + " branch", isOpen(g) ? "Open" : "Sealed", isOpen(g) ? "done" : "wait")).join("") +
