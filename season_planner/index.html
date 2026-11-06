@@ -1091,7 +1091,20 @@ graph TD
     var explicitLight = document.documentElement.getAttribute('data-theme') === 'light';
     var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     var isDark = explicitDark || (!explicitLight && systemDark);
-    mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
+    // Rendered by hand (not startOnLoad) so a link like #node-mending can be re-scrolled once the
+    // diagram is drawn: the browser jumps to the anchor first, then the diagram changes height
+    // and shifts everything below it.
+    var rendered = Promise.resolve();
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
+      rendered = mermaid.run({ querySelector: '.mermaid' }).catch(function () {});
+    }
+    var fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+    Promise.all([rendered, fontsReady]).then(function () {
+      if (!location.hash) return;
+      var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    });
   })();
 
   // Point the nav's "Current" link at the chapters marked is-current (the first one is the link target).
