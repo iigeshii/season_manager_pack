@@ -77,13 +77,35 @@ function isMob(entity) {
   return families.hasTypeFamily("mob") || families.hasTypeFamily("monster");
 }
 
+// Removals are batched by type and reported to operators once a second,
+// so a burst of spawns is one chat line rather than dozens.
+const REMOVAL_REPORT_TICKS = 20; // 1 second
+const pendingRemovals = new Map();
+
 function removeIfUnwanted(entity) {
   if (!entity.isValid()) return;
   if (entity.dimension.id !== NETHER_ID) return;
   if (entity.hasTag(DUNGEON_MOB_TAG)) return;
   if (!isMob(entity)) return;
+  const { x, y, z } = entity.location;
+  const where = `${Math.floor(x)} ${Math.floor(y)} ${Math.floor(z)}`;
+  const entry = pendingRemovals.get(entity.typeId) ?? { count: 0, where };
+  entry.count++;
+  entry.where = where;
+  pendingRemovals.set(entity.typeId, entry);
   entity.remove();
 }
+
+system.runInterval(() => {
+  if (pendingRemovals.size === 0) return;
+  const parts = [...pendingRemovals].map(([type, { count, where }]) => `${count}× ${type} (last at ${where})`);
+  pendingRemovals.clear();
+  const message = `§8[Nether] removed ${parts.join(", ")}`;
+  console.warn(message);
+  for (const player of world.getAllPlayers()) {
+    if (isOperator(player)) player.sendMessage(message);
+  }
+}, REMOVAL_REPORT_TICKS);
 
 world.afterEvents.entitySpawn.subscribe(({ entity }) => removeIfUnwanted(entity));
 world.afterEvents.entityLoad.subscribe(({ entity }) => removeIfUnwanted(entity));

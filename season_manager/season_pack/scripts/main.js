@@ -131,6 +131,9 @@ const BANNED_MOBS = new Set([
 world.afterEvents.entitySpawn.subscribe(({ entity }) => {
   if (!enabled) return;
   if (!BANNED_MOBS.has(entity.typeId)) return;
+  // The Nether mob rule (dungeon/nether_rules.js) subscribes first and may
+  // already have removed it.
+  if (!entity.isValid()) return;
   // Piglins and brutes the dungeon spawns itself are allowed (see dungeon/nether_rules.js).
   if (entity.hasTag(DUNGEON_MOB_TAG)) return;
   entity.remove();
