@@ -215,3 +215,19 @@ regardless of when each piece was actually added:
   also need the matching dye).
 - **New recipe: Rose Gold Ingot → 9 Nuggets**, the reverse of the
   existing Nuggets → Ingot recipe, matching vanilla gold's conversion.
+
+## Season Manager v2.0.100 — The Librarian Rescue
+
+- **New event: Rescue the Librarian.** A librarian is held deep in a
+  Nether fortress, and New Haven is going in after him. It's a group
+  run through eight rooms: puzzles, parkour, a collapsing floor, an
+  arena and a maze. It takes at least four players and opens only when
+  the event is running. Details are best discovered in person.
+- **The Nether has its own rules.** Everyone is in Adventure mode
+  there: no breaking or placing blocks. Nether mobs only appear where
+  the event puts them. Nether portals open only for events. They stay
+  closed the rest of the time. Anyone still in the Nether when they
+  close is sent home.
+- **New recipe: Bell.** 2 Stone and a Stick across the top, a Gold
+  Ingot in the middle, and Gold Ingot, Redstone Dust, Gold Ingot along
+  the bottom.
