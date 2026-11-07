@@ -1,6 +1,7 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
-import { isAllowedInNether, mayLightPortal } from "./dungeon/mending_rescue.js";
+import { isAllowedInNether } from "./dungeon/mending_rescue.js";
+import { netherPortalsOpen } from "./nether_portals.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -159,16 +160,15 @@ const PORTAL_IGNITERS = [
   { item: "minecraft:ender_eye", block: "minecraft:end_portal_frame", label: "End portals" },
 ];
 
+// Not gated by `enabled`/season:toggle: Nether portals have their own
+// switch (nether_portals.js), and End portals stay locked regardless.
 world.beforeEvents.itemUseOn.subscribe((event) => {
-  if (!enabled) return;
   const match = PORTAL_IGNITERS.find(
     (p) => p.item === event.itemStack?.typeId && p.block === event.block.typeId
   );
   if (!match) return;
-  // Operators may light Nether portals (not End portals), matching the bounce-back exemption below.
-  if (match.block === "minecraft:obsidian" && isOperator(event.source)) return;
-  // While Mending Rescue is on, anyone may light its registered portal (dungeon/mending_rescue.js).
-  if (match.block === "minecraft:obsidian" && mayLightPortal(event.block)) return;
+  // Nether portals: anyone while the switch is on, operators always.
+  if (match.block === "minecraft:obsidian" && (netherPortalsOpen() || isOperator(event.source))) return;
   event.cancel = true;
   event.source.sendMessage(`§c${match.label} are currently disabled.`);
 });
@@ -209,13 +209,14 @@ function findSurfaceNear(dimension, x, z) {
   return { x: x + 0.5, y: 100, z: z + 0.5 };
 }
 
+// Not gated by `enabled`/season:toggle, same as the portal lock above.
 world.afterEvents.playerDimensionChange.subscribe((event) => {
-  if (!enabled) return;
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
-  // Operators (season:operator tag) may enter the Nether, e.g. to build and
-  // test the dungeon, and so may Mending Rescue players while the event
-  // allows them (dungeon/mending_rescue.js). The End stays sealed for everyone.
+  // The Nether is open to operators always, to everyone while the Nether
+  // portal switch is on, and to a sealed Mending Rescue party (so dead
+  // members can be sent back to their checkpoint) — see
+  // dungeon/mending_rescue.js. The End stays sealed for everyone.
   if (toDimension.id === "minecraft:nether" && isAllowedInNether(player)) return;
 
   const bounceCount = (bounceCounts.get(player.id) ?? 0) + 1;

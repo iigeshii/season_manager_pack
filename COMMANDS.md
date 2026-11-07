@@ -14,8 +14,18 @@ All commands need cheats enabled; `/scriptevent` and `/function` need operator p
 
 | Command | What it does |
 |---|---|
-| `/function season/toggle` | Pauses or resumes the cleanup sweep, banned-mob despawning, portal lock and dimension bounce-back. Announces the new state. Resets to on when the world reloads. Same as `/scriptevent season:toggle`. |
+| `/function season/toggle` | Pauses or resumes the cleanup sweep and banned-mob despawning (not portals). Announces the new state. Resets to on when the world reloads. Same as `/scriptevent season:toggle`. |
 | `/function season/cleanup` | Runs the banned-item cleanup sweep once, right now. Same as `/scriptevent season:cleanup`. |
+
+## Portals
+
+| Command | What it does |
+|---|---|
+| `/scriptevent season:nether_portals on` | Opens Nether portals for everyone: anyone may light one and travel. Saved with the world. |
+| `/scriptevent season:nether_portals off` | Closes them again (the default). Only operators may light or enter. |
+| `/scriptevent season:nether_portals` | Says whether they're open or closed. |
+
+The End stays sealed either way.
 
 ## Logs
 
@@ -48,21 +58,38 @@ Run these from chat, not from a function.
 
 ## Mending Rescue event
 
-Run from chat. Setup is saved with the world; run a setup command again to change it.
+Run everything from chat.
+
+### Running the event
+
+**One-time setup** (saved with the world; redo only if the dungeon moves):
+
+1. `/tag @s add season:operator` — if you haven't already.
+2. `/scriptevent season:mending_rescue set_origin <x> <y> <z>` — the dungeon structure's minimum corner (structure block position plus its offset; placed unrotated).
+3. Stand on the Room 1 dais and run `/scriptevent season:mending_rescue where`. It should say `Fortress Gate (structure 20 65 4)`. If not, the origin is off.
+
+**Every run:**
+
+1. `/scriptevent season:nether_portals on` — players can light portals and go in.
+2. Players gather in Room 1 and open the gate.
+3. `/scriptevent season:mending_rescue seal` — once everyone is in the first airlock. Starts the run, locks in the party, moves to Room 2 and closes Nether portals.
+4. `/scriptevent season:mending_rescue stage <3-8>` — each time the party reaches the next airlock, with the number of the room they're heading into.
+5. `/scriptevent season:mending_rescue off` — when the run is over. Anyone still in the dungeon is sent home.
+
+`/scriptevent season:mending_rescue` on its own shows where things stand. Steps 3 and 4 will happen automatically once the airlock code exists.
+
+### All Mending Rescue commands
 
 | Command | What it does |
 |---|---|
-| `/scriptevent season:mending_rescue set_origin <x> <y> <z>` | The corner you gave `/structure load` (placed unrotated). Every room, airlock and checkpoint follows from it. |
-| `/scriptevent season:mending_rescue set_portal` | Look at the Overworld portal's obsidian frame. Registers it as the one portal that works. |
-| `/scriptevent season:mending_rescue set_return` | Stand outside the Overworld portal facing away. Where players are sent back to. |
-| `/scriptevent season:mending_rescue on` | Starts a run in Room 1. Anyone may light and use the registered portal; it takes them to the Room 1 dais. |
-| `/scriptevent season:mending_rescue seal` | Locks the party to whoever is in the Nether now and moves to Room 2. Everyone else is turned away at the portal. Dead party members respawn at the checkpoint. |
+| `/scriptevent season:mending_rescue set_origin <x> <y> <z>` | Once: where the structure was placed (its minimum corner, unrotated). Every room, airlock and checkpoint follows from it. |
+| `/scriptevent season:mending_rescue seal` | Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
 | `/scriptevent season:mending_rescue stage <2-8>` | The party has moved on to that room. The checkpoint becomes the airlock before it. |
-| `/scriptevent season:mending_rescue off` | Ends the run. Sends non-operators in the Nether to the return point. |
+| `/scriptevent season:mending_rescue off` | Ends the run. Sends anyone left in the Nether home (bed, else world spawn), except operators. |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
-| `/scriptevent season:mending_rescue` | Shows state, stage, saved points and the online party. |
+| `/scriptevent season:mending_rescue` | Shows the run, stage, checkpoint, portal switch and the online party. |
 
-While a run is on, anyone who leaves the current room (and the airlocks either side) is brought back to the checkpoint.
+While a run is on, a party member who leaves the current room (and the airlocks either side) is brought back to the checkpoint; anyone else in the Nether who isn't an operator is held to Room 1.
 
 ## Always on (no command)
 
