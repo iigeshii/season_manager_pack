@@ -1207,8 +1207,8 @@ row (about 2 seconds). The gate then stays open and lit.
   stays lit once stepped on, so one player can open the gate, Airlock 1
   needs only 1 player instead of 4, Room 2's pity ladder comes after
   30 seconds instead of 10 minutes, and Room 3's guards are killed 3
-  seconds after they appear, and Room 5's mobs 5 seconds after they
-  appear. Turning it
+  seconds after they appear, Room 5's mobs 5 seconds after they
+  appear, and the maze's mobs about 10 seconds after they're out. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1305,7 +1305,10 @@ so respawned players can walk back in). `off` and `reset` close them all.
   four, each third ending in a brute wave at gates 4, 8 and 12. Gates 1-3
   pillagers; 4 brutes; 5-7 piglins (crossbow, then sword, then a mix); 8
   brutes; 9-11 gold-armoured piglins with 1-2 brutes; 12 the Piglin Warden
-  and two brutes. The Warden is a stand-in until the custom mob exists: a
+  and two brutes. Those are baselines: each gate also brings one more mob
+  per party member online in the Nether when it opens, from the same mix
+  (more pillagers at the pillager gates, more brutes at the brute waves;
+  never a second Warden). The Warden is a stand-in until the custom mob exists: a
   brute named "Piglin Warden" in gold armour with extra health, strength
   and resistance. Once every online non-operator party member stands in the
   gilded centre circle, light runs along the spoke to gate 1, which opens
@@ -1317,7 +1320,34 @@ so respawned players can walk back in). `off` and `reset` close them all.
   seconds after they appear. A restart mid-fight starts the room over; it's
   put back (gates barred, lights dark, mobs removed) when the run moves
   past Room 5 or ends.
-- Rooms 6-7: not built yet; their exits stay shut.
+- **Room 6** ([`room6.js`](season_manager/season_pack/scripts/dungeon/room6.js)),
+  the three-floor maze. When the run reaches it, six keys — trial keys
+  named "Key #1" to "Key #6", marked with the run number — are hidden in
+  six random maze barrels (of 30), and 24 mobs are scattered through the
+  corridors: 8 per floor, at least 6 blocks apart (3 sword piglins, 2
+  crossbow piglins, 2 pillagers, 1 brute each), no boss, never restocked.
+  Spots come from `layout.js` (corridor floor cells away from the ladders,
+  the entrance and the key hall). In the key hall, putting a key in its own
+  altar (barrel) consumes it and lights the altar's pedestal; anything else,
+  including a key from an earlier run, is left alone. All six lit → the exit
+  bars (Airlock 6's back gate) open. Keys are taken out of inventories the
+  moment a run ends and on login; keys in barrels, altars and on the floor,
+  and leftover mobs, are cleared when the run moves past the maze or ends.
+- **Room 7** ([`room7.js`](season_manager/season_pack/scripts/dungeon/room7.js)),
+  the rune floor. Every block of the 23 x 23 floor is a rune tile; stepping
+  onto a tile flips only that tile, dark to lit or lit to dark; every tile
+  lit opens the exit bars (Airlock 7's back gate). Nothing flips while the
+  party walks in. Once every online non-operator party member is on the
+  floor, the entrance bars close, six random patterns flash (half a second
+  each, ticking) and the last one stays, about half the floor lit; a chime,
+  then tiles flip from each player's next step. A tile flips when a player
+  lands on it from a different tile — jumping in place doesn't count, and
+  two players stepping onto one tile together cancel out. Checked every
+  tick, so sprinting can't skip tiles. Anyone on the arrival ledge (e.g.
+  after respawning) gets the entrance opened so they can rejoin. Put back
+  (all dark, entrance open) when the run moves past Room 7 or ends; a
+  restart mid-puzzle keeps the floor as it is.
+- Room 8: not built yet.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

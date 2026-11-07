@@ -12,6 +12,8 @@ import { setGate } from "./gates.js";
 //    1-3  pillagers                 4  brutes
 //    5-7  piglins: crossbow, sword, mix          8  brutes
 //    9-11 gold-armoured piglins + 1-2 brutes     12 the Piglin Warden + brutes
+//  Those are the baselines: each gate adds one more mob per party member
+//  online in the Nether when it opens, from the same mix.
 //  The Warden is a stand-in for now: a named brute in gold armour with
 //  extra health, strength and resistance (the custom mob comes later).
 //
@@ -135,10 +137,19 @@ function equip(mob, slot, item) {
   }
 }
 
+// The gate's baseline wave plus one more mob per party member online in
+// the Nether now. Extras repeat the wave's own mix (never a second Warden).
+function waveFor(gate) {
+  const baseline = WAVES[gate.number - 1];
+  const pool = baseline.filter((spec) => !spec.warden);
+  const extra = world.getDimension(NETHER_ID).getPlayers().filter(isMember).length;
+  return [...baseline, ...Array.from({ length: extra }, (_, i) => pool[i % pool.length])];
+}
+
 function spawnWave(gate) {
   const nether = world.getDimension(NETHER_ID);
   const base = at(gate.spawn);
-  const mobs = WAVES[gate.number - 1].map((spec, i) => {
+  const mobs = waveFor(gate).map((spec, i) => {
     const location = { x: base.x + 0.5 + (i % 2 ? 0.3 : -0.3), y: base.y, z: base.z + 0.5 + (i % 3 - 1) * 0.3 };
     const mob = spawnDungeonMob(nether, spec.type, location);
     mob.addTag(MOB_TAG);
