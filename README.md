@@ -1362,12 +1362,16 @@ so respawned players can walk back in). `off` and `reset` close them all.
   librarian with **no trades** yet (`villager_v2` event
   `season:become_empty_librarian`; Mending comes later, by retraining him)
   who can't be hurt. Once every online non-operator party member is in the
-  hall: a pause, he thanks them in two chat lines, the cell door opens and
-  the portal lights; rails appear along the red runner and a minecart with
+  hall: a short scene (about 25 seconds) — he looks up, speaks about what
+  the Illagers took, Mending ("mended by the experience of the one who
+  wields it"), and Walda — then the cell door opens and the portal lights; rails appear along the red runner and a minecart with
   him in it rolls to the portal, where cart and librarian vanish in a burst
   of particles (he never actually travels). The rescue is announced to the
   whole server ("The librarian is free! Rescued by …") and written to the
-  content log with the date and party (for the Hall of Heroes). Thirty
+  content log with the date and party (for the Hall of Heroes); his voice
+  comes back through the portal once more, pointing at the Mystic Library
+  ("Find me a library worthy of the old knowledge…"). The lines are in
+  `SCENE` / `AFTER` at the top of `room8.js`, easy to edit. Thirty
   seconds later ("The portal is closing...") everyone left in the Nether
   is sent home and the whole event resets (the same as `reset`). Anyone
   stepping into the portal meanwhile is sent home instead of through it.

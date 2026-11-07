@@ -11,12 +11,14 @@ import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.j
 //  comes later, by retraining him), unhurtable.
 //
 //  Once every online non-operator party member is in the hall (and at
-//  least one party member): a pause, he thanks them in chat, the cell door
-//  opens and the portal lights. A minecart appears on rails laid along the
+//  least one party member): a short scene — he speaks a few lines in chat
+//  (SCENE below; about 25 seconds) — then the cell door opens and the
+//  portal lights. A minecart appears on rails laid along the
 //  red runner, he gets in, and it rolls him to the portal — where he and
 //  the cart vanish in a burst of particles (he never actually travels).
 //  The rescue is announced to the whole server and written to the content
-//  log (date and party, for the Hall of Heroes). Thirty seconds later
+//  log (date and party, for the Hall of Heroes). His voice comes back
+//  through the portal once more (AFTER below). Thirty seconds later
 //  everyone left in the Nether is sent home and the whole event resets.
 //
 //  Anyone stepping into the portal meanwhile is sent home rather than
@@ -30,10 +32,26 @@ import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.j
 const R = LAYOUT.room8;
 const STAGE = 8;
 const TICKS = 2;
-const THANKS_AT = 60; // ticks after the party is in: first line
-const THANKS_2_AT = 120;
-const OPEN_AT = 160; // cell door opens, portal lights
-const CART_AT = 200; // the minecart appears and he gets in
+// The scene, in ticks after the whole party is in the hall. Edit freely.
+const SAY = (text) => `§e<Librarian> §f${text}`;
+const SCENE = [
+  { at: 40, text: "§7§o*the figure in the cell looks up from the floor*" },
+  { at: 80, text: SAY("Footsteps... that aren't hooves? Who's there?") },
+  { at: 150, text: SAY("You came. After all these years, someone actually came.") },
+  { at: 230, text: SAY("The Illagers took everything. My notes, my books, my name. They thought a cell would make me forget.") },
+  { at: 330, text: SAY("It didn't. A tool, mended by the experience of the one who wields it. I still remember every word.") },
+  { at: 420, text: SAY("Walda sent you, didn't she? She always did believe the old tales.") },
+  { at: 500, text: SAY("Quickly now. The guards change at the bells, and I'd rather not be here when they do.") },
+];
+const OPEN_AT = 540; // cell door opens, portal lights
+const BOARD_AT = 580; // the minecart appears and he gets in
+const BOARD_LINE = SAY("After you? No... I've waited long enough. I'll go first.");
+const CART_AT = 640;
+// After he's gone through, his voice from the other side.
+const AFTER = [
+  { at: 50, text: "§7§o...his voice carries back through the portal..." },
+  { at: 90, text: SAY("Find me a library worthy of the old knowledge, and I'll teach your village everything I know.") },
+];
 const RIDE_TIMEOUT = 300; // vanish anyway if the cart hasn't arrived in 15 s
 const CLOSING_AT = 400; // ticks after he's gone: "the portal is closing"
 const KICK_AT = 600; // 30 s after he's gone: everyone home, full reset
@@ -263,13 +281,15 @@ system.runInterval(() => {
     }
     case "thanks": {
       const t = now - finale.start;
-      if (t >= THANKS_AT && !finale.said1) {
-        finale.said1 = true;
-        tell(party, "§e<Librarian> §fYou came. After all these years, someone came.");
+      finale.said ??= 0;
+      while (finale.said < SCENE.length && t >= SCENE[finale.said].at) {
+        tell(party, SCENE[finale.said++].text);
+        sound("mob.villager.idle");
       }
-      if (t >= THANKS_2_AT && !finale.said2) {
-        finale.said2 = true;
-        tell(party, "§e<Librarian> §fCome — let's go home. I have so much to teach your village.");
+      if (t >= BOARD_AT && !finale.boarded) {
+        finale.boarded = true;
+        tell(party, BOARD_LINE);
+        sound("mob.villager.yes");
       }
       if (t >= OPEN_AT && !finale.opened) {
         finale.opened = true;
@@ -311,6 +331,8 @@ system.runInterval(() => {
     }
     case "farewell": {
       const t = now - finale.goneAt;
+      finale.said ??= 0;
+      while (finale.said < AFTER.length && t >= AFTER[finale.said].at) tell(party, AFTER[finale.said++].text);
       if (t >= CLOSING_AT && !finale.warned) {
         finale.warned = true;
         tell(party, "§7The portal is closing...");
