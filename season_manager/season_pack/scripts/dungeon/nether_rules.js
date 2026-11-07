@@ -77,10 +77,28 @@ function isMob(entity) {
   return families.hasTypeFamily("mob") || families.hasTypeFamily("monster");
 }
 
-// Removals are batched by type and reported to operators once a second,
-// so a burst of spawns is one chat line rather than dozens.
+// Removals are batched by type and reported once a second, so a burst of
+// spawns is one line rather than dozens. Always written to the content
+// log; sent to operators' chat only when switched on (off by default,
+// saved with the world):
+//   /scriptevent season:nether_mob_removal_log on|off
 const REMOVAL_REPORT_TICKS = 20; // 1 second
+const MOB_REMOVAL_LOG_CHAT_PROPERTY = "season:nether_mob_removal_log_chat";
 const pendingRemovals = new Map();
+
+function mobRemovalLogChatOn() {
+  return world.getDynamicProperty(MOB_REMOVAL_LOG_CHAT_PROPERTY) === true;
+}
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:nether_mob_removal_log") return;
+  const arg = event.message.trim().toLowerCase();
+  if (arg === "on" || arg === "off") world.setDynamicProperty(MOB_REMOVAL_LOG_CHAT_PROPERTY, arg === "on");
+  const reply = `§6Nether mob removal log in chat: ${mobRemovalLogChatOn() ? "on" : "off"}.`;
+  const source = event.sourceEntity;
+  if (source?.typeId === "minecraft:player") source.sendMessage(reply);
+  else console.warn(reply);
+});
 
 function removeIfUnwanted(entity) {
   if (!entity.isValid()) return;
@@ -100,10 +118,11 @@ system.runInterval(() => {
   if (pendingRemovals.size === 0) return;
   const parts = [...pendingRemovals].map(([type, { count, where }]) => `${count}× ${type} (last at ${where})`);
   pendingRemovals.clear();
-  const message = `§8[Nether] removed ${parts.join(", ")}`;
+  const message = `[Nether] removed ${parts.join(", ")}`;
   console.warn(message);
+  if (!mobRemovalLogChatOn()) return;
   for (const player of world.getAllPlayers()) {
-    if (isOperator(player)) player.sendMessage(message);
+    if (isOperator(player)) player.sendMessage(`§8${message}`);
   }
 }, REMOVAL_REPORT_TICKS);
 

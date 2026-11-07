@@ -65,6 +65,8 @@ of the same commit.
 
 ## Usage
 
+Short list of every command: [COMMANDS.md](COMMANDS.md).
+
 ### Cleanup sequence
 
 The pack automatically sweeps every online player every
@@ -161,6 +163,9 @@ effect even though piglins can't reach the Overworld until the Nether
 opens (Month 5). It's still in effect afterward too — including during
 Month 6's Bastion Remnant push, so bastions will be effectively
 undefended until this is revisited.
+
+Piglins and brutes the dungeon spawns itself (tagged `season:dungeon_mob`,
+see [Nether rules](#nether-rules)) are exempt.
 
 To ban more mobs, add their type IDs to the `BANNED_MOBS` set.
 
@@ -960,6 +965,10 @@ obsidian frame ignites it too, same as flint and steel — a
 Bedrock-specific mechanic Java doesn't have, easy to miss if you're only
 picturing flint and steel.
 
+Operators (players tagged `season:operator`, see
+[Nether rules](#nether-rules)) may light Nether portals, to run the
+dungeon event. End portals stay locked for everyone.
+
 This only intercepts a *player* actually using the item — it hooks
 `itemUseOn`, which never fires for a dispenser or hopper clock
 triggering the same item with no player involved. An automated ignition
@@ -991,6 +1000,9 @@ dimension. This is the fallback for anything the portal lock doesn't catch
 reacts to the dimension change itself rather than the portal that caused
 it.
 
+Operators (players tagged `season:operator`) are not bounced from the
+Nether. The End stays sealed for everyone.
+
 The portal itself is left standing — an earlier version tried to destroy
 it after the fact, but nether/end portals resist being torn down
 piecemeal via script (nether portals in particular re-validate their own
@@ -1010,6 +1022,67 @@ than its raw Y, since a world spawn point that was never explicitly set
 can report a nonsensical height.
 
 To ban/unban a dimension, add or remove its ID in `DISABLED_DIMENSIONS`.
+
+### Nether rules
+
+The Nether exists only for the Mending Librarian Rescue dungeon. Code in
+[`scripts/dungeon/nether_rules.js`](season_manager/season_pack/scripts/dungeon/nether_rules.js).
+
+**Operators.** Operator status comes from a tag for now
+(`Player.playerPermissionLevel` needs `@minecraft/server` 2.1.0; this
+pack is on 1.14.0). Tag yourself once:
+
+```
+/tag @s add season:operator
+```
+
+Operators may light Nether portals and enter the Nether (see
+[Portal lock](#portal-lock) and
+[Dimension bounce-back](#dimension-bounce-back)). Everyone else is
+still bounced until the dungeon event switch exists.
+
+**Game mode.** Operators keep whatever mode they're in. Everyone else is
+put in adventure while in the Nether and survival everywhere else — no
+creative or spectator. Applied on dimension change, on login/respawn,
+and by a sweep every second.
+
+**Mobs.** The only mobs allowed in the Nether are ones the pack spawns,
+which are tagged `season:dungeon_mob` (via `spawnDungeonMob()`). Any
+other mob — vanilla or from any add-on — is removed outright (no death
+event, no drops, no XP) when it spawns, when it loads with a chunk, and
+by a sweep every 3 seconds. "Mob" means the entity has the `mob` or
+`monster` type family; items, projectiles, XP orbs and the Gravestone
+add-on's graves are left alone (graves tested: survive with all items).
+
+Natural spawning keeps trying near players in the Nether, so removals
+run continuously while anyone is there — about one every 2 seconds in
+testing (zombified piglins, piglins, hoglins, ghasts, endermen). That's
+harmless; it's left as is.
+
+**Removal log.** Removals are batched by type once a second, e.g.
+`[Nether] removed 4× minecraft:piglin (last at -270 72 -114)`. Always
+written to the content log. Sent to operators' chat only when switched
+on — off by default, saved with the world:
+
+```
+scriptevent season:nether_mob_removal_log on
+scriptevent season:nether_mob_removal_log off
+scriptevent season:nether_mob_removal_log
+```
+
+The last form just reports the current setting. This switch affects only
+these lines.
+
+**Entity list.** Lists every entity type within 16 blocks of you, with
+counts, marking dungeon-tagged ones and non-mobs — for finding out what
+an add-on's entity is called:
+
+```
+scriptevent season:entities
+```
+
+None of the Nether rules are paused by `scriptevent season:toggle`: they
+protect the dungeon rather than being season restrictions.
 
 ### Pausing/resuming
 
