@@ -498,6 +498,19 @@ reverse; these fill that gap.
   itself costs 1 Ingot + 2 Nuggets to make, and 9 Nuggets = 1 Ingot) —
   cheaper than the matching iron piece across the board, which fits
   Chainmail's spot between Leather and Iron in vanilla's armor values.
+- **`bell.json`** — Bells have no crafting recipe in vanilla (only found
+  in villages or bought from Armorers, Toolsmiths and Weaponsmiths). This
+  one is new, under `season:bell`, on a crafting table:
+
+  ```
+  Stone      Stick      Stone
+  -          Gold Ingot -
+  Gold Ingot Redstone   Gold Ingot
+  ```
+
+  2 Stone (plain `minecraft:stone`, not cobblestone), 1 Stick, 3 Gold
+  Ingots and 1 Redstone Dust make 1 Bell. It shows in the recipe book
+  once you hold a Gold Ingot.
 
 ### Swapped-ingredient recipes
 

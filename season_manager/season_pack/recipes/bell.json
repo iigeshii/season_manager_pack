@@ -1,0 +1,36 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "season:bell"
+    },
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "STS",
+      " G ",
+      "GRG"
+    ],
+    "key": {
+      "S": {
+        "item": "minecraft:stone"
+      },
+      "T": {
+        "item": "minecraft:stick"
+      },
+      "G": {
+        "item": "minecraft:gold_ingot"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "minecraft:bell"
+    }
+  }
+}
