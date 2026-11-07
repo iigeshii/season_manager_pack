@@ -31,6 +31,9 @@ import { gateOnRunStarted, resetGate, clearStickyPads } from "./room1_gate.js";
 //    off       ends the run and resets the Room 1 gate.
 //    test_mode on|off  group puzzles can be done solo (Room 1's pads
 //              stay lit on their own).
+//    reset     everything back for the next group: ends any run, resets
+//              the gate, closes Nether portals (sending non-operators
+//              home). Keeps the origin and test mode.
 //    reset_gate  closes and darkens the Room 1 gate.
 //    where     which room/airlock you're standing in.
 //    (none)    shows the current state.
@@ -58,11 +61,11 @@ function currentRun() {
   return world.getDynamicProperty(P + "run") ?? 0;
 }
 
-function currentStage() {
+export function currentStage() {
   return world.getDynamicProperty(P + "stage") ?? 1;
 }
 
-function isMember(player) {
+export function isMember(player) {
   return isEventOn() && player.getDynamicProperty(P + "member") === currentRun();
 }
 
@@ -129,7 +132,7 @@ function inBoxes(c, boxes) {
   return boxes.some((b) => c.x >= b[0] && c.y >= b[1] && c.z >= b[2] && c.x <= b[3] && c.y <= b[4] && c.z <= b[5]);
 }
 
-function spacesAt(location) {
+export function spacesAt(location) {
   const cells = relativeCells(location);
   return Object.keys(LAYOUT.spaces).filter((id) => cells.some((c) => inBoxes(c, LAYOUT.spaces[id].boxes)));
 }
@@ -275,6 +278,19 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       }
       return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit on their own)" : "off"}.`);
     }
+    case "reset": {
+      // Back to how the next group should find it, whatever state it's in.
+      // Keeps the origin and the test-mode setting.
+      const wasOn = isEventOn();
+      world.setDynamicProperty(P + "on", false);
+      setStage(1);
+      resetGate();
+      const sent = setNetherPortalsOpen(false); // also sends non-operators home
+      return reply(
+        `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +
+          `Nether portals closed, ${sent} player${sent === 1 ? "" : "s"} sent home.`
+      );
+    }
     case "reset_gate": {
       resetGate();
       return reply("§aRoom 1 gate reset: wards dark, portcullises closing.");
@@ -307,6 +323,6 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       return reply(lines.join("\n"));
     }
     default:
-      return reply("§cUse: seal, stage <n>, off, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
+      return reply("§cUse: seal, stage <n>, off, reset, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
   }
 });

@@ -2,6 +2,7 @@ import { world, system, EquipmentSlot } from "@minecraft/server";
 import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
 import { isAllowedInNether } from "./dungeon/mending_rescue.js";
 import { netherPortalsOpen } from "./nether_portals.js";
+import "./dungeon/airlocks.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES

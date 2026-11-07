@@ -72,22 +72,23 @@ Run everything from chat.
 
 1. `/scriptevent season:nether_portals on` — players can light portals and go in.
 2. Players gather in Room 1 and open the gate: four players stand on the four corner pads at once. (Testing solo? `test_mode on` first: each pad stays lit.)
-3. `/scriptevent season:mending_rescue seal` — once everyone is through the gate into the first airlock. Starts the run, locks in the party, closes the gate behind them, opens the way into Room 2 and closes Nether portals.
-4. `/scriptevent season:mending_rescue stage <3-8>` — each time the party reaches the next airlock, with the number of the room they're heading into.
+3. Everyone walks through the gate into the first airlock. Once **every** player in the Nether is inside (at least 4) and they hold still for 3 seconds, the run starts on its own: the party is locked in, the gate closes behind them, the way into Room 2 opens and Nether portals close.
+4. At each later airlock, once every online party member is inside for 3 seconds, the run moves on to the next room on its own.
 5. `/scriptevent season:mending_rescue off` — when the run is over. Anyone still in the dungeon is sent home, and the Room 1 gate resets.
 
-`/scriptevent season:mending_rescue` on its own shows where things stand. Steps 3 and 4 will happen automatically once the airlock code exists.
+`/scriptevent season:mending_rescue` on its own shows where things stand. If anything gets stuck, `/scriptevent season:mending_rescue reset` puts it all back. If an airlock doesn't trigger, `seal` and `stage <n>` do the same by hand.
 
 ### All Mending Rescue commands
 
 | Command | What it does |
 |---|---|
 | `/scriptevent season:mending_rescue set_origin <x> <y> <z>` | Once: where the structure was placed (its minimum corner, unrotated). Every room, airlock and checkpoint follows from it. |
-| `/scriptevent season:mending_rescue seal` | Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
-| `/scriptevent season:mending_rescue stage <2-8>` | The party has moved on to that room. The checkpoint becomes the airlock before it. |
+| `/scriptevent season:mending_rescue seal` | Override (normally automatic at the first airlock). Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
+| `/scriptevent season:mending_rescue stage <2-8>` | Override (normally automatic at each airlock). The party has moved on to that room. The checkpoint becomes the airlock before it. |
 | `/scriptevent season:mending_rescue off` | Ends the run. Sends anyone left in the Nether home (bed, else world spawn), except operators. |
-| `/scriptevent season:mending_rescue test_mode on` | Solo testing: each Room 1 pad stays lit once stepped on, so one player can open the gate. Saved with the world. |
+| `/scriptevent season:mending_rescue test_mode on` | Solo testing: each Room 1 pad stays lit once stepped on, so one player can open the gate, and the first airlock needs 1 player instead of 4. Saved with the world. |
 | `/scriptevent season:mending_rescue test_mode off` | Back to normal: all four pads must be stood on at once. |
+| `/scriptevent season:mending_rescue reset` | Puts everything back for the next group, whatever state it's in: ends any run, closes and darkens the Room 1 gate, closes Nether portals and sends non-operators in the Nether home. Keeps the origin and test mode. |
 | `/scriptevent season:mending_rescue reset_gate` | Closes both Room 1 portcullises and darkens the wards and crown. |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
 | `/scriptevent season:mending_rescue` | Shows the run, stage, checkpoint, portal switch and the online party. |

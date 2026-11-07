@@ -94,6 +94,19 @@ function isFull(ward) {
   return ward.progress === ward.blocks.length;
 }
 
+// Heard by every player in the Nether, wherever they stand. Used for
+// cues whose source is too far up to hear (the seals are ~15-23 blocks
+// from their pads; sounds fade out around 16).
+function cue(id) {
+  for (const player of world.getDimension(NETHER_ID).getPlayers()) {
+    try {
+      player.playSound(id);
+    } catch {
+      // unknown sound: skip
+    }
+  }
+}
+
 function playSound(id, rel) {
   try {
     world.getDimension(NETHER_ID).playSound(id, at(rel));
@@ -131,7 +144,7 @@ function stepWard(ward, occupied, gateOpen) {
     for (let i = ward.progress - 1; i >= next; i--) setWardBlock(ward, i, false);
     ward.progress = next;
   }
-  if (!wasFull && isFull(ward)) playSound("random.orb", ward.pad.seal);
+  if (!wasFull && isFull(ward)) cue("random.orb");
 }
 
 // ── Portcullises ────────────────────────────
@@ -187,6 +200,13 @@ system.runInterval(() => {
     if (movedInner) playSound("random.door_open", GATE.inner_portcullis[0][2]);
   }
 }, TICKS);
+
+// ── Called by other modules ─────────────────
+
+// Whether the outer portcullis has been opened (the four wards were lit).
+export function isGateOpen() {
+  return world.getDynamicProperty(OUTER_OPEN) === true;
+}
 
 // ── Called by mending_rescue.js ─────────────
 

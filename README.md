@@ -1151,13 +1151,17 @@ the dungeon changes. The structure must be placed unrotated.
 - `off` — ends the run. Everyone left in the Nether who isn't an
   operator is sent home (unless portals are open), so nobody is stranded
   in a sealed room.
+- `reset` — everything back for the next group, whatever state it's in:
+  ends any run, closes and darkens the Room 1 gate, closes Nether portals
+  (sending non-operators in the Nether home). Keeps the origin and the
+  test-mode setting.
 - `where` — which room or airlock you're standing in, and whether that's
   inside the current zone. For checking the placement lines up.
 - No word — shows the run, stage, origin, checkpoint, portal switch and
   the online party.
 
-For now `seal` and `stage` are typed by hand; the airlock code will call
-them once it exists.
+`seal` and `stage` happen on their own at the airlocks (below); the typed
+commands are overrides.
 
 **Room 1 gate.** Code in
 [`scripts/dungeon/room1_gate.js`](season_manager/season_pack/scripts/dungeon/room1_gate.js);
@@ -1169,7 +1173,8 @@ the crown above the gate lights and the outer portcullis lifts row by
 row (about 2 seconds). The gate then stays open and lit.
 
 - **Test mode** — `test_mode on|off` (saved with the world): each pad
-  stays lit once stepped on, so one player can open the gate. Turning it
+  stays lit once stepped on, so one player can open the gate, and Airlock
+  1 needs only 1 player instead of 4. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1179,6 +1184,22 @@ row (about 2 seconds). The gate then stays open and lit.
 Block changes only ever swap the exact block expected (dark ward ↔
 shroomlight, iron bars ↔ air), so anything else placed there is left
 alone.
+
+**Airlocks.** Code in
+[`scripts/dungeon/airlocks.js`](season_manager/season_pack/scripts/dungeon/airlocks.js).
+Checked once a second; the group must hold still for 3 seconds ("Everyone's
+in. Hold still...") before anything happens.
+
+- **Airlock 1** (the gate passage) starts the run — the same as typing
+  `seal` — when the gate is open, *every* non-operator in the Nether is
+  inside the airlock, and there are at least 4 of them (1 in test mode).
+  With 6 in Room 1 and 4 in the airlock, nothing happens until the other
+  2 join them. The party is everyone in the airlock, operators included.
+- **Airlocks 2-7** move the run to the next room — the same as typing
+  `stage` — when every online, non-operator party member is inside the
+  airlock ahead. Players who are offline don't hold the group up. (Each
+  room's own gates come with its room code; for now this only moves the
+  stage and checkpoint.)
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks
