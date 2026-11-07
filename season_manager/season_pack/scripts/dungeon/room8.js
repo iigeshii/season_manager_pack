@@ -138,10 +138,22 @@ function removeOurs() {
 
 // ── The librarian ───────────────────────────
 
+// Whether the cell's chunk is loaded and ticking. Right after the run
+// reaches Room 8 (or a jump, or a restart) it often isn't yet; spawning or
+// deciding anything before then fails or misreads the room.
+function cellLoaded() {
+  return blockAt([Math.floor(R.librarian.x), R.librarian.y, Math.floor(R.librarian.z)]) !== undefined;
+}
+
 function spawnLibrarian() {
   const nether = world.getDimension(NETHER_ID);
   const spot = at([R.librarian.x, R.librarian.y, R.librarian.z]);
-  const librarian = spawnDungeonMob(nether, "minecraft:villager_v2", spot);
+  let librarian;
+  try {
+    librarian = spawnDungeonMob(nether, "minecraft:villager_v2", spot);
+  } catch {
+    return undefined; // not loaded after all: try again next check
+  }
   librarian.addTag(TAG);
   librarian.triggerEvent("season:become_empty_librarian");
   try {
@@ -187,11 +199,12 @@ function recordRescue(party) {
 // ── Set up and put back ─────────────────────
 
 function setUp() {
+  if (!cellLoaded()) return; // wait until the cell is loaded
   removeOurs();
   setRails(false);
   setPortal(false);
   setCellDoor(false);
-  spawnLibrarian();
+  if (!spawnLibrarian()) return;
   finale = { phase: "waiting" };
   world.setDynamicProperty(RUN, currentRun());
 }
@@ -222,7 +235,9 @@ system.runInterval(() => {
     return;
   }
   if (!finale) {
-    // A restart mid-room: if he's still caged, carry on; otherwise end the run.
+    // A restart mid-room: if he's still caged, carry on; otherwise end the
+    // run. Only decide once the cell is loaded (he can't be seen before).
+    if (!cellLoaded()) return;
     if (findLibrarian() && blockAt(R.cell_door[0])?.typeId === "minecraft:iron_bars") finale = { phase: "waiting" };
     else {
       resetEvent();
@@ -240,7 +255,7 @@ system.runInterval(() => {
   const now = system.currentTick;
   switch (finale.phase) {
     case "waiting": {
-      if (!findLibrarian()) spawnLibrarian(); // e.g. removed by an operator
+      if (cellLoaded() && !findLibrarian()) spawnLibrarian(); // e.g. removed by an operator
       if (party.filter((p) => !isOperator(p)).every(inHall) && party.some(inHall)) {
         finale = { phase: "thanks", start: now };
       }
