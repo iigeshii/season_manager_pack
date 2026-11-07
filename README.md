@@ -1065,6 +1065,24 @@ by a sweep every 3 seconds. "Mob" means the entity has the `mob` or
 `monster` type family; items, projectiles, XP orbs and the Gravestone
 add-on's graves are left alone (graves tested: survive with all items).
 
+**Dungeon mobs don't fight each other.** Mobs the dungeon spawns
+(Room 3's guards, Room 5's waves) go through `spawnDungeonMob()`, which
+fires a `season:become_dungeon_mob` event on pillagers, piglins and piglin
+brutes. That event is defined in
+[`entities/pillager.json`](season_manager/season_pack/entities/pillager.json),
+[`piglin.json`](season_manager/season_pack/entities/piglin.json) and
+[`piglin_brute.json`](season_manager/season_pack/entities/piglin_brute.json)
+— Mojang's vanilla files (bedrock-samples 1.26.60, comments stripped)
+plus one `season:dungeon_mob` component group, the same approach as the
+Elite Zombie's guards: the mob joins a `season_dungeon` family, takes no
+damage from another `season_dungeon` mob (`minecraft:damage_sensor`),
+never retaliates against one (`minecraft:behavior.hurt_by_target`
+filter; pillagers keep their vanilla "not other illagers" rule too), and
+is persistent so it doesn't despawn mid-fight. A pillager's stray bolt
+can't start a fight with a piglin. Mobs without the event (every natural
+one) behave exactly as vanilla. If Mojang changes these mobs, re-copy the
+vanilla file and re-add the group and event.
+
 Natural spawning keeps trying near players in the Nether, so removals
 run continuously while anyone is there — about one every 2 seconds in
 testing (zombified piglins, piglins, hoglins, ghasts, endermen). That's

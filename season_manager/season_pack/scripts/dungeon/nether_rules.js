@@ -88,9 +88,17 @@ system.runInterval(() => {
 
 // The only way the pack should put a mob in the Nether. The tag is added
 // straight away, before any after-event for the spawn is delivered.
+// Mobs with a season:become_dungeon_mob event (entities/pillager.json,
+// piglin.json, piglin_brute.json) join the season_dungeon family: they take
+// no damage from each other and never retaliate against each other, so a
+// stray crossbow bolt can't start infighting. They also don't despawn.
+const DUNGEON_MOB_EVENT = "season:become_dungeon_mob";
+const HAS_DUNGEON_EVENT = new Set(["minecraft:pillager", "minecraft:piglin", "minecraft:piglin_brute"]);
+
 export function spawnDungeonMob(dimension, typeId, location) {
   const mob = dimension.spawnEntity(typeId, location);
   mob.addTag(DUNGEON_MOB_TAG);
+  if (HAS_DUNGEON_EVENT.has(typeId)) mob.triggerEvent(DUNGEON_MOB_EVENT);
   return mob;
 }
 
