@@ -11,8 +11,10 @@ import { setGate } from "./gates.js";
 //  online non-operator party member is on the arena (and at least one
 //  party member), the entrance bridge retracts, the entrance gate bars, and
 //  a 3-2-1 countdown (on the wall timer) starts the round. Tiles flash red for a second, then
-//  vanish — slowly at first, faster and faster — down to 20% of the floor
-//  remaining. Anyone off the arena (fallen into the basement) is out for
+//  vanish — quickly, until 80% of the floor is gone about 20 seconds in —
+//  then it stays at 80% gone: tiles grow back 10 seconds after vanishing
+//  and others go in their place, so the holes keep moving.
+//  Standing on one tile for 2 seconds makes it drop: keep moving. Anyone off the arena (fallen into the basement) is out for
 //  the round.
 //
 //  Time left is shown in lit blocks on the north and south walls (two
@@ -34,9 +36,13 @@ const STAGE = 4;
 const TICKS = 2;
 const COUNTDOWN_SECONDS = 3;
 const WARN_TICKS = 20; // red for a second before vanishing
-const START_RATE = 1; // tiles per second at the start of the round
-const END_RATE = 18; // ... and at the end: reaches the 20%-left cap ~5-10 s before time
-const MAX_GONE = 0.8; // never remove more than this: at least 20% of the floor remains
+const START_RATE = 8; // random tiles per second at the start of the round
+const PEAK_RATE = 50; // ... rising to this over RAMP_TICKS, then held (capped by MAX_GONE)
+const RAMP_TICKS = 300; // 15 s ramp: 80% of the floor is gone by ~20 s
+const REGROW_TICKS = 200; // a vanished tile grows back after 10 seconds
+const STILL_TICKS = 40; // standing on one tile this long makes it drop
+const MAX_GONE = 0.8; // random collapse keeps the floor at most this far gone (red counts as gone)
+const MAX_BURST = 10; // tiles at most per step when regrown tiles free up room
 const REFILL_PER_STEP = 30; // tiles restored per step while refilling (~2 s)
 
 const MODE = P + "room4_mode"; // "waiting" | "countdown" | "round" | "refill_won" | "refill_lost" | "won"
@@ -51,7 +57,10 @@ const AIR = "minecraft:air";
 const BARS = "minecraft:iron_bars";
 
 // Round state lives in memory; a restart mid-round counts as a lost round.
-let round = undefined; // { startTick, endTick, queue: [tile index], pending: [{ i, at }], removed, budget }
+let round = undefined; // { startTick, endTick, intact: Set, pending, regrowing, still: Map, budget, announced }
+
+// Tile index by its x,z (tiles are one layer), to find the tile under a player.
+const TILE_AT = new Map(R.tiles.map((p, i) => [`${p[0]},${p[2]}`, i]));
 let countdownStart = 0;
 
 // ── Helpers ─────────────────────────────────
@@ -203,30 +212,47 @@ function startCountdown(members) {
 
 function startRound() {
   const seconds = R.round_seconds;
-  const order = R.tiles.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
   round = {
     startTick: system.currentTick,
     endTick: system.currentTick + seconds * 20,
-    queue: order,
-    pending: [],
-    removed: 0,
+    intact: new Set(R.tiles.map((_, i) => i)), // tiles that can still be picked
+    pending: [], // [{ i, at }] red, vanishing at `at`
+    regrowing: [], // [{ i, at }] gone, back at `at`
+    still: new Map(), // player id -> { tile, since }
     announced: undefined, // last whole second announced
     budget: 0,
   };
   setMode("round");
 }
 
+// Starts tile i going: red now, gone after the warning.
+function crack(i, now) {
+  if (!round.intact.delete(i)) return;
+  swap(R.tiles[i], R.tile_block, R.warning_block);
+  round.pending.push({ i, at: now + WARN_TICKS });
+}
+
+// The tile index a player is standing on, if any.
+function tileUnder(player) {
+  const o = origin();
+  return TILE_AT.get(`${Math.floor(player.location.x) - o.x},${Math.floor(player.location.z) - o.z}`);
+}
+
 function stepRound(members) {
   const now = system.currentTick;
 
-  // Tiles whose warning is over vanish.
+  // Tiles whose warning is over vanish, and start the clock to grow back.
   round.pending = round.pending.filter(({ i, at: when }) => {
     if (when > now) return true;
     swap(R.tiles[i], R.warning_block, AIR);
+    round.regrowing.push({ i, at: now + REGROW_TICKS });
+    return false;
+  });
+  // Vanished tiles grow back, so holes keep moving.
+  round.regrowing = round.regrowing.filter(({ i, at: when }) => {
+    if (when > now) return true;
+    swap(R.tiles[i], AIR, R.tile_block);
+    round.intact.add(i);
     return false;
   });
 
@@ -249,16 +275,28 @@ function stepRound(members) {
     return;
   }
 
-  // More tiles start to go, faster as the round goes on.
-  const progress = (now - round.startTick) / (round.endTick - round.startTick);
-  round.budget += (START_RATE + (END_RATE - START_RATE) * progress) * (TICKS / 20);
-  const cap = Math.floor(R.tiles.length * MAX_GONE);
-  while (round.budget >= 1 && round.removed < cap && round.queue.length > 0) {
+  // Standing still: the tile under a player who hasn't moved off it for
+  // STILL_TICKS cracks.
+  for (const player of members.filter(onArena)) {
+    const tile = tileUnder(player);
+    const seen = round.still.get(player.id);
+    if (tile === undefined || !seen || seen.tile !== tile) {
+      round.still.set(player.id, { tile, since: now });
+    } else if (now - seen.since >= STILL_TICKS) {
+      crack(tile, now);
+      seen.since = now;
+    }
+  }
+
+  // Random tiles go: ramping up to ~80% gone in the first 20 seconds, then
+  // held there — as tiles grow back, others go.
+  const ramp = Math.min(1, (now - round.startTick) / RAMP_TICKS);
+  round.budget = Math.min(MAX_BURST, round.budget + (START_RATE + (PEAK_RATE - START_RATE) * ramp) * (TICKS / 20));
+  const maxGone = Math.floor(R.tiles.length * MAX_GONE);
+  while (round.budget >= 1 && R.tiles.length - round.intact.size < maxGone && round.intact.size > 0) {
     round.budget -= 1;
-    const i = round.queue.pop();
-    swap(R.tiles[i], R.tile_block, R.warning_block);
-    round.pending.push({ i, at: now + WARN_TICKS });
-    round.removed++;
+    const pool = [...round.intact];
+    crack(pool[Math.floor(Math.random() * pool.length)], now);
   }
 }
 

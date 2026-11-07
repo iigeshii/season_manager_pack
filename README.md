@@ -1264,8 +1264,11 @@ so respawned players can walk back in). `off` and `reset` close them all.
   the collapsing glass floor. Once every online non-operator party member
   is on the arena, the entrance bridge retracts, the entrance gate bars,
   and a 3-2-1 countdown starts the round. Tiles flash red for a
-  second, then vanish — about 1 a second at first, rising to about 18 a
-  second — until only 20% of the floor is left. Anyone who falls into the
+  second, then vanish — fast enough that 80% of the floor is gone about 20
+  seconds in — and the floor then stays at 80% gone for the rest of the
+  round: tiles grow back 10 seconds after vanishing and others go in their
+  place, so the holes keep moving. Standing on the same tile for
+  2 seconds makes it crack and drop, so players have to keep moving. Anyone who falls into the
   basement is out for the round. The countdown and the time left are shown
   as two digits in glowing blocks on the north and south walls (either
   side of the middle lavafall, mirrored on the south wall so it reads from
