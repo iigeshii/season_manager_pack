@@ -47,6 +47,15 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   show the empty `minecraft:rail_movement` component (default
   `max_speed` 0.4 blocks per tick, 8 blocks per second) before the real
   pack's versions set it to 1.0 (20 blocks per second).
+- `entities/pillager.json`, `piglin.json`, `piglin_brute.json` — the
+  vanilla Pillager, Piglin and Piglin Brute entity definitions, pulled
+  2026-11-07 (bedrock-samples 1.26.60), exactly as downloaded (with
+  Mojang's `//` comments). The real pack's versions are these with the
+  comments stripped plus one `season:dungeon_mob` component group and a
+  `season:become_dungeon_mob` event (shared `season_dungeon` family,
+  no damage from or retaliation against that family, persistent), used
+  only for mobs the Mending Rescue dungeon spawns. Diff against these to
+  see exactly what changed.
 - `loot_tables/entities/sea_turtle.json` — the vanilla Turtle loot table
   (the entity is `minecraft:turtle`, but vanilla names the loot table
   file `sea_turtle.json`), pulled 2026-09-26. Vanilla only drops

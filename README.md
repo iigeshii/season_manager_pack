@@ -1073,7 +1073,8 @@ brutes. That event is defined in
 [`piglin.json`](season_manager/season_pack/entities/piglin.json) and
 [`piglin_brute.json`](season_manager/season_pack/entities/piglin_brute.json)
 — Mojang's vanilla files (bedrock-samples 1.26.60, comments stripped)
-plus one `season:dungeon_mob` component group, the same approach as the
+plus one `season:dungeon_mob` component group (originals in
+`original_loot/entities/`), the same approach as the
 Elite Zombie's guards: the mob joins a `season_dungeon` family, takes no
 damage from another `season_dungeon` mob (`minecraft:damage_sensor`),
 never retaliates against one (`minecraft:behavior.hurt_by_target`
