@@ -1,4 +1,5 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
+import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -130,6 +131,8 @@ const BANNED_MOBS = new Set([
 world.afterEvents.entitySpawn.subscribe(({ entity }) => {
   if (!enabled) return;
   if (!BANNED_MOBS.has(entity.typeId)) return;
+  // Piglins and brutes the dungeon spawns itself are allowed (see dungeon/nether_rules.js).
+  if (entity.hasTag(DUNGEON_MOB_TAG)) return;
   entity.remove();
 });
 
@@ -158,6 +161,8 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
     (p) => p.item === event.itemStack?.typeId && p.block === event.block.typeId
   );
   if (!match) return;
+  // Operators may light Nether portals (not End portals), matching the bounce-back exemption below.
+  if (match.block === "minecraft:obsidian" && isOperator(event.source)) return;
   event.cancel = true;
   event.source.sendMessage(`§c${match.label} are currently disabled.`);
 });
@@ -202,6 +207,9 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
   if (!enabled) return;
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
+  // Operators (season:operator tag) may enter the Nether, e.g. to build and
+  // test the dungeon. The End stays sealed for everyone.
+  if (toDimension.id === "minecraft:nether" && isOperator(player)) return;
 
   const bounceCount = (bounceCounts.get(player.id) ?? 0) + 1;
   bounceCounts.set(player.id, bounceCount);
