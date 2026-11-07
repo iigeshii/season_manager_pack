@@ -14,11 +14,13 @@ import { spawnDungeonMob } from "./nether_rules.js";
 //  tally columns (each starts at 1 lit; each press lights one more, up to
 //  8, then wraps to 1 — never 0) and presses the submit button.
 //
-//  Right: a green circle on the floor, the counters lock, and the exit
-//  bars (Airlock 3's back gate) rise.
-//  Wrong: a red X, the columns all count up 1-8 together then reset to 1
-//  (buttons locked), and guards appear on the four spawn tiles: 2 piglins
-//  and 2 piglin brutes. Submit stays locked until every guard is dead; then
+//  On submit, every column that's right locks in: its lights turn green
+//  and its button stops working. Once all six are right: a green circle on
+//  the floor and the exit bars (Airlock 3's back gate) rise.
+//  Any still wrong: a red X, the wrong columns count up 1-8 together then
+//  reset to 1 (buttons locked), and guards appear on the four spawn tiles,
+//  alternating piglins and piglin brutes: 4 the first time, one more for
+//  each wrong answer after that, up to 12. Submit stays locked until every guard is dead; then
 //  the floor clears. In test mode the guards are killed after 3 seconds.
 //
 //  No chat messages: the floor, the sounds and the bars say what happened.
@@ -40,13 +42,19 @@ const ANIM_TICKS = 5; // per step of the wrong-answer count-up
 const LORE = "§8§r";
 const OLD_LORES = ["§7Mending Rescue: Tally Hall"]; // earlier test builds
 const GUARD_TAG = "season:room3_guard";
-// One per spawn tile. Brutes ignore gold armour, so gold can't wave the penalty away.
-const GUARD_TYPES = ["minecraft:piglin", "minecraft:piglin_brute", "minecraft:piglin", "minecraft:piglin_brute"];
+// Alternating piglin / brute. Brutes ignore gold armour, so gold can't wave
+// the penalty away. The first wrong answer brings one per spawn tile (4);
+// each wrong answer after that brings one more, up to MAX_GUARDS.
+const GUARD_TYPES = ["minecraft:piglin", "minecraft:piglin_brute"];
+const MAX_GUARDS = 12;
 const TEST_GUARD_TICKS = 60; // test mode: guards are killed after 3 seconds
 const ROOM_RADIUS = 20; // from the room centre, for clearing dropped items and guards
 
 const SETUP = P + "room3_setup"; // JSON { run, answer: [6], placed: [[x, y, z, block]] }
 const COUNTERS = P + "room3_counters"; // JSON [6]
+const LOCKED = P + "room3_locked"; // JSON [6] booleans: columns already right
+const WRONGS = P + "room3_wrongs"; // wrong answers so far this setup
+const LOCKED_LIT = "minecraft:verdant_froglight"; // a right column's lights turn green
 const MODE = P + "room3_mode"; // "counting" | "penalty" (count-up running) | "guards" | "solved"
 const PENALTY_AT = P + "room3_penalty_at"; // Date.now() of the wrong answer
 const PENALTY_STALE_MS = 10 * 1000; // count-up lost to a restart: spawn guards anyway
@@ -127,10 +135,20 @@ function counters() {
   return getJsonProp(COUNTERS) ?? R.columns.map(() => 1);
 }
 
+function lockedColumns() {
+  return getJsonProp(LOCKED) ?? R.columns.map(() => false);
+}
+
+// Lights the bottom n indicators of column i: shroomlight while it's being
+// counted, green once it's been submitted right.
 function paintColumn(i, n) {
+  const lit = lockedColumns()[i] ? LOCKED_LIT : R.indicator_lit;
   R.columns[i].indicators.forEach((p, k) => {
-    if (k < n) swap(p, R.indicator_dark, R.indicator_lit);
-    else swap(p, R.indicator_lit, R.indicator_dark);
+    const block = blockAt(p);
+    if (!block) return;
+    const isLit = block.typeId === R.indicator_lit || block.typeId === LOCKED_LIT;
+    if (k < n && (block.typeId === R.indicator_dark || (isLit && block.typeId !== lit))) block.setPermutation(permOf(lit));
+    if (k >= n && isLit) block.setPermutation(permOf(R.indicator_dark));
   });
 }
 
@@ -244,6 +262,8 @@ function setUp() {
 
   world.setDynamicProperty(SETUP, JSON.stringify({ run: currentRun(), answer, placed }));
   world.setDynamicProperty(MODE, "counting");
+  world.setDynamicProperty(LOCKED, JSON.stringify(R.columns.map(() => false)));
+  world.setDynamicProperty(WRONGS, 0);
   setCounters(R.columns.map(() => 1)); // never 0: every column starts at 1
   paintFloor("none");
 }
@@ -258,6 +278,8 @@ function clearRoom() {
 
   world.setDynamicProperty(SETUP, undefined);
   world.setDynamicProperty(COUNTERS, undefined);
+  world.setDynamicProperty(LOCKED, undefined);
+  world.setDynamicProperty(WRONGS, undefined);
   world.setDynamicProperty(MODE, undefined);
   world.setDynamicProperty(PENALTY_AT, undefined);
 }
@@ -273,14 +295,20 @@ function solved() {
 
 function callGuards() {
   if (mode() !== "penalty") return; // already done, or the room was cleared
-  setCounters(R.columns.map(() => 1));
+  const locked = lockedColumns();
+  setCounters(counters().map((n, i) => (locked[i] ? n : 1))); // right columns keep their count
   const nether = world.getDimension(NETHER_ID);
-  const guards = R.guard_spawns.map((spawn, i) => {
-    const p = at(spawn);
-    const guard = spawnDungeonMob(nether, GUARD_TYPES[i % GUARD_TYPES.length], { x: p.x + 0.5, y: p.y, z: p.z + 0.5 });
+  const count = Math.min(MAX_GUARDS, R.guard_spawns.length + Math.max(0, (world.getDynamicProperty(WRONGS) ?? 1) - 1));
+  const guards = [];
+  for (let i = 0; i < count; i++) {
+    // Round the four tiles; extras land slightly off-centre so they don't stack.
+    const p = at(R.guard_spawns[i % R.guard_spawns.length]);
+    const nudge = i < R.guard_spawns.length ? 0 : 0.3;
+    const location = { x: p.x + 0.5 + (Math.random() - 0.5) * nudge, y: p.y, z: p.z + 0.5 + (Math.random() - 0.5) * nudge };
+    const guard = spawnDungeonMob(nether, GUARD_TYPES[i % GUARD_TYPES.length], location);
     guard.addTag(GUARD_TAG);
-    return guard;
-  });
+    guards.push(guard);
+  }
   world.setDynamicProperty(MODE, "guards");
   if (isTestMode()) {
     system.runTimeout(() => {
@@ -290,13 +318,16 @@ function callGuards() {
 }
 
 function wrong() {
+  world.setDynamicProperty(WRONGS, (world.getDynamicProperty(WRONGS) ?? 0) + 1);
   world.setDynamicProperty(MODE, "penalty");
   world.setDynamicProperty(PENALTY_AT, Date.now());
   paintFloor("x");
   sound("mob.ghast.scream");
-  // Columns count up 1-8 together, then reset to 1; then the guards.
+  // The wrong columns count up 1-8 together, then reset to 1; then the
+  // guards. Columns already right stay as they are.
+  const locked = lockedColumns();
   for (let n = 1; n <= 8; n++) {
-    system.runTimeout(() => R.columns.forEach((_, i) => paintColumn(i, n)), n * ANIM_TICKS);
+    system.runTimeout(() => R.columns.forEach((_, i) => locked[i] || paintColumn(i, n)), n * ANIM_TICKS);
   }
   system.runTimeout(callGuards, 9 * ANIM_TICKS);
 }
@@ -315,6 +346,7 @@ world.afterEvents.buttonPush.subscribe(({ block, dimension }) => {
   if (mode() !== "counting") return; // locked while the penalty runs, and once solved
 
   if (column >= 0) {
+    if (lockedColumns()[column]) return; // already right: its button does nothing
     const values = counters();
     values[column] = (values[column] % 8) + 1;
     setCounters(values);
@@ -323,8 +355,13 @@ world.afterEvents.buttonPush.subscribe(({ block, dimension }) => {
 
   const setup = getJsonProp(SETUP);
   if (!setup) return;
+  // Every column that's right locks in (green, button off); if any is
+  // still wrong, the penalty runs for the rest.
   const values = counters();
-  if (setup.answer.every((n, i) => values[i] === n)) solved();
+  const locked = lockedColumns().map((was, i) => was || values[i] === setup.answer[i]);
+  world.setDynamicProperty(LOCKED, JSON.stringify(locked));
+  values.forEach((n, i) => paintColumn(i, n));
+  if (locked.every(Boolean)) solved();
   else wrong();
 });
 

@@ -1050,7 +1050,12 @@ in only while the [Nether portal switch](#nether-portal-switch) is on.
 **Game mode.** Operators keep whatever mode they're in. Everyone else is
 put in adventure while in the Nether and survival everywhere else — no
 creative or spectator. Applied on dimension change, on login/respawn,
-and by a sweep every second.
+and by a sweep every second. Exception: within 4 blocks of a gravestone
+(`darkosto_gravestone:gravestone`, from the Gravestone add-on) a player
+is switched to survival so they can break the grave to collect it, and
+back to adventure once they step away. In the Nether, non-operators can't
+break any block except the Gravestone add-on's, so that moment in
+survival can't be used to dig through the dungeon.
 
 **Mobs.** The only mobs allowed in the Nether are ones the pack spawns,
 which are tagged `season:dungeon_mob` (via `spawnDungeonMob()`). Any
@@ -1236,10 +1241,14 @@ so respawned players can walk back in). `off` and `reset` close them all.
   plus placed), dials it into the matching tally column (each column
   starts with 1 lit; each button press lights one more, up to 8, then
   wraps to 1 — never 0) and presses the submit
-  button. Right: a green circle on the floor and the exit bars (Airlock 3's
-  back gate) rise. Wrong: a red X, the columns count up 1-8 together and
-  reset to 1 (buttons locked), and 2 piglins and 2 piglin brutes appear on
-  the crying-obsidian tiles; submit stays locked until they're all dead.
+  button. Every column that's right locks in: its lights turn green
+  (verdant froglight) and its button stops working. Once all six are
+  right: a green circle on the floor and the exit bars (Airlock 3's back
+  gate) rise. If any column is still wrong: a red X, the wrong columns
+  count up 1-8 together and reset to 1 (buttons locked), and guards appear
+  on the crying-obsidian tiles, alternating piglins and piglin brutes — 4
+  the first time, one more for each wrong answer after that, up to 12.
+  Submit stays locked until they're all dead.
   Players may take concrete out of the barrels — the answer is fixed when
   the room is set up. Everything (placed concrete, barrels, puzzle items in
   inventories or on the floor, guards) is cleared when the run moves past

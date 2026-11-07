@@ -101,5 +101,5 @@ While a run is on, a party member who leaves the current room (and the airlocks 
 
 - Banned mobs (iron golems, piglins, brutes, zombified piglins) removed on spawn.
 - Farm animal cap: 160 pigs, chickens, cows and sheep combined in the Overworld.
-- Nether: non-operators in adventure there and survival elsewhere; any mob the pack didn't spawn is removed.
+- Nether: non-operators in adventure there (survival within 4 blocks of a gravestone, so it can be collected; nothing else can be broken) and survival elsewhere; any mob the pack didn't spawn is removed.
 - Login message shows the pack version.
