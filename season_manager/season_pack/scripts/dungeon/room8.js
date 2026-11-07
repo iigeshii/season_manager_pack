@@ -156,11 +156,15 @@ function findLibrarian() {
   return world.getDimension(NETHER_ID).getEntities({ tags: [TAG], type: "minecraft:villager_v2" })[0];
 }
 
+// Particles that need no Molang variables passed in (portal_reverse_particle
+// needs a direction this API version can't supply, and logs errors).
+const VANISH_PARTICLES = ["minecraft:endrod", "minecraft:villager_happy"];
+
 function vanish(location) {
   const nether = world.getDimension(NETHER_ID);
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 16; i++) {
     try {
-      nether.spawnParticle("minecraft:portal_reverse_particle", {
+      nether.spawnParticle(VANISH_PARTICLES[i % VANISH_PARTICLES.length], {
         x: location.x + (Math.random() - 0.5) * 2,
         y: location.y + Math.random() * 2,
         z: location.z + (Math.random() - 0.5) * 2,
