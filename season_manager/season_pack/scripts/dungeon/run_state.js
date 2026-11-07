@@ -43,6 +43,17 @@ export function setTestMode(on) {
   world.setDynamicProperty(P + "test_mode", on);
 }
 
+// Things room modules do the moment a run ends (off / reset), whether or
+// not anyone is in the Nether — e.g. taking puzzle items back out of
+// inventories. Block cleanup waits for the rooms to be loaded.
+const runEndHandlers = [];
+export function onRunEnded(handler) {
+  runEndHandlers.push(handler);
+}
+export function runEnded() {
+  for (const handler of runEndHandlers) handler();
+}
+
 // Words of /scriptevent season:mending_rescue that room modules answer
 // themselves, so mending_rescue.js doesn't reply "unknown command".
 export const extraCommands = new Set();

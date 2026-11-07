@@ -1250,9 +1250,15 @@ so respawned players can walk back in). `off` and `reset` close them all.
   the first time, one more for each wrong answer after that, up to 12.
   Submit stays locked until they're all dead.
   Players may take concrete out of the barrels — the answer is fixed when
-  the room is set up. Everything (placed concrete, barrels, puzzle items in
-  inventories or on the floor, guards) is cleared when the run moves past
-  Room 3 or ends. `answer` shows the counts, for testing.
+  the room is set up. Puzzle concrete is taken back out of every online
+  player's inventory the moment a run ends (`off`/`reset`), wherever they
+  are, and from anyone who was offline when they next log in. Every time
+  the room is set up, it first clears all puzzle concrete (display spots,
+  barrels, inventories, floor) left by earlier setups. Placed concrete,
+  barrels and guards are also cleared when the run moves past Room 3 or
+  ends, once someone is in the Nether to load the room. Only concrete the
+  room created (marked in its lore) is touched; players' own concrete is
+  left alone. `answer` shows the counts, for testing.
 - Rooms 4-7: not built yet; their exits stay shut.
 
 **Containment.** While a run is on, once a second: a party member in the

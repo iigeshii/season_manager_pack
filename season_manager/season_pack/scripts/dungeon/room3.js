@@ -1,6 +1,6 @@
 import { world, system, BlockPermutation, ItemStack } from "@minecraft/server";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode, extraCommands } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, extraCommands, onRunEnded } from "./run_state.js";
 import { currentStage } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 import { spawnDungeonMob } from "./nether_rules.js";
@@ -217,20 +217,39 @@ function sweepDisplaySpots() {
   }
 }
 
-// Puzzle concrete taken by anyone online, or dropped on the floor.
-function clearPuzzleItems() {
-  const nether = world.getDimension(NETHER_ID);
-  for (const drop of nether.getEntities({ type: "minecraft:item", location: at(CENTRE), maxDistance: ROOM_RADIUS })) {
-    if (isPuzzleItem(drop.getComponent("minecraft:item")?.itemStack)) drop.remove();
-  }
-  for (const player of world.getAllPlayers()) {
-    const container = player.getComponent("minecraft:inventory")?.container;
-    if (!container) continue;
-    for (let slot = 0; slot < container.size; slot++) {
-      if (isPuzzleItem(container.getItem(slot))) container.setItem(slot, undefined);
-    }
+// Puzzle concrete in one player's inventory.
+function clearPlayerItems(player) {
+  const container = player.getComponent("minecraft:inventory")?.container;
+  if (!container) return;
+  for (let slot = 0; slot < container.size; slot++) {
+    if (isPuzzleItem(container.getItem(slot))) container.setItem(slot, undefined);
   }
 }
+
+// Puzzle concrete taken by anyone online, or dropped on the floor.
+function clearPuzzleItems() {
+  if (origin()) {
+    const nether = world.getDimension(NETHER_ID);
+    for (const drop of nether.getEntities({ type: "minecraft:item", location: at(CENTRE), maxDistance: ROOM_RADIUS })) {
+      if (isPuzzleItem(drop.getComponent("minecraft:item")?.itemStack)) drop.remove();
+    }
+  }
+  for (const player of world.getAllPlayers()) clearPlayerItems(player);
+}
+
+// The moment a run ends, take puzzle concrete back from everyone online,
+// wherever they are (blocks and barrels are cleared once the room loads).
+onRunEnded(clearPuzzleItems);
+
+// Anyone who was offline then: on login, unless Room 3 is being played.
+world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
+  if (!initialSpawn) return;
+  system.runTimeout(() => {
+    if (!player.isValid()) return;
+    if (isEventOn() && currentStage() === STAGE) return;
+    clearPlayerItems(player);
+  }, 20);
+});
 
 function setUp() {
   // Everything must be loaded, or try again next check.

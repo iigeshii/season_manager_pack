@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands } from "./run_state.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
@@ -298,6 +298,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       world.setDynamicProperty(P + "on", false);
       resetGate();
       closeAllAirlockGates();
+      runEnded();
       const sent = sendOutsidersHome("§7The rescue run is over. You've been sent home.");
       return reply(`§aRun ${currentRun()} ended. Sent ${sent} player${sent === 1 ? "" : "s"} home.`);
     }
@@ -316,6 +317,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       setStage(1);
       resetGate();
       closeAllAirlockGates();
+      runEnded();
       const sent = setNetherPortalsOpen(false); // also sends non-operators home
       return reply(
         `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +
