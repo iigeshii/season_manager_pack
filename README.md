@@ -1244,11 +1244,12 @@ so respawned players can walk back in). `off` and `reset` close them all.
   button. Every column that's right locks in: its lights turn green
   (verdant froglight) and its button stops working. Once all six are
   right: a green circle on the floor and the exit bars (Airlock 3's back
-  gate) rise. If any column is still wrong: a red X, the wrong columns
-  count up 1-8 together and reset to 1 (buttons locked), and guards appear
-  on the crying-obsidian tiles, alternating piglins and piglin brutes — 4
+  gate) rise. If any column is still wrong: a red X, the buttons lock, and
+  a second later guards appear on the crying-obsidian tiles, alternating piglins and piglin brutes — 4
   the first time, one more for each wrong answer after that, up to 12.
-  Submit stays locked until they're all dead.
+  Submit stays locked until they're all dead. Wrong columns keep showing
+  the last guess (still shroomlight), so the party can see which were
+  wrong and what they tried.
   Players may take concrete out of the barrels — the answer is fixed when
   the room is set up. Puzzle concrete is taken back out of every online
   player's inventory the moment a run ends (`off`/`reset`), wherever they
@@ -1259,7 +1260,24 @@ so respawned players can walk back in). `off` and `reset` close them all.
   ends, once someone is in the Nether to load the room. Only concrete the
   room created (marked in its lore) is touched; players' own concrete is
   left alone. `answer` shows the counts, for testing.
-- Rooms 4-7: not built yet; their exits stay shut.
+- **Room 4** ([`room4.js`](season_manager/season_pack/scripts/dungeon/room4.js)),
+  the collapsing glass floor. Once every online non-operator party member
+  is on the arena, the entrance bridge retracts, the entrance gate bars,
+  and a 3-2-1 countdown starts the round. Tiles flash red for a
+  second, then vanish — about 1 a second at first, rising to about 18 a
+  second — until only 20% of the floor is left. Anyone who falls into the
+  basement is out for the round. The countdown and the time left are shown
+  as two digits in glowing blocks on the north and south walls (either
+  side of the middle lavafall, mirrored on the south wall so it reads from
+  the arena); no on-screen text, just a ping for each countdown second and
+  each of the last 5 seconds. Win: at least one party member still on
+  the arena after 60 seconds: the floor refills, both
+  bridges appear, both gates open and the exit (Airlock 4's back gate)
+  opens. Everyone falls: the floor refills, the entrance bridge returns and
+  the next round starts when everyone is back on the arena. A restart mid-
+  round counts as a lost round. The room is put back when the run moves
+  past Room 4 or ends.
+- Rooms 5-7: not built yet; their exits stay shut.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

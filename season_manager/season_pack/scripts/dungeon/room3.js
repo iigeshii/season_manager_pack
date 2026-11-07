@@ -17,8 +17,8 @@ import { spawnDungeonMob } from "./nether_rules.js";
 //  On submit, every column that's right locks in: its lights turn green
 //  and its button stops working. Once all six are right: a green circle on
 //  the floor and the exit bars (Airlock 3's back gate) rise.
-//  Any still wrong: a red X, the wrong columns count up 1-8 together then
-//  reset to 1 (buttons locked), and guards appear on the four spawn tiles,
+//  Any still wrong: a red X, the buttons lock, and guards appear on the
+//  four spawn tiles,
 //  alternating piglins and piglin brutes: 4 the first time, one more for
 //  each wrong answer after that, up to 12. Submit stays locked until every guard is dead; then
 //  the floor clears. In test mode the guards are killed after 3 seconds.
@@ -36,7 +36,7 @@ import { spawnDungeonMob } from "./nether_rules.js";
 const R = LAYOUT.room3;
 const STAGE = 3;
 const CHECK_TICKS = 10;
-const ANIM_TICKS = 5; // per step of the wrong-answer count-up
+const GUARD_DELAY_TICKS = 20; // red X first, guards a second later
 // Marks puzzle concrete so it can be cleared on reset. Shows as a blank
 // lore line: nothing that names or hints at the room.
 const LORE = "§8§r";
@@ -55,9 +55,9 @@ const COUNTERS = P + "room3_counters"; // JSON [6]
 const LOCKED = P + "room3_locked"; // JSON [6] booleans: columns already right
 const WRONGS = P + "room3_wrongs"; // wrong answers so far this setup
 const LOCKED_LIT = "minecraft:verdant_froglight"; // a right column's lights turn green
-const MODE = P + "room3_mode"; // "counting" | "penalty" (count-up running) | "guards" | "solved"
+const MODE = P + "room3_mode"; // "counting" | "penalty" (guards on their way) | "guards" | "solved"
 const PENALTY_AT = P + "room3_penalty_at"; // Date.now() of the wrong answer
-const PENALTY_STALE_MS = 10 * 1000; // count-up lost to a restart: spawn guards anyway
+const PENALTY_STALE_MS = 10 * 1000; // guard spawn lost to a restart: spawn them anyway
 
 extraCommands.add("answer");
 
@@ -314,8 +314,6 @@ function solved() {
 
 function callGuards() {
   if (mode() !== "penalty") return; // already done, or the room was cleared
-  const locked = lockedColumns();
-  setCounters(counters().map((n, i) => (locked[i] ? n : 1))); // right columns keep their count
   const nether = world.getDimension(NETHER_ID);
   const count = Math.min(MAX_GUARDS, R.guard_spawns.length + Math.max(0, (world.getDynamicProperty(WRONGS) ?? 1) - 1));
   const guards = [];
@@ -342,13 +340,9 @@ function wrong() {
   world.setDynamicProperty(PENALTY_AT, Date.now());
   paintFloor("x");
   sound("mob.ghast.scream");
-  // The wrong columns count up 1-8 together, then reset to 1; then the
-  // guards. Columns already right stay as they are.
-  const locked = lockedColumns();
-  for (let n = 1; n <= 8; n++) {
-    system.runTimeout(() => R.columns.forEach((_, i) => locked[i] || paintColumn(i, n)), n * ANIM_TICKS);
-  }
-  system.runTimeout(callGuards, 9 * ANIM_TICKS);
+  // Every column keeps showing its last guess, so the party can see which
+  // were wrong (still shroomlight) and what they tried.
+  system.runTimeout(callGuards, GUARD_DELAY_TICKS);
 }
 
 // ── Buttons ─────────────────────────────────
