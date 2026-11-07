@@ -1063,9 +1063,9 @@ testing (zombified piglins, piglins, hoglins, ghasts, endermen). That's
 harmless; it's left as is.
 
 **Removal log.** Removals are batched by type once a second, e.g.
-`[Nether] removed 4× minecraft:piglin (last at -270 72 -114)`. Always
-written to the content log. Sent to operators' chat only when switched
-on — off by default, saved with the world:
+`[Nether] removed 4× minecraft:piglin (last at -270 72 -114)`. Only when
+switched on — off by default, saved with the world — they're written to
+the content log and sent to operators' chat. Removal happens either way.
 
 ```
 scriptevent season:nether_mob_removal_log on

@@ -240,6 +240,18 @@ function traceFrame(start) {
   return { min, max };
 }
 
+// Players coming back from the Nether by vanilla travel land inside the
+// Overworld portal. They're ignored until they step out of it, or they'd
+// be caught as walking in and sent straight back.
+// A short grace period covers the moment after arrival before the
+// player's position has caught up.
+const ARRIVAL_GRACE_TICKS = 40; // 2 seconds
+const arrivedInPortal = new Map(); // player id -> tick they arrived
+
+world.afterEvents.playerDimensionChange.subscribe(({ player, fromDimension, toDimension }) => {
+  if (fromDimension.id === NETHER_ID && toDimension.id === OVERWORLD_ID) arrivedInPortal.set(player.id, system.currentTick);
+});
+
 // Players stepping into a portal we handle are caught here before vanilla
 // travel fires (that takes ~4 seconds of standing in it), so the game never
 // builds a portal of its own on the other side.
@@ -248,9 +260,13 @@ system.runInterval(() => {
   if (box) {
     const overworld = world.getDimension(OVERWORLD_ID);
     for (const player of overworld.getPlayers()) {
-      if (!inBox(player.location, box)) continue;
-      if (overworld.getBlock(player.location)?.typeId !== "minecraft:portal") continue;
-      handlePortalStep(player);
+      const inside = inBox(player.location, box) && overworld.getBlock(player.location)?.typeId === "minecraft:portal";
+      if (arrivedInPortal.has(player.id)) {
+        const settled = system.currentTick - arrivedInPortal.get(player.id) > ARRIVAL_GRACE_TICKS;
+        if (!inside && settled) arrivedInPortal.delete(player.id);
+        continue;
+      }
+      if (inside) handlePortalStep(player);
     }
   }
 

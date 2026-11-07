@@ -78,23 +78,25 @@ function isMob(entity) {
 }
 
 // Removals are batched by type and reported once a second, so a burst of
-// spawns is one line rather than dozens. Always written to the content
-// log; sent to operators' chat only when switched on (off by default,
-// saved with the world):
+// spawns is one line rather than dozens. Only when switched on (off by
+// default, saved with the world): written to the content log and sent to
+// operators' chat. Removal itself always happens.
 //   /scriptevent season:nether_mob_removal_log on|off
 const REMOVAL_REPORT_TICKS = 20; // 1 second
-const MOB_REMOVAL_LOG_CHAT_PROPERTY = "season:nether_mob_removal_log_chat";
+// Property name kept from when the switch covered chat only, so a saved
+// setting carries over.
+const MOB_REMOVAL_LOG_PROPERTY = "season:nether_mob_removal_log_chat";
 const pendingRemovals = new Map();
 
-function mobRemovalLogChatOn() {
-  return world.getDynamicProperty(MOB_REMOVAL_LOG_CHAT_PROPERTY) === true;
+function mobRemovalLogOn() {
+  return world.getDynamicProperty(MOB_REMOVAL_LOG_PROPERTY) === true;
 }
 
 system.afterEvents.scriptEventReceive.subscribe((event) => {
   if (event.id !== "season:nether_mob_removal_log") return;
   const arg = event.message.trim().toLowerCase();
-  if (arg === "on" || arg === "off") world.setDynamicProperty(MOB_REMOVAL_LOG_CHAT_PROPERTY, arg === "on");
-  const reply = `§6Nether mob removal log in chat: ${mobRemovalLogChatOn() ? "on" : "off"}.`;
+  if (arg === "on" || arg === "off") world.setDynamicProperty(MOB_REMOVAL_LOG_PROPERTY, arg === "on");
+  const reply = `§6Nether mob removal log: ${mobRemovalLogOn() ? "on" : "off"}.`;
   const source = event.sourceEntity;
   if (source?.typeId === "minecraft:player") source.sendMessage(reply);
   else console.warn(reply);
@@ -118,9 +120,9 @@ system.runInterval(() => {
   if (pendingRemovals.size === 0) return;
   const parts = [...pendingRemovals].map(([type, { count, where }]) => `${count}× ${type} (last at ${where})`);
   pendingRemovals.clear();
+  if (!mobRemovalLogOn()) return;
   const message = `[Nether] removed ${parts.join(", ")}`;
   console.warn(message);
-  if (!mobRemovalLogChatOn()) return;
   for (const player of world.getAllPlayers()) {
     if (isOperator(player)) player.sendMessage(`§8${message}`);
   }

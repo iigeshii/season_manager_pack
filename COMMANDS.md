@@ -42,7 +42,7 @@ Run these from chat, not from a function.
 | Command | What it does |
 |---|---|
 | `/scriptevent season:nether_mob_removal_log on` | Shows Nether mob removals in operators' chat, e.g. `[Nether] removed 4× minecraft:piglin (last at …)`. Saved with the world. |
-| `/scriptevent season:nether_mob_removal_log off` | Hides them again (the default). They always go to the content log. |
+| `/scriptevent season:nether_mob_removal_log off` | Stops them in chat and the content log (the default). Mobs are still removed. |
 | `/scriptevent season:nether_mob_removal_log` | Says whether it's on or off. |
 | `/scriptevent season:entities` | Lists every entity type within 16 blocks of you, with counts. Marks dungeon mobs and non-mobs. |
 
