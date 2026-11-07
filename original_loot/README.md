@@ -53,7 +53,8 @@ Source: [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples),
   Mojang's `//` comments). The real pack's versions are these with the
   comments stripped plus one `season:dungeon_mob` component group and a
   `season:become_dungeon_mob` event (shared `season_dungeon` family,
-  no damage from or retaliation against that family, persistent), used
+  no damage from or retaliation against that family, persistent,
+  players targeted within 48 blocks without line of sight), used
   only for mobs the Mending Rescue dungeon spawns. Diff against these to
   see exactly what changed.
 - `loot_tables/entities/sea_turtle.json` — the vanilla Turtle loot table

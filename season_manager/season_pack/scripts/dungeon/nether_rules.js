@@ -92,6 +92,7 @@ system.runInterval(() => {
 // piglin.json, piglin_brute.json) join the season_dungeon family: they take
 // no damage from each other and never retaliate against each other, so a
 // stray crossbow bolt can't start infighting. They also don't despawn.
+// They also target players out to 48 blocks (see below).
 const DUNGEON_MOB_EVENT = "season:become_dungeon_mob";
 const HAS_DUNGEON_EVENT = new Set(["minecraft:pillager", "minecraft:piglin", "minecraft:piglin_brute"]);
 
@@ -101,6 +102,24 @@ export function spawnDungeonMob(dimension, typeId, location) {
   if (HAS_DUNGEON_EVENT.has(typeId)) mob.triggerEvent(DUNGEON_MOB_EVENT);
   return mob;
 }
+
+// The dungeon group also makes them look for players out to 48 blocks
+// without needing line of sight (vanilla: 12-16, line of sight), so they
+// come and find the party. Piglins' own events re-add their vanilla
+// targeting group (e.g. on calming down), which would take over again, so
+// the dungeon group is re-applied every 10 seconds.
+const REAPPLY_TICKS = 200;
+system.runInterval(() => {
+  const nether = world.getDimension(NETHER_ID);
+  for (const mob of nether.getEntities({ tags: [DUNGEON_MOB_TAG] })) {
+    if (!HAS_DUNGEON_EVENT.has(mob.typeId)) continue;
+    try {
+      mob.triggerEvent(DUNGEON_MOB_EVENT);
+    } catch {
+      // not loaded / gone: skip
+    }
+  }
+}, REAPPLY_TICKS);
 
 function isMob(entity) {
   if (entity.typeId === "minecraft:player") return false;

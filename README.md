@@ -1078,8 +1078,14 @@ plus one `season:dungeon_mob` component group (originals in
 Elite Zombie's guards: the mob joins a `season_dungeon` family, takes no
 damage from another `season_dungeon` mob (`minecraft:damage_sensor`),
 never retaliates against one (`minecraft:behavior.hurt_by_target`
-filter; pillagers keep their vanilla "not other illagers" rule too), and
-is persistent so it doesn't despawn mid-fight. A pillager's stray bolt
+filter; pillagers keep their vanilla "not other illagers" rule too), is
+persistent so it doesn't despawn mid-fight, and **comes looking for the
+party**: it targets players within 48 blocks without needing line of
+sight (vanilla: 16 for pillagers and piglins, 12 for brutes, line of sight
+needed) and keeps chasing out to 64. Dungeon piglins attack players in
+gold armour too. Piglins' own events can re-add their vanilla targeting,
+so the script re-applies the dungeon group to dungeon mobs every 10
+seconds. A pillager's stray bolt
 can't start a fight with a piglin. Mobs without the event (every natural
 one) behave exactly as vanilla. If Mojang changes these mobs, re-copy the
 vanilla file and re-add the group and event.
@@ -1151,7 +1157,10 @@ chat. Quick list in [COMMANDS.md](COMMANDS.md).
 generated from the fabricator's schematic (`rooms1-8-v004/mlr16.schem`)
 by `minecraft_fabricator/designs/mending-librarian-rescue/tools/export_season_layout.py`.
 Each room's and airlock's open space is flood-filled from the schematic
-(gates count as walls) and stored as a few boxes, relative to the
+and stored as a few boxes. Airlock gates count as walls, keeping rooms
+apart; gates that open *inside* a room during play (Room 5's arena gates
+onto their alcoves, Room 4's entrance and exit gates) count as open space,
+so what's behind them is part of the room. Boxes are stored relative to the
 structure's minimum corner. Don't edit it by hand; re-run the export if
 the dungeon changes. The structure must be placed unrotated.
 
