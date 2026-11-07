@@ -283,10 +283,10 @@ export const LAYOUT = {
     [
      18,
      64,
-     24,
+     23,
      22,
      71,
-     32
+     33
     ]
    ],
    "name": "Airlock 1-2"
@@ -302,8 +302,8 @@ export const LAYOUT = {
      61
     ],
     [
-     57,
-     62,
+     56,
+     63,
      56,
      61,
      71,
@@ -315,10 +315,10 @@ export const LAYOUT = {
   "airlock3": {
    "boxes": [
     [
-     36,
+     35,
      44,
      47,
-     38,
+     39,
      47,
      51
     ]
@@ -357,7 +357,7 @@ export const LAYOUT = {
      8,
      38,
      29,
-     15
+     16
     ],
     [
      2,
@@ -429,7 +429,7 @@ export const LAYOUT = {
      27,
      4,
      47,
-     33
+     34
     ]
    ],
    "name": "Airlock 4-5"
@@ -439,7 +439,7 @@ export const LAYOUT = {
     [
      34,
      26,
-     59,
+     58,
      40,
      29,
      62
@@ -450,7 +450,7 @@ export const LAYOUT = {
   "airlock6": {
    "boxes": [
     [
-     52,
+     51,
      12,
      17,
      58,
@@ -463,10 +463,10 @@ export const LAYOUT = {
   "airlock7": {
    "boxes": [
     [
-     19,
+     18,
      1,
      17,
-     23,
+     24,
      4,
      23
     ]

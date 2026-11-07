@@ -1160,7 +1160,8 @@ Each room's and airlock's open space is flood-filled from the schematic
 and stored as a few boxes. Airlock gates count as walls, keeping rooms
 apart; gates that open *inside* a room during play (Room 5's arena gates
 onto their alcoves, Room 4's entrance and exit gates) count as open space,
-so what's behind them is part of the room. Boxes are stored relative to the
+so what's behind them is part of the room. An airlock's own gate cells (back and front)
+belong to that airlock, so standing in an open doorway counts as inside. Boxes are stored relative to the
 structure's minimum corner. Don't edit it by hand; re-run the export if
 the dungeon changes. The structure must be placed unrotated.
 
