@@ -42,3 +42,7 @@ export function isTestMode() {
 export function setTestMode(on) {
   world.setDynamicProperty(P + "test_mode", on);
 }
+
+// Words of /scriptevent season:mending_rescue that room modules answer
+// themselves, so mending_rescue.js doesn't reply "unknown command".
+export const extraCommands = new Set();

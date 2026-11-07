@@ -86,10 +86,12 @@ Run everything from chat.
 | `/scriptevent season:mending_rescue seal` | Override (normally automatic at the first airlock). Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
 | `/scriptevent season:mending_rescue stage <2-8>` | Override (normally automatic at each airlock). The party has moved on to that room. The checkpoint becomes the airlock before it. |
 | `/scriptevent season:mending_rescue off` | Ends the run. Sends anyone left in the Nether home (bed, else world spawn), except operators. |
-| `/scriptevent season:mending_rescue test_mode on` | Solo testing: each Room 1 pad stays lit once stepped on, so one player can open the gate; the first airlock needs 1 player instead of 4; Room 2's pity ladder comes after 30 seconds instead of 10 minutes. Saved with the world. |
+| `/scriptevent season:mending_rescue test_mode on` | Solo testing: each Room 1 pad stays lit once stepped on, so one player can open the gate; the first airlock needs 1 player instead of 4; Room 2's pity ladder comes after 30 seconds instead of 10 minutes; Room 3's guards are killed 3 seconds after they appear. Saved with the world. |
 | `/scriptevent season:mending_rescue test_mode off` | Back to normal: all four pads must be stood on at once. |
 | `/scriptevent season:mending_rescue reset` | Puts everything back for the next group, whatever state it's in: ends any run, closes and darkens the Room 1 gate, closes Nether portals and sends non-operators in the Nether home. Keeps the origin and test mode. |
 | `/scriptevent season:mending_rescue reset_gate` | Closes both Room 1 portcullises and darkens the wards and crown. |
+| `/scriptevent season:mending_rescue jump <2-8>` | Testing: go straight to that room. Starts a run if none is on (party = everyone in the Nether plus you, even from the Overworld), sets the gates as if the party just came through the airlock, and teleports the party to the room's checkpoint. |
+| `/scriptevent season:mending_rescue answer` | Shows Room 3's counts for this run (testing). |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
 | `/scriptevent season:mending_rescue` | Shows the run, stage, checkpoint, portal switch and the online party. |
 

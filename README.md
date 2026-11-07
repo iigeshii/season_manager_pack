@@ -1155,7 +1155,14 @@ the dungeon changes. The structure must be placed unrotated.
   ends any run, closes and darkens the Room 1 gate, closes Nether portals
   (sending non-operators in the Nether home). Keeps the origin and the
   test-mode setting.
-- `where` — which room or airlock you're standing in, and whether that's
+- `jump <2-8>` — testing: go straight to that room, skipping the ones
+  already checked. Starts a run if none is on (the party is everyone in
+  the Nether plus whoever typed it, even from the Overworld), sets the
+  airlock gates as if the party had just come through into that room,
+  and teleports the online party to its checkpoint. Rooms skipped over
+  aren't set up; a room's own setup (e.g. Room 3's counts) happens on
+  arrival as usual.
+
   inside the current zone. For checking the placement lines up.
 - No word — shows the run, stage, origin, checkpoint, portal switch and
   the online party.
@@ -1174,8 +1181,9 @@ row (about 2 seconds). The gate then stays open and lit.
 
 - **Test mode** — `test_mode on|off` (saved with the world): each pad
   stays lit once stepped on, so one player can open the gate, Airlock 1
-  needs only 1 player instead of 4, and Room 2's pity ladder comes after
-  30 seconds instead of 10 minutes. Turning it
+  needs only 1 player instead of 4, Room 2's pity ladder comes after
+  30 seconds instead of 10 minutes, and Room 3's guards are killed 3
+  seconds after they appear. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1220,7 +1228,22 @@ so respawned players can walk back in). `off` and `reset` close them all.
   when the run moves past Room 2 or ends. In Airlock 2 the
   bars drop behind them, the hatch over the ladder to Room 3 opens, and
   Room 1's inner portcullis closes.
-- Rooms 3-7: not built yet; their exits stay shut.
+- **Room 3** ([`room3.js`](season_manager/season_pack/scripts/dungeon/room3.js)),
+  the counting puzzle. When the run reaches Room 3, each of the six
+  counted colours gets a random count (1-8), split between concrete set
+  out on the display spots and lore-tagged concrete hidden in the barrels,
+  plus a few grey and brown decoys. The party counts each colour (barrels
+  plus placed), dials it into the matching tally column (each button press
+  lights one more indicator, 1-8, then wraps to 1) and presses the submit
+  button. Right: a green circle on the floor and the exit bars (Airlock 3's
+  back gate) rise. Wrong: a red X, the columns count up 1-8 together and
+  reset to 1 (buttons locked), and 2 piglins and 2 piglin brutes appear on
+  the crying-obsidian tiles; submit stays locked until they're all dead.
+  Players may take concrete out of the barrels — the answer is fixed when
+  the room is set up. Everything (placed concrete, barrels, puzzle items in
+  inventories or on the floor, guards) is cleared when the run moves past
+  Room 3 or ends. `answer` shows the counts, for testing.
+- Rooms 4-7: not built yet; their exits stay shut.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

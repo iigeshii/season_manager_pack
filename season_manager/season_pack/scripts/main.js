@@ -4,6 +4,7 @@ import { isAllowedInNether } from "./dungeon/mending_rescue.js";
 import { netherPortalsOpen } from "./nether_portals.js";
 import "./dungeon/airlocks.js";
 import "./dungeon/room2.js";
+import "./dungeon/room3.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES

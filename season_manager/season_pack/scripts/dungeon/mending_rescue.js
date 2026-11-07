@@ -2,8 +2,8 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode } from "./run_state.js";
-import { gateOnRunStarted, resetGate, clearStickyPads } from "./room1_gate.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands } from "./run_state.js";
+import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
 // ─────────────────────────────────────────────
@@ -37,7 +37,10 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //              the gate, closes Nether portals (sending non-operators
 //              home). Keeps the origin and test mode.
 //    reset_gate  closes and darkens the Room 1 gate.
+//    jump <n>  testing: go straight to room n (2-8), starting a run if
+//              needed, with the gates set and the party at its checkpoint.
 //    where     which room/airlock you're standing in.
+//    answer    Room 3's counts, for testing (room3.js).
 //    (none)    shows the current state.
 //  The airlock code will call sealParty() and setStage() itself once it
 //  exists; until then they're typed.
@@ -268,6 +271,28 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       setStage(n);
       return reply(`§aNow in Room ${n}, ${LAYOUT.stages[n].room}. Checkpoint: ${fmt(checkpoint())}.`);
     }
+    case "jump": {
+      // Testing: skip rooms already checked. Starts a run if none is on
+      // (party = everyone in the Nether, plus whoever typed it), puts the
+      // gates as if the party had just come through the airlock into room
+      // n, and teleports the online party to its checkpoint.
+      const n = Number(args[0]);
+      if (!Number.isInteger(n) || n < 2 || n > LAST_STAGE) return reply("§cUse: jump <2-8>.");
+      if (!origin()) return reply("§cSet the dungeon's position first: set_origin <x> <y> <z>.");
+      if (!isEventOn()) {
+        const party = world.getDimension(NETHER_ID).getPlayers();
+        if (source && !party.some((p) => p.id === source.id)) party.push(source);
+        if (party.length === 0) return reply("§cNobody to send. Run it as a player.");
+        sealParty(party);
+      }
+      closeAllAirlockGates();
+      if (n >= 3) closeInnerPortcullis();
+      setStage(n);
+      const target = checkpoint();
+      const members = world.getAllPlayers().filter(isMember);
+      for (const player of members) sendTo(player, target);
+      return reply(`§aJumped to Room ${n}, ${LAYOUT.stages[n].room}. Sent ${members.map((p) => p.name).join(", ")} to ${fmt(target)}.`);
+    }
     case "off": {
       if (!isEventOn()) return reply("§7No run is on.");
       world.setDynamicProperty(P + "on", false);
@@ -281,7 +306,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
         setTestMode(args[0] === "on");
         if (args[0] === "off") clearStickyPads();
       }
-      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s)" : "off"}.`);
+      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s, Room 3 guards die after 3 s)" : "off"}.`);
     }
     case "reset": {
       // Back to how the next group should find it, whatever state it's in.
@@ -329,6 +354,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       return reply(lines.join("\n"));
     }
     default:
-      return reply("§cUse: seal, stage <n>, off, reset, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
+      if (extraCommands.has(word)) return; // answered by a room module
+      return reply("§cUse: seal, stage <n>, jump <n>, off, reset, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
   }
 });
