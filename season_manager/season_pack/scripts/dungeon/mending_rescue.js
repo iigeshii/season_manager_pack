@@ -307,7 +307,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
         setTestMode(args[0] === "on");
         if (args[0] === "off") clearStickyPads();
       }
-      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s, Room 3 guards die after 3 s)" : "off"}.`);
+      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s, Room 3 guards die after 3 s, Room 5 mobs die after 5 s)" : "off"}.`);
     }
     case "reset": {
       // Back to how the next group should find it, whatever state it's in.

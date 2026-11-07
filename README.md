@@ -1188,7 +1188,8 @@ row (about 2 seconds). The gate then stays open and lit.
   stays lit once stepped on, so one player can open the gate, Airlock 1
   needs only 1 player instead of 4, Room 2's pity ladder comes after
   30 seconds instead of 10 minutes, and Room 3's guards are killed 3
-  seconds after they appear. Turning it
+  seconds after they appear, and Room 5's mobs 5 seconds after they
+  appear. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1280,7 +1281,24 @@ so respawned players can walk back in). `off` and `reset` close them all.
   the next round starts when everyone is back on the arena. A restart mid-
   round counts as a lost round. The room is put back when the run moves
   past Room 4 or ends.
-- Rooms 5-7: not built yet; their exits stay shut.
+- **Room 5** ([`room5.js`](season_manager/season_pack/scripts/dungeon/room5.js)),
+  the gate ring, following Fredo's plan: twelve gates in three thirds of
+  four, each third ending in a brute wave at gates 4, 8 and 12. Gates 1-3
+  pillagers; 4 brutes; 5-7 piglins (crossbow, then sword, then a mix); 8
+  brutes; 9-11 gold-armoured piglins with 1-2 brutes; 12 the Piglin Warden
+  and two brutes. The Warden is a stand-in until the custom mob exists: a
+  brute named "Piglin Warden" in gold armour with extra health, strength
+  and resistance. Once every online non-operator party member stands in the
+  gilded centre circle, light runs along the spoke to gate 1, which opens
+  (bars gone, lamp lit, mobs summoned). The light then runs round the ring
+  like a clock hand: 35 seconds to each next gate, but the moment every mob
+  in the arena is dead it races on to the next one, and it pauses while
+  more than 8 are alive. Win: gate 12 open and every mob dead → the exit
+  bars (Airlock 5's back gate) open. Test mode kills each gate's mobs 5
+  seconds after they appear. A restart mid-fight starts the room over; it's
+  put back (gates barred, lights dark, mobs removed) when the run moves
+  past Room 5 or ends.
+- Rooms 6-7: not built yet; their exits stay shut.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

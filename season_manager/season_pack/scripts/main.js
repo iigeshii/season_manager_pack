@@ -6,6 +6,7 @@ import "./dungeon/airlocks.js";
 import "./dungeon/room2.js";
 import "./dungeon/room3.js";
 import "./dungeon/room4.js";
+import "./dungeon/room5.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
