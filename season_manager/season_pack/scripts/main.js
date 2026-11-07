@@ -1,5 +1,6 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
+import { isAllowedInNether, mayLightPortal } from "./dungeon/mending_rescue.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -166,6 +167,8 @@ world.beforeEvents.itemUseOn.subscribe((event) => {
   if (!match) return;
   // Operators may light Nether portals (not End portals), matching the bounce-back exemption below.
   if (match.block === "minecraft:obsidian" && isOperator(event.source)) return;
+  // While Mending Rescue is on, anyone may light its registered portal (dungeon/mending_rescue.js).
+  if (match.block === "minecraft:obsidian" && mayLightPortal(event.block)) return;
   event.cancel = true;
   event.source.sendMessage(`§c${match.label} are currently disabled.`);
 });
@@ -211,8 +214,9 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
   // Operators (season:operator tag) may enter the Nether, e.g. to build and
-  // test the dungeon. The End stays sealed for everyone.
-  if (toDimension.id === "minecraft:nether" && isOperator(player)) return;
+  // test the dungeon, and so may Mending Rescue players while the event
+  // allows them (dungeon/mending_rescue.js). The End stays sealed for everyone.
+  if (toDimension.id === "minecraft:nether" && isAllowedInNether(player)) return;
 
   const bounceCount = (bounceCounts.get(player.id) ?? 0) + 1;
   bounceCounts.set(player.id, bounceCount);
