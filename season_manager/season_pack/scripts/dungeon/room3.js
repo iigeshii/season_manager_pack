@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation, ItemStack } from "@minecraft/server";
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, origin, isEventOn, isTestMode, extraCommands } from "./run_state.js";
-import { currentStage, isMember } from "./mending_rescue.js";
+import { currentStage } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 import { spawnDungeonMob } from "./nether_rules.js";
 
@@ -11,8 +11,8 @@ import { spawnDungeonMob } from "./nether_rules.js";
 //  (1-8), split between concrete set out on display spots and lore-tagged
 //  concrete hidden in the barrels, plus a few decoy colours. The party
 //  counts each colour (barrels + placed), dials the counts into the six
-//  tally columns (each press lights one more indicator, 1-8, wrapping to
-//  1) and presses the submit button.
+//  tally columns (each starts at 1 lit; each press lights one more, up to
+//  8, then wraps to 1 — never 0) and presses the submit button.
 //
 //  Right: a green circle on the floor, the counters lock, and the exit
 //  bars (Airlock 3's back gate) rise.
@@ -20,6 +20,8 @@ import { spawnDungeonMob } from "./nether_rules.js";
 //  (buttons locked), and guards appear on the four spawn tiles: 2 piglins
 //  and 2 piglin brutes. Submit stays locked until every guard is dead; then
 //  the floor clears. In test mode the guards are killed after 3 seconds.
+//
+//  No chat messages: the floor, the sounds and the bars say what happened.
 //
 //  Players may take concrete out of the barrels; the answer is fixed when
 //  the room is set up. All of it (placed blocks, barrels, lore-tagged items
@@ -33,7 +35,10 @@ const R = LAYOUT.room3;
 const STAGE = 3;
 const CHECK_TICKS = 10;
 const ANIM_TICKS = 5; // per step of the wrong-answer count-up
-const LORE = "§7Mending Rescue: Tally Hall";
+// Marks puzzle concrete so it can be cleared on reset. Shows as a blank
+// lore line: nothing that names or hints at the room.
+const LORE = "§8§r";
+const OLD_LORES = ["§7Mending Rescue: Tally Hall"]; // earlier test builds
 const GUARD_TAG = "season:room3_guard";
 // One per spawn tile. Brutes ignore gold armour, so gold can't wave the penalty away.
 const GUARD_TYPES = ["minecraft:piglin", "minecraft:piglin_brute", "minecraft:piglin", "minecraft:piglin_brute"];
@@ -100,14 +105,6 @@ const currentRun = () => world.getDynamicProperty(P + "run") ?? 0;
 const mode = () => world.getDynamicProperty(MODE);
 const colourName = (id) => id.replace("minecraft:", "").replace("_concrete", "").replace(/_/g, " ");
 
-function party() {
-  return world.getDimension(NETHER_ID).getPlayers().filter(isMember);
-}
-
-function tell(players, message) {
-  for (const player of players) player.sendMessage(message);
-}
-
 function sound(id) {
   for (const player of world.getDimension(NETHER_ID).getPlayers()) {
     try {
@@ -127,7 +124,7 @@ const CENTRE = (() => {
 // ── Columns and floor ───────────────────────
 
 function counters() {
-  return getJsonProp(COUNTERS) ?? R.columns.map(() => 0);
+  return getJsonProp(COUNTERS) ?? R.columns.map(() => 1);
 }
 
 function paintColumn(i, n) {
@@ -161,7 +158,9 @@ function barrelContainer(rel) {
 }
 
 function isPuzzleItem(item) {
-  return !!item && item.getLore().includes(LORE);
+  if (!item) return false;
+  const lore = item.getLore();
+  return lore.includes(LORE) || OLD_LORES.some((l) => lore.includes(l));
 }
 
 // n split into 1-3 random stacks.
@@ -188,6 +187,33 @@ function putInRandomBarrel(block, amount) {
 
 // ── Set up and clear ────────────────────────
 
+const PUZZLE_BLOCKS = new Set([...R.counted, ...R.decoys]);
+
+// Every display spot emptied of any puzzle colour, whatever the records
+// say (they're empty by design), so leftovers from an interrupted or older
+// setup can never add to a count.
+function sweepDisplaySpots() {
+  for (const p of R.display_spots) {
+    const block = blockAt(p);
+    if (block && PUZZLE_BLOCKS.has(block.typeId)) block.setPermutation(permOf("minecraft:air"));
+  }
+}
+
+// Puzzle concrete taken by anyone online, or dropped on the floor.
+function clearPuzzleItems() {
+  const nether = world.getDimension(NETHER_ID);
+  for (const drop of nether.getEntities({ type: "minecraft:item", location: at(CENTRE), maxDistance: ROOM_RADIUS })) {
+    if (isPuzzleItem(drop.getComponent("minecraft:item")?.itemStack)) drop.remove();
+  }
+  for (const player of world.getAllPlayers()) {
+    const container = player.getComponent("minecraft:inventory")?.container;
+    if (!container) continue;
+    for (let slot = 0; slot < container.size; slot++) {
+      if (isPuzzleItem(container.getItem(slot))) container.setItem(slot, undefined);
+    }
+  }
+}
+
 function setUp() {
   // Everything must be loaded, or try again next check.
   if (![...R.display_spots, ...R.barrels].every((p) => blockAt(p))) return;
@@ -210,35 +236,25 @@ function setUp() {
     for (const amount of splitStacks(answer[i] - out)) stacks.push([colour, amount]);
   });
 
+  sweepDisplaySpots();
+  clearPuzzleItems();
   for (const p of R.barrels) barrelContainer(p)?.clearAll();
   for (const [block, amount] of shuffle(stacks)) putInRandomBarrel(block, amount);
   for (const [x, y, z, block] of placed) swap([x, y, z], "minecraft:air", block);
 
   world.setDynamicProperty(SETUP, JSON.stringify({ run: currentRun(), answer, placed }));
   world.setDynamicProperty(MODE, "counting");
-  setCounters(R.columns.map(() => 0));
+  setCounters(R.columns.map(() => 1)); // never 0: every column starts at 1
   paintFloor("none");
 }
 
-function clearRoom(setup) {
-  for (const [x, y, z, block] of setup?.placed ?? []) swap([x, y, z], block, "minecraft:air");
+function clearRoom() {
+  sweepDisplaySpots();
   for (const p of R.barrels) barrelContainer(p)?.clearAll();
   R.columns.forEach((_, i) => paintColumn(i, 0));
   paintFloor("none");
-
-  const nether = world.getDimension(NETHER_ID);
-  for (const guard of nether.getEntities({ tags: [GUARD_TAG] })) guard.remove();
-  for (const drop of nether.getEntities({ type: "minecraft:item", location: at(CENTRE), maxDistance: ROOM_RADIUS })) {
-    if (isPuzzleItem(drop.getComponent("minecraft:item")?.itemStack)) drop.remove();
-  }
-  // Puzzle concrete anyone took with them.
-  for (const player of world.getAllPlayers()) {
-    const container = player.getComponent("minecraft:inventory")?.container;
-    if (!container) continue;
-    for (let slot = 0; slot < container.size; slot++) {
-      if (isPuzzleItem(container.getItem(slot))) container.setItem(slot, undefined);
-    }
-  }
+  for (const guard of world.getDimension(NETHER_ID).getEntities({ tags: [GUARD_TAG] })) guard.remove();
+  clearPuzzleItems();
 
   world.setDynamicProperty(SETUP, undefined);
   world.setDynamicProperty(COUNTERS, undefined);
@@ -253,7 +269,6 @@ function solved() {
   paintFloor("circle");
   setGate(STAGE, "back", true);
   sound("random.levelup");
-  tell(party(), "§aThe tally is right. The bars to the west rise.");
 }
 
 function callGuards() {
@@ -279,7 +294,6 @@ function wrong() {
   world.setDynamicProperty(PENALTY_AT, Date.now());
   paintFloor("x");
   sound("mob.ghast.scream");
-  tell(party(), "§cWrong. The guards are called!");
   // Columns count up 1-8 together, then reset to 1; then the guards.
   for (let n = 1; n <= 8; n++) {
     system.runTimeout(() => R.columns.forEach((_, i) => paintColumn(i, n)), n * ANIM_TICKS);
@@ -323,12 +337,12 @@ system.runInterval(() => {
 
   // Run moved past Room 3, or ended: clear it once.
   if (!isEventOn() || currentStage() !== STAGE) {
-    if (setup) clearRoom(setup);
+    if (setup) clearRoom();
     return;
   }
   // First check in Room 3 this run (or leftovers from an earlier one).
   if (!setup || setup.run !== currentRun()) {
-    if (setup) clearRoom(setup);
+    if (setup) clearRoom();
     setUp();
     return;
   }
@@ -338,7 +352,6 @@ system.runInterval(() => {
   if (mode() === "guards" && world.getDimension(NETHER_ID).getEntities({ tags: [GUARD_TAG] }).length === 0) {
     paintFloor("none");
     world.setDynamicProperty(MODE, "counting");
-    tell(party(), "§7The guards are down. Count again.");
   }
 }, CHECK_TICKS);
 

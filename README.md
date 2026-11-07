@@ -1233,8 +1233,9 @@ so respawned players can walk back in). `off` and `reset` close them all.
   counted colours gets a random count (1-8), split between concrete set
   out on the display spots and lore-tagged concrete hidden in the barrels,
   plus a few grey and brown decoys. The party counts each colour (barrels
-  plus placed), dials it into the matching tally column (each button press
-  lights one more indicator, 1-8, then wraps to 1) and presses the submit
+  plus placed), dials it into the matching tally column (each column
+  starts with 1 lit; each button press lights one more, up to 8, then
+  wraps to 1 — never 0) and presses the submit
   button. Right: a green circle on the floor and the exit bars (Airlock 3's
   back gate) rise. Wrong: a red X, the columns count up 1-8 together and
   reset to 1 (buttons locked), and 2 piglins and 2 piglin brutes appear on
