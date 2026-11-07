@@ -3,6 +3,7 @@ import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
 import { isAllowedInNether } from "./dungeon/mending_rescue.js";
 import { netherPortalsOpen } from "./nether_portals.js";
 import "./dungeon/airlocks.js";
+import "./dungeon/room2.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES

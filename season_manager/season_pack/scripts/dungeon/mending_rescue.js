@@ -4,6 +4,7 @@ import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads } from "./room1_gate.js";
+import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
 // ─────────────────────────────────────────────
 //  MENDING RESCUE EVENT
@@ -29,8 +30,9 @@ import { gateOnRunStarted, resetGate, clearStickyPads } from "./room1_gate.js";
 //    stage <n> moves the run to room n (2-8). The checkpoint becomes the
 //              airlock just before it.
 //    off       ends the run and resets the Room 1 gate.
-//    test_mode on|off  group puzzles can be done solo (Room 1's pads
-//              stay lit on their own).
+//    test_mode on|off  group puzzles can be done solo: Room 1's pads
+//              stay lit, Airlock 1 needs 1 player, Room 2's pity ladder
+//              comes after 30 s instead of 10 min.
 //    reset     everything back for the next group: ends any run, resets
 //              the gate, closes Nether portals (sending non-operators
 //              home). Keeps the origin and test mode.
@@ -88,9 +90,11 @@ export function sealParty(players) {
   gateOnRunStarted();
 }
 
-// Called by each airlock as the party moves on to room n.
+// Called by each airlock (and the stage command) as the party moves on to
+// room n: also sets the airlock gates for it (gates.js).
 export function setStage(n) {
   world.setDynamicProperty(P + "stage", n);
+  gatesForStage(n);
 }
 
 // ── Places ──────────────────────────────────
@@ -268,6 +272,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       if (!isEventOn()) return reply("§7No run is on.");
       world.setDynamicProperty(P + "on", false);
       resetGate();
+      closeAllAirlockGates();
       const sent = sendOutsidersHome("§7The rescue run is over. You've been sent home.");
       return reply(`§aRun ${currentRun()} ended. Sent ${sent} player${sent === 1 ? "" : "s"} home.`);
     }
@@ -276,7 +281,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
         setTestMode(args[0] === "on");
         if (args[0] === "off") clearStickyPads();
       }
-      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit on their own)" : "off"}.`);
+      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s)" : "off"}.`);
     }
     case "reset": {
       // Back to how the next group should find it, whatever state it's in.
@@ -285,6 +290,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       world.setDynamicProperty(P + "on", false);
       setStage(1);
       resetGate();
+      closeAllAirlockGates();
       const sent = setNetherPortalsOpen(false); // also sends non-operators home
       return reply(
         `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +

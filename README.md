@@ -1173,8 +1173,9 @@ the crown above the gate lights and the outer portcullis lifts row by
 row (about 2 seconds). The gate then stays open and lit.
 
 - **Test mode** — `test_mode on|off` (saved with the world): each pad
-  stays lit once stepped on, so one player can open the gate, and Airlock
-  1 needs only 1 player instead of 4. Turning it
+  stays lit once stepped on, so one player can open the gate, Airlock 1
+  needs only 1 player instead of 4, and Room 2's pity ladder comes after
+  30 seconds instead of 10 minutes. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1197,9 +1198,29 @@ in. Hold still...") before anything happens.
   2 join them. The party is everyone in the airlock, operators included.
 - **Airlocks 2-7** move the run to the next room — the same as typing
   `stage` — when every online, non-operator party member is inside the
-  airlock ahead. Players who are offline don't hold the group up. (Each
-  room's own gates come with its room code; for now this only moves the
-  stage and checkpoint.)
+  airlock ahead. Players who are offline don't hold the group up.
+
+**Airlock gates.** Code in
+[`scripts/dungeon/gates.js`](season_manager/season_pack/scripts/dungeon/gates.js);
+positions from `layout.js`. Each airlock has a back gate (the room's exit)
+and a front gate (into the next room): iron bars that lift row by row, or
+an iron hatch (Airlocks 2, 5 and 6) that flips open. A room's code opens
+its back gate when the room is solved. When the party gathers in the
+airlock, the back gate closes behind them, the front gate opens, and the
+previous airlock's front gate closes (it stays open while a room is played
+so respawned players can walk back in). `off` and `reset` close them all.
+
+- **Room 2** ([`room2.js`](season_manager/season_pack/scripts/dungeon/room2.js)):
+  the exit bars (Airlock 2's back gate) rise once every online
+  non-operator party member is on the finish landing. So nobody who can't
+  make the jumps holds the group up for ever, the first party member to
+  reach the landing starts a 10-minute timer (30 seconds in test mode;
+  one-minute warning); when it runs out a pity ladder appears on the
+  landing's north face for anyone still in the pit. The ladder is removed
+  when the run moves past Room 2 or ends. In Airlock 2 the
+  bars drop behind them, the hatch over the ladder to Room 3 opens, and
+  Room 1's inner portcullis closes.
+- Rooms 3-7: not built yet; their exits stay shut.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

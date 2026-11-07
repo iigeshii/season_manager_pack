@@ -236,6 +236,12 @@ export function resetGate() {
   darkenAll();
 }
 
+// The party has left Room 2 behind (Airlock 2): the inner portcullis,
+// which stayed open so respawned players could walk back in, closes.
+export function closeInnerPortcullis() {
+  world.setDynamicProperty(INNER_OPEN, false);
+}
+
 // Test mode switched off: pads stop being sticky.
 export function clearStickyPads() {
   for (const ward of wards) ward.sticky = false;
