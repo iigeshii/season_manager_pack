@@ -9,6 +9,7 @@ import "./dungeon/room4.js";
 import "./dungeon/room5.js";
 import "./dungeon/room6.js";
 import "./dungeon/room7.js";
+import "./dungeon/room8.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -263,6 +264,9 @@ world.afterEvents.playerDimensionChange.subscribe((event) => {
 
 const RESCUE_VILLAGERS = [
   { tag: "season:rescue_mending_librarian", event: "season:become_mending_librarian" },
+  // The librarian rescued from the Nether, before he's retrained with Mending:
+  // a librarian with no trades (/function season/summon_rescued_librarian).
+  { tag: "season:rescue_empty_librarian", event: "season:become_empty_librarian" },
   { tag: "season:rescue_froglight_cleric", event: "season:become_froglight_cleric" },
 ];
 

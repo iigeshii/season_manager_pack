@@ -41,6 +41,7 @@ The End stays sealed either way.
 | Command | What it does |
 |---|---|
 | `/function season/reset_cartographer` | Look at a cartographer within 8 blocks first. Replaces her with a fresh one (same name and facing) so she rolls new trades. |
+| `/function season/summon_rescued_librarian` | Summons the rescued librarian (no trades yet) sitting in a minecart where you stand. |
 | `/function season/summon_mending_librarian` | Summons the Mending Librarian where you stand. |
 | `/function season/summon_froglight_cleric` | Summons the Froglight Cleric where you stand. |
 | `/function season/summon_elite_zombie` | Summons the Elite Zombie and its 12 guards in front of you. |

@@ -177,7 +177,7 @@ function surfaceNear(dimension, x, z) {
 }
 
 // Their bed (or other set spawn point) if they have one, else world spawn.
-function sendHome(player, message) {
+export function sendHome(player, message) {
   const bed = player.getSpawnPoint();
   if (bed) {
     player.teleport({ x: bed.x + 0.5, y: bed.y, z: bed.z + 0.5 }, { dimension: bed.dimension });
@@ -205,6 +205,21 @@ function sendOutsidersHome(message) {
 // Switching Nether portals off (by command, or the seal) clears the Nether
 // at once.
 onNetherPortalsClosed(() => sendOutsidersHome("§7Nether portals are closed. You've been sent home."));
+
+// Back to how the next group should find it, whatever state it's in:
+// run over, Room 1 gate and every airlock shut, Nether portals closed
+// (which sends non-operators in the Nether home). Rooms put themselves back
+// once they're loaded. Keeps the origin and the test-mode setting. Used by
+// the reset command and at the end of the finale. Returns how many players
+// were sent home.
+export function resetEvent() {
+  world.setDynamicProperty(P + "on", false);
+  setStage(1);
+  resetGate();
+  closeAllAirlockGates();
+  runEnded();
+  return setNetherPortalsOpen(false);
+}
 
 // ── Death and login ─────────────────────────
 
@@ -310,15 +325,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit, first airlock needs 1 player, Room 2 ladder after 30 s, Room 3 guards die after 3 s, Room 5 mobs die after 5 s, maze mobs after 10 s)" : "off"}.`);
     }
     case "reset": {
-      // Back to how the next group should find it, whatever state it's in.
-      // Keeps the origin and the test-mode setting.
       const wasOn = isEventOn();
-      world.setDynamicProperty(P + "on", false);
-      setStage(1);
-      resetGate();
-      closeAllAirlockGates();
-      runEnded();
-      const sent = setNetherPortalsOpen(false); // also sends non-operators home
+      const sent = resetEvent();
       return reply(
         `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +
           `Nether portals closed, ${sent} player${sent === 1 ? "" : "s"} sent home.`

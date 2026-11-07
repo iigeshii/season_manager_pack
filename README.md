@@ -1356,7 +1356,29 @@ so respawned players can walk back in). `off` and `reset` close them all.
   after respawning) gets the entrance opened so they can rejoin. Put back
   (all dark, entrance open) when the run moves past Room 7 or ends; a
   restart mid-puzzle keeps the floor as it is.
-- Room 8: not built yet.
+- **Room 8** ([`room8.js`](season_manager/season_pack/scripts/dungeon/room8.js)),
+  the finale. When the run reaches it, the librarian is in his cell: a
+  librarian with **no trades** yet (`villager_v2` event
+  `season:become_empty_librarian`; Mending comes later, by retraining him)
+  who can't be hurt. Once every online non-operator party member is in the
+  hall: a pause, he thanks them in two chat lines, the cell door opens and
+  the portal lights; rails appear along the red runner and a minecart with
+  him in it rolls to the portal, where cart and librarian vanish in a burst
+  of particles (he never actually travels). The rescue is announced to the
+  whole server ("The librarian is free! Rescued by …") and written to the
+  content log with the date and party (for the Hall of Heroes). Thirty
+  seconds later ("The portal is closing...") everyone left in the Nether
+  is sent home and the whole event resets (the same as `reset`). Anyone
+  stepping into the portal meanwhile is sent home instead of through it.
+  A restart mid-finale ends the run.
+
+**The rescued librarian in the village.** `/function
+season/summon_rescued_librarian` summons him (the no-trade librarian,
+tagged `season:rescue_empty_librarian` and kept in that variant by the
+Rescue Villagers enforcer) sitting in a minecart where you stand. To
+retrain him with Mending later, swap his tag for
+`season:rescue_mending_librarian` and fire `season:become_mending_librarian`
+(the Mending event also removes the empty variant).
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks
