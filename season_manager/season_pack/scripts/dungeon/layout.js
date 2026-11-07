@@ -6498,7 +6498,7 @@ export const LAYOUT = {
    42,
    61
   ],
-  "bridge_block": "minecraft:nether_bricks",
+  "bridge_block": "minecraft:nether_brick",
   "entrance_bridge": [
    [
     30,
