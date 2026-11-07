@@ -151,8 +151,9 @@ This requires cheats to be enabled in the world settings.
 
 Any mob in the `BANNED_MOBS` set in
 [`main.js`](season_manager/season_pack/scripts/main.js) — currently
-`minecraft:iron_golem`, `minecraft:piglin`, and
-`minecraft:piglin_brute` — is removed the instant it spawns, whether it
+`minecraft:iron_golem`, `minecraft:piglin`, `minecraft:piglin_brute`,
+and `minecraft:zombie_pigman` (zombified piglins, which lit Nether portals
+in the Overworld spawn on their own) — is removed the instant it spawns, whether it
 appears naturally, gets built (e.g. pumpkin + iron blocks), or is
 converted (e.g. a zombified piglin reverting in the Overworld). It's
 despawned outright rather than killed, so no death event fires and it
@@ -1104,7 +1105,9 @@ scriptevent season:nether_portals
 
 The last form reports the setting. Off: the [portal lock](#portal-lock)
 and [bounce-back](#dimension-bounce-back) keep everyone but operators out
-of the Nether. On: anyone may light a Nether portal and travel normally.
+of the Nether. Switching off also sends everyone already in the Nether
+home at once (bed spawn, else world spawn), except operators and the
+party of a running [Mending Rescue](#mending-rescue-event) run. On: anyone may light a Nether portal and travel normally.
 The End stays sealed either way.
 
 ### Mending Rescue event
@@ -1155,6 +1158,27 @@ the dungeon changes. The structure must be placed unrotated.
 
 For now `seal` and `stage` are typed by hand; the airlock code will call
 them once it exists.
+
+**Room 1 gate.** Code in
+[`scripts/dungeon/room1_gate.js`](season_manager/season_pack/scripts/dungeon/room1_gate.js);
+blocks and positions from `layout.js`. Before a run, a player standing
+on one of the four corner pads sends light along that pad's ward line
+(floor, then up a tower) to its seal above the gate, in about a second;
+stepping off drains it dark again. When all four seals are lit at once,
+the crown above the gate lights and the outer portcullis lifts row by
+row (about 2 seconds). The gate then stays open and lit.
+
+- **Test mode** — `test_mode on|off` (saved with the world): each pad
+  stays lit once stepped on, so one player can open the gate. Turning it
+  off makes the pads non-sticky again.
+- **At the seal** (Airlock 1): the outer portcullis closes behind the
+  party, Room 1 goes dark, and the inner portcullis opens into Room 2.
+- **`off`** or **`reset_gate`**: both portcullises close and everything
+  goes dark, ready for the next group.
+
+Block changes only ever swap the exact block expected (dark ward ↔
+shroomlight, iron bars ↔ air), so anything else placed there is left
+alone.
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks

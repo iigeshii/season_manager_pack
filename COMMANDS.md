@@ -22,7 +22,7 @@ All commands need cheats enabled; `/scriptevent` and `/function` need operator p
 | Command | What it does |
 |---|---|
 | `/scriptevent season:nether_portals on` | Opens Nether portals for everyone: anyone may light one and travel. Saved with the world. |
-| `/scriptevent season:nether_portals off` | Closes them again (the default). Only operators may light or enter. |
+| `/scriptevent season:nether_portals off` | Closes them again (the default). Only operators may light or enter. Anyone already in the Nether is sent home at once, except operators and a running Mending Rescue party. |
 | `/scriptevent season:nether_portals` | Says whether they're open or closed. |
 
 The End stays sealed either way.
@@ -71,10 +71,10 @@ Run everything from chat.
 **Every run:**
 
 1. `/scriptevent season:nether_portals on` — players can light portals and go in.
-2. Players gather in Room 1 and open the gate.
-3. `/scriptevent season:mending_rescue seal` — once everyone is in the first airlock. Starts the run, locks in the party, moves to Room 2 and closes Nether portals.
+2. Players gather in Room 1 and open the gate: four players stand on the four corner pads at once. (Testing solo? `test_mode on` first: each pad stays lit.)
+3. `/scriptevent season:mending_rescue seal` — once everyone is through the gate into the first airlock. Starts the run, locks in the party, closes the gate behind them, opens the way into Room 2 and closes Nether portals.
 4. `/scriptevent season:mending_rescue stage <3-8>` — each time the party reaches the next airlock, with the number of the room they're heading into.
-5. `/scriptevent season:mending_rescue off` — when the run is over. Anyone still in the dungeon is sent home.
+5. `/scriptevent season:mending_rescue off` — when the run is over. Anyone still in the dungeon is sent home, and the Room 1 gate resets.
 
 `/scriptevent season:mending_rescue` on its own shows where things stand. Steps 3 and 4 will happen automatically once the airlock code exists.
 
@@ -86,6 +86,9 @@ Run everything from chat.
 | `/scriptevent season:mending_rescue seal` | Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
 | `/scriptevent season:mending_rescue stage <2-8>` | The party has moved on to that room. The checkpoint becomes the airlock before it. |
 | `/scriptevent season:mending_rescue off` | Ends the run. Sends anyone left in the Nether home (bed, else world spawn), except operators. |
+| `/scriptevent season:mending_rescue test_mode on` | Solo testing: each Room 1 pad stays lit once stepped on, so one player can open the gate. Saved with the world. |
+| `/scriptevent season:mending_rescue test_mode off` | Back to normal: all four pads must be stood on at once. |
+| `/scriptevent season:mending_rescue reset_gate` | Closes both Room 1 portcullises and darkens the wards and crown. |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
 | `/scriptevent season:mending_rescue` | Shows the run, stage, checkpoint, portal switch and the online party. |
 
@@ -93,7 +96,7 @@ While a run is on, a party member who leaves the current room (and the airlocks 
 
 ## Always on (no command)
 
-- Banned mobs (iron golems, piglins, brutes) removed on spawn.
+- Banned mobs (iron golems, piglins, brutes, zombified piglins) removed on spawn.
 - Farm animal cap: 160 pigs, chickens, cows and sheep combined in the Overworld.
 - Nether: non-operators in adventure there and survival elsewhere; any mob the pack didn't spawn is removed.
 - Login message shows the pack version.

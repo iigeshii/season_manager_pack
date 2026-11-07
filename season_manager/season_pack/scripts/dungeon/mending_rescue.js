@@ -1,7 +1,9 @@
 import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
-import { netherPortalsOpen, setNetherPortalsOpen } from "../nether_portals.js";
+import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode } from "./run_state.js";
+import { gateOnRunStarted, resetGate, clearStickyPads } from "./room1_gate.js";
 
 // ─────────────────────────────────────────────
 //  MENDING RESCUE EVENT
@@ -26,7 +28,10 @@ import { LAYOUT } from "./layout.js";
 //              checkpoint and may be in the Nether even with portals off.
 //    stage <n> moves the run to room n (2-8). The checkpoint becomes the
 //              airlock just before it.
-//    off       ends the run.
+//    off       ends the run and resets the Room 1 gate.
+//    test_mode on|off  group puzzles can be done solo (Room 1's pads
+//              stay lit on their own).
+//    reset_gate  closes and darkens the Room 1 gate.
 //    where     which room/airlock you're standing in.
 //    (none)    shows the current state.
 //  The airlock code will call sealParty() and setStage() itself once it
@@ -42,32 +47,12 @@ import { LAYOUT } from "./layout.js";
 // ─────────────────────────────────────────────
 
 const EVENT_ID = "season:mending_rescue";
-const P = "season:mending_rescue_";
-
-const NETHER_ID = "minecraft:nether";
 const CONTAINMENT_TICKS = 20; // 1 second
 const LAST_STAGE = 8;
 
 // ── Stored state ────────────────────────────
 
-function getJson(key) {
-  const raw = world.getDynamicProperty(P + key);
-  if (typeof raw !== "string") return undefined;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-}
-
-function setJson(key, value) {
-  world.setDynamicProperty(P + key, value === undefined ? undefined : JSON.stringify(value));
-}
-
-// A run is on from the seal until off.
-export function isEventOn() {
-  return world.getDynamicProperty(P + "on") === true;
-}
+export { isEventOn };
 
 function currentRun() {
   return world.getDynamicProperty(P + "run") ?? 0;
@@ -97,6 +82,7 @@ export function sealParty(players) {
   world.setDynamicProperty(P + "on", true);
   setStage(2);
   setNetherPortalsOpen(false);
+  gateOnRunStarted();
 }
 
 // Called by each airlock as the party moves on to room n.
@@ -105,10 +91,6 @@ export function setStage(n) {
 }
 
 // ── Places ──────────────────────────────────
-
-function origin() {
-  return getJson("origin");
-}
 
 // Layout spot (relative) to a world spot.
 function placed(spot) {
@@ -197,6 +179,23 @@ function sendHome(player, message) {
   player.sendMessage(message);
 }
 
+// Everyone in the Nether who isn't allowed there any more. Operators stay
+// put, and nobody is moved while portals are open (the Nether is open
+// then). Returns how many were sent.
+function sendOutsidersHome(message) {
+  let sent = 0;
+  for (const player of world.getDimension(NETHER_ID).getPlayers()) {
+    if (isAllowedInNether(player)) continue;
+    sendHome(player, message);
+    sent++;
+  }
+  return sent;
+}
+
+// Switching Nether portals off (by command, or the seal) clears the Nether
+// at once.
+onNetherPortalsClosed(() => sendOutsidersHome("§7Nether portals are closed. You've been sent home."));
+
 // ── Death and login ─────────────────────────
 
 const LOGIN_DELAY_TICKS = 20; // let a joining player finish loading first
@@ -265,15 +264,20 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     case "off": {
       if (!isEventOn()) return reply("§7No run is on.");
       world.setDynamicProperty(P + "on", false);
-      // Nobody is left behind in a sealed room. Operators stay put, and
-      // nobody is moved while portals are open (the Nether is open then).
-      let sent = 0;
-      for (const player of world.getDimension(NETHER_ID).getPlayers()) {
-        if (isAllowedInNether(player)) continue;
-        sendHome(player, "§7The rescue run is over. You've been sent home.");
-        sent++;
-      }
+      resetGate();
+      const sent = sendOutsidersHome("§7The rescue run is over. You've been sent home.");
       return reply(`§aRun ${currentRun()} ended. Sent ${sent} player${sent === 1 ? "" : "s"} home.`);
+    }
+    case "test_mode": {
+      if (args[0] === "on" || args[0] === "off") {
+        setTestMode(args[0] === "on");
+        if (args[0] === "off") clearStickyPads();
+      }
+      return reply(`§6Test mode: ${isTestMode() ? "on (Room 1 pads stay lit on their own)" : "off"}.`);
+    }
+    case "reset_gate": {
+      resetGate();
+      return reply("§aRoom 1 gate reset: wards dark, portcullises closing.");
     }
     case "where": {
       if (!source) return reply("Run this from chat as a player.");
@@ -294,6 +298,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
         `§7 origin: ${o ? fmt(o) : "not set"}`,
         o && isEventOn() ? `§7 checkpoint: ${fmt(checkpoint())}` : undefined,
         `§7 Nether portals: ${netherPortalsOpen() ? "open" : "closed"}`,
+        isTestMode() ? "§e test mode: on" : undefined,
       ].filter(Boolean);
       if (isEventOn()) {
         const members = world.getAllPlayers().filter(isMember).map((p) => p.name);
@@ -302,6 +307,6 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       return reply(lines.join("\n"));
     }
     default:
-      return reply("§cUse: seal, stage <n>, off, where, set_origin <x> <y> <z>, or nothing for status.");
+      return reply("§cUse: seal, stage <n>, off, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
   }
 });

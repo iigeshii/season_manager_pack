@@ -128,6 +128,8 @@ const BANNED_MOBS = new Set([
   "minecraft:iron_golem",
   "minecraft:piglin",
   "minecraft:piglin_brute",
+  // Lit Nether portals in the Overworld spawn these on their own.
+  "minecraft:zombie_pigman",
 ]);
 
 world.afterEvents.entitySpawn.subscribe(({ entity }) => {
