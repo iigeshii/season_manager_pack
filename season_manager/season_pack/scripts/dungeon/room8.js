@@ -3,6 +3,7 @@ import { isOperator, spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, origin, isEventOn } from "./run_state.js";
 import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.js";
+import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_rewards.js";
 
 // ─────────────────────────────────────────────
 //  ROOM 8: THE LIBRARIAN'S CELL (finale)
@@ -18,12 +19,16 @@ import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.j
 //  the cart vanish in a burst of particles (he never actually travels).
 //  The rescue is announced to the whole server and written to the content
 //  log (date and party, for the Hall of Heroes). His voice comes back
-//  through the portal once more (AFTER below). Thirty seconds later
-//  everyone left in the Nether is sent home and the whole event resets.
+//  through the portal once more (AFTER below). Then the portal closes and
+//  reward chests appear (room8_rewards.js): each party member picks their
+//  rewards and is sent home. Once nobody from the party is left in the
+//  Nether, or after REWARD_TIME, the whole event resets.
 //
-//  Anyone stepping into the portal meanwhile is sent home rather than
-//  through it. Put back (bars, portal out, rails and leftovers gone) when
-//  the run moves past Room 8 or ends. A restart mid-finale ends the run.
+//  Anyone stepping into the portal before he's gone is sent home rather
+//  than through it; after he's gone they're put back in the hall so they
+//  don't miss their rewards. Put back (bars, portal out, rails, chests and
+//  leftovers gone) when the run moves past Room 8 or ends. A restart
+//  mid-finale ends the run.
 //
 //  Bring him back to the village later with
 //    /function season/summon_rescued_librarian  (him, in a minecart)
@@ -53,8 +58,10 @@ const AFTER = [
   { at: 90, text: SAY("Find me a library worthy of the old knowledge, and I'll teach your village everything I know.") },
 ];
 const RIDE_TIMEOUT = 300; // vanish anyway if the cart hasn't arrived in 15 s
-const CLOSING_AT = 400; // ticks after he's gone: "the portal is closing"
-const KICK_AT = 600; // 30 s after he's gone: everyone home, full reset
+const REWARDS_AT = 160; // ticks after he's gone: portal closes, chests appear
+const REWARD_TIME = 3600; // 3 min to choose, then everyone home, full reset
+const REWARD_WARN = REWARD_TIME - 600; // "30 seconds left"
+const HALL_SPOT = [10, 1, 24]; // where someone stepping into the portal is put back
 const PUSH = 0.15; // minecart nudge per step when it slows down
 
 const TAG = "season:room8";
@@ -218,6 +225,7 @@ function recordRescue(party) {
 
 function setUp() {
   if (!cellLoaded()) return; // wait until the cell is loaded
+  closeRewards(); // in case a last run's chests were left out
   removeOurs();
   setRails(false);
   setPortal(false);
@@ -229,6 +237,7 @@ function setUp() {
 
 function putBack() {
   finale = undefined;
+  closeRewards();
   removeOurs();
   setRails(false);
   setPortal(false);
@@ -263,10 +272,15 @@ system.runInterval(() => {
     }
   }
 
-  // Nobody leaves through the portal: anyone stepping in is sent home.
+  // Nobody leaves through the portal: anyone stepping in is sent home, or,
+  // once he's gone, put back in the hall to pick their rewards.
   for (const player of nether.getPlayers()) {
     if (isOperator(player)) continue;
-    if (blockAt(relOf(player.location))?.typeId === "minecraft:portal") sendHome(player, "§7You've been sent home.");
+    if (blockAt(relOf(player.location))?.typeId !== "minecraft:portal") continue;
+    if (finale.phase === "farewell" && isMember(player)) {
+      player.teleport(at(HALL_SPOT, 0.5, 0.5));
+      player.sendMessage("§7Not yet. The librarian left something for you.");
+    } else sendHome(player, "§7You've been sent home.");
   }
 
   const party = partyHere();
@@ -333,12 +347,29 @@ system.runInterval(() => {
       const t = now - finale.goneAt;
       finale.said ??= 0;
       while (finale.said < AFTER.length && t >= AFTER[finale.said].at) tell(party, AFTER[finale.said++].text);
-      if (t >= CLOSING_AT && !finale.warned) {
-        finale.warned = true;
-        tell(party, "§7The portal is closing...");
+      if (t < REWARDS_AT) return;
+      if (!rewardsOpen()) {
+        if (!openRewards()) return; // hall not loaded: try again next check
+        setPortal(false);
+        sound("random.chestopen");
+        tell(party, "§7The portal closes behind him.");
+        tell(
+          party,
+          `§6Pick your prizes! §fThe librarian left chests of treasure along the east wall. Open one to pick ${REWARD_PICKS} prizes. When you're done, you'll be sent home.`
+        );
+        finale.rewardsAt = now;
+        return;
       }
-      if (t >= KICK_AT) {
+      const left = now - finale.rewardsAt;
+      if (left >= REWARD_WARN && !finale.warned) {
+        finale.warned = true;
+        tell(party, "§e30 seconds left to choose your rewards.");
+      }
+      // Everyone's picked and gone home (or left), or time's up.
+      if (party.length === 0 || left >= REWARD_TIME) {
+        if (party.length > 0) tell(party, "§7Time's up.");
         finale = { phase: "done" };
+        closeRewards();
         resetEvent(); // everyone home, everything back for the next group
       }
       return;

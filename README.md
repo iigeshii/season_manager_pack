@@ -1388,11 +1388,35 @@ so respawned players can walk back in). `off` and `reset` close them all.
   content log with the date and party (for the Hall of Heroes); his voice
   comes back through the portal once more, pointing at the Mystic Library
   ("Find me a library worthy of the old knowledge…"). The lines are in
-  `SCENE` / `AFTER` at the top of `room8.js`, easy to edit. Thirty
-  seconds later ("The portal is closing...") everyone left in the Nether
-  is sent home and the whole event resets (the same as `reset`). Anyone
-  stepping into the portal meanwhile is sent home instead of through it.
-  A restart mid-finale ends the run.
+  `SCENE` / `AFTER` at the top of `room8.js`, easy to edit. Anyone
+  stepping into the portal before he's gone is sent home instead of
+  through it; after he's gone they're put back in the hall. A restart
+  mid-finale ends the run.
+
+  **Rewards** ([`room8_rewards.js`](season_manager/season_pack/scripts/dungeon/room8_rewards.js)).
+  Eight seconds after he's gone, the portal closes and three chests appear
+  against the hall's east wall, under a "Pick your prizes!" sign. Opening any of them shows a menu instead
+  of the chest itself, and each party member picks **2 prizes** (the same
+  one twice is fine):
+
+  - **Diamond tool**: pickaxe, axe, shovel, or sword
+  - **Diamond armor**: helmet, chestplate, leggings, or boots
+  - **3 Totems of Undying**
+  - **Enchanted book** at max level: every enchantment, Mending included,
+    except the curses, grouped by Mending & Unbreaking / Armor / Swords &
+    Axes / Tools / Bows & Crossbows / Trident, Mace & Spear / Fishing
+  - **8 enchanted golden apples**
+
+  Every pick asks for confirmation and only goes
+  through if there's room in the player's inventory for all of it (1 free
+  slot, 3 for the totems); otherwise they're told to make room and try
+  again. Rewards never run out, and nothing can be put into or taken out
+  of the chests directly. Each pick is written to the content log. After
+  their second pick a player is taken out of the party and sent home. The
+  event resets (the same as `reset`) once nobody from the party is left in
+  the Nether, or after 3 minutes ("30 seconds left" warning first), and
+  the chests are removed. The lists and counts are at the top of
+  `room8_rewards.js`.
 
 **The rescued librarian in the village.** `/function
 season/summon_rescued_librarian` summons him (the no-trade librarian,
