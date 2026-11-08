@@ -66,7 +66,11 @@ Run everything from chat.
 **One-time setup** (saved with the world; redo only if the dungeon moves):
 
 1. `/tag @s add season:operator` — if you haven't already.
-2. `/scriptevent season:mending_rescue set_origin <x> <y> <z>` — the dungeon structure's minimum corner (structure block position plus its offset; placed unrotated).
+2. `/scriptevent season:mending_rescue set_origin <x> <y> <z>` — the dungeon structure's minimum corner (structure block position plus its offset; placed unrotated). For the current placement ([structures/README.md](structures/README.md)):
+
+   ```
+   /scriptevent season:mending_rescue set_origin -303 18 -108
+   ```
 3. Stand on the Room 1 dais and run `/scriptevent season:mending_rescue where`. It should say `Fortress Gate (structure 20 65 4)`. If not, the origin is off.
 
 **Every run:**
@@ -94,7 +98,7 @@ Run everything from chat.
 | `/scriptevent season:mending_rescue jump <2-8>` | Testing: go straight to that room. Starts a run if none is on (party = everyone in the Nether plus you, even from the Overworld), sets the gates as if the party just came through the airlock, and teleports the party to the room's checkpoint. |
 | `/scriptevent season:mending_rescue answer` | Shows Room 3's counts for this run (testing). |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
-| `/scriptevent season:mending_rescue` | Shows the run, stage, checkpoint, portal switch and the online party. |
+| `/scriptevent season:mending_rescue` | Shows the dungeon origin, run, stage, checkpoint, portal switch and the online party. |
 
 While a run is on, a party member who leaves the current room (and the airlocks either side) is brought back to the checkpoint; anyone else in the Nether who isn't an operator is held to Room 1.
 

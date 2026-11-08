@@ -20,6 +20,10 @@ under the [MIT License](LICENSE).
   release, everything else in here is git-ignored
 - `docs/` — standalone reference images (e.g. `armor_bonus_tiers.svg`,
   linked from this README and the release notes)
+- `structures/` — `.mcstructure` files placed in the realm (the Mending
+  Rescue dungeon and its Overworld portal) and the importer `.mcpack`s
+  used to get them onto the realm, with where and how each was placed
+  in [structures/README.md](structures/README.md)
 - `tps/` — third-party source material kept for license verification
   (e.g. the Armed and Varied mod jar); see `CREDITS.md`
 - `CREDITS.md` — third-party asset attribution, also embedded inside the
