@@ -559,26 +559,21 @@ function decoyBook(book) {
 const isDecoy = (item) => item?.typeId === "minecraft:enchanted_book" && item.getLore().includes(DECOY_LORE);
 
 // The display books in walking order for filling the frames: Mending at
-// the entrance first, then up aisle A (the far left), down aisle B, up
-// aisle C and down aisle D. Within an aisle, books come in the order
-// they're passed, both sides together.
-const AISLES = [
-  [0, 2],
-  [4, 7],
-  [9, 12],
-  [14, 16],
-];
+// the entrance first, then one wall at a time in a straight line, snaking
+// left to right: up the Ranged wall (aisle A), down the Melee wall and up
+// the Armor/Fire wall (aisle B), down the General/Fishing wall and up the
+// Tools wall (aisle C), and down the Water wall (aisle D). "Up" is front
+// to back.
+const WALL_COLS = [2, 4, 7, 9, 12, 14];
 const WALKING_ORDER = (() => {
-  const aisleOf = (col) => AISLES.findIndex(([from, to]) => col >= from && col <= to);
-  return [...FRAME_CELLS.values()]
-    .map((cell) => ({ cell, aisle: aisleOf(cell.col) })) // Mending (col 8) isn't in an aisle: -1, so first
-    .sort((a, b) => {
-      if (a.aisle !== b.aisle) return a.aisle - b.aisle;
-      const up = a.aisle % 2 === 0; // aisles A and C are walked front to back
-      if (a.cell.row !== b.cell.row) return up ? b.cell.row - a.cell.row : a.cell.row - b.cell.row;
-      return a.cell.col - b.cell.col;
-    })
-    .map(({ cell }) => cell.book);
+  const frames = [...FRAME_CELLS.values()];
+  const order = frames.filter((cell) => !WALL_COLS.includes(cell.col)); // Mending, at the entrance
+  WALL_COLS.forEach((col, i) => {
+    const up = i % 2 === 0;
+    const wall = frames.filter((cell) => cell.col === col).sort((a, b) => (up ? b.row - a.row : a.row - b.row));
+    order.push(...wall);
+  });
+  return order.map((cell) => cell.book);
 })();
 
 export function giveDecoys(player, reply) {

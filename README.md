@@ -1471,10 +1471,12 @@ library is ready to open:
    33 display books.
 3. `/scriptevent season:library board`: builds the stacks with empty
    frames in front of you and gives you the 33 display books, in walking
-   order: Mending (right in front of you) first, then up the far-left
-   aisle, down the next, up the next and down the last, in the order you
-   pass the books on both sides. If blocks are in the way, clear them or
-   use `board force` to replace them.
+   order: Mending (right in front of you) first, then one wall at a time
+   in a straight line, snaking left to right: up the Ranged wall, down
+   the Melee wall, up the Armor/Fire wall, down the General/Fishing wall,
+   up the Tools wall and down the Water wall ("up" is away from the
+   entrance). If blocks are in the way, clear them or use `board force`
+   to replace them.
 4. Right-click each display book into the frame above the sign that
    names it. A wrong book is refused with the name of the right one, and
    chat counts progress until "All 33 are in".
