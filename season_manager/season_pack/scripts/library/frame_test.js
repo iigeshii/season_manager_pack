@@ -18,6 +18,8 @@ const EVENT_ID = "season:library_test";
 const TOKEN_ID = "newhaven:wyatt_token";
 const STATE_KEY = "season:library_frame_test";
 const STRUCTURE = "season:library_frame_test";
+const BOOK_STRUCTURE = "season:library_frame_test_book"; // just the framed book, for putting it back
+const DECOY_LORE = "§7Display copy";
 const SIGN_BLOCK = "minecraft:crimson_wall_sign"; // the id room8_rewards.js already uses
 
 // facing_direction for frames and wall signs, and the step one block that way.
@@ -171,7 +173,7 @@ function decoyBook(name) {
   const book = new ItemStack("minecraft:enchanted_book", 1);
   book.getComponent("minecraft:enchantable").addEnchantment({ type: EnchantmentTypes.get("vanishing"), level: 1 });
   book.nameTag = `§b${name}`;
-  book.setLore(["§7Display copy"]);
+  book.setLore([DECOY_LORE]);
   return book;
 }
 
@@ -189,21 +191,25 @@ function saveRig(player, reply) {
   const from = rigMin(rig);
   const to = rigMax(rig);
   try {
-    world.getDimension(rig.dim).runCommand(`structure save ${STRUCTURE} ${fmt(from)} ${fmt(to)} true disk true`);
+    const dimension = world.getDimension(rig.dim);
+    dimension.runCommand(`structure save ${STRUCTURE} ${fmt(from)} ${fmt(to)} true disk true`);
+    dimension.runCommand(`structure save ${BOOK_STRUCTURE} ${fmt(rig.frame)} ${fmt(rig.frame)} false disk true`);
   } catch (error) {
     return reply(`§cStructure save failed: ${error}`);
   }
   state.saved = { look: rig.look };
   saveState(state);
-  reply(`§aSaved the newest rig (${fmt(from)} to ${fmt(to)}) as ${STRUCTURE}.`);
+  reply(
+    `§aSaved the newest rig (${fmt(from)} to ${fmt(to)}) as ${STRUCTURE}, and its framed book on its own.\n` +
+      "§eFrom now on, a book punched out of any test frame is put back automatically."
+  );
 }
 
 function loadRig(player, reply) {
   const state = loadState();
   if (!state.saved) return reply("§cSave a rig first.");
   const rig = rigLayout(player);
-  const steps = (CLOCKWISE.indexOf(rig.look) - CLOCKWISE.indexOf(state.saved.look) + 4) % 4;
-  const rotation = `${steps * 90}_degrees`;
+  const rotation = rotationFrom(state.saved.look, rig.look);
   try {
     player.dimension.runCommand(`structure load ${STRUCTURE} ${fmt(rigMin(rig))} ${rotation}`);
   } catch (error) {
@@ -215,6 +221,29 @@ function loadRig(player, reply) {
     `§aLoaded the saved rig in front of you (turned ${rotation.replace("_degrees", "°")}).\n` +
       "§eCheck: is the book still in the frame, and does the frame face you?"
   );
+}
+
+function rotationFrom(savedLook, look) {
+  const steps = (CLOCKWISE.indexOf(look) - CLOCKWISE.indexOf(savedLook) + 4) % 4;
+  return `${steps * 90}_degrees`;
+}
+
+// Clears any decoy that dropped by the frame, then reloads the framed book.
+function restoreBook(rig) {
+  const state = loadState();
+  if (!state.saved) return false;
+  const dimension = world.getDimension(rig.dim);
+  const center = { x: rig.frame.x + 0.5, y: rig.frame.y + 0.5, z: rig.frame.z + 0.5 };
+  let cleared = 0;
+  for (const entity of dimension.getEntities({ type: "minecraft:item", location: center, maxDistance: 3 })) {
+    const stack = entity.getComponent("minecraft:item")?.itemStack;
+    if (stack?.getLore().includes(DECOY_LORE)) {
+      entity.remove();
+      cleared++;
+    }
+  }
+  dimension.runCommand(`structure load ${BOOK_STRUCTURE} ${fmt(rig.frame)} ${rotationFrom(state.saved.look, rig.look)}`);
+  return cleared;
 }
 
 function clearRigs(reply) {
@@ -301,15 +330,35 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 // ── Protection ──────────────────────────────
 
 world.beforeEvents.playerBreakBlock.subscribe((event) => {
-  if (!findRig(event.block)) return;
+  const rig = findRig(event.block);
+  if (!rig) return;
   event.cancel = true;
   const player = event.player;
+  const hitSign = same(event.block, rig.sign);
   system.run(() => player.sendMessage("§aBreak blocked on the test rig."));
+  // A cancelled break on a sign wipes its text, so write it straight back.
+  if (hitSign) system.runTimeout(() => writeSign(world.getDimension(rig.dim), rig.sign, loadState()), 2);
 });
 
 world.afterEvents.entityHitBlock.subscribe((event) => {
   const { damagingEntity, hitBlock } = event;
   if (damagingEntity?.typeId !== "minecraft:player" || hitBlock.typeId !== "minecraft:frame") return;
-  if (!findRig(hitBlock, "frame")) return;
-  damagingEntity.sendMessage("§eYou hit the test frame. Did its book pop out?");
+  const rig = findRig(hitBlock, "frame");
+  if (!rig) return;
+  if (!loadState().saved) {
+    damagingEntity.sendMessage("§eYou hit the test frame. Run save first to have its book put back automatically.");
+    return;
+  }
+  // Punching a frame in survival takes its item out, and that can't be cancelled.
+  // So put the book back a moment later, and take the dropped decoy away.
+  system.runTimeout(() => {
+    try {
+      const cleared = restoreBook(rig);
+      damagingEntity.sendMessage(
+        `§aBook put back${cleared ? `, dropped decoy removed` : ""}. §eDid it come back, and is the dropped book gone?`
+      );
+    } catch (error) {
+      damagingEntity.sendMessage(`§cCouldn't put the book back: ${error}`);
+    }
+  }, 2);
 });
