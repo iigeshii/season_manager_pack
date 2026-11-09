@@ -20,24 +20,24 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 - Any player can put tokens on any book at any time. Tokens from several players pool toward the same level.
 
 ### The library stacks (the board)
-- There is **one set of stacks** for the whole library: three double-sided bookshelf stacks with aisles between them, **17 wide × 11 deep × 4 high**. (The first version was a single 17 × 6 obsidian wall; it was replaced to look like a real library.)
+- There is **one set of stacks** for the whole library: three double-sided bookshelf stacks with aisles between them, **17 wide × 13 deep × 4 high**. (The first version was a single 17 × 6 obsidian wall; it was replaced to look like a real library.)
 
   ```
           aisle A  S1  aisle B   S2  aisle C   S3  aisle D
-           . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     ← librarians (back of each aisle)
-           . . R   #   . . . A   #   G . . .   #   W . .
-           . . R   #   M . . A   #   G . . .   #   W . .
+           . . .   |   . . . @   |   @ . . .   |   . . .     ← Armor, General
+           . . @   #   . . . A   #   G . . .   #   W . .     ← Ranged
+           . . R   #   M . . A   #   G . . @   #   W . .     ← Tools
            . . R   #   M . . A   #   G . . T   #   W . .
            . . R   #   M . . .   |   . . . T   #   W . .     ← divider
-           . . R   #   M . . F   #   H . . T   #   W . .
+           . . R   #   M . . F   #   . . . T   #   W . .
            . . R   #   M . . F   #   H . . .   #   W . .
-           . . R   #   . . . .   #   . . . .   #   W . .
+           . . R   #   @ . . @   #   H . . .   #   W . .     ← Melee, Fire
+           . . R   #   . . . .   #   @ . . .   #   @ . .     ← Fishing, Water
            . . .   |   . . . .   |   . . . .   |   . . .     ← end caps
-           . . .   .   . . . .   ★   . . . .   .   . . .     ← Mending, facing the entrance
-           . . .   .   . . . .   . @ . . .   .   . . .     ← Mending Librarian
+           . . .   .   . . . @   ★   . . . .   .   . . .     ← Mending + its librarian
                                   ↑ entrance: where `board` is run
-    #  bookshelf   |  dark oak log   R Ranged  M Melee  A Armor  F Fire
-    G General  H Fishing  T Tools  W Water  ★ Mending   @ librarian
+    #  bookshelf   |  dark oak log   @ librarian
+    R Ranged  M Melee  A Armor  F Fire  G General  H Fishing  T Tools  W Water  ★ Mending
   ```
 
 - Each stack is 4 high: bookshelves at the bottom, a status sign under each book at eye level, the book's frame above it, and a group name sign on top. Dark oak log pillars cap every stack end and divide Armor from Fire and General from Fishing. Signs are birch so their dark text stays readable. Books read left to right for someone standing in the aisle.
@@ -79,12 +79,9 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 ### Librarians
 - Each group has one librarian, tied to the board and named after the group (for example "Ranged Librarian"). Mending has the Mending Librarian.
 - A group's librarian appears as soon as the group has at least one book that can be bought. When the board is first placed, that's only the Mending Librarian. The others arrive as their group's first book unlocks.
-- Librarians stand at fixed spots and never move. They don't wander, follow a villager schedule, or run from raids. Each group's librarian stands at the back of the aisle its books face, so the aisles stay clear (see the top view above):
-  - **Aisle A:** Ranged.
-  - **Aisle B:** Melee, Armor and Fire.
-  - **Aisle C:** General, Fishing and Tools.
-  - **Aisle D:** Water.
-  - **Entrance:** the Mending Librarian, beside Mending's end cap.
+- Librarians stand at fixed spots and never move. They don't wander, follow a villager schedule, or run from raids. Each librarian stands just left of their group's books, as you face them. Where two groups share a side of a stack (Armor and Fire, Fishing and General), the second group's librarian stands just right of it instead, so the two are at opposite ends. The Mending Librarian stands just left of Mending's frame at the entrance.
+- Librarians face into their aisle. (A version with a custom "Library Lectern" in front of each librarian was tried and dropped; the stacks were tuned by eye in game instead, so each librarian stands where it looked right next to their books.)
+- The stacks are 10 long, which leaves room for every librarian beside their books with the aisles clear.
 
   A spot stays empty until its librarian appears. The name over each librarian's head shows the group.
 - Librarians can't be hurt, killed or turned into zombie villagers. A damage filter on their villager variant ignores all damage, so nothing needs respawning. The same filter stops lightning from turning them into witches.
@@ -200,7 +197,7 @@ The planner (`season_planner/index.html`) is a static page and can't show live p
 - Replace them with a short note: the token system is now active in game, with the rules (level costs 1, 2, 3, 3, 3; every book 32 emeralds; discounts 2, 2, 3 tokens → 16, 8, 1) and where to find the board in the Mystic Library.
 
 ## Later
-- **Libraries in several towns.** For now there's one library and one board. If more towns get libraries, every board would share the same ledger: the board state becomes a list of named boards (`board add <town>`, `board remove [town]`, `board list`), all placed from the one captured copy. Each board's signs update when the ledger changes, or when its area loads, and each board gets its own lecterns and librarians.
+- **Libraries in several towns.** For now there's one library and one board. If more towns get libraries, every board would share the same ledger: the board state becomes a list of named boards (`board add <town>`, `board remove [town]`, `board list`), all placed from the one captured copy. Each board's signs update when the ledger changes, or when its area loads, and each board gets its own librarians.
 
 ## Open questions
 - **The token item:** its final name (Wyatt Token is the working name). The leading look is "Wyatt's eye", shown below, which is out to the group for feedback.
@@ -228,4 +225,4 @@ Enchanting books from script already works in this pack (`scripts/dungeon/room8_
 
 Still to check: whether the explosion before-event lets the script remove board blocks from an explosion's list of blocks to destroy.
 
-Ledger state lives in world dynamic properties: tokens per book and level by player, the discount step per book, and the board's position and facing. The lectern spots are worked out from the board's position.
+Ledger state lives in world dynamic properties: tokens per book and level by player, the discount step per book, and the board's position and facing. The librarian spots are worked out from the board's position.

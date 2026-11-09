@@ -1501,24 +1501,26 @@ start of the name: `Bane of Arthropods`, `bane_of_arthropods` and
 lists them.
 
 **The library stacks (the token board).** Every book sits on three
-double-sided bookshelf stacks with aisles between them, 17 wide, 11 deep
+double-sided bookshelf stacks with aisles between them, 17 wide, 13 deep
 and 4 high. Top view, from the entrance:
 
 ```
         aisle A  S1  aisle B   S2  aisle C   S3  aisle D
-         . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     ← librarians (back of each aisle)
-         . . R   #   . . . A   #   G . . .   #   W . .
-         . . R   #   M . . A   #   G . . .   #   W . .
+         . . .   |   . . . @   |   @ . . .   |   . . .     ← Armor, General
+         . . @   #   . . . A   #   G . . .   #   W . .     ← Ranged
+         . . R   #   M . . A   #   G . . @   #   W . .     ← Tools
          . . R   #   M . . A   #   G . . T   #   W . .
          . . R   #   M . . .   |   . . . T   #   W . .     ← divider
-         . . R   #   M . . F   #   H . . T   #   W . .
+         . . R   #   M . . F   #   . . . T   #   W . .
          . . R   #   M . . F   #   H . . .   #   W . .
-         . . R   #   . . . .   #   . . . .   #   W . .
+         . . R   #   @ . . @   #   H . . .   #   W . .     ← Melee, Fire
+         . . R   #   . . . .   #   @ . . .   #   @ . .     ← Fishing, Water
          . . .   |   . . . .   |   . . . .   |   . . .     ← end caps
-         . . .   .   . . . .   ★   . . . .   .   . . .     ← Mending, facing the entrance
+         . . .   .   . . . @   ★   . . . .   .   . . .     ← Mending + its librarian
                                 ↑ entrance
-  #  bookshelf   |  dark oak log   R Ranged  M Melee  A Armor  F Fire
-  G General  H Fishing  T Tools  W Water  ★ Mending
+  #  bookshelf   |  dark oak log   @ librarian
+  R Ranged  M Melee  A Armor  F Fire  G General  H Fishing  T Tools
+  W Water  ★ Mending
 ```
 
 Each stack has bookshelves at the bottom, a status sign under each book
@@ -1544,8 +1546,8 @@ in by hand once and each filled frame is saved as its own one-block
 structure:
 
 1. Stand at the entrance spot, facing into the library, and run
-   `board`. The stacks are built in front of you: Mending's end cap is
-   2 blocks ahead, centred on you, and the back of the stacks is 11
+   `board`. The stacks are built in front of you: Mending's frame is
+   2 blocks ahead, centred on you, and the back of the stacks is 12
    blocks ahead, with the bottom row at your feet. Before anything is
    captured, this also gives you the 33 display books (32 enchantments
    plus Mending), which needs 33 free inventory slots.
@@ -1590,17 +1592,20 @@ away, rebuilds it at once along with any frame or sign that fell off it.
   are kept.
 
 **Librarians and their shops.** Each group has one librarian, named
-after it ("Ranged Librarian", "Melee Librarian" and so on), standing at
-the back of the aisle its books face (the `@` spots in the top view).
-The Mending Librarian stands at the entrance beside Mending's end cap. A
+after it ("Ranged Librarian", "Melee Librarian" and so on), standing
+just left of its group's books as you face them (the `@` spots in the
+top view), facing into the aisle. Where two groups share a side of a
+stack, the second group's librarian stands just right of it instead,
+so the two are at opposite ends. The Mending Librarian stands at the
+entrance, just left of Mending's frame. A
 librarian is there only while the library is open, the stacks are live,
 and the group has at least one unlocked book, so at first only the
 Mending Librarian appears and the others arrive as their group's first
 book unlocks. They follow the stacks when they move, and leave when the
 stacks are removed or the library is reset.
 
-Librarians never move (a villager variant with no movement that can't be
-pushed), can't be hurt, killed, zombified or struck into witches, and
+Librarians never move (a villager variant with no movement), can't be
+hurt, killed, zombified or struck into witches, and
 can't be renamed. Every 5 seconds the pack puts any librarian that has
 drifted back on its spot, removes duplicates, and summons any that are
 missing once their spot has been loaded for a moment. When the library
