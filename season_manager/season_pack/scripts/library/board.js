@@ -211,7 +211,10 @@ function signText(cell) {
 
 // Places (or fixes) one cell. `frames` says whether an empty frame may be
 // put down where a frame is missing (only before the board is captured).
-function placeCell(cell, { frames }) {
+// `force` rewrites a sign's text even when it already matches: after a
+// cancelled break the server still has the text but players see a blank
+// sign, and only writing it again sends it back to them.
+function placeCell(cell, { frames, force = false }) {
   const pos = worldPos(board, cell);
   const block = blockAt(pos);
   if (!block) return false;
@@ -237,7 +240,7 @@ function placeCell(cell, { frames }) {
   const sign = block.getComponent("minecraft:sign");
   if (!sign) return true;
   const text = signText(cell);
-  if (sign.getText() !== text) sign.setText(text);
+  if (force || sign.getText() !== text) sign.setText(text);
   if (!sign.isWaxed) sign.setWaxed(true);
   return true;
 }
@@ -255,13 +258,14 @@ function refreshSigns() {
   }
 }
 
-// Checks every board block and fixes anything missing or wrong.
+// Checks every board block and fixes anything missing or wrong. Signs are
+// always rewritten, so one that shows blank to players heals within a minute.
 function repairBoard() {
   loadBoard();
   if (!board) return;
   for (const cell of CELLS) {
     try {
-      placeCell(cell, { frames: true });
+      placeCell(cell, { frames: true, force: true });
     } catch (error) {
       console.warn(`[Library] Couldn't repair the board: ${error}`);
     }
@@ -552,7 +556,7 @@ world.beforeEvents.playerBreakBlock.subscribe((event) => {
   if (event.block.typeId === "minecraft:air") return;
   event.cancel = true;
   // A cancelled break wipes a sign's text, so write it straight back.
-  if (cell.kind === "status" || cell.kind === "group") system.runTimeout(() => placeCell(cell, { frames: false }), 2);
+  if (cell.kind === "status" || cell.kind === "group") system.runTimeout(() => placeCell(cell, { frames: false, force: true }), 2);
 });
 
 // Punching a frame in survival takes its book out, and that can't be

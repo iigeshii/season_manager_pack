@@ -20,7 +20,7 @@ const SIGN_NAMES = {
   feather_falling: "Feather Fall",
   luck_of_the_sea: "Luck of Sea",
   blast_protection: "Blast Prot",
-  projectile_protection: "Projectile Prot",
+  projectile_protection: "Proj. Prot",
   bane_of_arthropods: "Bane of Arth.",
   fire_protection: "Fire Prot",
 };
