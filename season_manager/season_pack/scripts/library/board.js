@@ -69,6 +69,15 @@ const FACES = [
   { col: 8, facing: "front", groups: [["mending", [9]]] },
 ];
 
+// Hidden light blocks above head height, down the middle of each aisle and
+// over the entrance, so the signs read clearly at night (sign text can't
+// be made to glow by script).
+const LIGHT_LEVEL = 15;
+const LIGHT_SPOTS = [
+  ...[1, 5, 11, 15].flatMap((col) => [1, 4, 7].map((row) => ({ col, row }))),
+  { col: 8, row: 10 },
+];
+
 // Blocks that may be in the way when a board is placed without `force`.
 const CLEARABLE = new Set([
   "minecraft:air",
@@ -115,10 +124,28 @@ const CELLS = (() => {
       cells.push({ kind: "group", col: face.col, row: middle, y: 3, facing: face.facing, group });
     }
   }
+  for (const { col, row } of LIGHT_SPOTS) cells.push({ kind: "light", col, row, y: 3 });
   return cells;
 })();
 
 const FRAME_CELLS = new Map(CELLS.filter((c) => c.kind === "frame").map((c) => [c.book.id, c]));
+const SHELF_CELLS = CELLS.filter((c) => c.kind === "shelf");
+
+// Every open spot touching a shelf, where fire could sit and burn it.
+const FIRE_WATCH = (() => {
+  const shelves = new Set(SHELF_CELLS.map((c) => `${c.col}|${c.row}|${c.y}`));
+  const spots = new Map();
+  for (const c of SHELF_CELLS) {
+    for (const [dc, dr, dy] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) {
+      const spot = { col: c.col + dc, row: c.row + dr, y: c.y + dy };
+      const key = `${spot.col}|${spot.row}|${spot.y}`;
+      if (spot.y >= 0 && !shelves.has(key)) spots.set(key, spot);
+    }
+  }
+  return [...spots.values()];
+})();
+const FIRE = new Set(["minecraft:fire", "minecraft:soul_fire"]);
+const FIRE_INTERVAL = 20; // ticks: look for fire on the stacks every second
 
 function lookDirection(player) {
   const yaw = ((player.getRotation().y % 360) + 360) % 360; // 0 south, 90 west, 180 north, 270 east
@@ -206,9 +233,18 @@ function loadBoard() {
   reindex();
 }
 
+const boardListeners = [];
+
+// Called after the stacks are placed, moved, captured or removed, so the
+// librarians can follow.
+export function onBoardChange(listener) {
+  boardListeners.push(listener);
+}
+
 function saveBoard() {
   writeJson(BOARD_KEY, board);
   reindex();
+  for (const listener of boardListeners) system.run(listener);
 }
 
 function reindex() {
@@ -253,6 +289,19 @@ function logPermutation() {
   }
 }
 
+// Newer versions have one block id per light level; older ones a single
+// light block with a level state.
+let lightPermutationCache;
+function lightPermutation() {
+  if (lightPermutationCache) return lightPermutationCache;
+  try {
+    lightPermutationCache = BlockPermutation.resolve(`minecraft:light_block_${LIGHT_LEVEL}`);
+  } catch {
+    lightPermutationCache = BlockPermutation.resolve("minecraft:light_block", { block_light_level: LIGHT_LEVEL });
+  }
+  return lightPermutationCache;
+}
+
 function blockAt(pos) {
   try {
     return world.getDimension(board.dim).getBlock(pos);
@@ -290,6 +339,11 @@ function placeCell(cell, { frames, force = false }) {
   if (cell.kind === "shelf") {
     const want = cell.log ? LOG : BOOKSHELF;
     if (block.typeId !== want) block.setPermutation(cell.log ? logPermutation() : BlockPermutation.resolve(BOOKSHELF));
+    return true;
+  }
+  if (cell.kind === "light") {
+    const light = lightPermutation();
+    if (block.typeId !== light.type.id) block.setPermutation(light);
     return true;
   }
   const facing = DIRS[facingName(board, cell)].facing;
@@ -567,6 +621,40 @@ export function captureBoard(reply) {
   reply("§aBooks captured. From now on §lboard§r§a places the stacks with these books, and punched-out books are put back automatically.");
 }
 
+// Where each group's librarian stands (plan col, row): at the back of the
+// aisle its books face, and the Mending Librarian beside Mending's end cap.
+const LIBRARIAN_SPOTS = {
+  ranged: [1, 0],
+  melee: [4, 0],
+  armor: [6, 0],
+  fire: [7, 0],
+  general: [9, 0],
+  fishing: [10, 0],
+  tools: [12, 0],
+  water: [15, 0],
+  mending: [9, 10],
+};
+
+// The librarians' spots on the live stacks, each with a point to face
+// (toward the entrance). Undefined while there are no live stacks.
+export function librarianSpots() {
+  loadBoard();
+  if (!board || board.filling) return undefined;
+  return {
+    dim: board.dim,
+    spots: GROUPS.map((group) => {
+      const [col, row] = LIBRARIAN_SPOTS[group.id];
+      const at = worldPos(board, { col, row, y: 0 });
+      const ahead = worldPos(board, { col, row: row + 6, y: 0 });
+      return {
+        group,
+        pos: { x: at.x + 0.5, y: at.y, z: at.z + 0.5 },
+        face: { x: ahead.x + 0.5, y: ahead.y + 1.6, z: ahead.z + 0.5 },
+      };
+    }),
+  };
+}
+
 export function boardInfo() {
   loadBoard();
   const legacy = legacyBoard ? " §eThe old obsidian board is still standing: run §lboard§r§e or §lboard remove§r§e to clear it." : "";
@@ -703,3 +791,35 @@ system.runInterval(() => {
     console.warn(`[Library] Board repair failed: ${error}`);
   }
 }, REPAIR_INTERVAL);
+
+// Bookshelves burn, and burning isn't a break the pack can cancel. So every
+// second: put out any fire touching the stacks, and if a shelf has burned
+// away, rebuild it straight away along with anything that fell off it.
+function guardFire() {
+  loadBoard();
+  if (!board) return;
+  let air;
+  for (const spot of FIRE_WATCH) {
+    const block = blockAt(worldPos(board, spot));
+    if (block && FIRE.has(block.typeId)) block.setPermutation((air ??= BlockPermutation.resolve("minecraft:air")));
+  }
+  const burned = SHELF_CELLS.some((cell) => {
+    const block = blockAt(worldPos(board, cell));
+    return block && block.typeId !== (cell.log ? LOG : BOOKSHELF);
+  });
+  if (!burned) return;
+  repairBoard();
+  removeDroppedDecoys(
+    board.dim,
+    SHELF_CELLS.map((cell) => worldPos(board, cell)),
+    2
+  );
+}
+
+system.runInterval(() => {
+  try {
+    guardFire();
+  } catch (error) {
+    console.warn(`[Library] Fire guard failed: ${error}`);
+  }
+}, FIRE_INTERVAL);

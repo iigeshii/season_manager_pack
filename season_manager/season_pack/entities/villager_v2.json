@@ -1903,6 +1903,45 @@
           "value": 5
         }
       },
+      "season:library_librarian": {
+        "minecraft:dweller": {
+          "can_find_poi": false,
+          "dwelling_type": "village",
+          "dweller_role": "inhabitant"
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "all",
+              "deals_damage": "no"
+            }
+          ]
+        },
+        "minecraft:type_family": {
+          "family": [
+            "villager",
+            "librarian",
+            "mob"
+          ]
+        },
+        "minecraft:variant": {
+          "value": 5
+        },
+        "minecraft:movement": {
+          "value": 0
+        },
+        "minecraft:pushable": {
+          "is_pushable": false,
+          "is_pushable_by_piston": false
+        },
+        "minecraft:knockback_resistance": {
+          "value": 1
+        },
+        "minecraft:nameable": {
+          "always_show": true,
+          "allow_name_tag_renaming": false
+        }
+      },
       "season:empty_librarian": {
         "minecraft:dweller": {
           "can_find_poi": false,
@@ -2690,6 +2729,28 @@
             "trade_components",
             "unskilled",
             "season:empty_librarian"
+          ]
+        }
+      },
+      "season:become_library_librarian": {
+        "add": {
+          "component_groups": [
+            "season:library_librarian",
+            "adult"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "baby",
+            "child_schedule",
+            "job_specific_goals",
+            "trade_components",
+            "unskilled",
+            "season:empty_librarian",
+            "rescue_mending_librarian",
+            "librarian_schedule",
+            "behavior_non_peasant",
+            "make_and_receive_love"
           ]
         }
       },

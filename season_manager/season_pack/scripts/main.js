@@ -11,6 +11,7 @@ import "./dungeon/room6.js";
 import "./dungeon/room7.js";
 import "./dungeon/room8.js";
 import "./library/commands.js";
+import "./library/librarians.js";
 
 // ─────────────────────────────────────────────
 //  MESSAGES
@@ -1000,6 +1001,8 @@ system.runInterval(() => {
 //  single property ever gets close to the limit.
 // ─────────────────────────────────────────────
 
+const MAX_BUFFER_CHARS = 30000; // under the 32767-character dynamic property limit, with room to spare
+
 function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
   function bufferProperty(index) {
     return `season:${name}_log_${index}`;
@@ -1022,18 +1025,22 @@ function createRotatingLog(name, bufferCount, maxEntriesPerBuffer) {
   function append(entry) {
     let active = getActiveIndex();
     let log = JSON.parse(world.getDynamicProperty(bufferProperty(active)) ?? "[]");
+    log.push(entry);
+    let text = JSON.stringify(log);
 
-    if (log.length >= maxEntriesPerBuffer) {
-      // This buffer's full — advance to the next one in the ring
-      // (overwriting whatever it held from bufferCount cycles ago) and
-      // start it fresh.
+    // Full by count, or by size: entries vary in length (a grief entry
+    // runs ~110 characters, so 300 of them overshoot the 32767 limit),
+    // so the character count is checked too. Either way, advance to the
+    // next buffer in the ring (overwriting whatever it held from
+    // bufferCount cycles ago) and start it fresh with this entry.
+    if (log.length > maxEntriesPerBuffer || text.length > MAX_BUFFER_CHARS) {
       active = (active + 1) % bufferCount;
       world.setDynamicProperty(activeProperty, active);
-      log = [];
+      log = [entry];
+      text = JSON.stringify(log);
     }
 
-    log.push(entry);
-    world.setDynamicProperty(bufferProperty(active), JSON.stringify(log));
+    world.setDynamicProperty(bufferProperty(active), text);
   }
 
   // Buffers fill in index order and wrap around, so the one right after

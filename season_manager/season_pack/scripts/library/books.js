@@ -7,7 +7,7 @@
 // Tokens to unlock each level (index 0 = Level I). Never more than 3.
 export const LEVEL_COSTS = [1, 2, 3, 3, 3];
 // Tokens for each discount step once a book is maxed.
-export const DISCOUNT_COSTS = [1, 2, 3];
+export const DISCOUNT_COSTS = [2, 2, 3];
 // Emerald price by discount step: none, 1, 2, 3.
 export const PRICES = [32, 16, 8, 1];
 // Levels a book starts with. Mending comes unlocked: Rescue the Librarian gave out the first one.

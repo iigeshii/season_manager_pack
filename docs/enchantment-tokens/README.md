@@ -62,7 +62,8 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
   - **Breaking blocks:** any block break inside the board's area is cancelled, in survival or creative.
   - **Explosions:** creepers, TNT, ghasts and withers still explode, but the board's blocks are taken off their list of blocks to destroy.
   - **Frames:** right-clicking is already taken over by token deposits, so books can't be rotated or pulled out that way. If a book is knocked out by hitting the frame, it's only a decoy (see below), and the rebuild puts it back.
-  - **Fire and pistons:** bookshelves can burn and be pushed. The 60-second self-repair rebuilds them.
+  - **Fire:** bookshelves burn, and burning can't be cancelled. A fire guard runs every second: it puts out any fire touching the stacks, and if a shelf has burned away it rebuilds it at once, with any frame or sign that fell off it.
+  - **Pistons:** bookshelves can be pushed. The 60-second self-repair rebuilds them.
   - **Self-repair:** every 60 seconds, the pack checks every board block and rebuilds anything missing or wrong, including framed books, and rewrites every sign (a sign can show blank to players after a cancelled break even though the server still has its text). Signs are also redrawn whenever the ledger changes.
   - **Display books are decoys:** the framed books are Curse of Vanishing books given the name of the book they stand for (for example "Sharpness"), with a "Display copy" lore line. They still have the enchanted glint, but a stolen one is worthless, so the board can't be farmed for free books.
 
@@ -93,8 +94,9 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 
 ### The shop
 - Right-clicking a librarian cancels the vanilla trade screen and opens a menu (`@minecraft/server-ui`).
-- The menu lists only that librarian's group. It's in two steps: pick a book, then pick a level. Locked levels show their progress, for example "Unbreaking III: 1/3 tokens".
-- On a purchase, the pack takes the emeralds from the player's inventory and hands over the enchanted book.
+- The menu lists only that librarian's group: its unlocked books with their price, and the still-locked books named underneath. Then pick a level (skipped for single-level books), then confirm, with the price and the emeralds you have shown.
+- On a purchase, the pack takes the emeralds from the player's inventory and hands over the enchanted book at that level. Every unlocked level of a book costs the same. Purchases are noted in the content log.
+- The librarians are checked every 5 seconds: one that has drifted is put back on its spot, duplicates are removed, and missing ones are summoned once their spot has been loaded for a moment.
 
 ### The in-game ledger is the master
 - The pack's own record of tokens is the only source of truth.
@@ -139,16 +141,16 @@ Once a book reaches its max level, more tokens lower its price. A discount cover
 
 | Step | Tokens | Price |
 |---|---|---|
-| Discount 1 | 1 | 32 → 16 |
+| Discount 1 | 2 | 32 → 16 |
 | Discount 2 | 2 | 16 → 8 |
 | Discount 3 | 3 | 8 → **1** |
 
-A full discount costs 6 tokens for any book.
+A full discount costs 7 tokens for any book. (It was 1, 2, 3 at first; the first step was raised to 2.)
 
 ### Mending
 - Mending starts unlocked. The rescue handed out the first book, so Level I costs no tokens.
 - It sells for 32 emeralds like every other book, replacing the current 20.
-- It discounts like any other book: 1, 2 and 3 tokens.
+- It discounts like any other book: 2, 2 and 3 tokens.
 
 ## Examples
 
@@ -161,18 +163,18 @@ A full discount costs 6 tokens for any book.
 | Level III | 3 | 6 | 32 |
 | Level IV | 3 | 9 | 32 |
 | Level V | 3 | 12 | 32 |
-| Discount 1 | 1 | 13 | 16 |
-| Discount 2 | 2 | 15 | 8 |
-| Discount 3 | 3 | **18** | **1** |
+| Discount 1 | 2 | 14 | 16 |
+| Discount 2 | 2 | 16 | 8 |
+| Discount 3 | 3 | **19** | **1** |
 
 **Mending (max I)**
 
 | Step | Tokens | Running total | Price |
 |---|---|---|---|
 | Level I | 0 (unlocked from the start) | 0 | 32 |
-| Discount 1 | 1 | 1 | 16 |
-| Discount 2 | 2 | 3 | 8 |
-| Discount 3 | 3 | **6** | **1** |
+| Discount 1 | 2 | 2 | 16 |
+| Discount 2 | 2 | 4 | 8 |
+| Discount 3 | 3 | **7** | **1** |
 
 ## Whole-library totals
 
@@ -189,13 +191,13 @@ The library has 32 books across the 8 groups, plus Mending.
 | | Tokens | 4-person events |
 |---|---|---|
 | Max every book | 207 | ~52 |
-| Discount every book to 1 emerald, including Mending (33 × 6) | 198 | ~50 |
-| **Total** | **405** | **~102** |
+| Discount every book to 1 emerald, including Mending (33 × 7) | 231 | ~58 |
+| **Total** | **438** | **~110** |
 
 ## Planner changes needed
 The planner (`season_planner/index.html`) is a static page and can't show live progress, so it stops tracking tokens once this goes live.
 - Remove the token ledger (`EVENTS`, `SPENDS` and the Token Ledger card), the per-book progress display, and the group opening flags and tier gate.
-- Replace them with a short note: the token system is now active in game, with the rules (level costs 1, 2, 3, 3, 3; every book 32 emeralds; discounts 1, 2, 3 tokens → 16, 8, 1) and where to find the board in the Mystic Library.
+- Replace them with a short note: the token system is now active in game, with the rules (level costs 1, 2, 3, 3, 3; every book 32 emeralds; discounts 2, 2, 3 tokens → 16, 8, 1) and where to find the board in the Mystic Library.
 
 ## Later
 - **Libraries in several towns.** For now there's one library and one board. If more towns get libraries, every board would share the same ledger: the board state becomes a list of named boards (`board add <town>`, `board remove [town]`, `board list`), all placed from the one captured copy. Each board's signs update when the ledger changes, or when its area loads, and each board gets its own lecterns and librarians.

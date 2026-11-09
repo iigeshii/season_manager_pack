@@ -1451,9 +1451,8 @@ offline.
 
 ### Mystic Library tokens
 
-**Work in progress.** So far this covers the token item, the ledger, the
-admin commands and the token board. The librarians' shops come next.
-The full design is in
+Covers the token item, the ledger, the admin commands, the library
+stacks (the token board) and the librarians' shops. The full design is in
 [`docs/enchantment-tokens/README.md`](docs/enchantment-tokens/README.md).
 Code in
 [`scripts/library/`](season_manager/season_pack/scripts/library/).
@@ -1470,7 +1469,7 @@ regular `/give`, for example `/give Fredo newhaven:wyatt_token 4`.
 - Every unlocked level sells for 32 emeralds.
 - Mending starts unlocked. Rescue the Librarian already gave out the
   first one.
-- Once a book is at its max level, more tokens lower its price: 1 token
+- Once a book is at its max level, more tokens lower its price: 2 tokens
   to 16 emeralds, 2 more to 8, and 3 more to 1.
 - A book never takes more tokens than it needs. A complete book takes
   none.
@@ -1528,7 +1527,9 @@ top. Dark oak log pillars cap the ends of every stack and divide Armor
 from Fire and General from Fishing on the middle stack. A status sign
 shows the book's level, its price, and the tokens toward its next step.
 Every sign is rewritten whenever the ledger changes, including after
-admin commands. (The librarians aren't built yet.)
+admin commands. Invisible light blocks above head height down each
+aisle and over the entrance keep the signs readable at night (sign text
+can't be made to glow by script).
 
 A player right-clicks a book's frame while holding a Wyatt Token to put
 one token toward that book, recorded in their name. The token is
@@ -1568,8 +1569,10 @@ their list of blocks to destroy. Punching a book out of its frame in
 survival can't be cancelled, so the pack removes the dropped decoy and
 reloads that frame from its saved copy a moment later. Every 60 seconds
 the pack also checks each board block, rebuilds anything missing, and
-rewrites every sign. That also covers bookshelves burned by fire or
-pushed by pistons.
+rewrites every sign, which also covers bookshelves pushed by pistons.
+Bookshelves burn, and burning can't be cancelled, so every second the
+pack puts out any fire touching the stacks and, if a shelf has burned
+away, rebuilds it at once along with any frame or sign that fell off it.
 
 **Board commands.**
 
@@ -1585,6 +1588,36 @@ pushed by pistons.
 - `board info`: where the board is and whether it's captured.
 - `board remove`: removes the board. The ledger and the captured copy
   are kept.
+
+**Librarians and their shops.** Each group has one librarian, named
+after it ("Ranged Librarian", "Melee Librarian" and so on), standing at
+the back of the aisle its books face (the `@` spots in the top view).
+The Mending Librarian stands at the entrance beside Mending's end cap. A
+librarian is there only while the library is open, the stacks are live,
+and the group has at least one unlocked book, so at first only the
+Mending Librarian appears and the others arrive as their group's first
+book unlocks. They follow the stacks when they move, and leave when the
+stacks are removed or the library is reset.
+
+Librarians never move (a villager variant with no movement that can't be
+pushed), can't be hurt, killed, zombified or struck into witches, and
+can't be renamed. Every 5 seconds the pack puts any librarian that has
+drifted back on its spot, removes duplicates, and summons any that are
+missing once their spot has been loaded for a moment. When the library
+is open and the stacks are live, it also removes the old librarians from
+the rescue event (tagged `season:rescue_empty_librarian` or
+`season:rescue_mending_librarian`): the board's Mending Librarian
+replaces them. Old ones in unloaded chunks are removed once they load.
+`summon_mending_librarian` (vanilla trades at 20 emeralds) is no longer
+needed once the stacks exist.
+
+Right-clicking a librarian opens a menu instead of the trade screen: the
+group's unlocked books with their price (still-locked books are listed
+underneath), then the level, then a confirmation showing the price and
+how many emeralds you have. Buying takes the emeralds from your
+inventory and gives the enchanted book at that level. Every unlocked
+level of a book costs the same: 32 emeralds, or less once the book has
+been discounted. Each purchase is noted in the content log.
 
 ### Pausing/resuming
 
