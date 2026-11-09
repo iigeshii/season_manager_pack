@@ -47,7 +47,6 @@ const bookStructure = (book) => `season:library_book_${book.id}`;
 const LAYOUT_VERSION = 4; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: final
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
-const LECTERN = "newhaven:library_lectern"; // only layout 3 used it; kept so its lecterns can be cleared
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
 const REPAIR_INTERVAL = 1200; // ticks: check and rebuild the board every 60 s
 
@@ -234,7 +233,6 @@ function oldStacksPositions(b) {
 const OLD_STACKS_BLOCKS = new Set([
   BOOKSHELF,
   LOG,
-  LECTERN,
   "minecraft:frame",
   ...SIGN_BLOCKS,
   "minecraft:light_block",
@@ -560,6 +558,29 @@ function decoyBook(book) {
 
 const isDecoy = (item) => item?.typeId === "minecraft:enchanted_book" && item.getLore().includes(DECOY_LORE);
 
+// The display books in walking order for filling the frames: Mending at
+// the entrance first, then up aisle A (the far left), down aisle B, up
+// aisle C and down aisle D. Within an aisle, books come in the order
+// they're passed, both sides together.
+const AISLES = [
+  [0, 2],
+  [4, 7],
+  [9, 12],
+  [14, 16],
+];
+const WALKING_ORDER = (() => {
+  const aisleOf = (col) => AISLES.findIndex(([from, to]) => col >= from && col <= to);
+  return [...FRAME_CELLS.values()]
+    .map((cell) => ({ cell, aisle: aisleOf(cell.col) })) // Mending (col 8) isn't in an aisle: -1, so first
+    .sort((a, b) => {
+      if (a.aisle !== b.aisle) return a.aisle - b.aisle;
+      const up = a.aisle % 2 === 0; // aisles A and C are walked front to back
+      if (a.cell.row !== b.cell.row) return up ? b.cell.row - a.cell.row : a.cell.row - b.cell.row;
+      return a.cell.col - b.cell.col;
+    })
+    .map(({ cell }) => cell.book);
+})();
+
 export function giveDecoys(player, reply) {
   const container = player.getComponent("minecraft:inventory").container;
   if (container.emptySlotsCount < BOOKS.length) {
@@ -568,8 +589,10 @@ export function giveDecoys(player, reply) {
         "Make room, then run §lboard books§r§c."
     );
   }
-  for (const book of BOOKS) container.addItem(decoyBook(book));
-  reply(`§aGave you all ${BOOKS.length} display books, grouped the same way as the stacks.`);
+  for (const book of WALKING_ORDER) container.addItem(decoyBook(book));
+  reply(
+    `§aGave you all ${BOOKS.length} display books in walking order: Mending first, then up the far-left aisle, down the next, and so on.`
+  );
 }
 
 // ── Commands (called from commands.js) ──────

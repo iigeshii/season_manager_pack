@@ -1461,6 +1461,36 @@ Players earn **Wyatt Tokens** (`newhaven:wyatt_token`) and put them on
 enchanted books to unlock them for everyone. Hand tokens out with the
 regular `/give`, for example `/give Fredo newhaven:wyatt_token 4`.
 
+**One-time setup.** Run these once, after Rescue the Librarian, when the
+library is ready to open:
+
+1. Pick the spot. The stacks need a clear, flat area 17 wide, 13 deep
+   and 4 high. Stand where the entrance should be, in the middle, facing
+   into where the library goes.
+2. Empty your inventory down to 3 items at most: the next step hands you
+   33 display books.
+3. `/scriptevent season:library board`: builds the stacks with empty
+   frames in front of you and gives you the 33 display books, in walking
+   order: Mending (right in front of you) first, then up the far-left
+   aisle, down the next, up the next and down the last, in the order you
+   pass the books on both sides. If blocks are in the way, clear them or
+   use `board force` to replace them.
+4. Right-click each display book into the frame above the sign that
+   names it. A wrong book is refused with the name of the right one, and
+   chat counts progress until "All 33 are in".
+5. `/scriptevent season:library board capture`: saves the filled frames.
+   From now on `board` places the stacks with their books already in.
+6. `/scriptevent season:library open`: opens the library and tells the
+   server. The Mending Librarian appears at the entrance within a few
+   seconds, and the old librarians from the rescue event are removed.
+7. `/scriptevent season:library status`: check that everything starts
+   at 0 except Mending (Level I, 32 emeralds).
+
+After that, hand out tokens with `/give <player> newhaven:wyatt_token <n>`.
+The other librarians appear on their own as their group's first book
+unlocks. To move the library later, stand at the new entrance spot and
+run `board` again.
+
 **The rules.**
 
 - Every book is open once the library is opened. There's no tier gate,
