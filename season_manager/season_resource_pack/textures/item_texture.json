@@ -188,6 +188,9 @@
     },
     "newhaven:rose_gold_boots_brown": {
       "textures": "textures/items/rose_gold_boots_brown"
+    },
+    "newhaven:wyatt_token": {
+      "textures": "textures/items/wyatt_token"
     }
   }
 }
