@@ -50,8 +50,23 @@ function loadAll() {
   history = readChunked(HISTORY_KEY, []);
 }
 
+const listeners = [];
+
+// Called after every change to the ledger (tokens, open/closed, reset),
+// so the board can redraw its signs.
+export function onLedgerChange(listener) {
+  listeners.push(listener);
+}
+
 function saveState() {
   writeChunked(STATE_KEY, state);
+  for (const listener of listeners) {
+    try {
+      listener();
+    } catch (error) {
+      console.warn(`[Library] Change listener failed: ${error}`);
+    }
+  }
 }
 
 function record(player, book, change, kind) {

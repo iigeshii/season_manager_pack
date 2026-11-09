@@ -1451,8 +1451,8 @@ offline.
 
 ### Mystic Library tokens
 
-**Work in progress.** So far this covers the token item, the ledger and
-the admin commands. The token board and the librarians' shops come next.
+**Work in progress.** So far this covers the token item, the ledger, the
+admin commands and the token board. The librarians' shops come next.
 The full design is in
 [`docs/enchantment-tokens/README.md`](docs/enchantment-tokens/README.md).
 Code in
@@ -1501,9 +1501,67 @@ start of the name: `Bane of Arthropods`, `bane_of_arthropods` and
 `bane` all work. If the start matches more than one book, the command
 lists them.
 
-**Frame test (temporary).** `scriptevent season:library_test
-<place|decoy|save|load|clear>` builds a test frame for checking how
-frames behave. It goes away once the real board exists.
+**The token board.** One 17 × 6 obsidian wall holds every book, in
+two bands:
+
+```
+Top band:    Mending | General | Fishing | Armor | Melee | Tools   (17 wide)
+Bottom band: Ranged | Fire | Water                                (16 wide)
+```
+
+In each band, group name signs sit on top, item frames with the books in
+the middle, and a status sign under each frame. The status sign shows
+the book's level, its price, and the tokens toward its next step. Every
+sign is rewritten whenever the ledger changes, including after admin
+commands.
+
+A player right-clicks a book's frame while holding a Wyatt Token to put
+one token toward that book, recorded in their name. The token is
+refused, and the player keeps it, while the library isn't open or once
+the book is complete. Any other click on a frame is cancelled, so books
+can't be turned or taken out that way.
+
+The framed books are decoys: Curse of Vanishing books given the real
+book's name and a "Display copy" lore line, so a stolen one is
+worthless. Scripts can't put items into frames, so the first board is
+filled by hand once and then saved as a structure:
+
+1. Stand where the board should go, facing the way it should face, and
+   run `board`. The wall goes up 3 blocks ahead of you, centred on you,
+   with its bottom row at your feet. It also gives you the 33 display
+   books (32 enchantments plus Mending) in board order, which needs 33
+   free inventory slots.
+2. Right-click each display book into the frame above the sign that
+   names it. A book put into the wrong frame is refused, with a message
+   naming the right one. Chat counts progress.
+3. Run `board capture` once all 33 are in. It saves the whole board,
+   plus each frame on its own.
+
+After that, `board` places the saved board, turned to face the way you
+are, and moves it if it's already somewhere else.
+
+**Protection.** Board blocks can't be broken, in survival or creative.
+A cancelled break wipes a sign's text, so the sign is rewritten straight
+away. Explosions still go off, but the board's blocks are taken off
+their list of blocks to destroy. Punching a book out of its frame in
+survival can't be cancelled, so the pack removes the dropped decoy and
+reloads that frame from its saved copy a moment later. Every 60 seconds
+the pack also checks each board block and rebuilds anything missing.
+
+**Board commands.**
+
+- `board`: places the board where you stand, or moves it there. Before
+  the first capture, this builds an empty board and gives you the
+  display books. It refuses if blocks are in the way.
+- `board force`: the same, replacing whatever is in the way.
+- `board books`: gives you the 33 display books again.
+- `board capture`: saves the filled board. It only runs once all 33
+  books are in.
+- `board fresh`: builds a new empty board to fill and capture again,
+  even when a captured board is saved.
+- `board info`: where the board is and whether it's captured.
+- `board remove`: removes the board. The ledger and the captured copy
+  are kept.
 
 ### Pausing/resuming
 

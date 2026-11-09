@@ -15,6 +15,16 @@ const FREE_LEVELS = { mending: 1 };
 
 export const ROMAN = ["0", "I", "II", "III", "IV", "V"];
 
+// Shorter names for board signs, where long names would wrap.
+const SIGN_NAMES = {
+  feather_falling: "Feather Fall",
+  luck_of_the_sea: "Luck of Sea",
+  blast_protection: "Blast Prot",
+  projectile_protection: "Projectile Prot",
+  bane_of_arthropods: "Bane of Arth.",
+  fire_protection: "Fire Prot",
+};
+
 // [group id, group name, [[enchantment id, book name, max level], ...]]
 const CATALOG = [
   ["mending", "Mending", [["mending", "Mending", 1]]],
@@ -122,6 +132,7 @@ export const GROUPS = CATALOG.map(([id, name, books]) => ({
       max,
       group: id,
       groupName: name,
+      signName: SIGN_NAMES[bookId] ?? bookName,
       freeLevels,
       steps,
       maxTokens: steps.reduce((sum, step) => sum + step.cost, 0),

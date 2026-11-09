@@ -104,7 +104,7 @@ While a run is on, a party member who leaves the current room (and the airlocks 
 
 ## Mystic Library tokens
 
-Work in progress: the token board and the librarians' shops aren't built yet. Book names can be typed in any case, with or without spaces, or as the start of the name (`bane`).
+Work in progress: the librarians' shops aren't built yet. Book names can be typed in any case, with or without spaces, or as the start of the name (`bane`). Players put tokens on a book by right-clicking its frame on the board with a Wyatt Token.
 
 | Command | What it does |
 |---|---|
@@ -117,7 +117,13 @@ Work in progress: the token board and the librarians' shops aren't built yet. Bo
 | `/scriptevent season:library set <book> <level> [discount]` | Puts a book at an exact state, for example `set sharpness 5 1` for Level V at 16 emeralds. |
 | `/scriptevent season:library history [player]` | The last 10 entries, or one player's entries and totals. |
 | `/scriptevent season:library reset` | Asks for confirmation. Then `reset confirm` within 30 seconds wipes every token and all history, and closes the library. |
-| `/scriptevent season:library_test <place\|decoy\|save\|load\|clear>` | Temporary frame test rig. |
+| `/scriptevent season:library board` | Places the board 3 blocks ahead of you, facing you, or moves it there. Before the first capture it builds an empty board and gives you the 33 display books. Refuses if blocks are in the way. |
+| `/scriptevent season:library board force` | The same, replacing whatever is in the way. |
+| `/scriptevent season:library board books` | Gives you the 33 display books again (needs 33 free slots). |
+| `/scriptevent season:library board capture` | Saves the filled board. Only runs once all 33 books are in their frames. |
+| `/scriptevent season:library board fresh` | Builds a new empty board to fill and capture again. |
+| `/scriptevent season:library board info` | Where the board is, and whether it's captured or still being filled. |
+| `/scriptevent season:library board remove` | Removes the board. The ledger and the captured copy are kept. |
 
 ## Always on (no command)
 

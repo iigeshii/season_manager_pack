@@ -14,6 +14,7 @@ import {
   giversOf,
   booksOf,
 } from "./ledger.js";
+import { placeBoard, removeBoard, captureBoard, giveDecoys, boardInfo } from "./board.js";
 
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: ADMIN COMMANDS
@@ -24,6 +25,7 @@ import {
 //    /scriptevent season:library set <book> <level> [discount]
 //    /scriptevent season:library history [player]
 //    /scriptevent season:library reset            (then: reset confirm)
+//    /scriptevent season:library board [force|fresh|books|capture|remove|info]
 //  Tokens themselves are handed out with /give @p newhaven:wyatt_token <n>.
 // ─────────────────────────────────────────────
 
@@ -68,7 +70,7 @@ function splitNumbers(words, max) {
   return { text: words.join(" "), numbers };
 }
 
-function handle(word, args, who, reply) {
+function handle(word, args, who, reply, player) {
   switch (word) {
     case "open": {
       if (!openLibrary()) return reply("§7The library is already open.");
@@ -138,9 +140,22 @@ function handle(word, args, who, reply) {
       return reply("§aLibrary reset: no tokens, no history, Mending only, and closed. Run §lopen§r§a to open it again.");
     }
 
+    case "board": {
+      const option = args[0]?.toLowerCase() ?? "";
+      if (option === "info") return reply(boardInfo());
+      if (option === "capture") return captureBoard(reply);
+      if (option === "remove") return removeBoard(reply);
+      if (!player) return reply("§cRun this as a player: the board is built where you stand.");
+      if (option === "books") return giveDecoys(player, reply);
+      if (option === "" || option === "force" || option === "fresh") {
+        return placeBoard(player, { force: option === "force", fresh: option === "fresh" }, reply);
+      }
+      return reply("§7Use: board [force | fresh | books | capture | remove | info]");
+    }
+
     default:
       return reply(
-        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset>"
+        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset | board ...>"
       );
   }
 }
@@ -151,7 +166,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
   const reply = (text) => (player ? player.sendMessage(text) : console.warn(text));
   const [word = "", ...args] = event.message.trim().split(/\s+/).filter(Boolean);
   try {
-    handle(word.toLowerCase(), args, player?.name ?? "console", reply);
+    handle(word.toLowerCase(), args, player?.name ?? "console", reply, player);
   } catch (error) {
     reply(`§cLibrary command failed: ${error}`);
     console.warn(`[Library] ${error}\n${error?.stack ?? ""}`);

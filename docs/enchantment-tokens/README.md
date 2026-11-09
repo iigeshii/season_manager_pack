@@ -40,9 +40,9 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 
   ```
   Sharpness
-  Unlocked: III
-  IV: 1/3 tokens
+  Level III of V
   32 emeralds
+  IV: 1/3 tokens
   ```
 
   Once a book is maxed, its sign shows discount progress. At 1 emerald it shows that it's fully discounted.

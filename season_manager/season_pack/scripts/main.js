@@ -10,7 +10,6 @@ import "./dungeon/room5.js";
 import "./dungeon/room6.js";
 import "./dungeon/room7.js";
 import "./dungeon/room8.js";
-import "./library/frame_test.js";
 import "./library/commands.js";
 
 // ─────────────────────────────────────────────
