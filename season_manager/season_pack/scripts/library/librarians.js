@@ -1,7 +1,7 @@
 import { world, system, ItemStack, EnchantmentTypes } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
-import { GROUPS, ROMAN } from "./books.js";
-import { isOpen, bookStatus, emeralds, onLedgerChange } from "./ledger.js";
+import { GROUPS, ROMAN, LEVEL_COSTS, DISCOUNT_COSTS, PRICES } from "./books.js";
+import { isOpen, bookStatus, emeralds, onLedgerChange, giversOf } from "./ledger.js";
 import { librarianSpots, onBoardChange } from "./board.js";
 
 // ─────────────────────────────────────────────
@@ -179,10 +179,54 @@ async function chooseBook(player, group) {
     const s = bookStatus(book);
     form.button(`${book.name}\n§8${levelRange(s.level)} · ${emeralds(s.price)}`, "textures/items/book_enchanted");
   }
+  form.button("Who helped", "textures/items/book_writable");
+  form.button("How it works", "textures/items/book_normal");
   form.button("Close");
   const response = await show(player, form);
-  if (response.canceled || response.selection >= books.length) return undefined;
+  if (response.canceled) return undefined;
+  if (response.selection === books.length) return HELPERS;
+  if (response.selection === books.length + 1) return HOW_IT_WORKS;
+  if (response.selection > books.length + 1) return undefined;
   return books[response.selection];
+}
+
+const HELPERS = Symbol("helpers");
+const HOW_IT_WORKS = Symbol("how it works");
+
+// Who put Favors on each of this group's books (players' own Favors only).
+// A book unlocked without any player's Favors was a gift from the Overseer.
+async function showHelpers(player, group) {
+  const lines = group.books.map((book) => {
+    const givers = giversOf(book);
+    let names;
+    if (givers.length) names = givers.map(([who, count]) => `${who} (${count})`).join(", ");
+    else if (bookStatus(book).total > 0) names = "§7a gift from the Overseer";
+    else names = "§7no Favors yet";
+    return `§l${book.name}§r\n${names}`;
+  });
+  const form = new ActionFormData()
+    .title(`Who helped: ${group.name}`)
+    .body(`The Overseer's Favors given to each book, and by whom.\n\n${lines.join("\n\n")}`)
+    .button("« Back");
+  const response = await show(player, form);
+  return !response.canceled;
+}
+
+// The rules, read from the pack's own costs so this page never goes stale.
+async function showHowItWorks(player) {
+  const levelCosts = LEVEL_COSTS.map((cost, i) => `${ROMAN[i + 1]}: ${cost}`).join(", ");
+  const discounts = DISCOUNT_COSTS.map((cost, i) => `${i === 0 ? "" : "then "}${cost} more → ${emeralds(PRICES[i + 1])}`).join(", ");
+  const body = [
+    "§lEarning Favors§r\nThe Overseer still watches. Prove your resilience (show up for events, play exceptionally, bring good ideas) and you may be given an Overseer's Favor.",
+    "§lSpending a Favor§r\nEvery book hangs in a frame on the stacks, with a sign under it. Hold a Favor and right-click a book's frame to put it toward that book. Favors from everyone add up on the same book, and every unlock is shared by everyone. A book never takes a Favor it doesn't need.",
+    `§lUnlocking levels§r\nFavors per level: ${levelCosts}.`,
+    `§lBuying§r\nPick a book here, then a level, then confirm. Every unlocked level costs ${emeralds(PRICES[0])}, or less once the book has been made cheaper. The emeralds come from your inventory.`,
+    `§lCheaper books§r\nOnce a book is at its top level, more Favors lower its price for everyone: ${discounts}.`,
+    "§lKeeping track§r\nThe sign under each book shows its level, price and progress. Who helped lists everyone who put Favors on this librarian's books.",
+  ].join("\n\n");
+  const form = new ActionFormData().title("How it works").body(body).button("« Back");
+  const response = await show(player, form);
+  return !response.canceled;
 }
 
 async function chooseLevel(player, book) {
@@ -233,6 +277,11 @@ async function runShop(player, group) {
     for (;;) {
       const book = await chooseBook(player, group);
       if (!book || !player.isValid()) return;
+      if (book === HELPERS || book === HOW_IT_WORKS) {
+        const shownOk = book === HELPERS ? await showHelpers(player, group) : await showHowItWorks(player);
+        if (!shownOk || !player.isValid()) return;
+        continue; // back to the book list
+      }
       const level = await chooseLevel(player, book);
       if (level === undefined || !player.isValid()) return;
       if (level === 0) continue; // back to the book list

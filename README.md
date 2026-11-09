@@ -1653,7 +1653,12 @@ Right-clicking a librarian opens a menu instead of the trade screen: the
 group's unlocked books with their price (still-locked books are listed
 underneath), then the level, then a confirmation showing the price and
 how many emeralds you have. Buying takes the emeralds from your
-inventory and gives the enchanted book at that level. Every unlocked
+inventory and gives the enchanted book at that level. The menu also has
+**Who helped**, listing every book in the group with the players who
+put Favors on it and how many (a book unlocked only by admin commands
+shows as "a gift from the Overseer"), and **How it works**, a short
+explanation of the rules whose numbers come straight from the pack's
+costs. Every unlocked
 level of a book costs the same: 32 emeralds, or less once the book has
 been discounted. Each purchase is noted in the content log.
 

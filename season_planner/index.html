@@ -141,50 +141,18 @@
   .unplanned li:last-child { margin-bottom: 0; }
   .unplanned li strong { color: var(--ink); font-weight: 600; }
 
-  /* Mystic Library: one ladder per enchant group, Tier I at the bottom, each higher row gated by the one below. */
+  /* Mystic Library: how the Overseer's Favor works. Live progress is tracked in game, not here. */
   .mystic { display: grid; gap: 1.4rem; margin-top: 2.6rem; }
   .mystic .masthead { margin-bottom: 0; }
   .ml-dek { font-size: .92rem; line-height: 1.65; color: var(--ink-soft); margin: 0; max-width: 68ch; }
-  .ml-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; }
-  .ml-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .75rem .9rem; display: grid; gap: .1rem; min-width: 0; }
-  .ml-stat .k { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
-  .ml-stat .v { font-weight: 600; font-size: 1rem; font-variant-numeric: tabular-nums; }
-  .ml-stat .v.done { color: var(--emerald-ink); }
-  .ml-stat .v.wait { color: var(--ink-soft); }
-  .ml-costs { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
-  .ml-cost { font-family: var(--font-mono); font-size: .75rem; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; padding: .2rem .6rem; font-variant-numeric: tabular-nums; }
-  .ml-cost b { color: var(--emerald-ink); }
-  .ml-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.1rem; font-size: .8rem; color: var(--ink-soft); align-items: center; margin-top: .9rem; }
-  .ml-legend .ml-chip { font-size: .74rem; padding: .1rem .5rem; }
-  .ml-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 1rem; }
-  .ml-group { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem; display: grid; gap: .8rem; align-content: start; min-width: 0; }
-  .ml-ghead { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .7rem; }
-  .ml-ghead h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 0; }
-  .ml-tag { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .07em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 999px; border: 1px solid var(--ink-faint); color: var(--ink-faint); }
-  .ml-tag.on { border-color: var(--emerald); color: var(--emerald-ink); }
-  .ml-ladder { display: flex; flex-direction: column-reverse; }
-  .ml-tier { display: grid; gap: .5rem; padding-block: .75rem; border-top: 1px dashed var(--border); }
-  .ml-tier:last-child { border-top: 0; padding-top: 0; }
-  .ml-tier:first-child { padding-bottom: 0; }
-  .ml-thead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem .8rem; align-items: baseline; }
-  .ml-tname { font-family: var(--font-mono); font-weight: 500; font-size: .74rem; letter-spacing: .06em; }
-  .ml-tier.sealed .ml-tname { color: var(--ink-faint); }
-  .ml-tmeta { font-size: .78rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-  .ml-tmeta.open { color: var(--emerald-ink); }
-  .ml-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
-  .ml-chip { font-size: .8rem; font-weight: 600; border-radius: 4px; padding: .2rem .6rem; border: 1.5px solid var(--border); }
-  .ml-chip.got { background: var(--emerald); border-color: var(--emerald); color: var(--surface); }
-  .ml-chip.open { border-color: var(--emerald); background: var(--emerald-bg); color: var(--emerald-ink); }
-  .ml-chip.sealed { border-style: dashed; color: var(--ink-faint); }
+  .mystic .season-plan { margin-top: 0; }
   .ml-footnote { font-size: .8rem; color: var(--ink-faint); margin: 0; }
-  .mystic a:not(.ml-chip) { color: var(--emerald-ink); text-decoration-color: var(--border); text-underline-offset: 2px; }
+  .mystic a { color: var(--emerald-ink); text-decoration-color: var(--border); text-underline-offset: 2px; }
   .mystic a:hover { text-decoration-color: currentColor; }
-  .ml-chip small { font-family: var(--font-mono); font-size: .7rem; font-weight: 500; margin-left: .2rem; }
   .ml-ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 1rem; }
   .ml-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem; min-width: 0; }
-  .ml-card-wide { grid-column: 1 / -1; }
   .ml-card h3 { font-family: var(--font-mono); font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-ink); margin: 0 0 .7rem; }
-  .ml-table-wrap { overflow-x: auto; }
+  .ml-card p { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; margin: .7rem 0 0; }
   .ml-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
   .ml-table th { font-family: var(--font-mono); font-size: .64rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 0 .6rem .45rem 0; border-bottom: 1px solid var(--border); }
   .ml-table td { padding: .45rem .6rem .45rem 0; border-bottom: 1px dashed var(--border); color: var(--ink-soft); vertical-align: top; }
@@ -192,7 +160,6 @@
   .ml-table td:first-child { color: var(--ink); font-weight: 600; }
   .ml-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ml-table td b { color: var(--emerald-ink); }
-  .ml-empty { font-size: .85rem; color: var(--ink-faint); margin: 0; }
 </style>
 
 <nav class="site-nav" aria-label="Page sections">
@@ -1021,56 +988,47 @@ graph TD
     <div class="masthead">
       <h2>The Mystic Library</h2>
     </div>
-    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides with tokens which books they learn next. The library itself can't be started until <a href="#node-mending">the Mending Librarian</a> is rescued.</p>
-
-    <div class="ml-status" id="ml-status" aria-label="Mystic Library progress"></div>
+    <p class="ml-dek">There are no enchanting tables in New Haven. Enchanted books come from the librarians of the Mystic Library, and the community decides which books they learn next, with the Overseer's Favor. The library opens once <a href="#node-mending">the Mending Librarian</a> is rescued. It all runs in game now: the library's shelves show what's unlocked and what it costs, and every librarian can show who helped and explain how it all works.</p>
 
     <div class="season-plan">
-      <h2>How the Tree Climbs</h2>
+      <h2>The Overseer's Favor</h2>
       <ul>
-        <li><strong>Building the library is its own reward.</strong> Finishing <a href="#node-mystic">The Mystic Library</a> storyline, which follows <a href="#node-mending">Rescue the Librarian</a>, puts every Tier I book in General and Fishing on sale at once, free of tokens, as thanks for helping the librarians build a place of knowledge. <strong>Mending is sold only by the Mending Librarian, the library's head.</strong></li>
-        <li><strong>The other groups open as the season moves forward.</strong> Once the library is complete, Tools opens at 2 villages in the <a href="#village-milestones">Village Milestones</a> (alongside the Butcher, Farmer and Fisherman), and Armor and Melee open at 4 villages (alongside the Armorer, Toolsmith and Weaponsmith). Ranged opens with <a href="#node-archery">The Archery Contest</a>, Fire with the Nether, and Water with the Ocean Monument. Each one opens that group's Tier I books for tokens.</li>
-        <li><strong>Everyone who takes part earns a token.</strong> Each participant in an event or questline earns 1 token and picks which open book it goes toward. Whatever gets unlocked is unlocked for everyone.</li>
-        <li><strong>Each group climbs on its own.</strong> A tier opens once enough books in the tier below it are unlocked, so one book can't race to the top alone.</li>
-        <li><strong>Every book after that costs tokens.</strong> Outside General and Fishing, a Tier I book costs 1 token, Tier II costs 2, Tier III costs 3, and so on.</li>
-      </ul>
-      <div class="ml-costs" id="ml-costs"></div>
-      <div class="ml-legend">
-        <span class="ml-chip got">Unlocked</span> on sale now
-        <span class="ml-chip open">Open</span> can be bought with tokens
-        <span class="ml-chip sealed">Sealed</span> tier not open yet
-      </div>
-    </div>
-
-    <div class="ml-groups" id="ml-groups" aria-label="Enchant groups"></div>
-    <p class="ml-footnote">Hover over a book to see who paid for it. A number like 1/3 means the book is partly paid for.</p>
-
-    <div class="unplanned" id="ml-warnings" style="margin-top:0" hidden></div>
-
-    <div class="ml-ledger" id="token-ledger">
-      <div class="ml-card">
-        <h3>Token Ledger</h3>
-        <div id="ml-players"></div>
-      </div>
-      <div class="ml-card">
-        <h3>Books Being Paid For</h3>
-        <div id="ml-funding"></div>
-      </div>
-      <div class="ml-card ml-card-wide">
-        <h3>Events</h3>
-        <div id="ml-events"></div>
-      </div>
-    </div>
-
-    <div class="unplanned" style="margin-top:0">
-      <h2>Still Being Decided</h2>
-      <ul>
-        <li>Token payouts for bigger questlines, and whether the group starts with a token bank.</li>
-        <li>Whether the gate should be three quarters of the tier below, or a fixed count per group.</li>
+        <li><strong>Earning one.</strong> The Overseer still watches. Prove your resilience, by showing up for events, playing exceptionally or bringing good ideas, and you may be rewarded with an Overseer's Favor.</li>
+        <li><strong>Spending one.</strong> Every enchanted book in the library hangs in a frame on the stacks, with a sign underneath. Hold a Favor and right-click a book's frame to put it toward that book. It's recorded in your name, and every unlock is shared by everyone.</li>
+        <li><strong>Pooling.</strong> Favors from different players add up on the same book. Put yours wherever you like: spread them around, or pour everything into one book.</li>
+        <li><strong>Buying books.</strong> Each group of books has its own librarian standing beside its section. Right-click them to buy any unlocked level for emeralds. Mending is unlocked from the start, and its librarian waits at the entrance.</li>
+        <li><strong>Keeping track.</strong> Each book's sign shows its level, its price and how close it is to the next step. When something unlocks or gets cheaper, the whole server hears about it. A book never takes a Favor it doesn't need, so none are wasted. Ask any librarian for <strong>Who helped</strong> to see everyone who put Favors on their books, or <strong>How it works</strong> for these rules.</li>
       </ul>
     </div>
 
-    <p class="ml-footnote" id="ml-updated"></p>
+    <div class="ml-ledger">
+      <div class="ml-card">
+        <h3>Unlocking levels</h3>
+        <table class="ml-table">
+          <thead><tr><th>Level</th><th class="num">Favors</th></tr></thead>
+          <tbody>
+            <tr><td>I</td><td class="num">1</td></tr>
+            <tr><td>II</td><td class="num">2</td></tr>
+            <tr><td>III</td><td class="num">3</td></tr>
+            <tr><td>IV</td><td class="num">3</td></tr>
+            <tr><td>V</td><td class="num">3</td></tr>
+          </tbody>
+        </table>
+        <p>Every unlocked level sells for <b>32 emeralds</b>.</p>
+      </div>
+      <div class="ml-card">
+        <h3>Making books cheaper</h3>
+        <table class="ml-table">
+          <thead><tr><th>Once a book is at its top level</th><th class="num">Favors</th><th class="num">Price</th></tr></thead>
+          <tbody>
+            <tr><td>First discount</td><td class="num">2</td><td class="num">16 emeralds</td></tr>
+            <tr><td>Second discount</td><td class="num">2</td><td class="num">8 emeralds</td></tr>
+            <tr><td>Last discount</td><td class="num">3</td><td class="num"><b>1 emerald</b></td></tr>
+          </tbody>
+        </table>
+        <p>A discount lowers the price of every level of that book, for everyone.</p>
+      </div>
+    </div>
   </section>
 
   <div class="unplanned" id="unplanned">
@@ -1130,185 +1088,3 @@ graph TD
   })();
 </script>
 
-<script>
-/* ===== MYSTIC LIBRARY PROGRESS: edit this block to post updates ===== */
-// Each flag opens its groups. General and Fishing Tier I books come free when the library is complete; every other book costs tokens.
-const PROGRESS = {
-  updated: "October 3, 2026",
-  mysticLibrary: "locked",  // "locked" until Rescue the Librarian is done, then "underway", then "complete" (opens General, Fishing)
-  villages: 0,            // villages done in the Village Milestones: Tools opens at 2, Armor and Melee at 4 (library must be complete)
-  rangedQuest: false,     // Ranged (The Archery Contest)
-  nether: false,          // Fire
-  oceanMonument: false    // Water
-};
-
-// One entry per event or questline, oldest first. Everyone listed earns 1 token.
-// Add `tokens: 2` to an entry for a bonus payout.
-//   { date: "Oct 12, 2026", name: "Breaking Bread road build", players: ["Gesh", "Fredo", "Kai"] },
-const EVENTS = [
-];
-
-// One entry per token spent, oldest first. Tokens can only go toward a book in an open tier.
-// A book level unlocks once its tokens reach the tier cost, so players can pool toward one book.
-// Add `tokens: 2` to spend more than one token in a single entry.
-//   { player: "Fredo", book: "Lure", level: 1 },
-//   { player: "Gesh",  book: "Unbreaking", level: 2 },
-const SPENDS = [
-];
-
-const TIER_COST = {1:1, 2:2, 3:3, 4:4, 5:5};   // tokens per book at each tier (General and Fishing Tier I are free)
-const GATE_SHARE = 0.75;                        // share of the tier below needed to open a tier
-/* ==================================================================== */
-
-(function () {
-  const LIBRARY = {gate:"mysticLibrary", gateLabel:"Opens with the Mystic Library"};
-  const GROUPS = [
-    {name:"General", ...LIBRARY, freeTier1:true, items:[["Unbreaking",3],["Feather Falling",4],["Thorns",3]]},
-    {name:"Fishing", ...LIBRARY, freeTier1:true, items:[["Luck of the Sea",3],["Lure",3]]},
-    {name:"Armor",   villages:4,           gateLabel:"Opens at 4 villages",
-     items:[["Protection",4],["Blast Protection",4],["Projectile Protection",4]]},
-    {name:"Melee",   villages:4,           gateLabel:"Opens at 4 villages",
-     items:[["Sharpness",5],["Smite",5],["Bane of Arthropods",5],["Knockback",2],["Looting",3]]},
-    {name:"Tools",   villages:2,           gateLabel:"Opens at 2 villages",
-     items:[["Efficiency",5],["Fortune",3],["Silk Touch",1]]},
-    {name:"Ranged",  gate:"rangedQuest",   gateLabel:"Opens with The Archery Contest",
-     items:[["Power",5],["Punch",2],["Infinity",1],["Piercing",4],["Quick Charge",3],["Multishot",1],["Flame",1]]},
-    {name:"Fire",    gate:"nether",        gateLabel:"Opens with the Nether",
-     items:[["Fire Aspect",2],["Fire Protection",4]]},
-    {name:"Water",   gate:"oceanMonument", gateLabel:"Opens with the Ocean Monument",
-     items:[["Respiration",3],["Aqua Affinity",1],["Depth Strider",3],["Impaling",5],["Loyalty",3],["Riptide",3],["Channeling",1]]}
-  ];
-  const ROMAN = ["","I","II","III","IV","V"];
-  // Village-gated groups need the library complete and enough villages; the rest follow their flag.
-  const isOpen = g => g.villages
-    ? PROGRESS.mysticLibrary === "complete" && PROGRESS.villages >= g.villages
-    : PROGRESS[g.gate] === true || PROGRESS[g.gate] === "complete";
-  const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
-  const warnings = [];
-
-  // ----- Tally the ledger -----
-  const maxLevel = {};
-  GROUPS.forEach(g => g.items.forEach(([n, m]) => { maxLevel[n] = m; }));
-
-  const players = {};
-  const player = n => players[n] || (players[n] = {earned:0, spent:0, events:0, books:[]});
-  EVENTS.forEach(e => (e.players || []).forEach(p => { player(p).earned += e.tokens || 1; player(p).events++; }));
-
-  const pool = {};   // "Book|level" -> {tokens, by: {player: tokens}}
-  SPENDS.forEach(s => {
-    if (!(s.book in maxLevel)) { warnings.push('Unknown book "' + s.book + '" in a spend by ' + s.player + '.'); return; }
-    if (!(s.level >= 1 && s.level <= maxLevel[s.book])) { warnings.push(s.book + " has no level " + s.level + " (spend by " + s.player + ")."); return; }
-    const n = s.tokens || 1, k = s.book + "|" + s.level;
-    const p = pool[k] || (pool[k] = {tokens:0, by:{}});
-    p.tokens += n; p.by[s.player] = (p.by[s.player] || 0) + n;
-    const pl = player(s.player); pl.spent += n;
-    const label = s.book + " " + ROMAN[s.level];
-    if (!pl.books.includes(label)) pl.books.push(label);
-  });
-  const paidBy = p => Object.entries(p.by).map(([n, t]) => n + (t > 1 ? " (" + t + ")" : "")).join(", ");
-
-  // ----- Draw the tree -----
-  let spent = 0, gotCount = 0, totalCount = 0;
-  const funding = [];
-  const groupsEl = document.getElementById("ml-groups");
-
-  GROUPS.forEach(g => {
-    const branchOpen = isOpen(g);
-    const reached = {};
-    g.items.forEach(([n]) => { reached[n] = 0; });
-    const maxTier = Math.max(...g.items.map(i => i[1]));
-    const sec = document.createElement("article"); sec.className = "ml-group";
-    const tag = '<span class="ml-tag' + (branchOpen ? ' on' : '') + '">' + (branchOpen ? "Open" : g.gateLabel) + '</span>';
-    sec.innerHTML = '<div class="ml-ghead"><h3>' + g.name + '</h3>' + tag + '</div>';
-    const ladder = document.createElement("div"); ladder.className = "ml-ladder";
-    let prevOpen = true, prevGot = 0, prevSize = 0;
-    for (let t = 1; t <= maxTier; t++) {
-      const books = g.items.filter(([, m]) => m >= t).map(([n]) => n);
-      const cost = TIER_COST[t] || 0;
-      let open, meta;
-      if (t === 1) {
-        open = branchOpen;
-        meta = g.freeTier1 ? (branchOpen ? "free · on sale" : "free when the branch opens") : cost + " token each · " + (branchOpen ? "open" : "when the branch opens");
-      } else {
-        const need = Math.ceil(prevSize * GATE_SHARE);
-        open = prevOpen && prevGot >= need;
-        meta = cost + " tokens each · " + (open ? "open" : "needs " + need + " of " + prevSize + " Tier " + ROMAN[t-1] + " (" + Math.min(prevGot, need) + "/" + need + ")");
-      }
-      const chips = books.map(n => {
-        const p = pool[n + "|" + t];
-        const free = t === 1 && g.freeTier1 && branchOpen;
-        const label = n + " " + ROMAN[t];
-        if (p && !open) warnings.push(label + " has tokens on it, but its tier isn't open yet.");
-        else if (p && reached[n] < t - 1) warnings.push(label + " has tokens on it, but " + n + " " + ROMAN[t-1] + " isn't unlocked yet.");
-        if (p && p.tokens > cost) warnings.push(label + " has " + p.tokens + " tokens on it but only costs " + cost + ".");
-        if (open && reached[n] === t - 1 && (free || (p && p.tokens >= cost))) reached[n] = t;
-        if (reached[n] >= t) {
-          const title = free ? "Free with the Mystic Library" : "Paid by " + paidBy(p);
-          return '<span class="ml-chip got" title="' + esc(title) + '">' + label + '</span>';
-        }
-        if (p) {
-          funding.push({label, have:p.tokens, cost, by:paidBy(p)});
-          return '<span class="ml-chip ' + (open ? "open" : "sealed") + '" title="' + esc("Paid so far by " + paidBy(p)) + '">' + label + ' <small>' + p.tokens + '/' + cost + '</small></span>';
-        }
-        return '<span class="ml-chip ' + (open ? "open" : "sealed") + '">' + label + '</span>';
-      }).join("");
-      const got = books.filter(n => reached[n] >= t).length;
-      totalCount += books.length; gotCount += got;
-      const row = document.createElement("div"); row.className = "ml-tier" + (open ? "" : " sealed");
-      row.innerHTML = '<div class="ml-thead"><span class="ml-tname">TIER ' + ROMAN[t] + '</span><span class="ml-tmeta' + (open ? " open" : "") + '">' + meta + '</span></div>' +
-        '<div class="ml-chips">' + chips + '</div>';
-      ladder.appendChild(row);
-      prevOpen = open; prevGot = got; prevSize = books.length;
-    }
-    sec.appendChild(ladder); groupsEl.appendChild(sec);
-  });
-
-  // ----- Status row -----
-  const earnedTotal = Object.values(players).reduce((a, p) => a + p.earned, 0);
-  const spentTotal = Object.values(players).reduce((a, p) => a + p.spent, 0);
-  const stat = (k, v, cls) => '<div class="ml-stat"><span class="k">' + k + '</span><span class="v ' + cls + '">' + v + '</span></div>';
-  document.getElementById("ml-status").innerHTML =
-    stat("Mystic Library", {locked:"Opens after the Mending rescue", underway:"Underway", complete:"Complete"}[PROGRESS.mysticLibrary], PROGRESS.mysticLibrary === "complete" ? "done" : "wait") +
-    stat("Villages", PROGRESS.villages + " of 5", "") +
-    GROUPS.filter(g => g.gate !== "mysticLibrary")
-      .map(g => stat(g.name + " branch", isOpen(g) ? "Open" : "Sealed", isOpen(g) ? "done" : "wait")).join("") +
-    stat("Books unlocked", gotCount + " of " + totalCount, "") +
-    stat("Tokens", (earnedTotal - spentTotal) + " unspent · " + spentTotal + " spent", "");
-  document.getElementById("ml-costs").innerHTML =
-    '<span class="ml-cost">General &amp; Fishing Tier I <b>free</b></span>' +
-    Object.entries(TIER_COST).map(([t, c]) => '<span class="ml-cost">Tier ' + ROMAN[t] + ' <b>' + c + '</b> token' + (c > 1 ? 's' : '') + '</span>').join("");
-
-  // ----- Ledger -----
-  const table = (head, rows, empty) => rows.length
-    ? '<div class="ml-table-wrap"><table class="ml-table"><thead><tr>' + head.map(h => '<th' + (h.num ? ' class="num"' : '') + '>' + h.label + '</th>').join("") + '</tr></thead><tbody>' +
-      rows.map(r => '<tr>' + r.map((c, i) => '<td' + (head[i].num ? ' class="num"' : '') + '>' + c + '</td>').join("") + '</tr>').join("") + '</tbody></table></div>'
-    : '<p class="ml-empty">' + empty + '</p>';
-
-  Object.entries(players).forEach(([n, p]) => { if (p.spent > p.earned) warnings.push(n + " has spent " + p.spent + " tokens but only earned " + p.earned + "."); });
-  const playerRows = Object.entries(players)
-    .sort((a, b) => b[1].earned - a[1].earned || a[0].localeCompare(b[0]))
-    .map(([n, p]) => [esc(n), p.events, p.earned, p.spent, '<b>' + (p.earned - p.spent) + '</b>', esc(p.books.join(", ")) || "—"]);
-  document.getElementById("ml-players").innerHTML = table(
-    [{label:"Player"}, {label:"Events", num:1}, {label:"Earned", num:1}, {label:"Spent", num:1}, {label:"Left", num:1}, {label:"Put toward"}],
-    playerRows, "No tokens earned yet. Tokens start with the first event after the Mystic Library opens.");
-
-  document.getElementById("ml-funding").innerHTML = table(
-    [{label:"Book"}, {label:"Tokens", num:1}, {label:"Paid by"}],
-    funding.map(f => [esc(f.label), f.have + " of " + f.cost, esc(f.by)]),
-    "No books are partly paid for right now.");
-
-  document.getElementById("ml-events").innerHTML = table(
-    [{label:"Date"}, {label:"Event"}, {label:"Turnout", num:1}, {label:"Players"}],
-    EVENTS.slice().reverse().map(e => [esc(e.date), esc(e.name) + (e.tokens > 1 ? " <small>(" + e.tokens + " tokens each)</small>" : ""), (e.players || []).length, esc((e.players || []).join(", "))]),
-    "No events recorded yet.");
-
-  const warnEl = document.getElementById("ml-warnings");
-  if (warnings.length) {
-    warnEl.hidden = false;
-    warnEl.innerHTML = '<h2>Ledger Problems</h2><ul>' + warnings.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul>';
-  }
-
-  document.getElementById("ml-updated").textContent = "Mystic Library last updated " + PROGRESS.updated + ". Token costs and gates are drafts until the leadership group signs off.";
-})();
-</script>
