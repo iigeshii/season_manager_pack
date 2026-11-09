@@ -173,7 +173,7 @@ async function chooseBook(player, group) {
   const books = forSale(group);
   const locked = group.books.filter((book) => bookStatus(book).level === 0);
   let body = `You have §6${emeralds(countEmeralds(player))}§r.`;
-  if (locked.length) body += `\n\n§7Still locked: ${locked.map((b) => b.name).join(", ")}. Put Wyatt Tokens on them at the stacks.`;
+  if (locked.length) body += `\n\n§7Still locked: ${locked.map((b) => b.name).join(", ")}. Put Overseer's Favors on them at the stacks.`;
   const form = new ActionFormData().title(librarianName(group)).body(body);
   for (const book of books) {
     const s = bookStatus(book);

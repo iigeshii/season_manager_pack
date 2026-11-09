@@ -13,7 +13,7 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 - Before the library is opened, the board refuses tokens and no group librarians appear.
 
 ### Tokens
-- Tokens are a custom item, working name the **Wyatt Token** (`newhaven:wyatt_token`), after Wyatt Reeves, the god the players say watches over them.
+- Tokens are a custom item called the **Overseer's Favor** (item ID `newhaven:wyatt_token`). It's named for The Overseer: Wyatt Reeves, the god who gathered the group, rewards those who prove their resilience, and whose name has been lost over the seasons. The ID keeps the old working name (Wyatt Token) so tokens already handed out keep working.
 - They're handed out with the regular `/give` command, for example `/give Fredo newhaven:wyatt_token 4`. Event scripts can also award them.
 - Eric decides when and why tokens are given out: events, exceptional play, good ideas or any other reward. The pack sets no payout rules.
 - Players can't craft tokens.
@@ -200,7 +200,7 @@ The planner (`season_planner/index.html`) is a static page and can't show live p
 - **Libraries in several towns.** For now there's one library and one board. If more towns get libraries, every board would share the same ledger: the board state becomes a list of named boards (`board add <town>`, `board remove [town]`, `board list`), all placed from the one captured copy. Each board's signs update when the ledger changes, or when its area loads, and each board gets its own librarians.
 
 ## Open questions
-- **The token item:** its final name (Wyatt Token is the working name). The leading look is "Wyatt's eye", shown below, which is out to the group for feedback.
+- **The token item's look:** named the Overseer's Favor. The look is "Wyatt's eye", shown below, out to the group for feedback.
 
   <img src="wyatt_token_preview.png" width="128" alt="Wyatt's eye token draft: a gold coin with a watching eye in Wyatt's cyan">
 

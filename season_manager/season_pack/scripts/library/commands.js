@@ -74,7 +74,7 @@ function handle(word, args, who, reply, player) {
   switch (word) {
     case "open": {
       if (!openLibrary()) return reply("§7The library is already open.");
-      world.sendMessage("§dThe Mystic Library is open! Bring Wyatt Tokens to the board to unlock its books.");
+      world.sendMessage("§dThe Mystic Library is open! Bring Overseer's Favors to the stacks to unlock its books.");
       return;
     }
 

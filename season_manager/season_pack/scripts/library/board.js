@@ -8,7 +8,7 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange } from "./ledge
 //  aisles between them. Each book has an item frame holding a decoy copy
 //  (a Curse of Vanishing book with the real book's name), a status sign
 //  under it, and each group has a name sign above its books. Players
-//  right-click a book's frame with a Wyatt Token to put the token toward
+//  right-click a book's frame with an Overseer's Favor to put it toward
 //  that book.
 //
 //  Scripts can't put items into frames, so the books are filled by hand
@@ -785,7 +785,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   system.run(() => {
     if (itemStack?.typeId === TOKEN_ID) return deposit(player, cell.book);
     if (filling && isDecoy(itemStack)) return placeDecoy(player, cell.book, itemStack);
-    if (!filling) player.sendMessage(`§7Hold a Wyatt Token and use it here to put it toward §b${cell.book.name}§7.`);
+    if (!filling) player.sendMessage(`§7Hold an Overseer's Favor and use it here to put it toward §b${cell.book.name}§7.`);
   });
 });
 

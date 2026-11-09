@@ -1457,7 +1457,8 @@ stacks (the token board) and the librarians' shops. The full design is in
 Code in
 [`scripts/library/`](season_manager/season_pack/scripts/library/).
 
-Players earn **Wyatt Tokens** (`newhaven:wyatt_token`) and put them on
+Players earn **Overseer's Favors** (`newhaven:wyatt_token`), the pack's
+tokens, and put them on
 enchanted books to unlock them for everyone. Hand tokens out with the
 regular `/give`, for example `/give Fredo newhaven:wyatt_token 4`.
 
@@ -1565,7 +1566,7 @@ admin commands. Invisible light blocks above head height down each
 aisle and over the entrance keep the signs readable at night (sign text
 can't be made to glow by script).
 
-A player right-clicks a book's frame while holding a Wyatt Token to put
+A player right-clicks a book's frame while holding an Overseer's Favor to put
 one token toward that book, recorded in their name. The token is
 refused, and the player keeps it, while the library isn't open or once
 the book is complete. Any other click on a frame is cancelled, so books

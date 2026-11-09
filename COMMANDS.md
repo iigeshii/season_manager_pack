@@ -104,11 +104,11 @@ While a run is on, a party member who leaves the current room (and the airlocks 
 
 ## Mystic Library tokens
 
-Book names can be typed in any case, with or without spaces, or as the start of the name (`bane`). Players put tokens on a book by right-clicking its frame on the stacks with a Wyatt Token, and buy unlocked books by right-clicking that group's librarian. Librarians appear on their own once the library is open and their group has an unlocked book; there's no command for them.
+Book names can be typed in any case, with or without spaces, or as the start of the name (`bane`). Players put tokens on a book by right-clicking its frame on the stacks with an Overseer's Favor (the token), and buy unlocked books by right-clicking that group's librarian. Librarians appear on their own once the library is open and their group has an unlocked book; there's no command for them.
 
 | Command | What it does |
 |---|---|
-| `/give <player> newhaven:wyatt_token <n>` | Hands out Wyatt Tokens. |
+| `/give <player> newhaven:wyatt_token <n>` | Hands out Overseer's Favors (the tokens). |
 | `/scriptevent season:library open` | Opens the library. Run it once, after Rescue the Librarian. |
 | `/scriptevent season:library status` | Every book's level, price once maxed, and progress toward its next step. |
 | `/scriptevent season:library status <book>` | One book in detail, including who gave its tokens. |
