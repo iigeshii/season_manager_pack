@@ -117,13 +117,13 @@ Work in progress: the librarians' shops aren't built yet. Book names can be type
 | `/scriptevent season:library set <book> <level> [discount]` | Puts a book at an exact state, for example `set sharpness 5 1` for Level V at 16 emeralds. |
 | `/scriptevent season:library history [player]` | The last 10 entries, or one player's entries and totals. |
 | `/scriptevent season:library reset` | Asks for confirmation. Then `reset confirm` within 30 seconds wipes every token and all history, and closes the library. |
-| `/scriptevent season:library board` | Places the board 3 blocks ahead of you, facing you, or moves it there. Before the first capture it builds an empty board and gives you the 33 display books. Refuses if blocks are in the way. |
+| `/scriptevent season:library board` | Stand at the entrance facing in: builds the library stacks in front of you (17 wide, 11 deep, 4 high), or moves them there. Before the first capture it builds empty frames and gives you the 33 display books. Refuses if blocks are in the way. |
 | `/scriptevent season:library board force` | The same, replacing whatever is in the way. |
 | `/scriptevent season:library board books` | Gives you the 33 display books again (needs 33 free slots). |
-| `/scriptevent season:library board capture` | Saves the filled board. Only runs once all 33 books are in their frames. |
-| `/scriptevent season:library board fresh` | Builds a new empty board to fill and capture again. |
-| `/scriptevent season:library board info` | Where the board is, and whether it's captured or still being filled. |
-| `/scriptevent season:library board remove` | Removes the board. The ledger and the captured copy are kept. |
+| `/scriptevent season:library board capture` | Saves each filled frame. Only runs once all 33 books are in their frames. |
+| `/scriptevent season:library board fresh` | Builds the stacks with empty frames, to fill and capture again. |
+| `/scriptevent season:library board info` | Where the stacks are, and whether they're captured or still being filled. |
+| `/scriptevent season:library board remove` | Removes the stacks (and the old obsidian board, if it's still standing). The ledger and the saved books are kept. |
 
 ## Always on (no command)
 

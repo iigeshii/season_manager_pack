@@ -4,35 +4,70 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange } from "./ledge
 
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: THE TOKEN BOARD
-//  One 17 × 6 wall for the whole library. Each book has a frame holding a
-//  decoy copy (a Curse of Vanishing book with the real book's name) and a
-//  status sign under it; each group has a name sign above its books.
-//  Players right-click a book's frame with a Wyatt Token to put the token
-//  toward that book.
+//  The library's book stacks: three double-sided bookshelf stacks with
+//  aisles between them. Each book has an item frame holding a decoy copy
+//  (a Curse of Vanishing book with the real book's name), a status sign
+//  under it, and each group has a name sign above its books. Players
+//  right-click a book's frame with a Wyatt Token to put the token toward
+//  that book.
 //
-//  Scripts can't put items into frames, so the first board is filled by
-//  hand once and then saved as a structure ("capture"). After that the
-//  board is always placed from the saved copy, and a book punched out of
-//  its frame is put back from a saved copy of that one frame.
+//  Scripts can't put items into frames, so the books are filled by hand
+//  once and each filled frame is saved as its own one-block structure
+//  ("capture"). After that the script builds the shelves and signs itself
+//  and loads the 33 saved frames into place, and a book punched out of its
+//  frame is put back from its saved copy.
 //
-//  Layout, as seen by someone facing it (row 5 at the top):
-//    rows 3-5, top band:    Mending | General | Fishing | Armor | Melee | Tools   (17 columns)
-//    rows 0-2, bottom band: Ranged | Fire | Water                                (16 columns)
-//  In each band: group name signs on top, frames in the middle, status signs below.
+//  Top view, as seen from the entrance (row 0 at the back):
+//
+//        aisle A  S1  aisle B   S2  aisle C   S3  aisle D
+//         . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     row 0  librarians
+//         . . R   #   . . . A   #   G . . .   #   W . .     row 1
+//         . . R   #   M . . A   #   G . . .   #   W . .     row 2
+//         . . R   #   M . . A   #   G . . T   #   W . .     row 3
+//         . . R   #   M . . .   |   . . . T   #   W . .     row 4  divider
+//         . . R   #   M . . F   #   H . . T   #   W . .     row 5
+//         . . R   #   M . . F   #   H . . .   #   W . .     row 6
+//         . . R   #   . . . .   #   . . . .   #   W . .     row 7
+//         . . .   |   . . . .   |   . . . .   |   . . .     row 8  end caps
+//         . . .   .   . . . .   ★   . . . .   .   . . .     row 9  Mending
+//         . . .   .   . . . .   . @ . . .   .   . . .     row 10
+//                                ↑ entrance (row 11): where `board` is run
+//
+//  Each stack is 4 high: bookshelves at the bottom, status signs at eye
+//  level, frames above them, group name signs on top.
 // ─────────────────────────────────────────────
 
 const TOKEN_ID = "newhaven:wyatt_token";
 const DECOY_LORE = "§7Display copy";
 const BOARD_KEY = "season:library_board"; // where the board stands now
-const CAPTURE_KEY = "season:library_board_capture"; // the saved, filled-in board
-const BOARD_STRUCTURE = "season:library_board";
+const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const WIDTH = 17;
-const HEIGHT = 6;
-const BACKING = "minecraft:obsidian";
-const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first one that resolves
+const LAYOUT_VERSION = 2;
+const BOOKSHELF = "minecraft:bookshelf";
+const LOG = "minecraft:dark_oak_log";
+const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
 const REPAIR_INTERVAL = 1200; // ticks: check and rebuild the board every 60 s
+
+const ENTRANCE = { col: 8, row: 11 }; // where the person placing it stands
+const STACK_COLS = [3, 8, 13];
+const STACK_ROWS = 9; // rows 0..8
+const LOG_ROWS = (col, row) => row === 0 || row === STACK_ROWS - 1 || (col === 8 && row === 4);
+const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
+
+// Each face: the aisle column its frames hang in, which way they face
+// (left/right as seen from the entrance, or front for the entrance), and
+// its groups with the rows of their books in reading order (left to right
+// for someone standing in front of them).
+const FACES = [
+  { col: 2, facing: "left", groups: [["ranged", [1, 2, 3, 4, 5, 6, 7]]] },
+  { col: 4, facing: "right", groups: [["melee", [6, 5, 4, 3, 2]]] },
+  { col: 7, facing: "left", groups: [["armor", [1, 2, 3]], ["fire", [5, 6]]] },
+  { col: 9, facing: "right", groups: [["fishing", [6, 5]], ["general", [3, 2, 1]]] },
+  { col: 12, facing: "left", groups: [["tools", [3, 4, 5]]] },
+  { col: 14, facing: "right", groups: [["water", [7, 6, 5, 4, 3, 2, 1]]] },
+  { col: 8, facing: "front", groups: [["mending", [9]]] },
+];
 
 // Blocks that may be in the way when a board is placed without `force`.
 const CLEARABLE = new Set([
@@ -59,34 +94,31 @@ const RIGHT_OF = { north: "east", east: "south", south: "west", west: "north" };
 
 // ── The layout ──────────────────────────────
 
-// [band base row, [group ids in order]]
-const BANDS = [
-  [3, ["mending", "general", "fishing", "armor", "melee", "tools"]],
-  [0, ["ranged", "fire", "water"]],
-];
-
-// Every board cell in board terms: column (0 = left as you face it), row
-// (0 = bottom), depth (0 = the backing wall, 1 = the face hung on it).
+// Every block the board owns, in plan terms: col (0 = left as seen from
+// the entrance), row (0 = back), y (0 = floor level).
 const CELLS = (() => {
   const cells = [];
-  for (let col = 0; col < WIDTH; col++) {
-    for (let row = 0; row < HEIGHT; row++) cells.push({ kind: "backing", col, row, depth: 0 });
+  for (const col of STACK_COLS) {
+    for (let row = 0; row < STACK_ROWS; row++) {
+      for (let y = 0; y < HEIGHT; y++) cells.push({ kind: "shelf", col, row, y, log: LOG_ROWS(col, row) });
+    }
   }
-  for (const [base, groupIds] of BANDS) {
-    let col = 0;
-    for (const groupId of groupIds) {
+  for (const face of FACES) {
+    for (const [groupId, rows] of face.groups) {
       const group = GROUPS.find((g) => g.id === groupId);
-      const first = col;
-      for (const book of group.books) {
-        cells.push({ kind: "frame", col, row: base + 1, depth: 1, book });
-        cells.push({ kind: "status", col, row: base, depth: 1, book });
-        col++;
-      }
-      cells.push({ kind: "group", col: Math.floor((first + col - 1) / 2), row: base + 2, depth: 1, group });
+      group.books.forEach((book, i) => {
+        const row = rows[i];
+        cells.push({ kind: "frame", col: face.col, row, y: 2, facing: face.facing, book });
+        cells.push({ kind: "status", col: face.col, row, y: 1, facing: face.facing, book });
+      });
+      const middle = rows[Math.floor((rows.length - 1) / 2)];
+      cells.push({ kind: "group", col: face.col, row: middle, y: 3, facing: face.facing, group });
     }
   }
   return cells;
 })();
+
+const FRAME_CELLS = new Map(CELLS.filter((c) => c.kind === "frame").map((c) => [c.book.id, c]));
 
 function lookDirection(player) {
   const yaw = ((player.getRotation().y % 360) + 360) % 360; // 0 south, 90 west, 180 north, 270 east
@@ -96,31 +128,45 @@ function lookDirection(player) {
   return "south";
 }
 
-// The board's backing wall stands 3 blocks ahead of where the command was
-// run, centred on that spot, with its bottom row at foot level.
-function worldPos(board, cell) {
-  const d = DIRS[board.look];
-  const r = DIRS[RIGHT_OF[board.look]];
-  const ahead = 3 - cell.depth;
-  const across = cell.col - Math.floor(WIDTH / 2);
+function worldPos(b, cell) {
+  const d = DIRS[b.look];
+  const r = DIRS[RIGHT_OF[b.look]];
+  const ahead = ENTRANCE.row - cell.row;
+  const across = cell.col - ENTRANCE.col;
   return {
-    x: board.anchor.x + ahead * d.dx + across * r.dx,
-    y: board.anchor.y + cell.row,
-    z: board.anchor.z + ahead * d.dz + across * r.dz,
+    x: b.anchor.x + ahead * d.dx + across * r.dx,
+    y: b.anchor.y + cell.y,
+    z: b.anchor.z + ahead * d.dz + across * r.dz,
   };
 }
 
-function bounds(board) {
-  const all = CELLS.map((cell) => worldPos(board, cell));
-  const pick = (f, axis) => f(...all.map((p) => p[axis]));
-  return {
-    min: { x: pick(Math.min, "x"), y: pick(Math.min, "y"), z: pick(Math.min, "z") },
-    max: { x: pick(Math.max, "x"), y: pick(Math.max, "y"), z: pick(Math.max, "z") },
-  };
+// The world direction a frame or sign faces.
+function facingName(b, cell) {
+  if (cell.facing === "left") return OPPOSITE[RIGHT_OF[b.look]];
+  if (cell.facing === "right") return RIGHT_OF[b.look];
+  return OPPOSITE[b.look];
 }
 
 const fmt = (pos) => `${pos.x} ${pos.y} ${pos.z}`;
 const keyOf = (dimId, pos) => `${dimId}|${pos.x}|${pos.y}|${pos.z}`;
+
+// The first board (a 17 × 6 obsidian wall) stood 3 blocks ahead of its
+// anchor; these are its blocks, so it can be cleared away once.
+function legacyPositions(b) {
+  const d = DIRS[b.look];
+  const r = DIRS[RIGHT_OF[b.look]];
+  const out = [];
+  for (let col = 0; col < 17; col++) {
+    for (let row = 0; row < 6; row++) {
+      for (const depth of [0, 1]) {
+        const ahead = 3 - depth;
+        const across = col - 8;
+        out.push({ x: b.anchor.x + ahead * d.dx + across * r.dx, y: b.anchor.y + row, z: b.anchor.z + ahead * d.dz + across * r.dz });
+      }
+    }
+  }
+  return out;
+}
 
 // ── Saved state ─────────────────────────────
 
@@ -137,8 +183,9 @@ function writeJson(key, value) {
   world.setDynamicProperty(key, value === undefined ? undefined : JSON.stringify(value));
 }
 
-let board; // { dim, anchor, look, filling, placed: { bookId: true } } or undefined
-let capture; // { look, flip } or undefined
+let board; // { version, dim, anchor, look, filling, placed: { bookId: true } } or undefined
+let legacyBoard; // a first-layout board still standing, to be cleared
+let capture; // { facings: { bookId: direction }, flip } or undefined
 let cellIndex = new Map(); // keyOf(dim, pos) -> cell, for the current board
 let loaded = false;
 
@@ -146,7 +193,16 @@ function loadBoard() {
   if (loaded) return;
   loaded = true;
   board = readJson(BOARD_KEY);
+  if (board && board.version !== LAYOUT_VERSION) {
+    legacyBoard = board;
+    board = undefined;
+  }
   capture = readJson(CAPTURE_KEY);
+  // A capture from the first layout: every frame faced away from its wall.
+  if (capture && !capture.facings && capture.look) {
+    const facing = OPPOSITE[capture.look];
+    capture = { facings: Object.fromEntries(BOOKS.map((b) => [b.id, facing])), flip: capture.flip ?? false };
+  }
   reindex();
 }
 
@@ -168,21 +224,34 @@ function cellAt(block) {
 
 // ── Blocks ──────────────────────────────────
 
-let signBlock;
-function signBlockId() {
-  if (signBlock) return signBlock;
-  for (const id of SIGN_BLOCKS) {
-    try {
-      BlockPermutation.resolve(id, { facing_direction: 2 });
-      return (signBlock = id);
-    } catch {
-      // not in this version
-    }
+const resolved = new Map();
+function firstResolving(ids, states) {
+  const cacheKey = ids.join(",");
+  if (!resolved.has(cacheKey)) {
+    resolved.set(
+      cacheKey,
+      ids.find((id) => {
+        try {
+          BlockPermutation.resolve(id, states);
+          return true;
+        } catch {
+          return false;
+        }
+      }) ?? ids.at(-1)
+    );
   }
-  return (signBlock = SIGN_BLOCKS.at(-1));
+  return resolved.get(cacheKey);
 }
 
-const faceDirection = () => DIRS[OPPOSITE[board.look]].facing;
+const signBlockId = () => firstResolving(SIGN_BLOCKS, { facing_direction: 2 });
+
+function logPermutation() {
+  try {
+    return BlockPermutation.resolve(LOG, { pillar_axis: "y" });
+  } catch {
+    return BlockPermutation.resolve(LOG);
+  }
+}
 
 function blockAt(pos) {
   try {
@@ -210,7 +279,7 @@ function signText(cell) {
 }
 
 // Places (or fixes) one cell. `frames` says whether an empty frame may be
-// put down where a frame is missing (only before the board is captured).
+// put down where a frame is missing (only while the board is being filled).
 // `force` rewrites a sign's text even when it already matches: after a
 // cancelled break the server still has the text but players see a blank
 // sign, and only writing it again sends it back to them.
@@ -218,15 +287,17 @@ function placeCell(cell, { frames, force = false }) {
   const pos = worldPos(board, cell);
   const block = blockAt(pos);
   if (!block) return false;
-  if (cell.kind === "backing") {
-    if (block.typeId !== BACKING) block.setPermutation(BlockPermutation.resolve(BACKING));
+  if (cell.kind === "shelf") {
+    const want = cell.log ? LOG : BOOKSHELF;
+    if (block.typeId !== want) block.setPermutation(cell.log ? logPermutation() : BlockPermutation.resolve(BOOKSHELF));
     return true;
   }
+  const facing = DIRS[facingName(board, cell)].facing;
   if (cell.kind === "frame") {
     if (block.typeId === "minecraft:frame") return true;
     if (capture && !board.filling) return restoreFrame(cell.book);
     if (frames) {
-      block.setPermutation(BlockPermutation.resolve("minecraft:frame", { facing_direction: faceDirection() }));
+      block.setPermutation(BlockPermutation.resolve("minecraft:frame", { facing_direction: facing }));
       if (board.placed[cell.book.id]) {
         delete board.placed[cell.book.id];
         saveBoard();
@@ -236,7 +307,7 @@ function placeCell(cell, { frames, force = false }) {
   }
   // A sign: put it back if it's gone, then make sure it says the right thing.
   const id = signBlockId();
-  if (block.typeId !== id) block.setPermutation(BlockPermutation.resolve(id, { facing_direction: faceDirection() }));
+  if (block.typeId !== id) block.setPermutation(BlockPermutation.resolve(id, { facing_direction: facing }));
   const sign = block.getComponent("minecraft:sign");
   if (!sign) return true;
   const text = signText(cell);
@@ -272,23 +343,42 @@ function repairBoard() {
   }
 }
 
-function clearBoardBlocks() {
-  for (const cell of CELLS) {
-    const block = blockAt(worldPos(board, cell));
-    if (block && block.typeId !== "minecraft:air") block.setPermutation(BlockPermutation.resolve("minecraft:air"));
+function clearPositions(dimId, positions) {
+  const dimension = world.getDimension(dimId);
+  for (const pos of positions) {
+    try {
+      const block = dimension.getBlock(pos);
+      if (block && block.typeId !== "minecraft:air") block.setPermutation(BlockPermutation.resolve("minecraft:air"));
+    } catch {
+      // chunk not loaded
+    }
   }
-  removeDroppedDecoys(bounds(board), 2);
+  removeDroppedDecoys(dimId, positions, 2);
 }
 
-// Clears decoy books lying on the ground around an area.
-function removeDroppedDecoys(area, margin) {
-  const dimension = world.getDimension(board.dim);
-  const center = {
-    x: (area.min.x + area.max.x + 1) / 2,
-    y: (area.min.y + area.max.y + 1) / 2,
-    z: (area.min.z + area.max.z + 1) / 2,
-  };
-  const reach = Math.max(area.max.x - area.min.x, area.max.y - area.min.y, area.max.z - area.min.z) / 2 + 1 + margin;
+function clearBoardBlocks() {
+  clearPositions(
+    board.dim,
+    CELLS.map((cell) => worldPos(board, cell))
+  );
+}
+
+function clearLegacyBoard() {
+  if (!legacyBoard) return;
+  clearPositions(legacyBoard.dim, legacyPositions(legacyBoard));
+  legacyBoard = undefined;
+}
+
+// Clears decoy books lying on the ground around some positions.
+function removeDroppedDecoys(dimId, positions, margin) {
+  const dimension = world.getDimension(dimId);
+  const xs = positions.map((p) => p.x);
+  const ys = positions.map((p) => p.y);
+  const zs = positions.map((p) => p.z);
+  const min = { x: Math.min(...xs), y: Math.min(...ys), z: Math.min(...zs) };
+  const max = { x: Math.max(...xs), y: Math.max(...ys), z: Math.max(...zs) };
+  const center = { x: (min.x + max.x + 1) / 2, y: (min.y + max.y + 1) / 2, z: (min.z + max.z + 1) / 2 };
+  const reach = Math.max(max.x - min.x, max.y - min.y, max.z - min.z) / 2 + 1 + margin;
   let removed = 0;
   for (const entity of dimension.getEntities({ type: "minecraft:item", location: center, maxDistance: reach })) {
     const stack = entity.getComponent("minecraft:item")?.itemStack;
@@ -300,53 +390,57 @@ function removeDroppedDecoys(area, margin) {
   return removed;
 }
 
-// ── Structures ──────────────────────────────
+// ── Saved frames ────────────────────────────
 
-function rotation(fromLook, toLook, flip) {
-  let steps = (CLOCKWISE.indexOf(toLook) - CLOCKWISE.indexOf(fromLook) + 4) % 4;
+function rotation(fromDir, toDir, flip) {
+  let steps = (CLOCKWISE.indexOf(toDir) - CLOCKWISE.indexOf(fromDir) + 4) % 4;
   if (flip && steps % 2 === 1) steps = 4 - steps;
   return `${steps * 90}_degrees`;
 }
 
+// Loads a book's saved frame into its spot, turned to face the right way.
 function restoreFrame(book) {
-  const cell = CELLS.find((c) => c.kind === "frame" && c.book === book);
-  const pos = worldPos(board, cell);
-  const dimension = world.getDimension(board.dim);
-  dimension.runCommand(`structure load ${bookStructure(book)} ${fmt(pos)} ${rotation(capture.look, board.look, capture.flip)}`);
+  const cell = FRAME_CELLS.get(book.id);
+  const from = capture.facings[book.id];
+  if (!from) return false;
+  world.getDimension(board.dim).runCommand(
+    `structure load ${bookStructure(book)} ${fmt(worldPos(board, cell))} ${rotation(from, facingName(board, cell), capture.flip)}`
+  );
   return true;
 }
 
-// True when the frame where Mending belongs is a frame facing out from the wall.
-function boardLooksRight() {
-  const cell = CELLS.find((c) => c.kind === "frame" && c.book.id === "mending");
+function frameFacesRight(book) {
+  const cell = FRAME_CELLS.get(book.id);
   const block = blockAt(worldPos(board, cell));
-  return block?.typeId === "minecraft:frame" && block.permutation.getState("facing_direction") === faceDirection();
+  return block?.typeId === "minecraft:frame" && block.permutation.getState("facing_direction") === DIRS[facingName(board, cell)].facing;
 }
 
-function loadCaptured(reply) {
-  const dimension = world.getDimension(board.dim);
-  const { min } = bounds(board);
-  dimension.runCommand(`structure load ${BOARD_STRUCTURE} ${fmt(min)} ${rotation(capture.look, board.look, capture.flip)}`);
-  // Some versions turn structures the other way: check, and if the board
-  // came out mirrored, load it again turned the other way and remember that.
+// Puts every saved frame in place. Some versions turn structures the other
+// way round: if frames come out facing backwards, turn them the other way
+// and remember that for next time.
+function loadFrames(reply) {
+  for (const book of BOOKS) restoreFrame(book);
   system.runTimeout(() => {
-    if (boardLooksRight()) return finishPlacing(reply);
-    const steps = (CLOCKWISE.indexOf(board.look) - CLOCKWISE.indexOf(capture.look) + 4) % 4;
-    if (steps % 2 === 0) return reply("§cThe board didn't come out right. Try placing it again.");
-    clearBoardBlocks();
+    const wrong = BOOKS.filter((book) => !frameFacesRight(book));
+    if (!wrong.length) return finishPlacing(reply);
     capture.flip = !capture.flip;
     writeJson(CAPTURE_KEY, capture);
-    dimension.runCommand(`structure load ${BOARD_STRUCTURE} ${fmt(min)} ${rotation(capture.look, board.look, capture.flip)}`);
+    for (const book of wrong) {
+      const block = blockAt(worldPos(board, FRAME_CELLS.get(book.id)));
+      block?.setPermutation(BlockPermutation.resolve("minecraft:air"));
+      restoreFrame(book);
+    }
     system.runTimeout(() => {
-      if (boardLooksRight()) return finishPlacing(reply);
-      reply("§cThe board didn't come out right. Try placing it again.");
+      const still = BOOKS.filter((book) => !frameFacesRight(book));
+      if (!still.length) return finishPlacing(reply);
+      reply(`§c${still.length} frame(s) didn't come out right: ${still.map((b) => b.name).join(", ")}. Try placing the board again.`);
     }, 2);
   }, 2);
 }
 
 function finishPlacing(reply) {
   refreshSigns();
-  reply(`§aBoard placed at ${fmt(worldPos(board, CELLS[0]))}, facing ${OPPOSITE[board.look]}.`);
+  reply(`§aLibrary stacks placed in front of you, entrance facing ${OPPOSITE[board.look]}.`);
 }
 
 // ── Decoy books ─────────────────────────────
@@ -374,7 +468,7 @@ export function giveDecoys(player, reply) {
     );
   }
   for (const book of BOOKS) container.addItem(decoyBook(book));
-  reply(`§aGave you all ${BOOKS.length} display books, in board order (top band left to right, then the bottom band).`);
+  reply(`§aGave you all ${BOOKS.length} display books, grouped the same way as the stacks.`);
 }
 
 // ── Commands (called from commands.js) ──────
@@ -391,21 +485,24 @@ function blockedCells(candidate) {
   return count;
 }
 
-// `board [force|fresh]`: places the board in front of the player, or moves it there.
+// `board [force|fresh]`: builds the stacks in front of the player, or moves them there.
 export function placeBoard(player, options, reply) {
   loadBoard();
   const candidate = {
+    version: LAYOUT_VERSION,
     dim: player.dimension.id,
     anchor: { x: Math.floor(player.location.x), y: Math.floor(player.location.y), z: Math.floor(player.location.z) },
     look: lookDirection(player),
     filling: !capture || Boolean(options.fresh),
     placed: {},
   };
+  clearLegacyBoard();
   const blocked = blockedCells(candidate);
   if (blocked < 0) return reply("§cPart of that spot isn't loaded. Move closer and try again.");
   if (blocked > 0 && !options.force) {
     return reply(
-      `§c${blocked} block(s) are in the way of the ${WIDTH}×${HEIGHT} board. Clear the space, or run §lboard force§r§c to replace them.`
+      `§c${blocked} block(s) are in the way of the stacks (17 wide, 11 deep, 4 high, starting just ahead of you). ` +
+        "Clear the space, or run §lboard force§r§c to replace them."
     );
   }
 
@@ -413,29 +510,32 @@ export function placeBoard(player, options, reply) {
   board = candidate;
   saveBoard();
 
-  if (!board.filling) return loadCaptured(reply);
+  // Shelves and signs first, then the frames.
+  for (const cell of CELLS) if (cell.kind !== "frame") placeCell(cell, { frames: false, force: true });
+  if (!board.filling) return loadFrames(reply);
 
-  // An empty board, to be filled by hand and then captured.
-  for (const cell of CELLS) placeCell(cell, { frames: true });
-  refreshSigns();
+  // Empty frames, to be filled by hand and then captured.
+  for (const cell of CELLS) if (cell.kind === "frame") placeCell(cell, { frames: true });
   reply(
-    `§aEmpty board built, facing ${OPPOSITE[board.look]}. Put each display book in the frame above its sign, then run §lboard capture§r§a.`
+    `§aEmpty stacks built, entrance facing ${OPPOSITE[board.look]}. Put each display book in the frame above its sign, then run §lboard capture§r§a.`
   );
   giveDecoys(player, reply);
 }
 
 export function removeBoard(reply) {
   loadBoard();
-  if (!board) return reply("§7There's no board to remove.");
+  const hadLegacy = Boolean(legacyBoard);
+  clearLegacyBoard();
+  if (!board) return reply(hadLegacy ? "§aOld board removed." : "§7There's no board to remove.");
   clearBoardBlocks();
   board = undefined;
   saveBoard();
-  reply("§aBoard removed. The ledger is untouched; §lboard§r§a puts it back.");
+  reply("§aStacks removed. The ledger and the saved books are kept; §lboard§r§a puts them back.");
 }
 
 export function captureBoard(reply) {
   loadBoard();
-  if (!board) return reply("§cBuild the board first with §lboard§r§c.");
+  if (!board) return reply("§cBuild the stacks first with §lboard§r§c.");
   if (board.filling) {
     const missing = BOOKS.filter((book) => !board.placed[book.id]);
     if (missing.length) {
@@ -448,34 +548,36 @@ export function captureBoard(reply) {
     }
   }
   const dimension = world.getDimension(board.dim);
-  const { min, max } = bounds(board);
+  const facings = {};
   try {
-    dimension.runCommand(`structure save ${BOARD_STRUCTURE} ${fmt(min)} ${fmt(max)} false disk true`);
-    for (const cell of CELLS) {
-      if (cell.kind !== "frame") continue;
+    for (const book of BOOKS) {
+      const cell = FRAME_CELLS.get(book.id);
       const pos = worldPos(board, cell);
-      dimension.runCommand(`structure save ${bookStructure(cell.book)} ${fmt(pos)} ${fmt(pos)} false disk true`);
+      dimension.runCommand(`structure save ${bookStructure(book)} ${fmt(pos)} ${fmt(pos)} false disk true`);
+      facings[book.id] = facingName(board, cell);
     }
   } catch (error) {
-    return reply(`§cCouldn't save the board: ${error}`);
+    return reply(`§cCouldn't save the books: ${error}`);
   }
-  capture = { look: board.look, flip: capture?.flip ?? false };
+  capture = { facings, flip: capture?.flip ?? false };
   writeJson(CAPTURE_KEY, capture);
   board.filling = false;
   board.placed = {};
   saveBoard();
-  reply("§aBoard captured. From now on §lboard§r§a places this saved copy, and punched-out books are put back automatically.");
+  reply("§aBooks captured. From now on §lboard§r§a places the stacks with these books, and punched-out books are put back automatically.");
 }
 
 export function boardInfo() {
   loadBoard();
-  if (!board) return `§7No board placed.${capture ? " A captured board is saved; §lboard§r§7 places it." : ""}`;
+  const legacy = legacyBoard ? " §eThe old obsidian board is still standing: run §lboard§r§e or §lboard remove§r§e to clear it." : "";
+  if (!board) return `§7No stacks placed.${capture ? " Books are captured; §lboard§r§7 places them." : ""}${legacy}`;
   const placed = Object.keys(board.placed).length;
-  const where = `§6Board§r at ${fmt(worldPos(board, CELLS[0]))} (${board.dim.replace("minecraft:", "")}), facing ${OPPOSITE[board.look]}.`;
-  return board.filling ? `${where} Being filled: ${placed} of ${BOOKS.length} books placed.` : `${where} Captured and live.`;
+  const where = `§6Stacks§r entered from ${fmt(board.anchor)} (${board.dim.replace("minecraft:", "")}), entrance facing ${OPPOSITE[board.look]}.`;
+  const state = board.filling ? ` Being filled: ${placed} of ${BOOKS.length} books placed.` : " Captured and live.";
+  return where + state + legacy;
 }
 
-// ── Players at the board ────────────────────
+// ── Players at the stacks ───────────────────
 
 const lastClick = new Map(); // player id -> tick; the interact event repeats while the button is held
 
@@ -493,7 +595,7 @@ function takeOneToken(player) {
 }
 
 function deposit(player, book) {
-  if (board.filling) return player.sendMessage("§7The board isn't finished yet.");
+  if (board.filling) return player.sendMessage("§7The stacks aren't finished yet.");
   if (!isOpen()) return player.sendMessage("§7The Mystic Library isn't open yet. Keep your token for now.");
   if (!bookStatus(book).next) return player.sendMessage(`§7${book.name} is complete. It can't take any more tokens.`);
   if (!takeOneToken(player)) return;
@@ -531,7 +633,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   const repeat = now - (lastClick.get(player.id) ?? -100) < 8;
   lastClick.set(player.id, now);
 
-  // While the board is being filled, the right display book may go in.
+  // While the stacks are being filled, the right display book may go in.
   const filling = board.filling;
   if (filling && isDecoy(itemStack) && !board.placed[cell.book.id] && itemStack.nameTag === decoyName(cell.book)) {
     if (!repeat) system.run(() => placeDecoy(player, cell.book, itemStack));
@@ -569,7 +671,7 @@ world.afterEvents.entityHitBlock.subscribe((event) => {
   system.runTimeout(() => {
     try {
       const pos = worldPos(board, cell);
-      removeDroppedDecoys({ min: pos, max: pos }, 2);
+      removeDroppedDecoys(board.dim, [pos], 2);
       if (capture && !board.filling) restoreFrame(cell.book);
       else if (board.placed[cell.book.id]) {
         delete board.placed[cell.book.id];

@@ -1501,19 +1501,34 @@ start of the name: `Bane of Arthropods`, `bane_of_arthropods` and
 `bane` all work. If the start matches more than one book, the command
 lists them.
 
-**The token board.** One 17 × 6 obsidian wall holds every book, in
-two bands:
+**The library stacks (the token board).** Every book sits on three
+double-sided bookshelf stacks with aisles between them, 17 wide, 11 deep
+and 4 high. Top view, from the entrance:
 
 ```
-Top band:    Mending | General | Fishing | Armor | Melee | Tools   (17 wide)
-Bottom band: Ranged | Fire | Water                                (16 wide)
+        aisle A  S1  aisle B   S2  aisle C   S3  aisle D
+         . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     ← librarians (back of each aisle)
+         . . R   #   . . . A   #   G . . .   #   W . .
+         . . R   #   M . . A   #   G . . .   #   W . .
+         . . R   #   M . . A   #   G . . T   #   W . .
+         . . R   #   M . . .   |   . . . T   #   W . .     ← divider
+         . . R   #   M . . F   #   H . . T   #   W . .
+         . . R   #   M . . F   #   H . . .   #   W . .
+         . . R   #   . . . .   #   . . . .   #   W . .
+         . . .   |   . . . .   |   . . . .   |   . . .     ← end caps
+         . . .   .   . . . .   ★   . . . .   .   . . .     ← Mending, facing the entrance
+                                ↑ entrance
+  #  bookshelf   |  dark oak log   R Ranged  M Melee  A Armor  F Fire
+  G General  H Fishing  T Tools  W Water  ★ Mending
 ```
 
-In each band, group name signs sit on top, item frames with the books in
-the middle, and a status sign under each frame. The status sign shows
-the book's level, its price, and the tokens toward its next step. Every
-sign is rewritten whenever the ledger changes, including after admin
-commands.
+Each stack has bookshelves at the bottom, a status sign under each book
+at eye level, the book's item frame above that, and a group name sign on
+top. Dark oak log pillars cap the ends of every stack and divide Armor
+from Fire and General from Fishing on the middle stack. A status sign
+shows the book's level, its price, and the tokens toward its next step.
+Every sign is rewritten whenever the ledger changes, including after
+admin commands. (The librarians aren't built yet.)
 
 A player right-clicks a book's frame while holding a Wyatt Token to put
 one token toward that book, recorded in their name. The token is
@@ -1523,22 +1538,28 @@ can't be turned or taken out that way.
 
 The framed books are decoys: Curse of Vanishing books given the real
 book's name and a "Display copy" lore line, so a stolen one is
-worthless. Scripts can't put items into frames, so the first board is
-filled by hand once and then saved as a structure:
+worthless. Scripts can't put items into frames, so the books are filled
+in by hand once and each filled frame is saved as its own one-block
+structure:
 
-1. Stand where the board should go, facing the way it should face, and
-   run `board`. The wall goes up 3 blocks ahead of you, centred on you,
-   with its bottom row at your feet. It also gives you the 33 display
-   books (32 enchantments plus Mending) in board order, which needs 33
-   free inventory slots.
+1. Stand at the entrance spot, facing into the library, and run
+   `board`. The stacks are built in front of you: Mending's end cap is
+   2 blocks ahead, centred on you, and the back of the stacks is 11
+   blocks ahead, with the bottom row at your feet. Before anything is
+   captured, this also gives you the 33 display books (32 enchantments
+   plus Mending), which needs 33 free inventory slots.
 2. Right-click each display book into the frame above the sign that
    names it. A book put into the wrong frame is refused, with a message
    naming the right one. Chat counts progress.
-3. Run `board capture` once all 33 are in. It saves the whole board,
-   plus each frame on its own.
+3. Run `board capture` once all 33 are in. It saves each frame on its
+   own, with the way it faced.
 
-After that, `board` places the saved board, turned to face the way you
-are, and moves it if it's already somewhere else.
+After that, `board` builds the shelves and signs itself and loads the 33
+saved frames into place, turned to match the way you face, and moves the
+stacks if they're already somewhere else. Only the board's own blocks are
+touched, so anything in the aisles is left alone. Books captured on the
+first obsidian board still work, and that board is cleared away the
+first time `board` or `board remove` runs.
 
 **Protection.** Board blocks can't be broken, in survival or creative.
 A cancelled break wipes a sign's text, so the sign is rewritten straight
@@ -1546,12 +1567,14 @@ away. Explosions still go off, but the board's blocks are taken off
 their list of blocks to destroy. Punching a book out of its frame in
 survival can't be cancelled, so the pack removes the dropped decoy and
 reloads that frame from its saved copy a moment later. Every 60 seconds
-the pack also checks each board block and rebuilds anything missing.
+the pack also checks each board block, rebuilds anything missing, and
+rewrites every sign. That also covers bookshelves burned by fire or
+pushed by pistons.
 
 **Board commands.**
 
-- `board`: places the board where you stand, or moves it there. Before
-  the first capture, this builds an empty board and gives you the
+- `board`: builds the stacks in front of you, or moves them there.
+  Before the first capture, this builds empty frames and gives you the
   display books. It refuses if blocks are in the way.
 - `board force`: the same, replacing whatever is in the way.
 - `board books`: gives you the 33 display books again.

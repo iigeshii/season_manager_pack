@@ -19,24 +19,36 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 - Players can't craft tokens.
 - Any player can put tokens on any book at any time. Tokens from several players pool toward the same level.
 
-### The board
-- There is **one board** for the whole library.
-- Eric stands where the board should go and runs `/scriptevent season:library board`. The board builds right there, facing the way Eric is looking. Running the command again somewhere else moves the board, along with its lecterns and librarians.
-- The board is two bands, about **17 wide × 6 tall**:
+### The library stacks (the board)
+- There is **one set of stacks** for the whole library: three double-sided bookshelf stacks with aisles between them, **17 wide × 11 deep × 4 high**. (The first version was a single 17 × 6 obsidian wall; it was replaced to look like a real library.)
 
   ```
-  Top band:    Mending | General (3) | Fishing (2) | Armor (3) | Melee (5) | Tools (3)   = 17 wide
-  Bottom band: Ranged (7) | Fire (2) | Water (7)                                        = 16 wide
+          aisle A  S1  aisle B   S2  aisle C   S3  aisle D
+           . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     ← librarians (back of each aisle)
+           . . R   #   . . . A   #   G . . .   #   W . .
+           . . R   #   M . . A   #   G . . .   #   W . .
+           . . R   #   M . . A   #   G . . T   #   W . .
+           . . R   #   M . . .   |   . . . T   #   W . .     ← divider
+           . . R   #   M . . F   #   H . . T   #   W . .
+           . . R   #   M . . F   #   H . . .   #   W . .
+           . . R   #   . . . .   #   . . . .   #   W . .
+           . . .   |   . . . .   |   . . . .   |   . . .     ← end caps
+           . . .   .   . . . .   ★   . . . .   .   . . .     ← Mending, facing the entrance
+           . . .   .   . . . .   . @ . . .   .   . . .     ← Mending Librarian
+                                  ↑ entrance: where `board` is run
+    #  bookshelf   |  dark oak log   R Ranged  M Melee  A Armor  F Fire
+    G General  H Fishing  T Tools  W Water  ★ Mending   @ librarian
   ```
 
-  Each band has three rows: group name signs, framed books, and status signs.
-- **One-time setup.** Scripts can't put items into frames, so the first board is filled by hand once:
-  1. `board` builds the empty board, with obsidian, frames, and a sign under each frame naming its book. It also gives Eric all 33 decoy books (32 enchantments plus Mending) in one go, in board order. That needs 33 free inventory slots. If there isn't room, the command says so and gives nothing. `board books` gives the full set again.
+- Each stack is 4 high: bookshelves at the bottom, a status sign under each book at eye level, the book's frame above it, and a group name sign on top. Dark oak log pillars cap every stack end and divide Armor from Fire and General from Fishing. Signs are birch so their dark text stays readable. Books read left to right for someone standing in the aisle.
+- Eric stands at the entrance facing in and runs `/scriptevent season:library board`. Running it again somewhere else moves the stacks, along with their librarians.
+- **One-time setup.** Scripts can't put items into frames, so the books are filled in by hand once:
+  1. Before anything is captured, `board` builds the stacks with empty frames and gives Eric all 33 decoy books (32 enchantments plus Mending). That needs 33 free inventory slots. If there isn't room, the command says so and gives nothing. `board books` gives the full set again.
   2. Eric right-clicks each decoy into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 33 placed").
-  3. `board capture` saves the finished board as a structure, plus each frame on its own for put-backs. It refuses to run until all 33 are placed.
+  3. `board capture` saves each filled frame as its own one-block structure, with the way it faced. It refuses to run until all 33 are placed.
 
-  After that, `board` places the saved board, so the frames never need filling again.
-- Each book column is an item frame holding a display copy of the book (a named decoy, explained below), with a sign under it that the pack rewrites, for example:
+  After that, `board` builds the shelves and signs by script and loads the 33 saved frames, turned to the new facing. Only the board's own blocks are touched, so the aisles are never overwritten. Books captured on the first obsidian board carry over, and that board is cleared away the first time `board` or `board remove` runs.
+- Each book is an item frame holding a display copy of the book (a named decoy, explained below), with a sign under it that the pack rewrites, for example:
 
   ```
   Sharpness
@@ -46,12 +58,12 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
   ```
 
   Once a book is maxed, its sign shows discount progress. At 1 emerald it shows that it's fully discounted.
-- The board and its lecterns are protected, and only the board commands can remove them:
+- The stacks are protected, and only the board commands can remove them:
   - **Breaking blocks:** any block break inside the board's area is cancelled, in survival or creative.
   - **Explosions:** creepers, TNT, ghasts and withers still explode, but the board's blocks are taken off their list of blocks to destroy.
   - **Frames:** right-clicking is already taken over by token deposits, so books can't be rotated or pulled out that way. If a book is knocked out by hitting the frame, it's only a decoy (see below), and the rebuild puts it back.
-  - **Pistons:** the backing wall is obsidian, which pistons can't move.
-  - **Self-repair:** every 60 seconds, and whenever the ledger changes, the pack checks every board block and lectern and rebuilds anything missing or wrong, including signs and framed books. Only blocks that are wrong get touched, so the board doesn't flicker.
+  - **Fire and pistons:** bookshelves can burn and be pushed. The 60-second self-repair rebuilds them.
+  - **Self-repair:** every 60 seconds, the pack checks every board block and rebuilds anything missing or wrong, including framed books, and rewrites every sign (a sign can show blank to players after a cancelled break even though the server still has its text). Signs are also redrawn whenever the ledger changes.
   - **Display books are decoys:** the framed books are Curse of Vanishing books given the name of the book they stand for (for example "Sharpness"), with a "Display copy" lore line. They still have the enchanted glint, but a stolen one is worthless, so the board can't be farmed for free books.
 
 ### Putting tokens on a book
@@ -66,8 +78,14 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 ### Librarians
 - Each group has one librarian, tied to the board and named after the group (for example "Ranged Librarian"). Mending has the Mending Librarian.
 - A group's librarian appears as soon as the group has at least one book that can be bought. When the board is first placed, that's only the Mending Librarian. The others arrive as their group's first book unlocks.
-- Librarians stand at fixed spots: a row of lecterns in front of the board, built by the board command. Each librarian stands behind their lectern facing out and never moves. They don't wander, follow a villager schedule, or run from raids.
-- The stations run in board order, about 2 blocks apart across the 17-block width: Mending, General, Fishing, Armor, Melee, Tools, Ranged, Fire, Water. A station stays empty until its librarian appears. The name over each librarian's head shows the group.
+- Librarians stand at fixed spots and never move. They don't wander, follow a villager schedule, or run from raids. Each group's librarian stands at the back of the aisle its books face, so the aisles stay clear (see the top view above):
+  - **Aisle A:** Ranged.
+  - **Aisle B:** Melee, Armor and Fire.
+  - **Aisle C:** General, Fishing and Tools.
+  - **Aisle D:** Water.
+  - **Entrance:** the Mending Librarian, beside Mending's end cap.
+
+  A spot stays empty until its librarian appears. The name over each librarian's head shows the group.
 - Librarians can't be hurt, killed or turned into zombie villagers. A damage filter on their villager variant ignores all damage, so nothing needs respawning. The same filter stops lightning from turning them into witches.
 - Librarians can't change profession.
 - **The board's Mending Librarian is the real one.** The rescued librarian from the event sells nothing (`summon_rescued_librarian` makes an empty librarian tagged `season:rescue_empty_librarian`). When the board is first created, the pack removes any villager tagged `season:rescue_empty_librarian` or `season:rescue_mending_librarian`. It can only reach villagers in loaded chunks, so stand near the old one or remove it by hand.
@@ -86,10 +104,12 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 | Command | What it does |
 |---|---|
 | `season:library open` | Opens the library. Run once, after Rescue the Librarian. |
-| `season:library board` | Builds the board where you stand. An existing board is removed first, so this also moves it. Before the first capture it builds an empty board and gives you the 33 decoy books. After that it places the saved board. |
+| `season:library board` | Builds the stacks in front of you (stand at the entrance facing in). Existing stacks are removed first, so this also moves them. Before the first capture it builds empty frames and gives you the 33 decoy books. After that it loads the saved books. `board force` replaces whatever is in the way. |
 | `season:library board books` | Gives you the full set of 33 decoy books again. |
-| `season:library board capture` | Saves the filled board, plus each frame on its own. It only runs once all 33 books are placed. |
-| `season:library board remove` | Removes the board, its lecterns and its librarians. The ledger is kept. |
+| `season:library board capture` | Saves each filled frame on its own. It only runs once all 33 books are placed. |
+| `season:library board fresh` | Builds the stacks with empty frames, to fill and capture again. |
+| `season:library board info` | Where the stacks are, and whether they're captured. |
+| `season:library board remove` | Removes the stacks and their librarians. The ledger and saved books are kept. |
 | `season:library status [book]` | Shows the whole library, or one book: level, tokens toward the next step, price. |
 | `season:library add <book> <n>` | Adds tokens to a book, recorded as an admin change. |
 | `season:library remove <book> <n>` | Takes tokens back off a book. It can drop the book a level. |
