@@ -18,6 +18,18 @@
     },
     "bubblepearl_pillar_side": {
       "textures": "textures/blocks/bubblepearl_pillar_side"
+    },
+    "library_lectern_top": {
+      "textures": "textures/blocks/lectern_top"
+    },
+    "library_lectern_front": {
+      "textures": "textures/blocks/lectern_front"
+    },
+    "library_lectern_sides": {
+      "textures": "textures/blocks/lectern_sides"
+    },
+    "library_lectern_base": {
+      "textures": "textures/blocks/lectern_base"
     }
   }
 }

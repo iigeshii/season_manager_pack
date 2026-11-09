@@ -20,5 +20,8 @@
   },
   "newhaven:bubblepearl_pillar": {
     "sound": "glass"
+  },
+  "newhaven:library_lectern": {
+    "sound": "wood"
   }
 }

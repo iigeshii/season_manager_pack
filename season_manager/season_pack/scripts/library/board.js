@@ -20,19 +20,23 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange } from "./ledge
 //  Top view, as seen from the entrance (row 0 at the back):
 //
 //        aisle A  S1  aisle B   S2  aisle C   S3  aisle D
-//         . @ .   |   @ . @ @   |   @ @ . @   |   . @ .     row 0  librarians
-//         . . R   #   . . . A   #   G . . .   #   W . .     row 1
-//         . . R   #   M . . A   #   G . . .   #   W . .     row 2
+//         . n @   |   . . n @   |   @ n . .   |   . . .     row 0   Ranged, Armor, General
+//         . . R   #   M . . A   #   G . . .   #   W . .     row 1
+//         . . R   #   M . . A   #   G . n @   #   W . .     row 2   Tools
 //         . . R   #   M . . A   #   G . . T   #   W . .     row 3
-//         . . R   #   M . . .   |   . . . T   #   W . .     row 4  divider
-//         . . R   #   M . . F   #   H . . T   #   W . .     row 5
-//         . . R   #   M . . F   #   H . . .   #   W . .     row 6
-//         . . R   #   . . . .   #   . . . .   #   W . .     row 7
-//         . . .   |   . . . .   |   . . . .   |   . . .     row 8  end caps
-//         . . .   .   . . . .   ★   . . . .   .   . . .     row 9  Mending
-//         . . .   .   . . . .   . @ . . .   .   . . .     row 10
-//                                ↑ entrance (row 11): where `board` is run
+//         . . R   #   M . . .   |   . . . T   #   W . .     row 4   divider
+//         . . R   #   M . . .   #   H . . T   #   W . .     row 5
+//         . . R   #   @ n . .   #   H . . .   #   W . .     row 6   Melee
+//         . . R   #   . . . F   #   @ n . .   #   W . .     row 7   Fishing
+//         . . .   #   . . . F   #   . . . .   #   @ n .     row 8   Water
+//         . . .   |   . . n @   |   . . . .   |   . . .     row 9   Fire, end caps
+//         . . .   .   . . . @   ★   . . . .   .   . . .     row 10  Mending + its librarian
+//         . . .   .   . . . n   .   . . . .   .   . . .     row 11
+//                                ↑ entrance (row 12): where `board` is run
 //
+//  @ librarian, n their Library Lectern. Each librarian stands just left
+//  of their group's books (as you face them); where two groups share a
+//  side, the second group's librarian stands just right of it instead.
 //  Each stack is 4 high: bookshelves at the bottom, status signs at eye
 //  level, frames above them, group name signs on top.
 // ─────────────────────────────────────────────
@@ -43,15 +47,16 @@ const BOARD_KEY = "season:library_board"; // where the board stands now
 const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const LAYOUT_VERSION = 2;
+const LAYOUT_VERSION = 3; // 1: obsidian wall, 2: 9-long stacks, 3: 10-long stacks with lecterns
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
+const LECTERN = "newhaven:library_lectern"; // looks like a lectern, but isn't a villager job site
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
 const REPAIR_INTERVAL = 1200; // ticks: check and rebuild the board every 60 s
 
-const ENTRANCE = { col: 8, row: 11 }; // where the person placing it stands
+const ENTRANCE = { col: 8, row: 12 }; // where the person placing it stands
 const STACK_COLS = [3, 8, 13];
-const STACK_ROWS = 9; // rows 0..8
+const STACK_ROWS = 10; // rows 0..9
 const LOG_ROWS = (col, row) => row === 0 || row === STACK_ROWS - 1 || (col === 8 && row === 4);
 const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
 
@@ -61,21 +66,42 @@ const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
 // for someone standing in front of them).
 const FACES = [
   { col: 2, facing: "left", groups: [["ranged", [1, 2, 3, 4, 5, 6, 7]]] },
-  { col: 4, facing: "right", groups: [["melee", [6, 5, 4, 3, 2]]] },
-  { col: 7, facing: "left", groups: [["armor", [1, 2, 3]], ["fire", [5, 6]]] },
+  { col: 4, facing: "right", groups: [["melee", [5, 4, 3, 2, 1]]] },
+  { col: 7, facing: "left", groups: [["armor", [1, 2, 3]], ["fire", [7, 8]]] },
   { col: 9, facing: "right", groups: [["fishing", [6, 5]], ["general", [3, 2, 1]]] },
   { col: 12, facing: "left", groups: [["tools", [3, 4, 5]]] },
   { col: 14, facing: "right", groups: [["water", [7, 6, 5, 4, 3, 2, 1]]] },
-  { col: 8, facing: "front", groups: [["mending", [9]]] },
+  { col: 8, facing: "front", groups: [["mending", [10]]] },
 ];
+
+// Each group's librarian and their lectern (plan col, row). The lectern
+// is one block out into the aisle, and the librarian faces it.
+const LIBRARIANS = {
+  ranged: { at: [2, 0], lectern: [1, 0] },
+  armor: { at: [7, 0], lectern: [6, 0] },
+  general: { at: [9, 0], lectern: [10, 0] },
+  tools: { at: [12, 2], lectern: [11, 2] },
+  melee: { at: [4, 6], lectern: [5, 6] },
+  fishing: { at: [9, 7], lectern: [10, 7] },
+  water: { at: [14, 8], lectern: [15, 8] },
+  fire: { at: [7, 9], lectern: [6, 9] },
+  mending: { at: [7, 10], lectern: [7, 11] },
+};
+
+// The plan direction from one spot to a neighbouring one.
+function planDirection([c1, r1], [c2, r2]) {
+  if (c2 > c1) return "right";
+  if (c2 < c1) return "left";
+  return r2 < r1 ? "back" : "front";
+}
 
 // Hidden light blocks above head height, down the middle of each aisle and
 // over the entrance, so the signs read clearly at night (sign text can't
 // be made to glow by script).
 const LIGHT_LEVEL = 15;
 const LIGHT_SPOTS = [
-  ...[1, 5, 11, 15].flatMap((col) => [1, 4, 7].map((row) => ({ col, row }))),
-  { col: 8, row: 10 },
+  ...[1, 5, 11, 15].flatMap((col) => [1, 4, 8].map((row) => ({ col, row }))),
+  { col: 8, row: 11 },
 ];
 
 // Blocks that may be in the way when a board is placed without `force`.
@@ -125,6 +151,10 @@ const CELLS = (() => {
     }
   }
   for (const { col, row } of LIGHT_SPOTS) cells.push({ kind: "light", col, row, y: 3 });
+  // Lecterns: the reading slope faces the librarian.
+  for (const { at, lectern } of Object.values(LIBRARIANS)) {
+    cells.push({ kind: "lectern", col: lectern[0], row: lectern[1], y: 0, facing: planDirection(lectern, at) });
+  }
   return cells;
 })();
 
@@ -171,6 +201,7 @@ function worldPos(b, cell) {
 function facingName(b, cell) {
   if (cell.facing === "left") return OPPOSITE[RIGHT_OF[b.look]];
   if (cell.facing === "right") return RIGHT_OF[b.look];
+  if (cell.facing === "back") return b.look;
   return OPPOSITE[b.look];
 }
 
@@ -194,6 +225,33 @@ function legacyPositions(b) {
   }
   return out;
 }
+
+// The second layout (9-long stacks, entrance at row 11). Clearing it only
+// removes the kinds of block it was built from, so nothing else in its
+// area is touched.
+function layout2Positions(b) {
+  const d = DIRS[b.look];
+  const r = DIRS[RIGHT_OF[b.look]];
+  const out = [];
+  for (let col = 0; col < 17; col++) {
+    for (let row = 0; row <= 10; row++) {
+      for (let y = 0; y < HEIGHT; y++) {
+        const ahead = 11 - row;
+        const across = col - 8;
+        out.push({ x: b.anchor.x + ahead * d.dx + across * r.dx, y: b.anchor.y + y, z: b.anchor.z + ahead * d.dz + across * r.dz });
+      }
+    }
+  }
+  return out;
+}
+const LAYOUT2_BLOCKS = new Set([
+  BOOKSHELF,
+  LOG,
+  "minecraft:frame",
+  ...SIGN_BLOCKS,
+  "minecraft:light_block",
+  ...Array.from({ length: 16 }, (_, i) => `minecraft:light_block_${i}`),
+]);
 
 // ── Saved state ─────────────────────────────
 
@@ -302,6 +360,16 @@ function lightPermutation() {
   return lightPermutationCache;
 }
 
+// The Library Lectern, its reading slope facing `dir`. Falls back to a
+// plain vanilla lectern if the pack's block isn't available.
+function lecternPermutation(dir) {
+  try {
+    return BlockPermutation.resolve(LECTERN, { "minecraft:cardinal_direction": dir });
+  } catch {
+    return BlockPermutation.resolve("minecraft:lectern");
+  }
+}
+
 function blockAt(pos) {
   try {
     return world.getDimension(board.dim).getBlock(pos);
@@ -344,6 +412,13 @@ function placeCell(cell, { frames, force = false }) {
   if (cell.kind === "light") {
     const light = lightPermutation();
     if (block.typeId !== light.type.id) block.setPermutation(light);
+    return true;
+  }
+  if (cell.kind === "lectern") {
+    const dir = facingName(board, cell);
+    const lectern = lecternPermutation(dir);
+    const current = block.typeId === lectern.type.id ? block.permutation.getState("minecraft:cardinal_direction") : undefined;
+    if (block.typeId !== lectern.type.id || (current !== undefined && current !== dir)) block.setPermutation(lectern);
     return true;
   }
   const facing = DIRS[facingName(board, cell)].facing;
@@ -397,12 +472,12 @@ function repairBoard() {
   }
 }
 
-function clearPositions(dimId, positions) {
+function clearPositions(dimId, positions, onlyTypes) {
   const dimension = world.getDimension(dimId);
   for (const pos of positions) {
     try {
       const block = dimension.getBlock(pos);
-      if (block && block.typeId !== "minecraft:air") block.setPermutation(BlockPermutation.resolve("minecraft:air"));
+      if (block && block.typeId !== "minecraft:air" && (!onlyTypes || onlyTypes.has(block.typeId))) block.setPermutation(BlockPermutation.resolve("minecraft:air"));
     } catch {
       // chunk not loaded
     }
@@ -419,7 +494,8 @@ function clearBoardBlocks() {
 
 function clearLegacyBoard() {
   if (!legacyBoard) return;
-  clearPositions(legacyBoard.dim, legacyPositions(legacyBoard));
+  if (!legacyBoard.version) clearPositions(legacyBoard.dim, legacyPositions(legacyBoard));
+  else clearPositions(legacyBoard.dim, layout2Positions(legacyBoard), LAYOUT2_BLOCKS);
   legacyBoard = undefined;
 }
 
@@ -621,35 +697,21 @@ export function captureBoard(reply) {
   reply("§aBooks captured. From now on §lboard§r§a places the stacks with these books, and punched-out books are put back automatically.");
 }
 
-// Where each group's librarian stands (plan col, row): at the back of the
-// aisle its books face, and the Mending Librarian beside Mending's end cap.
-const LIBRARIAN_SPOTS = {
-  ranged: [1, 0],
-  melee: [4, 0],
-  armor: [6, 0],
-  fire: [7, 0],
-  general: [9, 0],
-  fishing: [10, 0],
-  tools: [12, 0],
-  water: [15, 0],
-  mending: [9, 10],
-};
-
-// The librarians' spots on the live stacks, each with a point to face
-// (toward the entrance). Undefined while there are no live stacks.
+// The librarians' spots on the live stacks (see LIBRARIANS), each with the
+// point to face: their lectern. Undefined while there are no live stacks.
 export function librarianSpots() {
   loadBoard();
   if (!board || board.filling) return undefined;
   return {
     dim: board.dim,
     spots: GROUPS.map((group) => {
-      const [col, row] = LIBRARIAN_SPOTS[group.id];
-      const at = worldPos(board, { col, row, y: 0 });
-      const ahead = worldPos(board, { col, row: row + 6, y: 0 });
+      const { at, lectern } = LIBRARIANS[group.id];
+      const stand = worldPos(board, { col: at[0], row: at[1], y: 0 });
+      const desk = worldPos(board, { col: lectern[0], row: lectern[1], y: 0 });
       return {
         group,
-        pos: { x: at.x + 0.5, y: at.y, z: at.z + 0.5 },
-        face: { x: ahead.x + 0.5, y: ahead.y + 1.6, z: ahead.z + 0.5 },
+        pos: { x: stand.x + 0.5, y: stand.y, z: stand.z + 0.5 },
+        face: { x: desk.x + 0.5, y: desk.y + 1.2, z: desk.z + 0.5 },
       };
     }),
   };
@@ -657,7 +719,7 @@ export function librarianSpots() {
 
 export function boardInfo() {
   loadBoard();
-  const legacy = legacyBoard ? " §eThe old obsidian board is still standing: run §lboard§r§e or §lboard remove§r§e to clear it." : "";
+  const legacy = legacyBoard ? " §eAn older version of the board is still standing: run §lboard§r§e or §lboard remove§r§e to clear it." : "";
   if (!board) return `§7No stacks placed.${capture ? " Books are captured; §lboard§r§7 places them." : ""}${legacy}`;
   const placed = Object.keys(board.placed).length;
   const where = `§6Stacks§r entered from ${fmt(board.anchor)} (${board.dim.replace("minecraft:", "")}), entrance facing ${OPPOSITE[board.look]}.`;
