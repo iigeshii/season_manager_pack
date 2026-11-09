@@ -217,6 +217,42 @@ export function historyLines(player, limit = 10) {
   });
 }
 
+export const OVERSEER = "the Overseer"; // who admin-added tokens are credited to
+
+// What each token on a book did: replays the book's history token by token
+// (admin adds credited to the Overseer, removals taking the newest tokens
+// back off), then sorts the surviving tokens into the steps they paid for.
+// Returns one entry per step that has at least one token, in order:
+//   { step, givers: [[name, count], ...], paid, cost }
+export function stepContributions(book) {
+  loadAll();
+  const tokens = []; // who gave each token on the book, oldest first
+  for (const [, who, bookId, change, kind] of history) {
+    if (bookId !== book.id || !change) continue;
+    if (change > 0) {
+      const giver = kind === "p" ? who : OVERSEER;
+      for (let i = 0; i < change; i++) tokens.push(giver);
+    } else {
+      tokens.splice(Math.max(0, tokens.length + change));
+    }
+  }
+  // Anything recorded before history existed is the Overseer's.
+  while (tokens.length < tokensFor(book)) tokens.unshift(OVERSEER);
+  tokens.splice(tokensFor(book));
+
+  const out = [];
+  let next = 0;
+  for (const step of book.steps) {
+    if (next >= tokens.length) break;
+    const paidBy = tokens.slice(next, next + step.cost);
+    next += step.cost;
+    const counts = new Map();
+    for (const name of paidBy) counts.set(name, (counts.get(name) ?? 0) + 1);
+    out.push({ step, givers: [...counts.entries()], paid: paidBy.length, cost: step.cost });
+  }
+  return out;
+}
+
 // Tokens each player has put on a book (their own deposits only).
 export function giversOf(book) {
   loadAll();

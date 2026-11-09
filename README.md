@@ -1654,11 +1654,12 @@ group's unlocked books with their price (still-locked books are listed
 underneath), then the level, then a confirmation showing the price and
 how many emeralds you have. Buying takes the emeralds from your
 inventory and gives the enchanted book at that level. The menu also has
-**Who helped**, listing every book in the group with the players who
-put Favors on it and how many (a book unlocked only by admin commands
-shows as "a gift from the Overseer"), and **How it works**, a short
-explanation of the rules whose numbers come straight from the pack's
-costs. Every unlocked
+**Who helped**, showing what every Favor on the group's books paid for:
+each level and each price drop, with who gave the Favors (for example
+"Level III: Kai, Fredo (2 of 3 so far)"; Favors added with admin
+commands are credited to the Overseer), and **How it works**, with the
+Favor coin as its icon: a short explanation of the rules whose numbers
+come straight from the pack's costs. Every unlocked
 level of a book costs the same: 32 emeralds, or less once the book has
 been discounted. Each purchase is noted in the content log.
 

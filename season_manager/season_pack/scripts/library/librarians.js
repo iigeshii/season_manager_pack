@@ -1,7 +1,7 @@
 import { world, system, ItemStack, EnchantmentTypes } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { GROUPS, ROMAN, LEVEL_COSTS, DISCOUNT_COSTS, PRICES } from "./books.js";
-import { isOpen, bookStatus, emeralds, onLedgerChange, giversOf } from "./ledger.js";
+import { isOpen, bookStatus, emeralds, onLedgerChange, stepContributions } from "./ledger.js";
 import { librarianSpots, onBoardChange } from "./board.js";
 
 // ─────────────────────────────────────────────
@@ -180,7 +180,7 @@ async function chooseBook(player, group) {
     form.button(`${book.name}\n§8${levelRange(s.level)} · ${emeralds(s.price)}`, "textures/items/book_enchanted");
   }
   form.button("Who helped", "textures/items/book_writable");
-  form.button("How it works", "textures/items/book_normal");
+  form.button("How it works", "textures/items/wyatt_token"); // the Overseer's Favor coin
   form.button("Close");
   const response = await show(player, form);
   if (response.canceled) return undefined;
@@ -193,20 +193,28 @@ async function chooseBook(player, group) {
 const HELPERS = Symbol("helpers");
 const HOW_IT_WORKS = Symbol("how it works");
 
-// Who put Favors on each of this group's books (players' own Favors only).
-// A book unlocked without any player's Favors was a gift from the Overseer.
+// What every Favor on this group's books did: each step (a level, or a
+// price drop) and who paid for it. Favors added by admin commands are
+// credited to the Overseer.
+function stepLabel(step) {
+  return step.kind === "level" ? `Level ${ROMAN[step.level]}` : `Down to ${emeralds(step.price)}`;
+}
+
 async function showHelpers(player, group) {
-  const lines = group.books.map((book) => {
-    const givers = giversOf(book);
-    let names;
-    if (givers.length) names = givers.map(([who, count]) => `${who} (${count})`).join(", ");
-    else if (bookStatus(book).total > 0) names = "§7a gift from the Overseer";
-    else names = "§7no Favors yet";
-    return `§l${book.name}§r\n${names}`;
+  const sections = group.books.map((book) => {
+    const lines = [];
+    if (book.freeLevels > 0) lines.push(`Level ${ROMAN[book.freeLevels]}: §7unlocked from the start§r`);
+    for (const { step, givers, paid, cost } of stepContributions(book)) {
+      const names = givers.map(([who, count]) => (count > 1 ? `${who} ×${count}` : who)).join(", ");
+      const progress = paid < cost ? ` §7(${paid} of ${cost} so far)§r` : "";
+      lines.push(`${stepLabel(step)}: ${names}${progress}`);
+    }
+    if (!lines.length) lines.push("§7no Favors yet§r");
+    return `§l${book.name}§r\n${lines.join("\n")}`;
   });
   const form = new ActionFormData()
     .title(`Who helped: ${group.name}`)
-    .body(`The Overseer's Favors given to each book, and by whom.\n\n${lines.join("\n\n")}`)
+    .body(`What every Overseer's Favor on these books paid for, and who gave it.\n\n${sections.join("\n\n")}`)
     .button("« Back");
   const response = await show(player, form);
   return !response.canceled;
