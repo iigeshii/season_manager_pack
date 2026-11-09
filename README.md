@@ -1449,6 +1449,62 @@ Membership is stored on each player with the run number, so `seal`
 starting a new run cancels the last party, including players who are
 offline.
 
+### Mystic Library tokens
+
+**Work in progress.** So far this covers the token item, the ledger and
+the admin commands. The token board and the librarians' shops come next.
+The full design is in
+[`docs/enchantment-tokens/README.md`](docs/enchantment-tokens/README.md).
+Code in
+[`scripts/library/`](season_manager/season_pack/scripts/library/).
+
+Players earn **Wyatt Tokens** (`newhaven:wyatt_token`) and put them on
+enchanted books to unlock them for everyone. Hand tokens out with the
+regular `/give`, for example `/give Fredo newhaven:wyatt_token 4`.
+
+**The rules.**
+
+- Every book is open once the library is opened. There's no tier gate,
+  so players can put tokens on any book.
+- Unlocking costs 1, 2, 3, 3 and 3 tokens for Levels I to V.
+- Every unlocked level sells for 32 emeralds.
+- Mending starts unlocked. Rescue the Librarian already gave out the
+  first one.
+- Once a book is at its max level, more tokens lower its price: 1 token
+  to 16 emeralds, 2 more to 8, and 3 more to 1.
+- A book never takes more tokens than it needs. A complete book takes
+  none.
+- Level-ups and price drops are announced to the whole server.
+
+Each book only stores its running token total, and its level, discount
+and price all follow from that total. The ledger and its history (who
+put tokens where, and when) are saved with the world.
+
+**Commands.** All are `scriptevent season:library <word>`.
+
+- `open`: opens the library. Run it once, after Rescue the Librarian.
+- `status`: every book's level, price once maxed, and progress toward
+  its next step. `status <book>` shows one book in detail, including who
+  gave its tokens.
+- `add <book> <n>`: adds tokens to a book as an admin.
+- `remove <book> <n>`: takes tokens back off a book. It can drop the
+  book a level.
+- `set <book> <level> [discount]`: puts a book at an exact state, for
+  example `set sharpness 5 1` for Level V at 16 emeralds.
+- `history [player]`: the last 10 entries, or one player's entries and
+  totals.
+- `reset`, then `reset confirm` within 30 seconds: wipes every token and
+  all history, and closes the library.
+
+Book names can be typed in any case, with or without spaces, or as the
+start of the name: `Bane of Arthropods`, `bane_of_arthropods` and
+`bane` all work. If the start matches more than one book, the command
+lists them.
+
+**Frame test (temporary).** `scriptevent season:library_test
+<place|decoy|save|load|clear>` builds a test frame for checking how
+frames behave. It goes away once the real board exists.
+
 ### Pausing/resuming
 
 The cleanup sweep and banned-mob despawning can be toggled off without

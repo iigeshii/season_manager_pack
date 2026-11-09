@@ -327,6 +327,18 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   });
 });
 
+// ── Explosions ──────────────────────────────
+
+// Creepers, TNT and the rest still go off, but the rig's blocks are taken
+// off the list of blocks the explosion destroys.
+world.beforeEvents.explosion.subscribe((event) => {
+  const blocks = event.getImpactedBlocks();
+  const kept = blocks.filter((block) => !findRig(block));
+  if (kept.length === blocks.length) return;
+  event.setImpactedBlocks(kept);
+  const spared = blocks.length - kept.length;
+  system.run(() => world.sendMessage(`§aExplosion: ${spared} test rig block(s) spared. §eAre the frame, book and sign all still there?`));
+});
 // ── Protection ──────────────────────────────
 
 world.beforeEvents.playerBreakBlock.subscribe((event) => {

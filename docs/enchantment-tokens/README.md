@@ -30,6 +30,12 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
   ```
 
   Each band has three rows: group name signs, framed books, and status signs.
+- **One-time setup.** Scripts can't put items into frames, so the first board is filled by hand once:
+  1. `board` builds the empty board, with obsidian, frames, and a sign under each frame naming its book. It also gives Eric all 33 decoy books (32 enchantments plus Mending) in one go, in board order. That needs 33 free inventory slots. If there isn't room, the command says so and gives nothing. `board books` gives the full set again.
+  2. Eric right-clicks each decoy into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 33 placed").
+  3. `board capture` saves the finished board as a structure, plus each frame on its own for put-backs. It refuses to run until all 33 are placed.
+
+  After that, `board` places the saved board, so the frames never need filling again.
 - Each book column is an item frame holding a display copy of the book (a named decoy, explained below), with a sign under it that the pack rewrites, for example:
 
   ```
@@ -80,7 +86,9 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 | Command | What it does |
 |---|---|
 | `season:library open` | Opens the library. Run once, after Rescue the Librarian. |
-| `season:library board` | Builds the board where you stand. An existing board is removed first, so this also moves it. |
+| `season:library board` | Builds the board where you stand. An existing board is removed first, so this also moves it. Before the first capture it builds an empty board and gives you the 33 decoy books. After that it places the saved board. |
+| `season:library board books` | Gives you the full set of 33 decoy books again. |
+| `season:library board capture` | Saves the filled board, plus each frame on its own. It only runs once all 33 books are placed. |
 | `season:library board remove` | Removes the board, its lecterns and its librarians. The ledger is kept. |
 | `season:library status [book]` | Shows the whole library, or one book: level, tokens toward the next step, price. |
 | `season:library add <book> <n>` | Adds tokens to a book, recorded as an admin change. |
@@ -176,9 +184,23 @@ The planner (`season_planner/index.html`) is a static page and can't show live p
 
   The 16×16 texture is `wyatt_token.png`. The iris uses the cyan of Wyatt's skin.
 
-## Technical checks before building
-- Enchanting books from script already works in this pack. `scripts/dungeon/room8_rewards.js` builds an `enchanted_book` and calls `getComponent("minecraft:enchantable").addEnchantment(...)`. Its reward menu (pick a group, then a book) is the pattern the shop will follow.
-- Confirm `beforeEvents.playerInteractWithBlock` fires for item frames with the held item, and can be cancelled so the frame keeps its book. Room 8 already cancels this event for its reward chests.
-- Confirm the explosion before-event lets the script remove board blocks from an explosion's list of blocks to destroy.
-- Confirm the script can place a book inside an item frame when it builds the board. If it can't, the board is built once by hand and saved as a structure, which keeps frame contents.
-- Ledger state lives in world dynamic properties: tokens per book and level by player, the discount step per book, and the board's position and facing. The lectern spots are worked out from the board's position.
+## Technical findings
+Tested in game with the temporary rig in `scripts/library/frame_test.js` (`/scriptevent season:library_test ...`), in survival and creative.
+
+| Check | Result |
+|---|---|
+| Script places a frame, a wall sign and obsidian, and writes the sign | Works. |
+| Script puts a book into a frame | **Doesn't work.** No frame component is exposed, and `replaceitem` silently does nothing. Books must come from a saved structure. |
+| Decoy book (Curse of Vanishing, custom name, lore) goes into a frame by hand | Works, with the glint. |
+| Right-click on a frame with a token is caught and cancelled | Works. The token is taken and the book stays. |
+| Break blocking on frame, sign and obsidian | Works, in survival and creative. **A cancelled break on a sign wipes its text**, so the pack writes it back two ticks later. |
+| Punching a book out of a frame in survival | **Can't be cancelled.** It isn't a break. `entityHitBlock` does fire, so the pack removes the dropped decoy and reloads that one frame from a 1-block structure two ticks later. This was tested and the book comes back straight away. |
+| Saving a rig with `/structure save` and loading it elsewhere, rotated to a new facing | Works. The book survives and the frame faces the right way. |
+
+**What this means for the board:** it's placed from a saved structure that already holds the decoy books, not built block by block. Each book's frame is also saved as its own 1-block structure for put-backs.
+
+Enchanting books from script already works in this pack (`scripts/dungeon/room8_rewards.js`), and its reward menu is the pattern the shop will follow.
+
+Still to check: whether the explosion before-event lets the script remove board blocks from an explosion's list of blocks to destroy.
+
+Ledger state lives in world dynamic properties: tokens per book and level by player, the discount step per book, and the board's position and facing. The lectern spots are worked out from the board's position.

@@ -102,6 +102,23 @@ Run everything from chat.
 
 While a run is on, a party member who leaves the current room (and the airlocks either side) is brought back to the checkpoint; anyone else in the Nether who isn't an operator is held to Room 1.
 
+## Mystic Library tokens
+
+Work in progress: the token board and the librarians' shops aren't built yet. Book names can be typed in any case, with or without spaces, or as the start of the name (`bane`).
+
+| Command | What it does |
+|---|---|
+| `/give <player> newhaven:wyatt_token <n>` | Hands out Wyatt Tokens. |
+| `/scriptevent season:library open` | Opens the library. Run it once, after Rescue the Librarian. |
+| `/scriptevent season:library status` | Every book's level, price once maxed, and progress toward its next step. |
+| `/scriptevent season:library status <book>` | One book in detail, including who gave its tokens. |
+| `/scriptevent season:library add <book> <n>` | Adds tokens to a book as an admin. It never goes past the book's last step. |
+| `/scriptevent season:library remove <book> <n>` | Takes tokens back off a book. It can drop the book a level. |
+| `/scriptevent season:library set <book> <level> [discount]` | Puts a book at an exact state, for example `set sharpness 5 1` for Level V at 16 emeralds. |
+| `/scriptevent season:library history [player]` | The last 10 entries, or one player's entries and totals. |
+| `/scriptevent season:library reset` | Asks for confirmation. Then `reset confirm` within 30 seconds wipes every token and all history, and closes the library. |
+| `/scriptevent season:library_test <place\|decoy\|save\|load\|clear>` | Temporary frame test rig. |
+
 ## Always on (no command)
 
 - Banned mobs (iron golems, piglins, brutes, zombified piglins) removed on spawn.
