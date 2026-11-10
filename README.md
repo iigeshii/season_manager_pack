@@ -1396,8 +1396,12 @@ so respawned players can walk back in). `off` and `reset` close them all.
   **Rewards** ([`room8_rewards.js`](season_manager/season_pack/scripts/dungeon/room8_rewards.js)).
   Eight seconds after he's gone, the portal closes and three chests appear
   against the hall's east wall, under a "Pick your prizes!" sign. Opening any of them shows a menu instead
-  of the chest itself, and each party member picks **2 prizes** (the same
-  one twice is fine):
+  of the chest itself. The first time, each party member is given an
+  **Overseer's Favor** (the [Mystic Library's](#mystic-library-tokens)
+  token, `newhaven:wyatt_token`), which needs 1 free inventory slot like a
+  prize does; without one they're told to make room and open a chest
+  again. Then each party member picks **2 prizes** (the same one twice is
+  fine):
 
   - **Diamond tool**: pickaxe, axe, shovel, or sword
   - **Diamond armor**: helmet, chestplate, leggings, or boots
@@ -1417,8 +1421,8 @@ so respawned players can walk back in). `off` and `reset` close them all.
   of the chests directly. Each pick is written to the content log. After
   their second pick a player is taken out of the party and sent home. The
   event resets (the same as `reset`) once nobody from the party is left in
-  the Nether, or after 3 minutes ("30 seconds left" warning first), and
-  the chests are removed. The lists and counts are at the top of
+  the Nether, and the chests are removed. There's no time limit on
+  choosing: players can take as long as they need. The lists and counts are at the top of
   `room8_rewards.js`.
 
 **The rescued librarian in the village.** `/function
@@ -1431,10 +1435,17 @@ retrain him with Mending later, swap his tag for
 
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks
-either side) is taken back to the checkpoint. Anyone else in the Nether
-who isn't an operator or in the party is held to Room 1 and taken back
-to the dais. Either way they're told "You were
-brought back to the checkpoint."
+either side) is taken back to the checkpoint ("You were brought back to
+the checkpoint."). Anyone else in the Nether who isn't an operator or in
+the party is held to Room 1 and taken back to the dais ("You were brought
+back to the dais.").
+
+Before a run, while Nether portals are open, the Nether is the gathering
+area and the same rule applies to every non-operator: anyone outside
+Room 1 and its airlock (for example, someone who lit their own portal and
+came out elsewhere in the Nether) is taken to the dais within a second.
+With portals closed and no run on there's nothing to hold, because
+closing portals already sends non-operators home.
 
 **Dropping out and coming back.** "Home" is the player's bed (or other
 set spawn point), else the ground at world spawn.

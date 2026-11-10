@@ -152,15 +152,20 @@ function inStageZone(location, stage = currentStage()) {
 // ── Containment ─────────────────────────────
 // The party is held to the current stage. Anyone else in the Nether during
 // a run who isn't an operator (not in the party) is held to Room 1.
+// Before a run, while portals are open, the Nether is the gathering area:
+// every non-operator is held to Room 1 and its airlock, so someone who
+// lights a portal elsewhere is brought to the dais instead of roaming.
 
 system.runInterval(() => {
-  if (!isEventOn() || !origin()) return;
+  if (!origin()) return;
+  const running = isEventOn();
+  if (!running && !netherPortalsOpen()) return; // portals closing already sends non-operators home
   for (const player of world.getDimension(NETHER_ID).getPlayers()) {
     if (isOperator(player)) continue;
-    const stage = isMember(player) ? currentStage() : 1;
+    const stage = running && isMember(player) ? currentStage() : 1;
     if (inStageZone(player.location, stage)) continue;
     sendTo(player, placed(LAYOUT.stages[stage].checkpoint));
-    player.sendMessage("§7You were brought back to the checkpoint.");
+    player.sendMessage(stage === 1 ? "§7You were brought back to the dais." : "§7You were brought back to the checkpoint.");
   }
 }, CONTAINMENT_TICKS);
 

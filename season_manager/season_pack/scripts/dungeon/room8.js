@@ -21,8 +21,8 @@ import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_re
 //  log (date and party, for the Hall of Heroes). His voice comes back
 //  through the portal once more (AFTER below). Then the portal closes and
 //  reward chests appear (room8_rewards.js): each party member picks their
-//  rewards and is sent home. Once nobody from the party is left in the
-//  Nether, or after REWARD_TIME, the whole event resets.
+//  rewards and is sent home. There's no time limit on choosing: once
+//  nobody from the party is left in the Nether, the whole event resets.
 //
 //  Anyone stepping into the portal before he's gone is sent home rather
 //  than through it; after he's gone they're put back in the hall so they
@@ -59,8 +59,6 @@ const AFTER = [
 ];
 const RIDE_TIMEOUT = 300; // vanish anyway if the cart hasn't arrived in 15 s
 const REWARDS_AT = 160; // ticks after he's gone: portal closes, chests appear
-const REWARD_TIME = 3600; // 3 min to choose, then everyone home, full reset
-const REWARD_WARN = REWARD_TIME - 600; // "30 seconds left"
 const HALL_SPOT = [10, 1, 24]; // where someone stepping into the portal is put back
 const PUSH = 0.15; // minecart nudge per step when it slows down
 
@@ -355,19 +353,12 @@ system.runInterval(() => {
         tell(party, "§7The portal closes behind him.");
         tell(
           party,
-          `§6Pick your prizes! §fThe librarian left chests of treasure along the east wall. Open one to pick ${REWARD_PICKS} prizes. When you're done, you'll be sent home.`
+          `§6Pick your prizes! §fThe librarian left chests of treasure along the east wall. Open one to receive an Overseer's Favor and pick ${REWARD_PICKS} prizes. Take as long as you need; when you're done, you'll be sent home.`
         );
-        finale.rewardsAt = now;
         return;
       }
-      const left = now - finale.rewardsAt;
-      if (left >= REWARD_WARN && !finale.warned) {
-        finale.warned = true;
-        tell(party, "§e30 seconds left to choose your rewards.");
-      }
-      // Everyone's picked and gone home (or left), or time's up.
-      if (party.length === 0 || left >= REWARD_TIME) {
-        if (party.length > 0) tell(party, "§7Time's up.");
+      // No time limit: the event ends once everyone's picked and gone home (or left).
+      if (party.length === 0) {
         finale = { phase: "done" };
         closeRewards();
         resetEvent(); // everyone home, everything back for the next group

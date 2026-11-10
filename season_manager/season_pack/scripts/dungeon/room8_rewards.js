@@ -7,8 +7,10 @@ import { isMember, sendHome } from "./mending_rescue.js";
 // ─────────────────────────────────────────────
 //  ROOM 8: THE LIBRARIAN'S THANKS (rewards)
 //  After the librarian is gone, chests appear along the hall's east wall.
-//  Opening any of them shows a menu instead of the chest's inventory: each
-//  party member picks PICKS rewards (the same one twice is fine). Rewards
+//  Opening any of them shows a menu instead of the chest's inventory. The
+//  first time, each party member is given an Overseer's Favor (the Mystic
+//  Library's token); then they pick PICKS rewards (the same one twice is
+//  fine). Rewards
 //  never run out, so there's nothing to refill. A pick only goes through
 //  if the player has room for all of it (FREE_SLOTS). After their last
 //  pick a player leaves the party and is sent home. room8.js decides when
@@ -16,6 +18,7 @@ import { isMember, sendHome } from "./mending_rescue.js";
 // ─────────────────────────────────────────────
 
 const PICKS = 2;
+const FAVOR_ID = "newhaven:wyatt_token"; // the Overseer's Favor, given before the picks
 const SEND_HOME_DELAY = 40; // ticks after the last pick
 const BUSY_RETRIES = 5; // form couldn't show (e.g. chat open): try again
 const BUSY_RETRY_TICKS = 10;
@@ -183,6 +186,7 @@ const TREASURE_BOOKS = new Set(BOOKS.filter((book) => book.treasure).map((book) 
 
 let open = false;
 const picks = new Map(); // player id → picks taken this time the chests are open
+const favored = new Set(); // player ids given their Overseer's Favor this time the chests are open
 const inMenu = new Set(); // player ids with a menu up
 
 const pickCount = (player) => picks.get(player.id) ?? 0;
@@ -240,6 +244,7 @@ export function openRewards() {
   placeSign();
   open = true;
   picks.clear();
+  favored.clear();
   return true;
 }
 
@@ -247,6 +252,7 @@ export function openRewards() {
 export function closeRewards() {
   open = false;
   picks.clear();
+  favored.clear();
   const sign = blockAt(SIGN);
   if (sign?.typeId === SIGN_BLOCK) sign.setPermutation(BlockPermutation.resolve("minecraft:air"));
   for (const p of CHESTS) {
@@ -396,6 +402,30 @@ function give(player, reward) {
   }, SEND_HOME_DELAY);
 }
 
+// The Overseer's Favor comes first, once per player, with the same room
+// check as a prize. Returns whether the player can go on to their picks.
+function giveFavor(player) {
+  if (favored.has(player.id)) return true;
+  const free = freeSlots(player);
+  if (free < 1) {
+    player.sendMessage("§cYou need 1 free inventory slot for your Overseer's Favor (you have 0). Make room and open a chest again.");
+    player.playSound("note.bass");
+    return false;
+  }
+  try {
+    addItems(player, [new ItemStack(FAVOR_ID, 1)]);
+  } catch (error) {
+    console.warn(`[Mending Rescue] Couldn't give ${player.name} their Overseer's Favor: ${error}`);
+    player.sendMessage("§cSomething went wrong giving your Overseer's Favor. Tell an operator.");
+    return false;
+  }
+  favored.add(player.id);
+  player.playSound("random.levelup");
+  player.sendMessage("§aThe Overseer rewards your resilience: you receive an §eOverseer's Favor§a. §fNow pick your prizes.");
+  console.warn(`[Mending Rescue] Reward: ${player.name} got their Overseer's Favor`);
+  return true;
+}
+
 async function runMenu(player) {
   inMenu.add(player.id);
   try {
@@ -428,6 +458,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
       player.sendMessage("§7You've already taken your rewards.");
       return;
     }
+    if (!giveFavor(player)) return;
     runMenu(player);
   });
 });
