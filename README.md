@@ -1468,28 +1468,25 @@ library is ready to open:
 1. Pick the spot. The stacks need a clear, flat area 17 wide, 13 deep
    and 4 high. Stand where the entrance should be, in the middle, facing
    into where the library goes.
-2. Clear your hotbar: the display books go straight into it, one
-   section at a time.
-3. `/scriptevent season:library board`: builds the stacks with empty
-   frames in front of you and gives you the first section's display
-   books (Mending, right in front of you). If blocks are in the way, clear
-   them or use `board force` to replace them.
-4. Right-click each display book into the frame above the sign that
-   names it. A wrong book is refused with the name of the right one. When
-   a section's last book goes in, the next section's books land in your
-   hotbar, in the order you'll walk past them: Mending, then one wall at
-   a time in a straight line, snaking left to right (up the Ranged wall,
-   down the Melee wall, up the Tools/Fire wall, down the General/Fishing
-   wall, up the Armor wall and down the Water wall; "up" is away from the
-   entrance). Chat counts progress until "All 39 are in". If you lose
-   one, `board books` gives the current section again.
-5. `/scriptevent season:library board capture`: saves the filled frames.
+2. `/scriptevent season:library board`: builds the stacks with empty
+   frames in front of you. If blocks are in the way, clear them or use
+   `board force` to replace them.
+3. Fill the frames by looking: with an empty hand, look at an empty
+   frame (or the sign under it, or the shelf behind it) and that frame's
+   display book appears in your hand, with its name on the action bar.
+   Right-click the frame to place it, and your hand is empty for the next
+   one. Looking at another empty frame swaps the book; a real item in
+   your hand is never touched (the action bar asks you to empty it).
+   Chat counts progress until "All 39 are in". (`board books` still
+   hands out display books one section at a time, into your hotbar, if
+   you'd rather carry them.)
+4. `/scriptevent season:library board capture`: saves the filled frames.
    From now on `board` places the stacks with their books already in.
    The three treasure books' frames (below) are emptied.
-6. `/scriptevent season:library open`: opens the library and tells the
+5. `/scriptevent season:library open`: opens the library and tells the
    server. The Mending Librarian appears at the entrance within a few
    seconds, and the old librarians from the rescue event are removed.
-7. `/scriptevent season:library status`: check that everything starts
+6. `/scriptevent season:library status`: check that everything starts
    at 0 except Mending (Level I, 32 emeralds).
 
 After that, hand out tokens with `/give <player> newhaven:wyatt_token <n>`.
@@ -1564,10 +1561,10 @@ and 4 high. Top view, from the entrance:
          . . R   #   M . . T   #   G . . A   #   W . .
          . . R   #   M . . T   #   G . . A   #   W . .
          . . R   #   M . . .   |   . . . A   #   W . .     ← divider
-         . . R   #   M . . F   #   . . . A   #   W . .
+         . . R   #   M . . .   #   . . . A   #   W . .
          . . R   #   M . . F   #   H . . A   #   W . .
-         . . R   #   M . . @   #   H . . A   #   W . .     ← Fire
-         . . R   #   M . . .   #   @ . . .   #   @ . .     ← Fishing, Water
+         . . R   #   M . . F   #   H . . A   #   W . .
+         . . R   #   M . . @   #   @ . . .   #   @ . .     ← Fire, Fishing, Water
          . . .   |   @ . . .   |   . . . .   |   . . .     ← Melee, end caps
          . . .   .   . . . @   ★   . . . .   .   . . .     ← Mending + its librarian
                                 ↑ entrance
@@ -1602,11 +1599,11 @@ structure:
    `board`. The stacks are built in front of you: Mending's frame is
    2 blocks ahead, centred on you, and the back of the stacks is 12
    blocks ahead, with the bottom row at your feet. Any book without a
-   saved frame gets an empty frame, and its display books come one
-   section at a time into your hotbar.
-2. Right-click each display book into the frame above the sign that
-   names it. A book put into the wrong frame is refused, with a message
-   naming the right one. Chat counts progress.
+   saved frame gets an empty frame.
+2. With an empty hand, look at an empty frame: its display book appears
+   in your hand, and right-clicking places it. A book put into the wrong
+   frame is refused, with a message naming the right one. Chat counts
+   progress.
 3. Run `board capture` once all 39 are in. It saves each frame on its
    own, with the way it faced, then empties the frames of treasure books
    nobody has found yet.
@@ -1640,8 +1637,9 @@ away, rebuilds it at once along with any frame or sign that fell off it.
   Before the first capture, this builds empty frames and gives you the
   display books. It refuses if blocks are in the way.
 - `board force`: the same, replacing whatever is in the way.
-- `board books`: gives you the current section's display books again
-  (the books still to be placed, one section at a time).
+- `board books`: gives you display books to carry, one section at a
+  time, into your hotbar (only needed if you'd rather not fill by
+  looking).
 - `board capture`: saves the filled board. It only runs once all 39
   books are in.
 - `board fresh`: builds a new empty board to fill and capture again,

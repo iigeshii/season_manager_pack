@@ -29,10 +29,10 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
            . . R   #   M . . T   #   G . . A   #   W . .
            . . R   #   M . . T   #   G . . A   #   W . .
            . . R   #   M . . .   |   . . . A   #   W . .     ← divider
-           . . R   #   M . . F   #   . . . A   #   W . .
+           . . R   #   M . . .   #   . . . A   #   W . .
            . . R   #   M . . F   #   H . . A   #   W . .
-           . . R   #   M . . @   #   H . . A   #   W . .     ← Fire
-           . . R   #   M . . .   #   @ . . .   #   @ . .     ← Fishing, Water
+           . . R   #   M . . F   #   H . . A   #   W . .
+           . . R   #   M . . @   #   @ . . .   #   @ . .     ← Fire, Fishing, Water
            . . .   |   @ . . .   |   . . . .   |   . . .     ← Melee, end caps
            . . .   .   . . . @   ★   . . . .   .   . . .     ← Mending + its librarian
                                   ↑ entrance: where `board` is run
@@ -43,8 +43,8 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 - Each stack is 4 high: bookshelves at the bottom, a status sign under each book at eye level, the book's frame above it, and a group name sign on top. Dark oak log pillars cap every stack end and divide Tools from Fire and General from Fishing. Signs are birch so their dark text stays readable. Books read left to right for someone standing in the aisle.
 - Eric stands at the entrance facing in and runs `/scriptevent season:library board`. Running it again somewhere else moves the stacks, along with their librarians.
 - **One-time setup.** Scripts can't put items into frames, so the books are filled in by hand once:
-  1. Before anything is captured, `board` builds the stacks with empty frames and hands Eric the display books **one section (group) at a time**, straight into empty hotbar slots, in walking order. When a section's last book goes in, the next section's books follow on their own. The biggest section has 8 books, so a clear hotbar always fits one. `board books` gives the current section again.
-  2. Eric right-clicks each decoy into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 39 placed").
+  1. Before anything is captured, `board` builds the stacks with empty frames.
+  2. **Fill by looking:** with an empty hand, Eric looks at an empty frame (or the sign under it, or the shelf behind it) and that frame's display book appears in Eric's hand, with its name on the action bar. Right-clicking places it. Looking at another empty frame swaps the book, and a real item in hand is never replaced. (`board books` still hands out the display books one section at a time into the hotbar, for anyone who'd rather carry them.) Each decoy goes into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 39 placed").
   3. `board capture` saves each filled frame as its own one-block structure, with the way it faced. It refuses to run until all 39 are placed, and then empties the frames of treasure books nobody has found yet.
 
   After that, `board` builds the shelves and signs by script and loads the saved frames, turned to the new facing. When books are added to the library later, only their frames need filling: `board` loads every saved frame, leaves the new ones empty, hands out just their display books, and `board capture` saves them. Only the board's own blocks are touched, so the aisles are never overwritten. Books captured on the first obsidian board carry over, and that board is cleared away the first time `board` or `board remove` runs.

@@ -25,10 +25,10 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange, isFound, markF
 //         . . R   #   M . . T   #   G . . A   #   W . .     row 2
 //         . . R   #   M . . T   #   G . . A   #   W . .     row 3
 //         . . R   #   M . . .   |   . . . A   #   W . .     row 4   divider
-//         . . R   #   M . . F   #   . . . A   #   W . .     row 5
+//         . . R   #   M . . .   #   . . . A   #   W . .     row 5
 //         . . R   #   M . . F   #   H . . A   #   W . .     row 6
-//         . . R   #   M . . @   #   H . . A   #   W . .     row 7   Fire
-//         . . R   #   M . . .   #   @ . . .   #   @ . .     row 8   Fishing, Water
+//         . . R   #   M . . F   #   H . . A   #   W . .     row 7
+//         . . R   #   M . . @   #   @ . . .   #   @ . .     row 8   Fire, Fishing, Water
 //         . . .   |   @ . . .   |   . . . .   |   . . .     row 9   Melee, end caps
 //         . . .   .   . . . @   *   . . . .   .   . . .     row 10  Mending + its librarian
 //                                ^ entrance (row 12): where `board` is run
@@ -46,7 +46,7 @@ const BOARD_KEY = "season:library_board"; // where the board stands now
 const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const LAYOUT_VERSION = 5; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure
+const LAYOUT_VERSION = 6; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure, 6: Fire centred
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
@@ -65,7 +65,7 @@ const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
 const FACES = [
   { col: 2, facing: "left", groups: [["ranged", [2, 3, 4, 5, 6, 7, 8]]] },
   { col: 4, facing: "right", groups: [["melee", [8, 7, 6, 5, 4, 3, 2, 1]]] },
-  { col: 7, facing: "left", groups: [["tools", [1, 2, 3]], ["fire", [5, 6]]] },
+  { col: 7, facing: "left", groups: [["tools", [1, 2, 3]], ["fire", [6, 7]]] },
   { col: 9, facing: "right", groups: [["fishing", [7, 6]], ["general", [3, 2, 1]]] },
   { col: 12, facing: "left", groups: [["armor", [2, 3, 4, 5, 6, 7]]] },
   { col: 14, facing: "right", groups: [["water", [7, 6, 5, 4, 3, 2, 1]]] },
@@ -78,7 +78,7 @@ const LIBRARIANS = {
   ranged: { at: [2, 1], face: [1, 1] },
   melee: { at: [4, 9], face: [5, 9] },
   tools: { at: [7, 0], face: [6, 0] },
-  fire: { at: [7, 7], face: [6, 7] },
+  fire: { at: [7, 8], face: [6, 8] },
   general: { at: [9, 0], face: [10, 0] },
   fishing: { at: [9, 8], face: [10, 8] },
   armor: { at: [12, 1], face: [11, 1] },
@@ -719,10 +719,10 @@ export function placeBoard(player, options, reply) {
       if (!board.filling) return finishPlacing(reply);
       refreshSigns();
       reply(
-        `§aStacks built, entrance facing ${OPPOSITE[board.look]}. ${missing.length} frame(s) still need their display book: ` +
-          "put each one in the frame above its sign, then run §lboard capture§r§a."
+        `§aStacks built, entrance facing ${OPPOSITE[board.look]}. ${missing.length} frame(s) still need their display book. ` +
+          "With an empty hand, look at an empty frame (or the sign under it): its display book appears in your hand. " +
+          "Right-click the frame to place it. When they're all in, run §lboard capture§r§a."
       );
-      giveDecoys(player, reply, missing);
     },
     reply
   );
@@ -887,10 +887,57 @@ function placeDecoy(player, book, held) {
       ? `§a${book.name} placed. All ${BOOKS.length} are in: run §lboard capture§r§a.`
       : `§a${book.name} placed (${placed} of ${BOOKS.length}).`
   );
-  // Section done: hand over the next section's books.
-  const sectionDone = BOOKS.every((b) => b.group !== book.group || board.placed[b.id]);
-  if (sectionDone && placed < BOOKS.length) giveDecoys(player, (text) => player.sendMessage(text));
 }
+
+// ── Filling by looking ──────────────────────
+// While the stacks are being filled, a player with an empty hand (or a
+// display book in it) who looks at an empty frame, or the sign under it,
+// is handed that frame's display book. Right-clicking then places it. Only
+// display books are ever swapped out of a hand.
+
+const FILL_LOOK_INTERVAL = 4; // ticks
+const FACE_STEPS = { North: [0, 0, -1], South: [0, 0, 1], East: [1, 0, 0], West: [-1, 0, 0], Up: [0, 1, 0], Down: [0, -1, 0] };
+
+function bookInView(player) {
+  let hit;
+  try {
+    hit = player.getBlockFromViewDirection({ maxDistance: 6, includePassableBlocks: true });
+  } catch {
+    return undefined;
+  }
+  if (!hit?.block) return undefined;
+  let cell = cellAt(hit.block);
+  // Looking at the shelf behind a frame: the frame is on the face that was hit.
+  if (cell?.kind === "shelf" && FACE_STEPS[hit.face]) {
+    const [dx, dy, dz] = FACE_STEPS[hit.face];
+    const { x, y, z } = hit.block;
+    cell = cellIndex.get(keyOf(board.dim, { x: x + dx, y: y + dy, z: z + dz }));
+  }
+  return cell?.kind === "frame" || cell?.kind === "status" ? cell.book : undefined;
+}
+
+system.runInterval(() => {
+  loadBoard();
+  if (!board?.filling) return;
+  for (const player of world.getPlayers()) {
+    try {
+      if (player.dimension.id !== board.dim) continue;
+      const book = bookInView(player);
+      if (!book || board.placed[book.id]) continue;
+      const equippable = player.getComponent("minecraft:equippable");
+      const held = equippable?.getEquipment(EquipmentSlot.Mainhand);
+      if (held && !isDecoy(held)) {
+        player.onScreenDisplay?.setActionBar(`§7Empty your hand to get the §b${book.name}§7 display book`);
+        continue;
+      }
+      if (held?.nameTag === decoyName(book)) continue;
+      equippable.setEquipment(EquipmentSlot.Mainhand, decoyBook(book));
+      player.onScreenDisplay?.setActionBar(`§b${book.name}§r: right-click the frame to place it`);
+    } catch (error) {
+      console.warn(`[Library] Couldn't hand a display book to ${player.name}: ${error}`);
+    }
+  }
+}, FILL_LOOK_INTERVAL);
 
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   const { block, player, itemStack } = event;
