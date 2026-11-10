@@ -117,10 +117,12 @@ Book names can be typed in any case, with or without spaces, or as the start of 
 | `/scriptevent season:library set <book> <level> [discount]` | Puts a book at an exact state, for example `set sharpness 5 1` for Level V at 16 emeralds. |
 | `/scriptevent season:library history [player]` | The last 10 entries, or one player's entries and totals. |
 | `/scriptevent season:library reset` | Asks for confirmation. Then `reset confirm` within 30 seconds wipes every token and all history, and closes the library. |
-| `/scriptevent season:library board` | Stand at the entrance facing in: builds the library stacks in front of you (17 wide, 11 deep, 4 high), or moves them there. Before the first capture it builds empty frames and gives you the 33 display books. Refuses if blocks are in the way. |
+| `/scriptevent season:library board` | Stand at the entrance facing in: builds the library stacks in front of you (17 wide, 13 deep, 4 high), or moves them there. Saved books load into their frames; any frame without a saved book is left empty and its display books come one section at a time into your hotbar. Refuses if blocks are in the way. |
 | `/scriptevent season:library board force` | The same, replacing whatever is in the way. |
-| `/scriptevent season:library board books` | Gives you the 33 display books again (needs 33 free slots). |
-| `/scriptevent season:library board capture` | Saves each filled frame. Only runs once all 33 books are in their frames. |
+| `/scriptevent season:library board books` | Gives you the current section's display books again, into your hotbar. |
+| `/scriptevent season:library board capture` | Saves each filled frame. Only runs once all 39 books are in their frames. Then empties the frames of treasure books nobody has found yet. |
+| `/scriptevent season:library found <book>` | Marks a treasure book (Swift Sneak, Soul Speed, Wind Burst) found without a real copy, credited to the Overseer. |
+| `/scriptevent season:library lost <book>` | Admin correction: a treasure book goes back to not found and its frame is emptied. |
 | `/scriptevent season:library board fresh` | Builds the stacks with empty frames, to fill and capture again. |
 | `/scriptevent season:library board info` | Where the stacks are, and whether they're captured or still being filled. |
 | `/scriptevent season:library board remove` | Removes the stacks (and the old obsidian board, if it's still standing). The ledger and the saved books are kept. |

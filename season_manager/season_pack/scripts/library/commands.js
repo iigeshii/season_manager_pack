@@ -13,8 +13,12 @@ import {
   historyLines,
   giversOf,
   booksOf,
+  isFound,
+  foundBy,
+  markFound,
+  markLost,
 } from "./ledger.js";
-import { placeBoard, removeBoard, captureBoard, giveDecoys, boardInfo } from "./board.js";
+import { placeBoard, removeBoard, captureBoard, giveDecoys, boardInfo, refreshTreasureFrame } from "./board.js";
 
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: ADMIN COMMANDS
@@ -26,6 +30,8 @@ import { placeBoard, removeBoard, captureBoard, giveDecoys, boardInfo } from "./
 //    /scriptevent season:library history [player]
 //    /scriptevent season:library reset            (then: reset confirm)
 //    /scriptevent season:library board [force|fresh|books|capture|remove|info]
+//    /scriptevent season:library found <book>     (a treasure book: mark it found)
+//    /scriptevent season:library lost <book>      (a treasure book: back to not found)
 //  Tokens themselves are handed out with /give @p newhaven:wyatt_token <n>.
 // ─────────────────────────────────────────────
 
@@ -36,6 +42,7 @@ let resetAskedAt = -Infinity;
 
 // One book, short: "Unbreaking II (1/3)", "Sharpness V · 16em (1/2)", "Lure III · 1em ✔".
 function shortStatus(book) {
+  if (!isFound(book)) return `${book.name} §8(not found)§r`;
   const s = bookStatus(book);
   const level = s.level ? ROMAN[s.level] : "—";
   const price = s.level >= book.max ? ` · ${s.price}em` : "";
@@ -53,6 +60,9 @@ function bookDetail(book) {
   const s = bookStatus(book);
   const group = book.groupName === book.name ? "" : ` (${book.groupName})`;
   const lines = [`§6${book.name}§r${group}: Level ${s.level ? ROMAN[s.level] : "0"} of ${ROMAN[book.max]}.`];
+  if (book.treasure) {
+    lines.push(isFound(book) ? `Treasure book, found by §e${foundBy(book)}§r.` : `Treasure book, §cnot found yet§r (seek: ${book.treasure}).`);
+  }
   if (s.level > 0) lines.push(`Sells for §6${emeralds(s.price)}§r.`);
   else lines.push("Not for sale yet.");
   if (s.next) lines.push(`Next: ${describeStep(book, s.next)}, §b${s.progress}/${s.next.cost}§r tokens.`);
@@ -93,6 +103,7 @@ function handle(word, args, who, reply, player) {
       const { book, error } = findBook(text);
       if (error) return reply(`§c${error}`);
       if (word === "add") {
+        if (!isFound(book)) return reply(`§c${book.name} hasn't been found yet. Use §lfound ${book.id}§r§c first.`);
         const taken = addTokens(book, count, who, "a");
         if (!taken) return reply(`§c${book.name} is already complete. No tokens added.`);
         reply(`§aAdded ${taken} to ${book.name}${taken < count ? ` (it only needed ${taken})` : ""}.`);
@@ -113,6 +124,20 @@ function handle(word, args, who, reply, player) {
       const problem = setBook(book, level, discount, who);
       if (problem) return reply(`§c${problem}`);
       reply(`§a${book.name} set.`);
+      return reply(bookDetail(book));
+    }
+
+    case "found":
+    case "lost": {
+      const { book, error } = findBook(args.join(" "));
+      if (error) return reply(`§c${error}`);
+      if (!book.treasure) return reply(`§c${book.name} isn't a treasure book.`);
+      if (word === "found") {
+        if (!markFound(book, who, true)) return reply(`§7${book.name} is already found.`);
+      } else if (!markLost(book, who)) {
+        return reply(`§7${book.name} isn't marked found.`);
+      }
+      refreshTreasureFrame(book);
       return reply(bookDetail(book));
     }
 
@@ -155,7 +180,7 @@ function handle(word, args, who, reply, player) {
 
     default:
       return reply(
-        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset | board ...>"
+        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset | board ... | found <book> | lost <book>>"
       );
   }
 }

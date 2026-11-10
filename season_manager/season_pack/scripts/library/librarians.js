@@ -1,7 +1,7 @@
 import { world, system, ItemStack, EnchantmentTypes } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { GROUPS, ROMAN, LEVEL_COSTS, DISCOUNT_COSTS, PRICES } from "./books.js";
-import { isOpen, bookStatus, emeralds, onLedgerChange, stepContributions } from "./ledger.js";
+import { isOpen, bookStatus, emeralds, onLedgerChange, stepContributions, isFound, foundBy } from "./ledger.js";
 import { librarianSpots, onBoardChange } from "./board.js";
 
 // ─────────────────────────────────────────────
@@ -171,9 +171,13 @@ const levelRange = (level) => (level === 1 ? "Level I" : `Levels I–${ROMAN[lev
 
 async function chooseBook(player, group) {
   const books = forSale(group);
-  const locked = group.books.filter((book) => bookStatus(book).level === 0);
+  const locked = group.books.filter((book) => isFound(book) && bookStatus(book).level === 0);
+  const unfound = group.books.filter((book) => !isFound(book));
   let body = `You have §6${emeralds(countEmeralds(player))}§r.`;
   if (locked.length) body += `\n\n§7Still locked: ${locked.map((b) => b.name).join(", ")}. Put Overseer's Favors on them at the stacks.`;
+  if (unfound.length) {
+    body += `\n\n§7Not found yet: ${unfound.map((b) => `${b.name} (${b.treasure})`).join(", ")}. Bring a real copy to its frame at the stacks.`;
+  }
   const form = new ActionFormData().title(librarianName(group)).body(body);
   for (const book of books) {
     const s = bookStatus(book);
@@ -203,13 +207,16 @@ function stepLabel(step) {
 async function showHelpers(player, group) {
   const sections = group.books.map((book) => {
     const lines = [];
+    if (book.treasure) {
+      lines.push(isFound(book) ? `Found by: ${foundBy(book)}` : `§7not found yet (seek: ${book.treasure})§r`);
+    }
     if (book.freeLevels > 0) lines.push(`Level ${ROMAN[book.freeLevels]}: §7unlocked from the start§r`);
     for (const { step, givers, paid, cost } of stepContributions(book)) {
       const names = givers.map(([who, count]) => (count > 1 ? `${who} ×${count}` : who)).join(", ");
       const progress = paid < cost ? ` §7(${paid} of ${cost} so far)§r` : "";
       lines.push(`${stepLabel(step)}: ${names}${progress}`);
     }
-    if (!lines.length) lines.push("§7no Favors yet§r");
+    if (!lines.length || (book.treasure && lines.length === 1 && isFound(book))) lines.push("§7no Favors yet§r");
     return `§l${book.name}§r\n${lines.join("\n")}`;
   });
   const form = new ActionFormData()
@@ -230,7 +237,8 @@ async function showHowItWorks(player) {
     `§lUnlocking levels§r\nFavors per level: ${levelCosts}.`,
     `§lBuying§r\nPick a book here, then a level, then confirm. Every unlocked level costs ${emeralds(PRICES[0])}, or less once the book has been made cheaper. The emeralds come from your inventory.`,
     `§lCheaper books§r\nOnce a book is at its top level, more Favors lower its price for everyone: ${discounts}.`,
-    "§lKeeping track§r\nThe sign under each book shows its level, price and progress. Who helped lists everyone who put Favors on this librarian's books.",
+    "§lTreasure books§r\nSome books can only be found out in the world: Swift Sneak (Ancient City), Soul Speed (Bastion) and Wind Burst (Trial Chamber). Their frames start empty. Bring a real copy (one with other enchantments too is fine) and right-click its empty frame: the library keeps your book, everyone hears you found it, and from then on it's unlocked with Favors like any other book.",
+    "§lKeeping track§r\nThe sign under each book shows its level, price and progress. Who helped lists everyone who put Favors on this librarian's books, and who found each treasure book.",
   ].join("\n\n");
   const form = new ActionFormData().title("How it works").body(body).button("« Back");
   const response = await show(player, form);

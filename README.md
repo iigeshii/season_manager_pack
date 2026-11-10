@@ -1468,21 +1468,24 @@ library is ready to open:
 1. Pick the spot. The stacks need a clear, flat area 17 wide, 13 deep
    and 4 high. Stand where the entrance should be, in the middle, facing
    into where the library goes.
-2. Empty your inventory down to 3 items at most: the next step hands you
-   33 display books.
+2. Clear your hotbar: the display books go straight into it, one
+   section at a time.
 3. `/scriptevent season:library board`: builds the stacks with empty
-   frames in front of you and gives you the 33 display books, in walking
-   order: Mending (right in front of you) first, then one wall at a time
-   in a straight line, snaking left to right: up the Ranged wall, down
-   the Melee wall, up the Armor/Fire wall, down the General/Fishing wall,
-   up the Tools wall and down the Water wall ("up" is away from the
-   entrance). If blocks are in the way, clear them or use `board force`
-   to replace them.
+   frames in front of you and gives you the first section's display
+   books (Mending, right in front of you). If blocks are in the way, clear
+   them or use `board force` to replace them.
 4. Right-click each display book into the frame above the sign that
-   names it. A wrong book is refused with the name of the right one, and
-   chat counts progress until "All 33 are in".
+   names it. A wrong book is refused with the name of the right one. When
+   a section's last book goes in, the next section's books land in your
+   hotbar, in the order you'll walk past them: Mending, then one wall at
+   a time in a straight line, snaking left to right (up the Ranged wall,
+   down the Melee wall, up the Tools/Fire wall, down the General/Fishing
+   wall, up the Armor wall and down the Water wall; "up" is away from the
+   entrance). Chat counts progress until "All 39 are in". If you lose
+   one, `board books` gives the current section again.
 5. `/scriptevent season:library board capture`: saves the filled frames.
    From now on `board` places the stacks with their books already in.
+   The three treasure books' frames (below) are emptied.
 6. `/scriptevent season:library open`: opens the library and tells the
    server. The Mending Librarian appears at the entrance within a few
    seconds, and the old librarians from the rescue event are removed.
@@ -1506,6 +1509,18 @@ run `board` again.
   to 16 emeralds, 2 more to 8, and 3 more to 1.
 - A book never takes more tokens than it needs. A complete book takes
   none.
+- **Treasure books.** Swift Sneak, Soul Speed and Wind Burst can only be
+  found out in the world (Ancient City, Bastion, Trial Chamber). Their
+  frames start empty, with a sign reading "Not yet found" and where to
+  look. When a player right-clicks the empty frame holding a real
+  enchanted book that has that enchantment (other enchantments on the
+  same book are fine), the library keeps the book, its display copy goes
+  in the frame, and the whole server hears who found it. From then on it
+  works like any other book. Until then it can't take tokens.
+- The library has 39 books: the 32 enchantments in the groups below,
+  Mending, and Frost Walker, Density and Breach (ordinary books) besides
+  the three treasure books. Armor holds Swift Sneak, Soul Speed and Frost
+  Walker; Melee holds Density, Breach and Wind Burst.
 - Level-ups and price drops are announced to the whole server.
 
 Each book only stores its running token total, and its level, discount
@@ -1526,7 +1541,12 @@ put tokens where, and when) are saved with the world.
 - `history [player]`: the last 10 entries, or one player's entries and
   totals.
 - `reset`, then `reset confirm` within 30 seconds: wipes every token and
-  all history, and closes the library.
+  all history, marks the treasure books not found again, and closes the
+  library.
+- `found <book>`: marks a treasure book found without a real copy
+  (credited to the Overseer) and puts its display copy in the frame.
+- `lost <book>`: an admin correction: the treasure book goes back to not
+  found and its frame is emptied. Its tokens stay recorded.
 
 Book names can be typed in any case, with or without spaces, or as the
 start of the name: `Bane of Arthropods`, `bane_of_arthropods` and
@@ -1539,16 +1559,16 @@ and 4 high. Top view, from the entrance:
 
 ```
         aisle A  S1  aisle B   S2  aisle C   S3  aisle D
-         . . .   |   . . . @   |   @ . . .   |   . . .     ← Armor, General
-         . . @   #   . . . A   #   G . . .   #   W . .     ← Ranged
-         . . R   #   M . . A   #   G . . @   #   W . .     ← Tools
-         . . R   #   M . . A   #   G . . T   #   W . .
-         . . R   #   M . . .   |   . . . T   #   W . .     ← divider
-         . . R   #   M . . F   #   . . . T   #   W . .
-         . . R   #   M . . F   #   H . . .   #   W . .
-         . . R   #   @ . . @   #   H . . .   #   W . .     ← Melee, Fire
-         . . R   #   . . . .   #   @ . . .   #   @ . .     ← Fishing, Water
-         . . .   |   . . . .   |   . . . .   |   . . .     ← end caps
+         . . .   |   . . . @   |   @ . . .   |   . . .     ← Tools, General
+         . . @   #   M . . T   #   G . . @   #   W . .     ← Ranged, Armor
+         . . R   #   M . . T   #   G . . A   #   W . .
+         . . R   #   M . . T   #   G . . A   #   W . .
+         . . R   #   M . . .   |   . . . A   #   W . .     ← divider
+         . . R   #   M . . F   #   . . . A   #   W . .
+         . . R   #   M . . F   #   H . . A   #   W . .
+         . . R   #   M . . @   #   H . . A   #   W . .     ← Fire
+         . . R   #   M . . .   #   @ . . .   #   @ . .     ← Fishing, Water
+         . . .   |   @ . . .   |   . . . .   |   . . .     ← Melee, end caps
          . . .   .   . . . @   ★   . . . .   .   . . .     ← Mending + its librarian
                                 ↑ entrance
   #  bookshelf   |  dark oak log   @ librarian
@@ -1558,7 +1578,7 @@ and 4 high. Top view, from the entrance:
 
 Each stack has bookshelves at the bottom, a status sign under each book
 at eye level, the book's item frame above that, and a group name sign on
-top. Dark oak log pillars cap the ends of every stack and divide Armor
+top. Dark oak log pillars cap the ends of every stack and divide Tools
 from Fire and General from Fishing on the middle stack. A status sign
 shows the book's level, its price, and the tokens toward its next step.
 Every sign is rewritten whenever the ledger changes, including after
@@ -1581,16 +1601,21 @@ structure:
 1. Stand at the entrance spot, facing into the library, and run
    `board`. The stacks are built in front of you: Mending's frame is
    2 blocks ahead, centred on you, and the back of the stacks is 12
-   blocks ahead, with the bottom row at your feet. Before anything is
-   captured, this also gives you the 33 display books (32 enchantments
-   plus Mending), which needs 33 free inventory slots.
+   blocks ahead, with the bottom row at your feet. Any book without a
+   saved frame gets an empty frame, and its display books come one
+   section at a time into your hotbar.
 2. Right-click each display book into the frame above the sign that
    names it. A book put into the wrong frame is refused, with a message
    naming the right one. Chat counts progress.
-3. Run `board capture` once all 33 are in. It saves each frame on its
-   own, with the way it faced.
+3. Run `board capture` once all 39 are in. It saves each frame on its
+   own, with the way it faced, then empties the frames of treasure books
+   nobody has found yet.
 
-After that, `board` builds the shelves and signs itself and loads the 33
+When books are added to the library later, only their frames need
+filling: `board` loads every saved frame, leaves the new ones empty and
+hands out just their display books, then `board capture` again.
+
+After that, `board` builds the shelves and signs itself and loads the
 saved frames into place, turned to match the way you face, and moves the
 stacks if they're already somewhere else. Only the board's own blocks are
 touched, so anything in the aisles is left alone. Books captured on the
@@ -1615,8 +1640,9 @@ away, rebuilds it at once along with any frame or sign that fell off it.
   Before the first capture, this builds empty frames and gives you the
   display books. It refuses if blocks are in the way.
 - `board force`: the same, replacing whatever is in the way.
-- `board books`: gives you the 33 display books again.
-- `board capture`: saves the filled board. It only runs once all 33
+- `board books`: gives you the current section's display books again
+  (the books still to be placed, one section at a time).
+- `board capture`: saves the filled board. It only runs once all 39
   books are in.
 - `board fresh`: builds a new empty board to fill and capture again,
   even when a captured board is saved.

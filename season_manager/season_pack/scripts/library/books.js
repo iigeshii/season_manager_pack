@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: BOOKS AND COSTS
-//  Every book the library sells, in board order (top band left to right,
-//  then the bottom band), and the token ladder each one climbs.
+//  Every book the library sells, by group, and the token ladder each one
+//  climbs. Treasure books can only be found out in the world: their
+//  frames start empty until someone brings a real copy home.
 // ─────────────────────────────────────────────
 
 // Tokens to unlock each level (index 0 = Level I). Never more than 3.
@@ -23,6 +24,13 @@ const SIGN_NAMES = {
   projectile_protection: "Proj. Prot",
   bane_of_arthropods: "Bane of Arth.",
   fire_protection: "Fire Prot",
+};
+
+// Where to look for each treasure book (shown on its sign until found).
+const TREASURE_HINTS = {
+  swift_sneak: "Ancient City",
+  soul_speed: "Bastion",
+  wind_burst: "Trial Chamber",
 };
 
 // [group id, group name, [[enchantment id, book name, max level], ...]]
@@ -52,6 +60,9 @@ const CATALOG = [
       ["protection", "Protection", 4],
       ["blast_protection", "Blast Protection", 4],
       ["projectile_protection", "Projectile Protection", 4],
+      ["swift_sneak", "Swift Sneak", 3],
+      ["soul_speed", "Soul Speed", 3],
+      ["frost_walker", "Frost Walker", 2],
     ],
   ],
   [
@@ -63,6 +74,9 @@ const CATALOG = [
       ["bane_of_arthropods", "Bane of Arthropods", 5],
       ["knockback", "Knockback", 2],
       ["looting", "Looting", 3],
+      ["density", "Density", 5],
+      ["breach", "Breach", 4],
+      ["wind_burst", "Wind Burst", 3],
     ],
   ],
   [
@@ -133,6 +147,7 @@ export const GROUPS = CATALOG.map(([id, name, books]) => ({
       group: id,
       groupName: name,
       signName: SIGN_NAMES[bookId] ?? bookName,
+      treasure: TREASURE_HINTS[bookId], // where to find it, for treasure books
       freeLevels,
       steps,
       maxTokens: steps.reduce((sum, step) => sum + step.cost, 0),

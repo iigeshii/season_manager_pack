@@ -1,6 +1,6 @@
 import { world, system, BlockPermutation, ItemStack, EnchantmentTypes, EquipmentSlot } from "@minecraft/server";
 import { GROUPS, BOOKS, ROMAN } from "./books.js";
-import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange } from "./ledger.js";
+import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange, isFound, markFound } from "./ledger.js";
 
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: THE TOKEN BOARD
@@ -20,22 +20,24 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange } from "./ledge
 //  Top view, as seen from the entrance (row 0 at the back):
 //
 //        aisle A  S1  aisle B   S2  aisle C   S3  aisle D
-//         . . .   |   . . . @   |   @ . . .   |   . . .     row 0   Armor, General
-//         . . @   #   . . . A   #   G . . .   #   W . .     row 1   Ranged
-//         . . R   #   M . . A   #   G . . @   #   W . .     row 2   Tools
-//         . . R   #   M . . A   #   G . . T   #   W . .     row 3
-//         . . R   #   M . . .   |   . . . T   #   W . .     row 4   divider
-//         . . R   #   M . . F   #   . . . T   #   W . .     row 5
-//         . . R   #   M . . F   #   H . . .   #   W . .     row 6
-//         . . R   #   @ . . @   #   H . . .   #   W . .     row 7   Melee, Fire
-//         . . R   #   . . . .   #   @ . . .   #   @ . .     row 8   Fishing, Water
-//         . . .   |   . . . .   |   . . . .   |   . . .     row 9   end caps
+//         . . .   |   . . . @   |   @ . . .   |   . . .     row 0   Tools, General
+//         . . @   #   M . . T   #   G . . @   #   W . .     row 1   Ranged, Armor
+//         . . R   #   M . . T   #   G . . A   #   W . .     row 2
+//         . . R   #   M . . T   #   G . . A   #   W . .     row 3
+//         . . R   #   M . . .   |   . . . A   #   W . .     row 4   divider
+//         . . R   #   M . . F   #   . . . A   #   W . .     row 5
+//         . . R   #   M . . F   #   H . . A   #   W . .     row 6
+//         . . R   #   M . . @   #   H . . A   #   W . .     row 7   Fire
+//         . . R   #   M . . .   #   @ . . .   #   @ . .     row 8   Fishing, Water
+//         . . .   |   @ . . .   |   . . . .   |   . . .     row 9   Melee, end caps
 //         . . .   .   . . . @   *   . . . .   .   . . .     row 10  Mending + its librarian
 //                                ^ entrance (row 12): where `board` is run
 //
 //  @ librarian, standing beside their group's books and facing into the
-//  aisle. Each stack is 4 high: bookshelves at the bottom, status signs at
-//  eye level, frames above them, group name signs on top.
+//  aisle. Armor includes Swift Sneak and Soul Speed and Melee includes Wind
+//  Burst: treasure books whose frames stay empty until someone brings a
+//  real copy home. Each stack is 4 high: bookshelves at the bottom, status
+//  signs at eye level, frames above them, group name signs on top.
 // ─────────────────────────────────────────────
 
 const TOKEN_ID = "newhaven:wyatt_token";
@@ -44,7 +46,7 @@ const BOARD_KEY = "season:library_board"; // where the board stands now
 const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const LAYOUT_VERSION = 4; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: final
+const LAYOUT_VERSION = 5; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
@@ -62,10 +64,10 @@ const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
 // for someone standing in front of them).
 const FACES = [
   { col: 2, facing: "left", groups: [["ranged", [2, 3, 4, 5, 6, 7, 8]]] },
-  { col: 4, facing: "right", groups: [["melee", [6, 5, 4, 3, 2]]] },
-  { col: 7, facing: "left", groups: [["armor", [1, 2, 3]], ["fire", [5, 6]]] },
+  { col: 4, facing: "right", groups: [["melee", [8, 7, 6, 5, 4, 3, 2, 1]]] },
+  { col: 7, facing: "left", groups: [["tools", [1, 2, 3]], ["fire", [5, 6]]] },
   { col: 9, facing: "right", groups: [["fishing", [7, 6]], ["general", [3, 2, 1]]] },
-  { col: 12, facing: "left", groups: [["tools", [3, 4, 5]]] },
+  { col: 12, facing: "left", groups: [["armor", [2, 3, 4, 5, 6, 7]]] },
   { col: 14, facing: "right", groups: [["water", [7, 6, 5, 4, 3, 2, 1]]] },
   { col: 8, facing: "front", groups: [["mending", [10]]] },
 ];
@@ -74,12 +76,12 @@ const FACES = [
 // face: one step out into their aisle (the entrance, for Mending).
 const LIBRARIANS = {
   ranged: { at: [2, 1], face: [1, 1] },
-  armor: { at: [7, 0], face: [6, 0] },
-  general: { at: [9, 0], face: [10, 0] },
-  tools: { at: [12, 2], face: [11, 2] },
-  melee: { at: [4, 7], face: [5, 7] },
+  melee: { at: [4, 9], face: [5, 9] },
+  tools: { at: [7, 0], face: [6, 0] },
   fire: { at: [7, 7], face: [6, 7] },
+  general: { at: [9, 0], face: [10, 0] },
   fishing: { at: [9, 8], face: [10, 8] },
+  armor: { at: [12, 1], face: [11, 1] },
   water: { at: [14, 8], face: [15, 8] },
   mending: { at: [7, 10], face: [7, 11] },
 };
@@ -357,6 +359,7 @@ function blockAt(pos) {
 function signText(cell) {
   if (cell.kind === "group") return `\n§l§5${cell.group.name}`;
   const book = cell.book;
+  if (!isFound(book)) return [`§l${book.signName}`, "§8Not yet found", `§8Seek: ${book.treasure}`, "§1Bring one here"].join("\n");
   const s = bookStatus(book);
   const lines = [`§l${book.signName}`];
   if (s.level === 0) {
@@ -392,6 +395,10 @@ function placeCell(cell, { frames, force = false }) {
   }
   const facing = DIRS[facingName(board, cell)].facing;
   if (cell.kind === "frame") {
+    if (waitingForCopy(cell.book)) {
+      if (block.typeId !== "minecraft:frame") block.setPermutation(BlockPermutation.resolve("minecraft:frame", { facing_direction: facing }));
+      return true;
+    }
     if (block.typeId === "minecraft:frame") return true;
     if (capture && !board.filling) return restoreFrame(cell.book);
     if (frames) {
@@ -497,6 +504,31 @@ function rotation(fromDir, toDir, flip) {
   return `${steps * 90}_degrees`;
 }
 
+// A treasure book's frame stays empty on the live stacks until someone
+// brings home a real copy.
+const waitingForCopy = (book) => Boolean(capture) && !board.filling && !isFound(book);
+
+// Empties a book's frame (the decoy goes too).
+function emptyFrame(book) {
+  const cell = FRAME_CELLS.get(book.id);
+  const pos = worldPos(board, cell);
+  const block = blockAt(pos);
+  if (!block) return;
+  block.setPermutation(BlockPermutation.resolve("minecraft:air"));
+  block.setPermutation(BlockPermutation.resolve("minecraft:frame", { facing_direction: DIRS[facingName(board, cell)].facing }));
+  removeDroppedDecoys(board.dim, [pos], 2);
+}
+
+// After a treasure book is marked found or not found: show its display
+// copy, or empty its frame again.
+export function refreshTreasureFrame(book) {
+  loadBoard();
+  if (!board || board.filling || !capture || !book.treasure) return;
+  if (isFound(book)) restoreFrame(book);
+  else emptyFrame(book);
+  refreshSigns();
+}
+
 // Loads a book's saved frame into its spot, turned to face the right way.
 function restoreFrame(book) {
   const cell = FRAME_CELLS.get(book.id);
@@ -514,14 +546,15 @@ function frameFacesRight(book) {
   return block?.typeId === "minecraft:frame" && block.permutation.getState("facing_direction") === DIRS[facingName(board, cell)].facing;
 }
 
-// Puts every saved frame in place. Some versions turn structures the other
-// way round: if frames come out facing backwards, turn them the other way
-// and remember that for next time.
-function loadFrames(reply) {
-  for (const book of BOOKS) restoreFrame(book);
+// Puts the given books' saved frames in place, then calls done(). Some
+// versions turn structures the other way round: if frames come out facing
+// backwards, turn them the other way and remember that for next time.
+function loadFrames(books, done, reply) {
+  if (!books.length) return done();
+  for (const book of books) restoreFrame(book);
   system.runTimeout(() => {
-    const wrong = BOOKS.filter((book) => !frameFacesRight(book));
-    if (!wrong.length) return finishPlacing(reply);
+    const wrong = books.filter((book) => !frameFacesRight(book));
+    if (!wrong.length) return done();
     capture.flip = !capture.flip;
     writeJson(CAPTURE_KEY, capture);
     for (const book of wrong) {
@@ -530,8 +563,8 @@ function loadFrames(reply) {
       restoreFrame(book);
     }
     system.runTimeout(() => {
-      const still = BOOKS.filter((book) => !frameFacesRight(book));
-      if (!still.length) return finishPlacing(reply);
+      const still = books.filter((book) => !frameFacesRight(book));
+      if (!still.length) return done();
       reply(`§c${still.length} frame(s) didn't come out right: ${still.map((b) => b.name).join(", ")}. Try placing the board again.`);
     }, 2);
   }, 2);
@@ -576,17 +609,52 @@ const WALKING_ORDER = (() => {
   return order.map((cell) => cell.book);
 })();
 
-export function giveDecoys(player, reply) {
+// The display books still to be put in frames: all of them, or while the
+// stacks are being filled, just the ones not placed yet.
+function booksToPlace() {
+  loadBoard();
+  if (!board?.filling) return BOOKS;
+  return BOOKS.filter((book) => !board.placed[book.id]);
+}
+
+const HOTBAR_SLOTS = 9;
+
+// Gives the display books one section (group) at a time, in walking order,
+// straight into empty hotbar slots: the next section that still has frames
+// to fill. When its last book goes in, the next section's books follow on
+// their own (see placeDecoy). Books the player already holds aren't given
+// again. The biggest section has 8 books, so a clear hotbar always fits one.
+export function giveDecoys(player, reply, books = booksToPlace()) {
   const container = player.getComponent("minecraft:inventory").container;
-  if (container.emptySlotsCount < BOOKS.length) {
-    return reply(
-      `§cYou need ${BOOKS.length} free inventory slots for the display books (you have ${container.emptySlotsCount}). ` +
-        "Make room, then run §lboard books§r§c."
-    );
+  const wanted = new Set(books.map((book) => book.id));
+  const ordered = WALKING_ORDER.filter((book) => wanted.has(book.id));
+  if (!ordered.length) return reply("§7Every frame already has its display book.");
+  const group = GROUPS.find((g) => g.id === ordered[0].group);
+  const section = ordered.filter((book) => book.group === group.id);
+
+  const held = new Set();
+  for (let i = 0; i < container.size; i++) {
+    const item = container.getItem(i);
+    if (isDecoy(item)) held.add(item.nameTag);
   }
-  for (const book of WALKING_ORDER) container.addItem(decoyBook(book));
+  const toGive = section.filter((book) => !held.has(decoyName(book)));
+  if (toGive.length > container.emptySlotsCount) {
+    return reply(`§cYou need ${toGive.length} free slots for the ${group.name} display books. Make room, then run §lboard books§r§c.`);
+  }
+
+  // Empty hotbar slots first, in order, then anywhere.
+  let slot = 0;
+  for (const book of toGive) {
+    while (slot < HOTBAR_SLOTS && container.getItem(slot)) slot++;
+    if (slot < HOTBAR_SLOTS) container.setItem(slot++, decoyBook(book));
+    else container.addItem(decoyBook(book));
+  }
+  const left = ordered.length - section.length;
   reply(
-    `§aGave you all ${BOOKS.length} display books in walking order: Mending first, then up the far-left aisle, down the next, and so on.`
+    (section.length === 1
+      ? `§aHere is the §e${group.name}§a display book: ${section[0].name}.`
+      : `§aHere are the §e${group.name}§a display books, in the order you'll walk past them: ${section.map((b) => b.name).join(", ")}.`) +
+      (left ? ` When they're all in, the next section's books follow (${left} more to go).` : " That's the last section.")
   );
 }
 
@@ -604,23 +672,28 @@ function blockedCells(candidate) {
   return count;
 }
 
-// `board [force|fresh]`: builds the stacks in front of the player, or moves them there.
+// `board [force|fresh]`: builds the stacks in front of the player, or moves
+// them there. Saved books are loaded into their frames; any book without a
+// saved frame (all of them with `fresh`) gets an empty frame and its display
+// book, to be filled by hand and captured.
 export function placeBoard(player, options, reply) {
   loadBoard();
+  const fresh = Boolean(options.fresh) || !capture;
+  const missing = BOOKS.filter((book) => fresh || !capture.facings[book.id]);
   const candidate = {
     version: LAYOUT_VERSION,
     dim: player.dimension.id,
     anchor: { x: Math.floor(player.location.x), y: Math.floor(player.location.y), z: Math.floor(player.location.z) },
     look: lookDirection(player),
-    filling: !capture || Boolean(options.fresh),
-    placed: {},
+    filling: missing.length > 0,
+    placed: Object.fromEntries(BOOKS.filter((book) => !missing.includes(book)).map((book) => [book.id, true])),
   };
   clearLegacyBoard();
   const blocked = blockedCells(candidate);
   if (blocked < 0) return reply("§cPart of that spot isn't loaded. Move closer and try again.");
   if (blocked > 0 && !options.force) {
     return reply(
-      `§c${blocked} block(s) are in the way of the stacks (17 wide, 11 deep, 4 high, starting just ahead of you). ` +
+      `§c${blocked} block(s) are in the way of the stacks (17 wide, 13 deep, 4 high, starting just ahead of you). ` +
         "Clear the space, or run §lboard force§r§c to replace them."
     );
   }
@@ -629,16 +702,30 @@ export function placeBoard(player, options, reply) {
   board = candidate;
   saveBoard();
 
-  // Shelves and signs first, then the frames.
+  // Shelves, lights and signs first, then empty frames where no saved book
+  // goes, then the saved books.
   for (const cell of CELLS) if (cell.kind !== "frame") placeCell(cell, { frames: false, force: true });
-  if (!board.filling) return loadFrames(reply);
-
-  // Empty frames, to be filled by hand and then captured.
-  for (const cell of CELLS) if (cell.kind === "frame") placeCell(cell, { frames: true });
-  reply(
-    `§aEmpty stacks built, entrance facing ${OPPOSITE[board.look]}. Put each display book in the frame above its sign, then run §lboard capture§r§a.`
+  const toLoad = BOOKS.filter((book) => !missing.includes(book) && (board.filling || isFound(book)));
+  for (const book of BOOKS) {
+    if (toLoad.includes(book)) continue;
+    const cell = FRAME_CELLS.get(book.id);
+    blockAt(worldPos(board, cell))?.setPermutation(
+      BlockPermutation.resolve("minecraft:frame", { facing_direction: DIRS[facingName(board, cell)].facing })
+    );
+  }
+  loadFrames(
+    toLoad,
+    () => {
+      if (!board.filling) return finishPlacing(reply);
+      refreshSigns();
+      reply(
+        `§aStacks built, entrance facing ${OPPOSITE[board.look]}. ${missing.length} frame(s) still need their display book: ` +
+          "put each one in the frame above its sign, then run §lboard capture§r§a."
+      );
+      giveDecoys(player, reply, missing);
+    },
+    reply
   );
-  giveDecoys(player, reply);
 }
 
 export function removeBoard(reply) {
@@ -667,9 +754,12 @@ export function captureBoard(reply) {
     }
   }
   const dimension = world.getDimension(board.dim);
-  const facings = {};
+  // On live stacks, a treasure book not found yet has an empty frame: keep
+  // its earlier saved copy instead of saving the empty frame over it.
+  const toSave = board.filling ? BOOKS : BOOKS.filter((book) => isFound(book));
+  const facings = { ...(capture?.facings ?? {}) };
   try {
-    for (const book of BOOKS) {
+    for (const book of toSave) {
       const cell = FRAME_CELLS.get(book.id);
       const pos = worldPos(board, cell);
       dimension.runCommand(`structure save ${bookStructure(book)} ${fmt(pos)} ${fmt(pos)} false disk true`);
@@ -683,7 +773,14 @@ export function captureBoard(reply) {
   board.filling = false;
   board.placed = {};
   saveBoard();
-  reply("§aBooks captured. From now on §lboard§r§a places the stacks with these books, and punched-out books are put back automatically.");
+  // Treasure books nobody has brought home yet: empty their frames.
+  const waiting = BOOKS.filter((book) => !isFound(book));
+  for (const book of waiting) emptyFrame(book);
+  refreshSigns();
+  reply(
+    "§aBooks captured. From now on §lboard§r§a places the stacks with these books, and punched-out books are put back automatically." +
+      (waiting.length ? ` §e${waiting.map((b) => b.name).join(", ")} wait in empty frames until someone brings home a real copy.` : "")
+  );
 }
 
 // The librarians' spots on the live stacks (see LIBRARIANS), each with the
@@ -735,6 +832,7 @@ function takeOneToken(player) {
 
 function deposit(player, book) {
   if (board.filling) return player.sendMessage("§7The stacks aren't finished yet.");
+  if (!isFound(book)) return player.sendMessage(`§7${book.name} hasn't been found yet. Bring a real copy to this frame first.`);
   if (!isOpen()) return player.sendMessage("§7The Mystic Library isn't open yet. Keep your token for now.");
   if (!bookStatus(book).next) return player.sendMessage(`§7${book.name} is complete. It can't take any more tokens.`);
   if (!takeOneToken(player)) return;
@@ -744,6 +842,35 @@ function deposit(player, book) {
     ? `${s.next.kind === "level" ? `Level ${ROMAN[s.next.level]}` : `next price drop`}: ${s.progress}/${s.next.cost}`
     : "complete!";
   player.sendMessage(`§aYour token went to §b${book.name}§a. ${progress}`);
+}
+
+// A real enchanted book with this book's enchantment on it (other
+// enchantments alongside are fine). Display copies don't count.
+function teachesBook(item, book) {
+  if (item?.typeId !== "minecraft:enchanted_book" || isDecoy(item)) return false;
+  try {
+    return Boolean(item.getComponent("minecraft:enchantable")?.getEnchantment(book.id));
+  } catch {
+    return false;
+  }
+}
+
+// A player brings home a treasure book: the library keeps their copy, the
+// display copy goes in the frame, and everyone hears who found it.
+function donate(player, book) {
+  if (isFound(book)) return;
+  const equippable = player.getComponent("minecraft:equippable");
+  const held = equippable?.getEquipment(EquipmentSlot.Mainhand);
+  if (!teachesBook(held, book)) return;
+  if (held.amount > 1) {
+    held.amount -= 1;
+    equippable.setEquipment(EquipmentSlot.Mainhand, held);
+  } else {
+    equippable.setEquipment(EquipmentSlot.Mainhand);
+  }
+  markFound(book, player.name);
+  restoreFrame(book);
+  player.sendMessage(`§aThe library keeps your book. §b${book.name}§a can now be unlocked with Overseer's Favors.`);
 }
 
 function placeDecoy(player, book, held) {
@@ -760,6 +887,9 @@ function placeDecoy(player, book, held) {
       ? `§a${book.name} placed. All ${BOOKS.length} are in: run §lboard capture§r§a.`
       : `§a${book.name} placed (${placed} of ${BOOKS.length}).`
   );
+  // Section done: hand over the next section's books.
+  const sectionDone = BOOKS.every((b) => b.group !== book.group || board.placed[b.id]);
+  if (sectionDone && placed < BOOKS.length) giveDecoys(player, (text) => player.sendMessage(text));
 }
 
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
@@ -783,6 +913,12 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   event.cancel = true;
   if (repeat) return;
   system.run(() => {
+    if (waitingForCopy(cell.book)) {
+      if (teachesBook(itemStack, cell.book)) return donate(player, cell.book);
+      return player.sendMessage(
+        `§7This frame is waiting for a real §b${cell.book.name}§7 book. Find one (try: ${cell.book.treasure}) and bring it here. Books with other enchantments too are fine.`
+      );
+    }
     if (itemStack?.typeId === TOKEN_ID) return deposit(player, cell.book);
     if (filling && isDecoy(itemStack)) return placeDecoy(player, cell.book, itemStack);
     if (!filling) player.sendMessage(`§7Hold an Overseer's Favor and use it here to put it toward §b${cell.book.name}§7.`);
@@ -811,8 +947,9 @@ world.afterEvents.entityHitBlock.subscribe((event) => {
     try {
       const pos = worldPos(board, cell);
       removeDroppedDecoys(board.dim, [pos], 2);
-      if (capture && !board.filling) restoreFrame(cell.book);
-      else if (board.placed[cell.book.id]) {
+      if (capture && !board.filling) {
+        if (!waitingForCopy(cell.book)) restoreFrame(cell.book);
+      } else if (board.placed[cell.book.id]) {
         delete board.placed[cell.book.id];
         saveBoard();
       }

@@ -39,14 +39,15 @@ function writeChunked(key, value) {
   world.setDynamicProperty(`${key}#n`, count);
 }
 
-const freshState = () => ({ open: false, tokens: {} });
+const freshState = () => ({ open: false, tokens: {}, found: {} });
 
-let state; // { open, tokens: { bookId: total } }
-let history; // [[time, player, bookId, change, kind]], oldest first; kind: p = player, a = admin add, r = admin remove, s = admin set
+let state; // { open, tokens: { bookId: total }, found: { bookId: { by, time } } }
+let history; // [[time, player, bookId, change, kind]], oldest first; kind: p = player, a = admin add, r = admin remove, s = admin set, f = found, l = marked not found
 
 function loadAll() {
   if (state) return;
   state = readChunked(STATE_KEY, freshState());
+  state.found ??= {}; // saved before treasure books existed
   history = readChunked(HISTORY_KEY, []);
 }
 
@@ -76,9 +77,23 @@ function record(player, book, change, kind) {
 
 // ── Reading ─────────────────────────────────
 
+export const OVERSEER = "the Overseer"; // who admin-added tokens (and admin-marked finds) are credited to
+
 export function isOpen() {
   loadAll();
   return state.open;
+}
+
+// Treasure books can't take tokens until someone has brought a real copy
+// home; every other book is always "found".
+export function isFound(book) {
+  loadAll();
+  return !book.treasure || Boolean(state.found[book.id]);
+}
+
+export function foundBy(book) {
+  loadAll();
+  return state.found[book.id]?.by;
 }
 
 export function tokensFor(book) {
@@ -141,6 +156,7 @@ export function openLibrary() {
 // giver. `kind` is "p" for a player's own token, "a" for an admin add.
 export function addTokens(book, count, player, kind = "p") {
   loadAll();
+  if (!isFound(book)) return 0;
   const before = tokensFor(book);
   const taken = Math.max(0, Math.min(count, book.maxTokens - before));
   if (!taken) return 0;
@@ -167,6 +183,7 @@ export function removeTokens(book, count, player) {
 // or undefined when it worked.
 export function setBook(book, level, discount, player) {
   loadAll();
+  if (!isFound(book)) return `${book.name} hasn't been found yet. Mark it found first.`;
   if (!Number.isInteger(level) || level < book.freeLevels || level > book.max) {
     return `${book.name} goes from Level ${ROMAN[book.freeLevels]} to ${ROMAN[book.max]}.`;
   }
@@ -184,6 +201,33 @@ export function setBook(book, level, discount, player) {
   saveState();
   record(player, book, total - before, "s");
   return undefined;
+}
+
+// Records that a treasure book has been brought home, and tells everyone.
+// Returns false if it was already found.
+export function markFound(book, player, byAdmin = false) {
+  loadAll();
+  if (!book.treasure || state.found[book.id]) return false;
+  state.found[book.id] = { by: byAdmin ? OVERSEER : player, time: Date.now() };
+  saveState();
+  record(player, book, 0, "f");
+  world.sendMessage(
+    byAdmin
+      ? `§b${book.name}§d has been found. The Mystic Library can now teach it!`
+      : `§e${player}§d brought home §b${book.name}§d! The Mystic Library can now teach it.`
+  );
+  return true;
+}
+
+// Admin correction: the treasure book goes back to not found. Its tokens
+// stay recorded, but it can't take more or be sold until it's found again.
+export function markLost(book, player) {
+  loadAll();
+  if (!book.treasure || !state.found[book.id]) return false;
+  delete state.found[book.id];
+  saveState();
+  record(player, book, 0, "l");
+  return true;
 }
 
 export function resetLibrary() {
@@ -206,18 +250,18 @@ function day(time) {
 const bookById = (id) => BOOKS.find((book) => book.id === id);
 
 const KIND_LABELS = { p: "", a: " (admin)", r: " (admin remove)", s: " (admin set)" };
+const EVENT_LABELS = { f: "found", l: "marked not found (admin)" };
 
 export function historyLines(player, limit = 10) {
   loadAll();
   const wanted = player?.toLowerCase();
   const rows = history.filter(([, who]) => !wanted || who.toLowerCase() === wanted);
   return rows.slice(-limit).map(([time, who, bookId, change, kind]) => {
+    if (EVENT_LABELS[kind]) return `§7${day(time)}§r ${who} → ${bookById(bookId)?.name ?? bookId} ${EVENT_LABELS[kind]}`;
     const sign = change >= 0 ? "+" : "";
     return `§7${day(time)}§r ${who} → ${bookById(bookId)?.name ?? bookId} ${sign}${change}${KIND_LABELS[kind] ?? ""}`;
   });
 }
-
-export const OVERSEER = "the Overseer"; // who admin-added tokens are credited to
 
 // What each token on a book did: replays the book's history token by token
 // (admin adds credited to the Overseer, removals taking the newest tokens
