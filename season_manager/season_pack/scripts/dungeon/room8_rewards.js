@@ -1,6 +1,7 @@
 import { world, system, BlockPermutation, ItemStack, ItemTypes, EnchantmentTypes } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { P, NETHER_ID, origin } from "./run_state.js";
+import { BOOKS } from "../library/books.js";
 import { isMember, sendHome } from "./mending_rescue.js";
 
 // ─────────────────────────────────────────────
@@ -49,7 +50,9 @@ const DIAMOND_ARMOR = [
   ["diamond_boots", "Diamond Boots"],
 ];
 
-// Every book at its max level, Mending included; the curses are left out.
+// Every book at its max level, Mending included; the curses are left out,
+// and so are the Mystic Library's treasure books (Swift Sneak, Soul Speed,
+// Wind Burst): those have to be found out in the world and brought home.
 // Ids this version of the game doesn't have are skipped.
 const BOOK_GROUPS = [
   [
@@ -174,6 +177,7 @@ const APPLE_REWARD = {
 
 const itemExists = (id) => ItemTypes.get("minecraft:" + id) !== undefined;
 const enchantExists = (id) => EnchantmentTypes.get(id) !== undefined;
+const TREASURE_BOOKS = new Set(BOOKS.filter((book) => book.treasure).map((book) => book.id));
 
 // ── State ───────────────────────────────────
 
@@ -315,7 +319,7 @@ async function chooseGear(player, title, list) {
 
 async function chooseBook(player) {
   for (;;) {
-    const groups = BOOK_GROUPS.map(([group, books]) => [group, books.filter(([id]) => enchantExists(id))]).filter(
+    const groups = BOOK_GROUPS.map(([group, books]) => [group, books.filter(([id]) => enchantExists(id) && !TREASURE_BOOKS.has(id))]).filter(
       ([, books]) => books.length > 0
     );
     const form = new ActionFormData().title("Enchanted Book").body(header(player));

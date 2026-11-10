@@ -120,8 +120,8 @@ Book names can be typed in any case, with or without spaces, or as the start of 
 | `/scriptevent season:library board` | Stand at the entrance facing in: builds the library stacks in front of you (17 wide, 13 deep, 4 high), or moves them there. Saved books load into their frames; any frame without a saved book is left empty. Fill those by looking at them with an empty hand (the display book appears in your hand) and right-clicking. Refuses if blocks are in the way. |
 | `/scriptevent season:library board force` | The same, replacing whatever is in the way. |
 | `/scriptevent season:library board books` | Gives you display books to carry, one section at a time, into your hotbar (only if you'd rather not fill by looking). |
-| `/scriptevent season:library board capture` | Saves each filled frame. Only runs once all 39 books are in their frames. Then empties the frames of treasure books nobody has found yet. |
-| `/scriptevent season:library found <book>` | Marks a treasure book (Swift Sneak, Soul Speed, Wind Burst) found without a real copy, credited to the Overseer. |
+| `/scriptevent season:library board capture` | Saves each filled frame. Only runs once all 40 books are in their frames. Then empties the frames of treasure books nobody has found yet. |
+| `/scriptevent season:library found <book> [level]` | Marks a treasure book (Swift Sneak, Soul Speed, Wind Burst) found without a real copy, credited to the Overseer, unlocked up to `level` if given. |
 | `/scriptevent season:library lost <book>` | Admin correction: a treasure book goes back to not found and its frame is emptied. |
 | `/scriptevent season:library board fresh` | Builds the stacks with empty frames, to fill and capture again. |
 | `/scriptevent season:library board info` | Where the stacks are, and whether they're captured or still being filled. |

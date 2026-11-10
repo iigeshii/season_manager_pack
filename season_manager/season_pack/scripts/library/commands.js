@@ -1,5 +1,5 @@
 import { world, system } from "@minecraft/server";
-import { GROUPS, ROMAN, findBook } from "./books.js";
+import { GROUPS, BOOKS, ROMAN, findBook } from "./books.js";
 import {
   isOpen,
   openLibrary,
@@ -14,6 +14,7 @@ import {
   giversOf,
   booksOf,
   isFound,
+  isAvailable,
   foundBy,
   markFound,
   markLost,
@@ -30,7 +31,7 @@ import { placeBoard, removeBoard, captureBoard, giveDecoys, boardInfo, refreshTr
 //    /scriptevent season:library history [player]
 //    /scriptevent season:library reset            (then: reset confirm)
 //    /scriptevent season:library board [force|fresh|books|capture|remove|info]
-//    /scriptevent season:library found <book>     (a treasure book: mark it found)
+//    /scriptevent season:library found <book> [level]  (a treasure book: mark it found, unlocked up to [level])
 //    /scriptevent season:library lost <book>      (a treasure book: back to not found)
 //  Tokens themselves are handed out with /give @p newhaven:wyatt_token <n>.
 // ─────────────────────────────────────────────
@@ -104,6 +105,7 @@ function handle(word, args, who, reply, player) {
       if (error) return reply(`§c${error}`);
       if (word === "add") {
         if (!isFound(book)) return reply(`§c${book.name} hasn't been found yet. Use §lfound ${book.id}§r§c first.`);
+        if (!isAvailable(book)) return reply(`§c${book.name} isn't in this version of the game.`);
         const taken = addTokens(book, count, who, "a");
         if (!taken) return reply(`§c${book.name} is already complete. No tokens added.`);
         reply(`§aAdded ${taken} to ${book.name}${taken < count ? ` (it only needed ${taken})` : ""}.`);
@@ -129,11 +131,13 @@ function handle(word, args, who, reply, player) {
 
     case "found":
     case "lost": {
-      const { book, error } = findBook(args.join(" "));
+      const { text, numbers } = splitNumbers([...args], word === "found" ? 1 : 0);
+      const { book, error } = findBook(text);
       if (error) return reply(`§c${error}`);
       if (!book.treasure) return reply(`§c${book.name} isn't a treasure book.`);
       if (word === "found") {
-        if (!markFound(book, who, true)) return reply(`§7${book.name} is already found.`);
+        const [level = 0] = numbers;
+        if (!markFound(book, who, true, level)) return reply(`§7${book.name} is already found.`);
       } else if (!markLost(book, who)) {
         return reply(`§7${book.name} isn't marked found.`);
       }
@@ -162,7 +166,11 @@ function handle(word, args, who, reply, player) {
       if (system.currentTick - resetAskedAt > RESET_WINDOW) return reply("§cType §lreset§r§c first, then §lreset confirm§r§c.");
       resetAskedAt = -Infinity;
       resetLibrary();
-      return reply("§aLibrary reset: no tokens, no history, Mending only, and closed. Run §lopen§r§a to open it again.");
+      // Treasure books are not found again: empty their frames.
+      for (const book of BOOKS) if (book.treasure) refreshTreasureFrame(book);
+      return reply(
+        "§aLibrary reset: no tokens, no history, treasure books not found, Mending only, and closed. Run §lopen§r§a to open it again."
+      );
     }
 
     case "board": {
@@ -180,7 +188,7 @@ function handle(word, args, who, reply, player) {
 
     default:
       return reply(
-        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset | board ... | found <book> | lost <book>>"
+        "§7Use: /scriptevent season:library <open | status [book] | add <book> <n> | remove <book> <n> | set <book> <level> [discount] | history [player] | reset | board ... | found <book> [level] | lost <book>>"
       );
   }
 }

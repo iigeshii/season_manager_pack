@@ -28,8 +28,8 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
            . . @   #   M . . T   #   G . . @   #   W . .     ← Ranged, Armor
            . . R   #   M . . T   #   G . . A   #   W . .
            . . R   #   M . . T   #   G . . A   #   W . .
+           . . R   #   M . . .   #   G . . A   #   W . .
            . . R   #   M . . .   |   . . . A   #   W . .     ← divider
-           . . R   #   M . . .   #   . . . A   #   W . .
            . . R   #   M . . F   #   H . . A   #   W . .
            . . R   #   M . . F   #   H . . A   #   W . .
            . . R   #   M . . @   #   @ . . .   #   @ . .     ← Fire, Fishing, Water
@@ -44,8 +44,8 @@ This replaces the hand-edited token ledger in `season_planner/index.html` with a
 - Eric stands at the entrance facing in and runs `/scriptevent season:library board`. Running it again somewhere else moves the stacks, along with their librarians.
 - **One-time setup.** Scripts can't put items into frames, so the books are filled in by hand once:
   1. Before anything is captured, `board` builds the stacks with empty frames.
-  2. **Fill by looking:** with an empty hand, Eric looks at an empty frame (or the sign under it, or the shelf behind it) and that frame's display book appears in Eric's hand, with its name on the action bar. Right-clicking places it. Looking at another empty frame swaps the book, and a real item in hand is never replaced. (`board books` still hands out the display books one section at a time into the hotbar, for anyone who'd rather carry them.) Each decoy goes into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 39 placed").
-  3. `board capture` saves each filled frame as its own one-block structure, with the way it faced. It refuses to run until all 39 are placed, and then empties the frames of treasure books nobody has found yet.
+  2. **Fill by looking:** with an empty hand, Eric looks at an empty frame (or the sign under it, or the shelf behind it) and that frame's display book appears in Eric's hand, with its name on the action bar. Right-clicking places it. Looking at another empty frame swaps the book, and a real item in hand is never replaced. (`board books` still hands out the display books one section at a time into the hotbar, for anyone who'd rather carry them.) Each decoy goes into the frame above its matching sign. A decoy put into the wrong frame is refused, with a message naming the book that belongs there. Chat counts progress ("12 of 40 placed").
+  3. `board capture` saves each filled frame as its own one-block structure, with the way it faced. It refuses to run until all 40 are placed, and then empties the frames of treasure books nobody has found yet.
 
   After that, `board` builds the shelves and signs by script and loads the saved frames, turned to the new facing. When books are added to the library later, only their frames need filling: `board` loads every saved frame, leaves the new ones empty, hands out just their display books, and `board capture` saves them. Only the board's own blocks are touched, so the aisles are never overwritten. Books captured on the first obsidian board carry over, and that board is cleared away the first time `board` or `board remove` runs.
 - Each book is an item frame holding a display copy of the book (a named decoy, explained below), with a sign under it that the pack rewrites, for example:
@@ -152,9 +152,10 @@ A full discount costs 7 tokens for any book. (It was 1, 2, 3 at first; the first
 ### Treasure books
 - Three books can only be found out in the world, never bought from a vanilla villager: **Swift Sneak** (Ancient City), **Soul Speed** (Bastion, Piglin bartering) and **Wind Burst** (Trial Chamber ominous vaults). A player asked for them so nobody has to find another Ancient City or Trial Chamber every time they want one.
 - Their frames start **empty** on the live stacks, with a sign reading "Not yet found", where to look (just the place: "Ancient City"), and "Bring one here". Treasure books sit at the end of their group's section. Until found, they can't take tokens and no librarian sells them.
-- The first player to right-click the empty frame holding a **real** enchanted book with that enchantment (other enchantments on the same book are fine; display copies don't count) donates it: the library keeps the book, the display copy is loaded into the frame, and the whole server hears who found it ("Fredo brought home Swift Sneak!"). From then on it's an ordinary book: tokens unlock its levels, its librarian sells it, and it can be discounted.
-- Who helped shows "Found by: <player>". Admins can mark one found without a copy (`found <book>`, credited to the Overseer) or undo a find (`lost <book>`).
-- Three more books joined the library as ordinary token books at the same time: **Frost Walker** (often found anyway, so a find requirement would just be a chore), and the mace books **Density** and **Breach** (enchanting-table books, missing only because there's no enchanting table). Armor holds Frost Walker, Swift Sneak and Soul Speed; Melee holds Density, Breach and Wind Burst. Curses are left out.
+- The first player to right-click the empty frame holding a **real** enchanted book with that enchantment (other enchantments on the same book are fine; display copies don't count) donates it: the library keeps the book, the display copy is loaded into the frame, and the whole server hears who found it ("Fredo brought home Swift Sneak II!"). **The found copy counts:** the book starts unlocked up to that copy's level (a Swift Sneak II unlocks Levels I and II), and those levels are credited to the finder in Who helped ("Level II: Fredo (found)"). From then on it's an ordinary book: tokens unlock the levels above, its librarian sells it, and it can be discounted.
+- Who helped shows "Found by: <player>". Admins can mark one found without a copy (`found <book> [level]`, credited to the Overseer) or undo a find (`lost <book>`).
+- Three more books joined the library as ordinary token books at the same time: **Frost Walker** (often found anyway, so a find requirement would just be a chore), and the mace books **Density** and **Breach** (enchanting-table books, missing only because there's no enchanting table). Armor holds Frost Walker, Swift Sneak and Soul Speed; Melee holds Density, Breach and Wind Burst.
+- **Lunge** (the spear enchantment, max III) joined after that as an ordinary book in Melee, before Wind Burst. To make room, Looting moved from Melee to General, and the divider on the middle stack moved one column toward the front. A book whose enchantment the running game doesn't have reads "Not in this version yet" on its sign and can't take tokens or be sold. Curses are left out.
 
 ## Examples
 
@@ -182,23 +183,23 @@ A full discount costs 7 tokens for any book. (It was 1, 2, 3 at first; the first
 
 ## Whole-library totals
 
-The library has 38 books across the 8 groups, plus Mending (39 in all).
+The library has 39 books across the 8 groups, plus Mending (40 in all).
 
 | Max level | Books | Tokens to max each | Subtotal |
 |---|---|---|---|
 | V | Sharpness, Smite, Bane of Arthropods, Density, Efficiency, Power, Impaling | 12 | 84 |
 | IV | Feather Falling, Protection, Blast Protection, Projectile Protection, Breach, Piercing, Fire Protection | 9 | 63 |
-| III | Unbreaking, Thorns, Luck of the Sea, Lure, Swift Sneak, Soul Speed, Looting, Wind Burst, Fortune, Quick Charge, Respiration, Depth Strider, Loyalty, Riptide | 6 | 84 |
+| III | Unbreaking, Thorns, Looting, Luck of the Sea, Lure, Swift Sneak, Soul Speed, Lunge, Wind Burst, Fortune, Quick Charge, Respiration, Depth Strider, Loyalty, Riptide | 6 | 90 |
 | II | Frost Walker, Knockback, Punch, Fire Aspect | 3 | 12 |
 | I | Silk Touch, Infinity, Multishot, Flame, Aqua Affinity, Channeling | 1 | 6 |
 
 | | Tokens | 4-person events |
 |---|---|---|
-| Max every book | 249 | ~63 |
-| Discount every book to 1 emerald, including Mending (39 × 7) | 273 | ~69 |
-| **Total** | **522** | **~131** |
+| Max every book | 255 | ~64 |
+| Discount every book to 1 emerald, including Mending (40 × 7) | 280 | ~70 |
+| **Total** | **535** | **~134** |
 
-(Before the treasure books and mace books joined, it was 33 books and 438 tokens.)
+(It started at 33 books and 438 tokens; the treasure books, mace books and Lunge joined later.)
 
 ## Planner changes needed
 The planner (`season_planner/index.html`) is a static page and can't show live progress, so it stops tracking tokens once this goes live.

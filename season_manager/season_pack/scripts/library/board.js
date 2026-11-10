@@ -1,6 +1,6 @@
 import { world, system, BlockPermutation, ItemStack, EnchantmentTypes, EquipmentSlot } from "@minecraft/server";
 import { GROUPS, BOOKS, ROMAN } from "./books.js";
-import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange, isFound, markFound } from "./ledger.js";
+import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange, isFound, markFound, isAvailable } from "./ledger.js";
 
 // ─────────────────────────────────────────────
 //  MYSTIC LIBRARY: THE TOKEN BOARD
@@ -24,8 +24,8 @@ import { isOpen, bookStatus, addTokens, emeralds, onLedgerChange, isFound, markF
 //         . . @   #   M . . T   #   G . . @   #   W . .     row 1   Ranged, Armor
 //         . . R   #   M . . T   #   G . . A   #   W . .     row 2
 //         . . R   #   M . . T   #   G . . A   #   W . .     row 3
-//         . . R   #   M . . .   |   . . . A   #   W . .     row 4   divider
-//         . . R   #   M . . .   #   . . . A   #   W . .     row 5
+//         . . R   #   M . . .   #   G . . A   #   W . .     row 4
+//         . . R   #   M . . .   |   . . . A   #   W . .     row 5   divider
 //         . . R   #   M . . F   #   H . . A   #   W . .     row 6
 //         . . R   #   M . . F   #   H . . A   #   W . .     row 7
 //         . . R   #   M . . @   #   @ . . .   #   @ . .     row 8   Fire, Fishing, Water
@@ -46,7 +46,7 @@ const BOARD_KEY = "season:library_board"; // where the board stands now
 const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const LAYOUT_VERSION = 7; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure, 6: Fire centred, 7: treasure books last
+const LAYOUT_VERSION = 8; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure, 6: Fire centred, 7: treasure books last, 8: 40 books (Lunge; Looting to General)
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
@@ -55,7 +55,7 @@ const REPAIR_INTERVAL = 1200; // ticks: check and rebuild the board every 60 s
 const ENTRANCE = { col: 8, row: 12 }; // where the person placing it stands
 const STACK_COLS = [3, 8, 13];
 const STACK_ROWS = 10; // rows 0..9
-const LOG_ROWS = (col, row) => row === 0 || row === STACK_ROWS - 1 || (col === 8 && row === 4);
+const LOG_ROWS = (col, row) => row === 0 || row === STACK_ROWS - 1 || (col === 8 && row === 5);
 const HEIGHT = 4; // y 0 shelves, 1 status signs, 2 frames, 3 group signs
 
 // Each face: the aisle column its frames hang in, which way they face
@@ -66,7 +66,7 @@ const FACES = [
   { col: 2, facing: "left", groups: [["ranged", [2, 3, 4, 5, 6, 7, 8]]] },
   { col: 4, facing: "right", groups: [["melee", [8, 7, 6, 5, 4, 3, 2, 1]]] },
   { col: 7, facing: "left", groups: [["tools", [1, 2, 3]], ["fire", [6, 7]]] },
-  { col: 9, facing: "right", groups: [["fishing", [7, 6]], ["general", [3, 2, 1]]] },
+  { col: 9, facing: "right", groups: [["fishing", [7, 6]], ["general", [4, 3, 2, 1]]] },
   { col: 12, facing: "left", groups: [["armor", [2, 3, 4, 5, 6, 7]]] },
   { col: 14, facing: "right", groups: [["water", [7, 6, 5, 4, 3, 2, 1]]] },
   { col: 8, facing: "front", groups: [["mending", [10]]] },
@@ -359,7 +359,9 @@ function blockAt(pos) {
 function signText(cell) {
   if (cell.kind === "group") return `\n§l§5${cell.group.name}`;
   const book = cell.book;
-  if (!isFound(book)) return [`§l${book.signName}`, "§8Not yet found", `§8${book.treasure}`, "§1Bring one here"].join("\n");
+  if (!isAvailable(book)) return [`§l${book.signName}`, "§8Not in this", "§8version yet", ""].join("\n");
+  // While the library is closed, a treasure book reads like any other locked book.
+  if (!isFound(book) && isOpen()) return [`§l${book.signName}`, "§8Not yet found", `§8${book.treasure}`, "§1Bring one here"].join("\n");
   const s = bookStatus(book);
   const lines = [`§l${book.signName}`];
   if (s.level === 0) {
@@ -451,7 +453,10 @@ function repairBoard() {
   if (!capture || board.filling) return;
   for (const book of BOOKS) {
     try {
-      if (!waitingForCopy(book) && blockAt(worldPos(board, FRAME_CELLS.get(book.id)))) restoreFrame(book);
+      if (!blockAt(worldPos(board, FRAME_CELLS.get(book.id)))) continue;
+      // A treasure book nobody has found yet keeps an empty frame.
+      if (waitingForCopy(book)) emptyFrame(book);
+      else restoreFrame(book);
     } catch (error) {
       console.warn(`[Library] Couldn't reload ${book.name}: ${error}`);
     }
@@ -845,6 +850,7 @@ function takeOneToken(player) {
 function deposit(player, book) {
   if (board.filling) return player.sendMessage("§7The stacks aren't finished yet.");
   if (!isFound(book)) return player.sendMessage(`§7${book.name} hasn't been found yet. Bring a real copy to this frame first.`);
+  if (!isAvailable(book)) return player.sendMessage(`§7${book.name} isn't in this version of the game yet.`);
   if (!isOpen()) return player.sendMessage("§7The Mystic Library isn't open yet. Keep your token for now.");
   if (!bookStatus(book).next) return player.sendMessage(`§7${book.name} is complete. It can't take any more tokens.`);
   if (!takeOneToken(player)) return;
@@ -874,15 +880,26 @@ function donate(player, book) {
   const equippable = player.getComponent("minecraft:equippable");
   const held = equippable?.getEquipment(EquipmentSlot.Mainhand);
   if (!teachesBook(held, book)) return;
+  let level = 0;
+  try {
+    level = held.getComponent("minecraft:enchantable")?.getEnchantment(book.id)?.level ?? 0;
+  } catch {
+    level = 0;
+  }
   if (held.amount > 1) {
     held.amount -= 1;
     equippable.setEquipment(EquipmentSlot.Mainhand, held);
   } else {
     equippable.setEquipment(EquipmentSlot.Mainhand);
   }
-  markFound(book, player.name);
+  markFound(book, player.name, false, level);
   restoreFrame(book);
-  player.sendMessage(`§aThe library keeps your book. §b${book.name}§a can now be unlocked with Overseer's Favors.`);
+  const rest = level >= book.max ? "" : " Overseer's Favors unlock the rest.";
+  player.sendMessage(
+    level
+      ? `§aThe library keeps your book. §b${book.name}§a is unlocked up to Level ${ROMAN[Math.min(level, book.max)]} for everyone.${rest}`
+      : `§aThe library keeps your book. §b${book.name}§a can now be unlocked with Overseer's Favors.`
+  );
 }
 
 function placeDecoy(player, book, held) {
@@ -973,6 +990,10 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
   if (repeat) return;
   system.run(() => {
     if (waitingForCopy(cell.book)) {
+      if (!isOpen()) {
+        if (teachesBook(itemStack, cell.book)) return player.sendMessage("§7The Mystic Library isn't open yet. Keep your book for now.");
+        return player.sendMessage("§7The Mystic Library isn't open yet.");
+      }
       if (teachesBook(itemStack, cell.book)) return donate(player, cell.book);
       return player.sendMessage(
         `§7This frame is waiting for a real §b${cell.book.name}§7 book. Find one (try: ${cell.book.treasure}) and bring it here. Books with other enchantments too are fine.`

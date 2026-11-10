@@ -1403,7 +1403,10 @@ so respawned players can walk back in). `off` and `reset` close them all.
   - **Diamond armor**: helmet, chestplate, leggings, or boots
   - **3 Totems of Undying**
   - **Enchanted book** at max level: every enchantment, Mending included,
-    except the curses, grouped by Mending & Unbreaking / Armor / Swords &
+    except the curses and the Mystic Library's treasure books (Swift
+    Sneak, Soul Speed and Wind Burst, which have to be found out in the
+    world; see [Mystic Library tokens](#mystic-library-tokens)),
+    grouped by Mending & Unbreaking / Armor / Swords &
     Axes / Tools / Bows & Crossbows / Trident, Mace & Spear / Fishing
   - **8 enchanted golden apples**
 
@@ -1477,7 +1480,7 @@ library is ready to open:
    Right-click the frame to place it, and your hand is empty for the next
    one. Looking at another empty frame swaps the book; a real item in
    your hand is never touched (the action bar asks you to empty it).
-   Chat counts progress until "All 39 are in". (`board books` still
+   Chat counts progress until "All 40 are in". (`board books` still
    hands out display books one section at a time, into your hotbar, if
    you'd rather carry them.)
 4. `/scriptevent season:library board capture`: saves the filled frames.
@@ -1512,12 +1515,18 @@ run `board` again.
   look. Treasure books sit at the end of their group's section. When a player right-clicks the empty frame holding a real
   enchanted book that has that enchantment (other enchantments on the
   same book are fine), the library keeps the book, its display copy goes
-  in the frame, and the whole server hears who found it. From then on it
-  works like any other book. Until then it can't take tokens.
-- The library has 39 books: the 32 enchantments in the groups below,
-  Mending, and Frost Walker, Density and Breach (ordinary books) besides
-  the three treasure books. Armor holds Swift Sneak, Soul Speed and Frost
-  Walker; Melee holds Density, Breach and Wind Burst.
+  in the frame, and the whole server hears who found it. The found copy
+  counts: the book starts unlocked up to that copy's level (a Swift
+  Sneak II unlocks Levels I and II), credited to the finder, and Favors
+  unlock the rest. From then on it works like any other book. Until then
+  it can't take tokens.
+- The library has 40 books: the original 32 enchantments, Mending, the
+  ordinary Frost Walker, Density, Breach and Lunge (the spear
+  enchantment), and the three treasure books. Armor holds Frost Walker,
+  Swift Sneak and Soul Speed; Melee holds Density, Breach, Lunge and Wind
+  Burst; Looting moved to General to make room. A book whose enchantment
+  this version of the game doesn't have (Lunge, before spears) reads "Not
+  in this version yet" and can't take tokens or be sold.
 - Level-ups and price drops are announced to the whole server.
 
 Each book only stores its running token total, and its level, discount
@@ -1540,8 +1549,9 @@ put tokens where, and when) are saved with the world.
 - `reset`, then `reset confirm` within 30 seconds: wipes every token and
   all history, marks the treasure books not found again, and closes the
   library.
-- `found <book>`: marks a treasure book found without a real copy
-  (credited to the Overseer) and puts its display copy in the frame.
+- `found <book> [level]`: marks a treasure book found without a real
+  copy (credited to the Overseer), unlocked up to `level` if given, and
+  puts its display copy in the frame.
 - `lost <book>`: an admin correction: the treasure book goes back to not
   found and its frame is emptied. Its tokens stay recorded.
 
@@ -1560,8 +1570,8 @@ and 4 high. Top view, from the entrance:
          . . @   #   M . . T   #   G . . @   #   W . .     ← Ranged, Armor
          . . R   #   M . . T   #   G . . A   #   W . .
          . . R   #   M . . T   #   G . . A   #   W . .
+         . . R   #   M . . .   #   G . . A   #   W . .
          . . R   #   M . . .   |   . . . A   #   W . .     ← divider
-         . . R   #   M . . .   #   . . . A   #   W . .
          . . R   #   M . . F   #   H . . A   #   W . .
          . . R   #   M . . F   #   H . . A   #   W . .
          . . R   #   M . . @   #   @ . . .   #   @ . .     ← Fire, Fishing, Water
@@ -1576,7 +1586,8 @@ and 4 high. Top view, from the entrance:
 Each stack has bookshelves at the bottom, a status sign under each book
 at eye level, the book's item frame above that, and a group name sign on
 top. Dark oak log pillars cap the ends of every stack and divide Tools
-from Fire and General from Fishing on the middle stack. A status sign
+from Fire and General from Fishing on the middle stack. General holds
+Unbreaking, Feather Falling, Thorns and Looting. A status sign
 shows the book's level, its price, and the tokens toward its next step.
 Every sign is rewritten whenever the ledger changes, including after
 admin commands. Invisible light blocks above head height down each
@@ -1604,7 +1615,7 @@ structure:
    in your hand, and right-clicking places it. A book put into the wrong
    frame is refused, with a message naming the right one. Chat counts
    progress.
-3. Run `board capture` once all 39 are in. It saves each frame on its
+3. Run `board capture` once all 40 are in. It saves each frame on its
    own, with the way it faced, then empties the frames of treasure books
    nobody has found yet.
 
@@ -1644,7 +1655,7 @@ away, rebuilds it at once along with any frame or sign that fell off it.
 - `board books`: gives you display books to carry, one section at a
   time, into your hotbar (only needed if you'd rather not fill by
   looking).
-- `board capture`: saves the filled board. It only runs once all 39
+- `board capture`: saves the filled board. It only runs once all 40
   books are in.
 - `board fresh`: builds a new empty board to fill and capture again,
   even when a captured board is saved.

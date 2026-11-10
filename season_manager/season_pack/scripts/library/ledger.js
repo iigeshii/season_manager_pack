@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { world, EnchantmentTypes } from "@minecraft/server";
 import { BOOKS, PRICES, ROMAN } from "./books.js";
 
 // ─────────────────────────────────────────────
@@ -96,6 +96,22 @@ export function foundBy(book) {
   return state.found[book.id]?.by;
 }
 
+// Whether this version of the game has the book's enchantment at all (Lunge
+// needs a version with spears). Unavailable books can't take tokens or be sold.
+const available = new Map();
+export function isAvailable(book) {
+  if (!available.has(book.id)) {
+    let known = false;
+    try {
+      known = Boolean(EnchantmentTypes.get(book.id));
+    } catch {
+      known = false;
+    }
+    available.set(book.id, known);
+  }
+  return available.get(book.id);
+}
+
 export function tokensFor(book) {
   loadAll();
   return state.tokens[book.id] ?? 0;
@@ -156,7 +172,7 @@ export function openLibrary() {
 // giver. `kind` is "p" for a player's own token, "a" for an admin add.
 export function addTokens(book, count, player, kind = "p") {
   loadAll();
-  if (!isFound(book)) return 0;
+  if (!isFound(book) || !isAvailable(book)) return 0;
   const before = tokensFor(book);
   const taken = Math.max(0, Math.min(count, book.maxTokens - before));
   if (!taken) return 0;
@@ -204,17 +220,28 @@ export function setBook(book, level, discount, player) {
 }
 
 // Records that a treasure book has been brought home, and tells everyone.
-// Returns false if it was already found.
-export function markFound(book, player, byAdmin = false) {
+// The found copy counts: the book starts unlocked up to the level of the
+// copy that was brought in (those levels are credited to the finder as
+// "found", not as Favors). Returns false if it was already found.
+export function markFound(book, player, byAdmin = false, level = 0) {
   loadAll();
   if (!book.treasure || state.found[book.id]) return false;
   state.found[book.id] = { by: byAdmin ? OVERSEER : player, time: Date.now() };
+  const startLevel = Math.max(0, Math.min(Number(level) || 0, book.max));
+  let tokens = 0;
+  for (const step of book.steps) if (step.kind === "level" && step.level <= startLevel) tokens += step.cost;
+  const before = tokensFor(book);
+  if (tokens > before) state.tokens[book.id] = tokens;
   saveState();
-  record(player, book, 0, "f");
+  const finder = byAdmin ? OVERSEER : player;
+  record(finder, book, 0, "f");
+  if (tokens > before) record(finder, book, tokens - before, "d");
+  const named = `${book.name}${startLevel ? " " + ROMAN[startLevel] : ""}`;
+  const upTo = startLevel ? `, up to Level ${ROMAN[startLevel]}` : "";
   world.sendMessage(
     byAdmin
-      ? `§b${book.name}§d has been found. The Mystic Library can now teach it!`
-      : `§e${player}§d brought home §b${book.name}§d! The Mystic Library can now teach it.`
+      ? `§b${named}§d has been found. The Mystic Library can now teach it${upTo}!`
+      : `§e${player}§d brought home §b${named}§d! The Mystic Library can now teach it${upTo}.`
   );
   return true;
 }
@@ -249,7 +276,7 @@ function day(time) {
 
 const bookById = (id) => BOOKS.find((book) => book.id === id);
 
-const KIND_LABELS = { p: "", a: " (admin)", r: " (admin remove)", s: " (admin set)" };
+const KIND_LABELS = { p: "", a: " (admin)", r: " (admin remove)", s: " (admin set)", d: " (the found book)" };
 const EVENT_LABELS = { f: "found", l: "marked not found (admin)" };
 
 export function historyLines(player, limit = 10) {
@@ -274,7 +301,7 @@ export function stepContributions(book) {
   for (const [, who, bookId, change, kind] of history) {
     if (bookId !== book.id || !change) continue;
     if (change > 0) {
-      const giver = kind === "p" ? who : OVERSEER;
+      const giver = kind === "p" ? who : kind === "d" ? `${who} (found)` : OVERSEER;
       for (let i = 0; i < change; i++) tokens.push(giver);
     } else {
       tokens.splice(Math.max(0, tokens.length + change));

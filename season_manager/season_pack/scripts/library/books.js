@@ -43,6 +43,7 @@ const CATALOG = [
       ["unbreaking", "Unbreaking", 3],
       ["feather_falling", "Feather Falling", 4],
       ["thorns", "Thorns", 3],
+      ["looting", "Looting", 3],
     ],
   ],
   [
@@ -73,9 +74,9 @@ const CATALOG = [
       ["smite", "Smite", 5],
       ["bane_of_arthropods", "Bane of Arthropods", 5],
       ["knockback", "Knockback", 2],
-      ["looting", "Looting", 3],
       ["density", "Density", 5],
       ["breach", "Breach", 4],
+      ["lunge", "Lunge", 3], // the spear enchantment: only usable in versions that have spears
       ["wind_burst", "Wind Burst", 3],
     ],
   ],
