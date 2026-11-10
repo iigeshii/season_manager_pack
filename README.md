@@ -1509,7 +1509,7 @@ run `board` again.
 - **Treasure books.** Swift Sneak, Soul Speed and Wind Burst can only be
   found out in the world (Ancient City, Bastion, Trial Chamber). Their
   frames start empty, with a sign reading "Not yet found" and where to
-  look. When a player right-clicks the empty frame holding a real
+  look. Treasure books sit at the end of their group's section. When a player right-clicks the empty frame holding a real
   enchanted book that has that enchantment (other enchantments on the
   same book are fine), the library keeps the book, its display copy goes
   in the frame, and the whole server hears who found it. From then on it
@@ -1624,9 +1624,13 @@ A cancelled break wipes a sign's text, so the sign is rewritten straight
 away. Explosions still go off, but the board's blocks are taken off
 their list of blocks to destroy. Punching a book out of its frame in
 survival can't be cancelled, so the pack removes the dropped decoy and
-reloads that frame from its saved copy a moment later. Every 60 seconds
-the pack also checks each board block, rebuilds anything missing, and
-rewrites every sign, which also covers bookshelves pushed by pistons.
+reloads that frame from its saved copy a moment later, and again once
+the frame has gone a second without being hit (rapid hitting can knock
+a book out after a put-back, and not every knock-out reports a hit).
+Every 60 seconds the pack also checks each board block, rebuilds
+anything missing, rewrites every sign, and reloads every book from its
+saved copy, since scripts can't see whether a frame still holds its
+book. That also covers bookshelves pushed by pistons.
 Bookshelves burn, and burning can't be cancelled, so every second the
 pack puts out any fire touching the stacks and, if a shelf has burned
 away, rebuilds it at once along with any frame or sign that fell off it.

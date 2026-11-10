@@ -60,9 +60,9 @@ const CATALOG = [
       ["protection", "Protection", 4],
       ["blast_protection", "Blast Protection", 4],
       ["projectile_protection", "Projectile Protection", 4],
-      ["swift_sneak", "Swift Sneak", 3],
-      ["soul_speed", "Soul Speed", 3],
       ["frost_walker", "Frost Walker", 2],
+      ["swift_sneak", "Swift Sneak", 3], // treasure books go last in their group
+      ["soul_speed", "Soul Speed", 3],
     ],
   ],
   [

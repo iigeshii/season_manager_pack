@@ -46,7 +46,7 @@ const BOARD_KEY = "season:library_board"; // where the board stands now
 const CAPTURE_KEY = "season:library_board_capture"; // which way each saved frame faced
 const bookStructure = (book) => `season:library_book_${book.id}`;
 
-const LAYOUT_VERSION = 6; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure, 6: Fire centred
+const LAYOUT_VERSION = 7; // 1: obsidian wall, 2: 9-long stacks, 3: with lecterns, 4: 33 books, 5: 39 books with treasure, 6: Fire centred, 7: treasure books last
 const BOOKSHELF = "minecraft:bookshelf";
 const LOG = "minecraft:dark_oak_log";
 const SIGN_BLOCKS = ["minecraft:birch_wall_sign", "minecraft:crimson_wall_sign"]; // first that resolves; birch keeps dark text readable
@@ -359,7 +359,7 @@ function blockAt(pos) {
 function signText(cell) {
   if (cell.kind === "group") return `\n§l§5${cell.group.name}`;
   const book = cell.book;
-  if (!isFound(book)) return [`§l${book.signName}`, "§8Not yet found", `§8Seek: ${book.treasure}`, "§1Bring one here"].join("\n");
+  if (!isFound(book)) return [`§l${book.signName}`, "§8Not yet found", `§8${book.treasure}`, "§1Bring one here"].join("\n");
   const s = bookStatus(book);
   const lines = [`§l${book.signName}`];
   if (s.level === 0) {
@@ -435,7 +435,9 @@ function refreshSigns() {
 }
 
 // Checks every board block and fixes anything missing or wrong. Signs are
-// always rewritten, so one that shows blank to players heals within a minute.
+// always rewritten, so one that shows blank to players heals within a
+// minute. Scripts can't see whether a frame still holds its book, so on the
+// live stacks every book is reloaded from its saved copy too.
 function repairBoard() {
   loadBoard();
   if (!board) return;
@@ -444,6 +446,14 @@ function repairBoard() {
       placeCell(cell, { frames: true, force: true });
     } catch (error) {
       console.warn(`[Library] Couldn't repair the board: ${error}`);
+    }
+  }
+  if (!capture || board.filling) return;
+  for (const book of BOOKS) {
+    try {
+      if (!waitingForCopy(book) && blockAt(worldPos(board, FRAME_CELLS.get(book.id)))) restoreFrame(book);
+    } catch (error) {
+      console.warn(`[Library] Couldn't reload ${book.name}: ${error}`);
     }
   }
 }
@@ -534,9 +544,11 @@ function restoreFrame(book) {
   const cell = FRAME_CELLS.get(book.id);
   const from = capture.facings[book.id];
   if (!from) return false;
-  world.getDimension(board.dim).runCommand(
+  const result = world.getDimension(board.dim).runCommand(
     `structure load ${bookStructure(book)} ${fmt(worldPos(board, cell))} ${rotation(from, facingName(board, cell), capture.flip)}`
   );
+  // A failed command doesn't throw: it just reports no successes.
+  if (result && result.successCount === 0) console.warn(`[Library] Loading the saved copy of ${book.name} failed (structure ${bookStructure(book)}).`);
   return true;
 }
 
@@ -985,25 +997,49 @@ world.beforeEvents.playerBreakBlock.subscribe((event) => {
 
 // Punching a frame in survival takes its book out, and that can't be
 // cancelled. Put the book back a moment later and clear the dropped decoy.
+// Hitting a frame quickly over and over can knock its book out again after
+// a put-back, and not every knock-out reports a hit. So each hit puts the
+// book back at once, and again once the frame has gone a second without
+// being hit, so the last word always comes after the last punch. (The
+// 60-second repair also reloads every book, as a final safety net.)
+const SETTLE_TICKS = 20;
+const lastHitAt = new Map(); // book id -> tick of the latest hit on its frame
+
+function putBack(cell, settled) {
+  try {
+    const pos = worldPos(board, cell);
+    const cleared = removeDroppedDecoys(board.dim, [pos], 2);
+    if (capture && !board.filling) {
+      if (waitingForCopy(cell.book)) return;
+      const loaded = restoreFrame(cell.book);
+      if (settled) {
+        console.warn(
+          `[Library] ${cell.book.name} frame was hit: ` +
+            (loaded ? `put its saved copy back; removed ${cleared} dropped decoy(s)` : "no saved copy to put back")
+        );
+      }
+    } else if (board.placed[cell.book.id]) {
+      delete board.placed[cell.book.id];
+      saveBoard();
+    }
+  } catch (error) {
+    console.warn(`[Library] Couldn't put a book back: ${error}`);
+  }
+}
+
 world.afterEvents.entityHitBlock.subscribe((event) => {
   const { hitBlock } = event;
   if (hitBlock.typeId !== "minecraft:frame") return;
   const cell = cellAt(hitBlock);
   if (cell?.kind !== "frame") return;
+  const id = cell.book.id;
+  lastHitAt.set(id, system.currentTick);
+  system.runTimeout(() => putBack(cell, false), 2);
   system.runTimeout(() => {
-    try {
-      const pos = worldPos(board, cell);
-      removeDroppedDecoys(board.dim, [pos], 2);
-      if (capture && !board.filling) {
-        if (!waitingForCopy(cell.book)) restoreFrame(cell.book);
-      } else if (board.placed[cell.book.id]) {
-        delete board.placed[cell.book.id];
-        saveBoard();
-      }
-    } catch (error) {
-      console.warn(`[Library] Couldn't put a book back: ${error}`);
-    }
-  }, 2);
+    if (system.currentTick - (lastHitAt.get(id) ?? 0) < SETTLE_TICKS) return; // hit again since: that hit's check will run
+    lastHitAt.delete(id);
+    putBack(cell, true);
+  }, SETTLE_TICKS);
 });
 
 // Explosions still go off, but board blocks are taken off their list.

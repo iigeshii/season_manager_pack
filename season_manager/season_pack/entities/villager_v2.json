@@ -1931,7 +1931,6 @@
           "value": 0
         },
         "minecraft:nameable": {
-          "always_show": true,
           "allow_name_tag_renaming": false
         }
       },

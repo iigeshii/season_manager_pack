@@ -151,10 +151,10 @@ A full discount costs 7 tokens for any book. (It was 1, 2, 3 at first; the first
 
 ### Treasure books
 - Three books can only be found out in the world, never bought from a vanilla villager: **Swift Sneak** (Ancient City), **Soul Speed** (Bastion, Piglin bartering) and **Wind Burst** (Trial Chamber ominous vaults). A player asked for them so nobody has to find another Ancient City or Trial Chamber every time they want one.
-- Their frames start **empty** on the live stacks, with a sign reading "Not yet found", where to look, and "Bring one here". Until found, they can't take tokens and no librarian sells them.
+- Their frames start **empty** on the live stacks, with a sign reading "Not yet found", where to look (just the place: "Ancient City"), and "Bring one here". Treasure books sit at the end of their group's section. Until found, they can't take tokens and no librarian sells them.
 - The first player to right-click the empty frame holding a **real** enchanted book with that enchantment (other enchantments on the same book are fine; display copies don't count) donates it: the library keeps the book, the display copy is loaded into the frame, and the whole server hears who found it ("Fredo brought home Swift Sneak!"). From then on it's an ordinary book: tokens unlock its levels, its librarian sells it, and it can be discounted.
 - Who helped shows "Found by: <player>". Admins can mark one found without a copy (`found <book>`, credited to the Overseer) or undo a find (`lost <book>`).
-- Three more books joined the library as ordinary token books at the same time: **Frost Walker** (often found anyway, so a find requirement would just be a chore), and the mace books **Density** and **Breach** (enchanting-table books, missing only because there's no enchanting table). Armor holds Swift Sneak, Soul Speed and Frost Walker; Melee holds Density, Breach and Wind Burst. Curses are left out.
+- Three more books joined the library as ordinary token books at the same time: **Frost Walker** (often found anyway, so a find requirement would just be a chore), and the mace books **Density** and **Breach** (enchanting-table books, missing only because there's no enchanting table). Armor holds Frost Walker, Swift Sneak and Soul Speed; Melee holds Density, Breach and Wind Burst. Curses are left out.
 
 ## Examples
 
