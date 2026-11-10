@@ -500,12 +500,12 @@ function removeDroppedDecoys(dimId, positions, margin) {
   const max = { x: Math.max(...xs), y: Math.max(...ys), z: Math.max(...zs) };
   const center = { x: (min.x + max.x + 1) / 2, y: (min.y + max.y + 1) / 2, z: (min.z + max.z + 1) / 2 };
   const reach = Math.max(max.x - min.x, max.y - min.y, max.z - min.z) / 2 + 1 + margin;
-  let removed = 0;
+  const removed = []; // the names of the decoys taken off the ground
   for (const entity of dimension.getEntities({ type: "minecraft:item", location: center, maxDistance: reach })) {
     const stack = entity.getComponent("minecraft:item")?.itemStack;
     if (stack?.getLore().includes(DECOY_LORE)) {
+      removed.push(stack.nameTag);
       entity.remove();
-      removed++;
     }
   }
   return removed;
@@ -1026,7 +1026,26 @@ world.beforeEvents.playerBreakBlock.subscribe((event) => {
 const SETTLE_TICKS = 20;
 const lastHitAt = new Map(); // book id -> tick of the latest hit on its frame
 
-function putBack(cell, settled) {
+// Takes one display copy of `book` out of a player's inventory, if they
+// have one. Returns whether one was taken.
+function takeDecoyFrom(player, book) {
+  const container = player?.getComponent?.("minecraft:inventory")?.container;
+  if (!container) return false;
+  for (let i = 0; i < container.size; i++) {
+    const item = container.getItem(i);
+    if (!isDecoy(item) || item.nameTag !== decoyName(book)) continue;
+    if (item.amount > 1) {
+      item.amount -= 1;
+      container.setItem(i, item);
+    } else {
+      container.setItem(i);
+    }
+    return true;
+  }
+  return false;
+}
+
+function putBack(cell, settled, hitter) {
   try {
     const pos = worldPos(board, cell);
     const cleared = removeDroppedDecoys(board.dim, [pos], 2);
@@ -1036,12 +1055,18 @@ function putBack(cell, settled) {
       if (settled) {
         console.warn(
           `[Library] ${cell.book.name} frame was hit: ` +
-            (loaded ? `put its saved copy back; removed ${cleared} dropped decoy(s)` : "no saved copy to put back")
+            (loaded ? `put its saved copy back; removed ${cleared.length} dropped decoy(s)` : "no saved copy to put back")
         );
       }
-    } else if (board.placed[cell.book.id]) {
+    } else if (board.placed[cell.book.id] && (cleared.includes(decoyName(cell.book)) || takeDecoyFrom(hitter, cell.book))) {
+      // While filling, only count the book as gone if it actually came out:
+      // its display copy is lying by the frame, or the player who hit it
+      // already picked it up (that copy is taken back). Bedrock also
+      // reports hits on frames when nothing comes out, and those mustn't
+      // un-count a book.
       delete board.placed[cell.book.id];
       saveBoard();
+      console.warn(`[Library] ${cell.book.name} was knocked out of its frame while filling: place it again.`);
     }
   } catch (error) {
     console.warn(`[Library] Couldn't put a book back: ${error}`);
@@ -1049,17 +1074,18 @@ function putBack(cell, settled) {
 }
 
 world.afterEvents.entityHitBlock.subscribe((event) => {
-  const { hitBlock } = event;
+  const { hitBlock, damagingEntity } = event;
   if (hitBlock.typeId !== "minecraft:frame") return;
   const cell = cellAt(hitBlock);
   if (cell?.kind !== "frame") return;
   const id = cell.book.id;
+  const hitter = damagingEntity?.typeId === "minecraft:player" ? damagingEntity : undefined;
   lastHitAt.set(id, system.currentTick);
-  system.runTimeout(() => putBack(cell, false), 2);
+  system.runTimeout(() => putBack(cell, false, hitter), 2);
   system.runTimeout(() => {
     if (system.currentTick - (lastHitAt.get(id) ?? 0) < SETTLE_TICKS) return; // hit again since: that hit's check will run
     lastHitAt.delete(id);
-    putBack(cell, true);
+    putBack(cell, true, hitter);
   }, SETTLE_TICKS);
 });
 
