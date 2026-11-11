@@ -318,7 +318,7 @@ graph TD
   classDef complete fill:#d9f0e3,stroke:#1f9d63,stroke-width:2px,color:#0d6b40;
   style villages fill:none,stroke:#8b9080,stroke-width:1px,stroke-dasharray: 6 4
   class mystic,archery,forge,mansionhook,mansion,mechanisms,ancient,nether,porko,gibliria,endm,twisty,lorre,finale tentative
-  class camp,trial complete
+  class camp,trial,hall complete
     </pre>
   </div>
   <div class="diagram-legend">
@@ -332,7 +332,7 @@ graph TD
     <h2>The Storylines</h2>
   </div>
 
-  <!-- Hall of Heroes and Breaking Bread are the current nodes. To move one, add/remove
+  <!-- Breaking Bread is the current node. To move one, add/remove
        is-current on the relevant <section class="chapter"> and move the
        "Current" badge span — the nav's "Current" link follows automatically.
        A finished node gets is-complete, a "Complete" badge, and class="met"
@@ -365,15 +365,15 @@ graph TD
       <p class="leads-to">Leads to: <a href="#node-hall">Hall of Heroes</a> and <a href="#node-bread">Breaking Bread</a>, which run side by side</p>
     </section>
 
-    <section class="chapter is-current" id="node-hall">
-      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a>. Runs alongside Breaking Bread, and must be complete before Breaking Bread can finish. <span class="current-badge">Current</span></div>
+    <section class="chapter is-complete" id="node-hall">
+      <div class="chapter-kicker kicker">Requires: <a href="#node-camp">Founding the Camp</a>. Runs alongside Breaking Bread, and must be complete before Breaking Bread can finish. <span class="complete-badge">Complete</span></div>
       <h3 class="chapter-title">Hall of Heroes</h3>
       <p class="chapter-story">Every village New Haven backs from here on is about to get tested by fire, and someone decides those wins shouldn't just be a story people tell each other afterward. The group raises a proper Hall back at the original settlement — plaques, records, whatever passes for a monument this early in the season. Nothing that happens at any other village counts toward anything until it's written down here first.</p>
       <div class="chapter-grid">
         <div class="chapter-block chapter-criteria">
           <h4>Pass Criteria</h4>
           <ul>
-            <li>A Hall of Heroes is constructed at the original settlement</li>
+            <li class="met">A Hall of Heroes is constructed at the original settlement<span class="outcome">Done.</span></li>
           </ul>
         </div>
         <div class="chapter-block chapter-progress">
@@ -396,15 +396,15 @@ graph TD
           <ul>
             <li><strong>Connect the village</strong>
               <ul>
-                <li>A trade route (road) connects the base to the village</li>
+                <li class="met">A trade route (road) connects the base to the village<span class="outcome">Done, technically: a water route marked with candles. A rail line or road was considered, and can be added later.</span></li>
               </ul>
             </li>
             <li><strong>Build out the village</strong>, as agreed in the group vote
               <ul>
                 <li>Housing / hotel district (apartment complex or similar)</li>
-                <li>Farming district</li>
+                <li class="met">Farming district<span class="outcome">Done.</span></li>
                 <li>Market district</li>
-                <li>Town hall (mayor's office)</li>
+                <li class="met">Town hall (mayor's office)<span class="outcome">Done.</span></li>
                 <li>Reinforcement against mob attacks (walls, lighting, or equivalent defenses)</li>
                 <li>Each build is claimed by one owner who leads it; anyone can help</li>
               </ul>
@@ -424,7 +424,7 @@ graph TD
             </li>
             <li><strong>Record it in the <a href="#node-hall">Hall of Heroes</a></strong>
               <ul>
-                <li>The Hall of Heroes is complete</li>
+                <li class="met">The Hall of Heroes is complete<span class="outcome">Done.</span></li>
                 <li>All 3 raids are recorded there, noting when each happened and who took part</li>
               </ul>
             </li>
