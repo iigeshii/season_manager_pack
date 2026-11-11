@@ -1323,8 +1323,11 @@ so respawned players can walk back in). `off` and `reset` close them all.
   each of the last 5 seconds. Win: at least one party member still on
   the arena after 60 seconds: the floor refills, both
   bridges appear, both gates open and the exit (Airlock 4's back gate)
-  opens. Everyone falls: the floor refills, the entrance bridge returns and
-  the next round starts when everyone is back on the arena. A restart mid-
+  opens. Everyone falls: the wall timer freezes on the time that was left,
+  in red (red concrete instead of glowing blocks), so the group can see
+  how far they got; the floor refills, the entrance bridge returns and
+  the next round starts when everyone is back on the arena (its 3-2-1
+  clears the red digits). A restart mid-
   round counts as a lost round. The room is put back when the run moves
   past Room 4 or ends.
 - **Room 5** ([`room5.js`](season_manager/season_pack/scripts/dungeon/room5.js)),

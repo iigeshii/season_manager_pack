@@ -19,7 +19,9 @@ import { setGate } from "./gates.js";
 //
 //  Time left is shown in lit blocks on the north and south walls (two
 //  digits either side of the middle lavafall). No on-screen text; a ping
-//  for each countdown second and each of the last 5 seconds.
+//  for each countdown second and each of the last 5 seconds. When everyone
+//  falls, the walls freeze on the time that was left, in red, so the group
+//  can see how far they got; the next round's countdown clears it.
 //
 //  Win: at least one party member still on the arena when the round ends
 //  (60 s). The floor refills, both bridges appear, both
@@ -108,8 +110,8 @@ function sound(players, id) {
 
 // ── Wall timer ──────────────────────────────
 // Two 3x5 block digits in the north and south wall panels either side of
-// the middle lavafall. Lit pixels are shroomlight; unlit ones get their
-// original brick back.
+// the middle lavafall. Lit pixels are shroomlight (red concrete for a lost
+// round's frozen time); unlit ones get their original brick back.
 
 const FONT = {
   0: ["111", "101", "101", "101", "111"],
@@ -125,24 +127,32 @@ const FONT = {
 };
 const BLANK = ["000", "000", "000", "000", "000"];
 const PIXEL_LIT = "minecraft:shroomlight";
+const PIXEL_FAILED = "minecraft:red_concrete"; // a lost round's frozen time
+const PIXELS = new Set([PIXEL_LIT, PIXEL_FAILED]);
 
-function paintDigit(grid, original, glyph) {
+function paintDigit(grid, original, glyph, color) {
   grid.forEach((row, r) =>
     row.forEach((p, c) => {
       const brick = original[p.join(",")];
-      if (glyph[r][c] === "1") swap(p, brick, PIXEL_LIT);
-      else swap(p, PIXEL_LIT, brick);
+      const block = blockAt(p);
+      if (!block) return;
+      if (glyph[r][c] === "1") {
+        if (block.typeId !== color && (block.typeId === brick || PIXELS.has(block.typeId))) block.setPermutation(permOf(color));
+      } else if (PIXELS.has(block.typeId)) {
+        block.setPermutation(permOf(brick));
+      }
     })
   );
 }
 
-// Seconds 0-99 on both walls; undefined blanks them.
-function showTimer(seconds) {
+// Seconds 0-99 on both walls; undefined blanks them. `color` is the lit
+// pixel block: shroomlight normally, red for a lost round.
+function showTimer(seconds, color = PIXEL_LIT) {
   for (const wall of R.timer) {
     const tens = seconds === undefined || seconds < 10 ? BLANK : FONT[Math.floor(seconds / 10) % 10];
     const ones = seconds === undefined ? BLANK : FONT[seconds % 10];
-    paintDigit(wall.tens, wall.original, tens);
-    paintDigit(wall.ones, wall.original, ones);
+    paintDigit(wall.tens, wall.original, tens, color);
+    paintDigit(wall.ones, wall.original, ones, color);
   }
 }
 
@@ -256,10 +266,12 @@ function stepRound(members) {
     return false;
   });
 
-  // Nobody left on the arena: round lost.
+  // Nobody left on the arena: round lost. The walls freeze on the time
+  // that was left, in red, until the next round's countdown.
   if (!members.some(onArena)) {
+    const left = Math.max(0, Math.ceil((round.endTick - now) / 20));
     round = undefined;
-    showTimer(undefined);
+    showTimer(left, PIXEL_FAILED);
     setMode("refill_lost");
     sound(members, "note.bass");
     return;
