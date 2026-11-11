@@ -231,3 +231,13 @@ regardless of when each piece was actually added:
 - **New recipe: Bell.** 2 Stone and a Stick across the top, a Gold
   Ingot in the middle, and Gold Ingot, Redstone Dust, Gold Ingot along
   the bottom.
+
+## Season Manager v2.0.134 — The Rescue Rewards
+
+- **Rescue the Librarian now has rewards.** After the rescue, each
+  party member gets an Overseer's Favor (for the Mystic Library, once
+  it opens), then picks 2 prizes from the
+  chests in the hall: a diamond tool, a diamond armor piece, 3 Totems
+  of Undying, a max-level enchanted book, or 8 enchanted golden apples.
+- **Improvements to the Rescue the Librarian challenge.**
+- **Mystic Library infrastructure added.** It isn't active yet.

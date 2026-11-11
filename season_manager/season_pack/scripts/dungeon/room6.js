@@ -9,8 +9,8 @@ import { setGate } from "./gates.js";
 //  ROOM 6: THREE-FLOOR MAZE
 //  When the run reaches the maze, six keys (trial keys named "Key #1" to
 //  "Key #6", marked with this run's number) are hidden in six random maze
-//  barrels, and 24 mob spots are picked through the corridors — 8 per
-//  floor, spread out, no boss, never restocked. Nothing is spawned up
+//  barrels, and 3-4 mob spots per floor are picked through the corridors,
+//  spread out, no boss, never restocked. Nothing is spawned up
 //  front: each spot's group of 1-3 mobs appears there at once, in a puff of
 //  smoke and with a raid-horn alarm, the first time a player standing on
 //  that same floor comes within TRIP_RADIUS blocks of it (an ambush; players
@@ -61,7 +61,10 @@ const XBOW = { type: "minecraft:piglin", weapon: "crossbow" };
 const SWORD = { type: "minecraft:piglin", weapon: "golden_sword" };
 const PILLAGER = { type: "minecraft:pillager" };
 const BRUTE = { type: "minecraft:piglin_brute" };
-const PER_FLOOR = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER, BRUTE]; // one per spot
+const SPOTS_PER_FLOOR = [3, 4]; // fewest, most (picked at random per floor)
+// Each spot's own mob: the brute first (one per floor), then one each of
+// these in random order.
+const LEADS = [SWORD, XBOW, PILLAGER];
 const EXTRAS = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER]; // 0-2 more per spot, drawn from these
 // Where a group stands inside its spot's block, so they don't spawn stacked.
 const GROUP_OFFSETS = [
@@ -209,13 +212,16 @@ function planMobs() {
   const plan = [];
   const floors = [...new Set(R.mob_spots.map((p) => p[1]))];
   for (const y of floors) {
+    const [fewest, most] = SPOTS_PER_FLOOR;
+    const count = fewest + Math.floor(Math.random() * (most - fewest + 1));
+    const leads = [BRUTE, ...shuffle([...LEADS])];
     const chosen = [];
     for (const spot of shuffle(R.mob_spots.filter((p) => p[1] === y))) {
-      if (chosen.length >= PER_FLOOR.length) break;
+      if (chosen.length >= count) break;
       if (chosen.every((c) => Math.max(Math.abs(c[0] - spot[0]), Math.abs(c[2] - spot[2])) >= MOB_SPACING)) chosen.push(spot);
     }
     chosen.forEach((spot, i) => {
-      const group = [PER_FLOOR[i]];
+      const group = [leads[i % leads.length]];
       const extra = Math.floor(Math.random() * 3); // 0, 1 or 2
       for (let n = 0; n < extra; n++) group.push(EXTRAS[Math.floor(Math.random() * EXTRAS.length)]);
       plan.push({ group, spot });

@@ -1356,16 +1356,18 @@ so respawned players can walk back in). `off` and `reset` close them all.
 - **Room 6** ([`room6.js`](season_manager/season_pack/scripts/dungeon/room6.js)),
   the three-floor maze. When the run reaches it, six keys — trial keys
   named "Key #1" to "Key #6", marked with the run number — are hidden in
-  six random maze barrels (of 30), and 24 mob spots are picked through the
-  corridors: 8 per floor, at least 6 blocks apart (3 sword piglins, 2
-  crossbow piglins, 2 pillagers, 1 brute each), no boss, never restocked.
+  six random maze barrels (of 30), and 3-4 mob spots per floor are picked
+  through the corridors, at least 6 blocks apart, no boss, never
+  restocked. Each floor's spots get a brute and then a sword piglin, a
+  crossbow piglin and a pillager in random order (so a 3-spot floor is
+  missing one of those three).
   Spots come from `layout.js` (corridor floor cells away from the ladders,
   the entrance and the key hall). Nothing spawns up front: each spot's
   group of 1-3 mobs appears there at once, in a puff of smoke and with a
   raid-horn alarm (heard within 32 blocks, at most one every 5 seconds),
   the first time a player standing on that same floor comes within 8 blocks
   of it (an ambush). A group is the spot's own mob from the mix above plus
-  0-2 extra piglins or pillagers (never an extra brute), so 24-72 mobs in
+  0-2 extra piglins or pillagers (never an extra brute), so 9-36 mobs in
   all. Players on the floors above or below, or on a ladder between floors,
   don't set it off. Once out, a mob is free to roam and chase anywhere.
   Groups not sprung yet survive a restart. In the key hall, putting a key in its own
