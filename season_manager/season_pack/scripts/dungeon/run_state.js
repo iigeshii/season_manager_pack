@@ -54,6 +54,18 @@ export function runEnded() {
   for (const handler of runEndHandlers) handler();
 }
 
+// `jump` starts the room it lands in over from scratch, even the room the
+// party is already in. Each room registers how to mark its own setup stale;
+// its loop then puts the room back and sets it up fresh on the next check
+// (once the room is loaded).
+const roomRestarts = new Map();
+export function onRoomRestart(stage, handler) {
+  roomRestarts.set(stage, handler);
+}
+export function restartRoom(stage) {
+  roomRestarts.get(stage)?.();
+}
+
 // Words of /scriptevent season:mending_rescue that room modules answer
 // themselves, so mending_rescue.js doesn't reply "unknown command".
 export const extraCommands = new Set();

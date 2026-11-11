@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded } from "./run_state.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, restartRoom } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
@@ -39,6 +39,8 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //    reset_gate  closes and darkens the Room 1 gate.
 //    jump <n>  testing: go straight to room n (2-8), starting a run if
 //              needed, with the gates set and the party at its checkpoint.
+//              Room n always starts over from scratch, even if the party
+//              is already in it.
 //    where     which room/airlock you're standing in.
 //    answer    Room 3's counts, for testing (room3.js).
 //    (none)    shows the current state.
@@ -295,7 +297,8 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       // Testing: skip rooms already checked. Starts a run if none is on
       // (party = everyone in the Nether, plus whoever typed it), puts the
       // gates as if the party had just come through the airlock into room
-      // n, and teleports the online party to its checkpoint.
+      // n, starts room n over from scratch (even if it's the room they're
+      // in), and teleports the online party to its checkpoint.
       const n = Number(args[0]);
       if (!Number.isInteger(n) || n < 2 || n > LAST_STAGE) return reply("§cUse: jump <2-8>.");
       if (!origin()) return reply("§cSet the dungeon's position first: set_origin <x> <y> <z>.");
@@ -308,10 +311,11 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       closeAllAirlockGates();
       if (n >= 3) closeInnerPortcullis();
       setStage(n);
+      restartRoom(n);
       const target = checkpoint();
       const members = world.getAllPlayers().filter(isMember);
       for (const player of members) sendTo(player, target);
-      return reply(`§aJumped to Room ${n}, ${LAYOUT.stages[n].room}. Sent ${members.map((p) => p.name).join(", ")} to ${fmt(target)}.`);
+      return reply(`§aJumped to Room ${n}, ${LAYOUT.stages[n].room} (starting over). Sent ${members.map((p) => p.name).join(", ")} to ${fmt(target)}.`);
     }
     case "off": {
       if (!isEventOn()) return reply("§7No run is on.");

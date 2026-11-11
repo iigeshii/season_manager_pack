@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { isOperator, spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, onRoomRestart } from "./run_state.js";
 import { currentStage, isMember } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 
@@ -287,3 +287,7 @@ system.runInterval(() => {
       return; // won
   }
 }, TICKS);
+
+// `jump 5`: start over. Marked as set up for no run, so the next check
+// puts the room back and sets it up fresh.
+onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));

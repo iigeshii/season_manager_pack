@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation, ItemStack } from "@minecraft/server";
 import { spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded, onRoomRestart } from "./run_state.js";
 import { currentStage } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 
@@ -9,18 +9,22 @@ import { setGate } from "./gates.js";
 //  ROOM 6: THREE-FLOOR MAZE
 //  When the run reaches the maze, six keys (trial keys named "Key #1" to
 //  "Key #6", marked with this run's number) are hidden in six random maze
-//  barrels, and 24 mobs are scattered through the corridors — 8 per floor,
-//  spread out, no boss, never restocked. Each mob patrols its own patch: it
-//  can roam and chase within LEASH_RADIUS blocks of where it was placed, on
-//  its own floor, and is put back on its spot if it strays further or
-//  drops to another floor (so they don't all pile up at the ladders).
+//  barrels, and 24 mob spots are picked through the corridors — 8 per
+//  floor, spread out, no boss, never restocked. Nothing is spawned up
+//  front: each spot's group of 2-3 mobs appears there at once, in a puff of
+//  smoke and with a raid-horn alarm, the first time a player standing on
+//  that same floor comes within TRIP_RADIUS blocks of it (an ambush; players
+//  on the floors above and below, or on a ladder between floors, don't set
+//  it off). A group is the spot's own mob from the floor mix plus 1-2 extra
+//  piglins or pillagers (never an extra brute). Once out, a mob is free to
+//  roam and chase anywhere. Groups not yet sprung survive a restart.
 //
 //  The key hall has six numbered altars (barrels). Putting a key in its own
 //  altar consumes it and lights the altar's pedestal; any other item is
 //  left alone. When all six are lit, the exit bars (Airlock 6's back gate)
 //  open.
 //
-//  Test mode: the mobs die off about 10 seconds after they're out.
+//  Test mode: each mob dies off about 10 seconds after it appears.
 //
 //  Keys left in barrels, altars, inventories or on the floor and leftover
 //  mobs are cleared when the run moves past the maze or ends; keys are
@@ -35,26 +39,38 @@ const CHECK_TICKS = 20;
 const KEY_ITEM = "minecraft:trial_key";
 const MOB_TAG = "season:room6_mob";
 const MOB_SPACING = 6; // blocks apart, at least, on the same floor
-const HOME = "season:room6_home"; // entity property: the maze spot a mob patrols around (JSON [x, y, z])
-const LEASH_RADIUS = 10; // blocks a mob may roam from its spot, on its own floor
-const FLOOR_SLACK = 2; // blocks up or down from its spot's level before it counts as another floor
+const TRIP_RADIUS = 8; // a player this close to a spot (same floor) springs its mob
+const TRIP_SLACK = 1.5; // feet this far above or below a spot's floor still count as on it (a jump, not a ladder climb; floors are 4 apart)
+const SPAWN_PUFF = "minecraft:death_explosion_emitter"; // the white puff a mob leaves when it dies
+const ALARM_SOUND = "raid.horn";
+const ALARM_RADIUS = 32; // players this close to a sprung spot hear the alarm (any floor)
+const ALARM_GAP = 100; // ticks: one alarm at a time, even when several spots spring together
 const LIT = "minecraft:shroomlight";
 const ROOM_RADIUS = 40; // around the maze centre, for dropped keys
 
 const RUN = P + "room6_run";
 const ALTARS = P + "room6_altars"; // JSON [6] booleans
 const MOBS_DONE = P + "room6_mobs_done";
+const PLAN = P + "room6_plan"; // JSON [{ group, spot }]: groups not sprung yet this run
 
 // Per floor (feet level): what's scattered there.
 const XBOW = { type: "minecraft:piglin", weapon: "crossbow" };
 const SWORD = { type: "minecraft:piglin", weapon: "golden_sword" };
 const PILLAGER = { type: "minecraft:pillager" };
 const BRUTE = { type: "minecraft:piglin_brute" };
-const PER_FLOOR = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER, BRUTE];
+const PER_FLOOR = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER, BRUTE]; // one per spot
+const EXTRAS = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER]; // 1-2 more per spot, drawn from these
+// Where a group stands inside its spot's block, so they don't spawn stacked.
+const GROUP_OFFSETS = [
+  [0.5, 0.5],
+  [0.25, 0.75],
+  [0.75, 0.25],
+];
 
-let spawnPlan = []; // mobs still to place this run: [{ spec, spot }]
-let mobsPlacedAt = undefined; // tick the last of them went out (test mode kills them 10 s later)
-const TEST_KILL_TICKS = 200; // test mode: the maze mobs die off after ~10 seconds
+let spawnPlan = []; // groups still to spring this run: [{ group, spot }] (copy of PLAN)
+let lastAlarm = -ALARM_GAP;
+const bornAt = new Map(); // mob id -> tick it appeared (test mode kills it 10 s later)
+const TEST_KILL_TICKS = 200; // test mode: each maze mob dies off after ~10 seconds
 
 // ── Helpers ─────────────────────────────────
 
@@ -195,7 +211,12 @@ function planMobs() {
       if (chosen.length >= PER_FLOOR.length) break;
       if (chosen.every((c) => Math.max(Math.abs(c[0] - spot[0]), Math.abs(c[2] - spot[2])) >= MOB_SPACING)) chosen.push(spot);
     }
-    chosen.forEach((spot, i) => plan.push({ spec: PER_FLOOR[i], spot }));
+    chosen.forEach((spot, i) => {
+      const group = [PER_FLOOR[i]];
+      const extra = 1 + Math.floor(Math.random() * 2);
+      for (let n = 0; n < extra; n++) group.push(EXTRAS[Math.floor(Math.random() * EXTRAS.length)]);
+      plan.push({ group, spot });
+    });
   }
   return plan;
 }
@@ -208,50 +229,86 @@ function equip(mob, slot, item) {
   }
 }
 
-// Places what it can; anything in an unloaded chunk waits for the next check.
-function placeMobs() {
-  const nether = world.getDimension(NETHER_ID);
-  spawnPlan = spawnPlan.filter(({ spec, spot }) => {
-    const p = at(spot);
-    try {
-      const mob = spawnDungeonMob(nether, spec.type, { x: p.x + 0.5, y: p.y, z: p.z + 0.5 });
-      mob.addTag(MOB_TAG);
-      mob.setDynamicProperty(HOME, JSON.stringify(spot));
-      if (spec.weapon) equip(mob, "slot.weapon.mainhand", spec.weapon);
-      return false;
-    } catch {
-      return true; // not loaded yet
-    }
-  });
-  if (spawnPlan.length === 0) {
-    world.setDynamicProperty(MOBS_DONE, currentRun());
-    mobsPlacedAt = system.currentTick;
+function savePlan() {
+  world.setDynamicProperty(PLAN, spawnPlan.length > 0 ? JSON.stringify(spawnPlan) : undefined);
+}
+
+function loadPlan() {
+  try {
+    const raw = world.getDynamicProperty(PLAN);
+    return typeof raw === "string" ? JSON.parse(raw) : undefined;
+  } catch {
+    return undefined;
   }
 }
 
-// Each mob stays on its own patch: past LEASH_RADIUS from its spot, or on
-// another floor, it's put back on its spot.
-function leashMobs() {
+// Is a player standing on this spot's floor, within TRIP_RADIUS of it?
+function tripped(spot, players) {
   const o = origin();
-  for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) {
-    let home;
+  return players.some(({ location: l }) => {
+    const x = l.x - o.x - 0.5;
+    const y = l.y - o.y;
+    const z = l.z - o.z - 0.5;
+    return Math.abs(y - spot[1]) <= TRIP_SLACK && Math.hypot(x - spot[0], z - spot[2]) <= TRIP_RADIUS;
+  });
+}
+
+function spawnOne(nether, spec, where) {
+  const mob = spawnDungeonMob(nether, spec.type, where);
+  mob.addTag(MOB_TAG);
+  if (spec.weapon) equip(mob, "slot.weapon.mainhand", spec.weapon);
+  bornAt.set(mob.id, system.currentTick);
+}
+
+// The raid horn, heard from the sprung spot by everyone nearby; at most one
+// every ALARM_GAP ticks.
+function soundAlarm(nether, where) {
+  if (system.currentTick - lastAlarm < ALARM_GAP) return;
+  lastAlarm = system.currentTick;
+  for (const player of nether.getPlayers({ location: where, maxDistance: ALARM_RADIUS })) {
     try {
-      home = JSON.parse(mob.getDynamicProperty(HOME) ?? "null");
+      player.playSound(ALARM_SOUND, { location: where, volume: 4 });
     } catch {
-      home = null;
-    }
-    if (!home) continue; // placed before patrol areas existed
-    const x = mob.location.x - o.x - 0.5;
-    const y = mob.location.y - o.y;
-    const z = mob.location.z - o.z - 0.5;
-    const away = Math.hypot(x - home[0], z - home[2]);
-    if (away <= LEASH_RADIUS && Math.abs(y - home[1]) <= FLOOR_SLACK) continue;
-    try {
-      mob.teleport({ x: o.x + home[0] + 0.5, y: o.y + home[1], z: o.z + home[2] + 0.5 });
-    } catch {
-      // spot not loaded: try again next check
+      // unknown sound: skip
     }
   }
+}
+
+// Springs every group whose spot a player has walked up to; anything in an
+// unloaded chunk waits for the next check.
+function placeMobs() {
+  const nether = world.getDimension(NETHER_ID);
+  const players = nether.getPlayers().filter((pl) => pl.getGameMode?.() !== "spectator");
+  const before = spawnPlan.length;
+  spawnPlan = spawnPlan.filter(({ group, spec, spot }) => {
+    if (!tripped(spot, players)) return true;
+    const mobs = group ?? [spec]; // a plan saved before groups: one mob
+    const p = at(spot);
+    const where = (n) => ({ x: p.x + GROUP_OFFSETS[n % GROUP_OFFSETS.length][0], y: p.y, z: p.z + GROUP_OFFSETS[n % GROUP_OFFSETS.length][1] });
+    try {
+      spawnOne(nether, mobs[0], where(0));
+    } catch {
+      return true; // not loaded yet
+    }
+    mobs.slice(1).forEach((m, n) => {
+      try {
+        spawnOne(nether, m, where(n + 1));
+      } catch {
+        // same block as the first, so it's loaded; skip this one
+      }
+    });
+    const centre = { x: p.x + 0.5, y: p.y, z: p.z + 0.5 };
+    try {
+      nether.spawnParticle(SPAWN_PUFF, { x: centre.x, y: centre.y + 1, z: centre.z });
+    } catch {
+      // unknown particle: no puff
+    }
+    soundAlarm(nether, centre);
+    return false;
+  });
+  if (spawnPlan.length === before) return;
+  savePlan();
+  if (spawnPlan.length === 0) world.setDynamicProperty(MOBS_DONE, currentRun());
 }
 
 // ── Set up and clear ────────────────────────
@@ -263,6 +320,7 @@ function setUp() {
   world.setDynamicProperty(ALTARS, JSON.stringify(R.altars.map(() => false)));
   hideKeys(currentRun());
   spawnPlan = planMobs();
+  savePlan();
   world.setDynamicProperty(MOBS_DONE, undefined);
   world.setDynamicProperty(RUN, currentRun());
   return true;
@@ -270,6 +328,8 @@ function setUp() {
 
 function clearRoom() {
   spawnPlan = [];
+  bornAt.clear();
+  world.setDynamicProperty(PLAN, undefined);
   for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) mob.remove();
   clearKeysEverywhere();
   R.pedestals.forEach((p) => swap(p, LIT, R.pedestal_block));
@@ -312,22 +372,35 @@ system.runInterval(() => {
     setUp();
     return;
   }
-  // A restart before all mobs were placed: plan them again (no restock
-  // once they're all out).
+  // A restart before all mobs were sprung: pick up the saved plan (no
+  // restock once they're all out). A run from before saved plans: plan
+  // again only if nothing was placed yet.
   if (world.getDynamicProperty(MOBS_DONE) !== currentRun() && spawnPlan.length === 0) {
-    const placed = world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] }).length;
-    spawnPlan = placed > 0 ? [] : planMobs();
-    if (placed > 0) world.setDynamicProperty(MOBS_DONE, currentRun());
+    const saved = loadPlan();
+    if (saved) {
+      spawnPlan = saved;
+    } else {
+      const placed = world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] }).length;
+      spawnPlan = placed > 0 ? [] : planMobs();
+      if (placed > 0) world.setDynamicProperty(MOBS_DONE, currentRun());
+      else savePlan();
+    }
   }
   if (spawnPlan.length > 0) placeMobs();
-  leashMobs();
-  // Test mode: the maze mobs die off ~10 seconds after they're out (or as
-  // soon as test mode is switched on, if that's later).
+  // Test mode: each maze mob dies off ~10 seconds after it appears (or after
+  // it's first seen, for one already out when test mode is switched on).
   if (isTestMode()) {
-    mobsPlacedAt ??= system.currentTick;
-    if (system.currentTick - mobsPlacedAt >= TEST_KILL_TICKS) {
-      for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) mob.kill();
+    for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) {
+      if (!bornAt.has(mob.id)) bornAt.set(mob.id, system.currentTick);
+      if (system.currentTick - bornAt.get(mob.id) >= TEST_KILL_TICKS) {
+        bornAt.delete(mob.id);
+        mob.kill();
+      }
     }
   }
   checkAltars();
 }, CHECK_TICKS);
+
+// `jump 6`: start over. Marked as set up for no run, so the next check
+// puts the room back and sets it up fresh.
+onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));

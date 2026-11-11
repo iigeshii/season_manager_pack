@@ -95,7 +95,7 @@ Run everything from chat.
 | `/scriptevent season:mending_rescue test_mode off` | Back to normal: all four pads must be stood on at once. |
 | `/scriptevent season:mending_rescue reset` | Puts everything back for the next group, whatever state it's in: ends any run, closes and darkens the Room 1 gate, closes Nether portals and sends non-operators in the Nether home. Keeps the origin and test mode. |
 | `/scriptevent season:mending_rescue reset_gate` | Closes both Room 1 portcullises and darkens the wards and crown. |
-| `/scriptevent season:mending_rescue jump <2-8>` | Testing: go straight to that room. Starts a run if none is on (party = everyone in the Nether plus you, even from the Overworld), sets the gates as if the party just came through the airlock, and teleports the party to the room's checkpoint. |
+| `/scriptevent season:mending_rescue jump <2-8>` | Testing: go straight to that room. Starts a run if none is on (party = everyone in the Nether plus you, even from the Overworld), sets the gates as if the party just came through the airlock, starts that room over from scratch (even if the party is already in it), and teleports the party to the room's checkpoint. |
 | `/scriptevent season:mending_rescue answer` | Shows Room 3's counts for this run (testing). |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
 | `/scriptevent season:mending_rescue` | Shows the dungeon origin, run, stage, checkpoint, portal switch and the online party. |

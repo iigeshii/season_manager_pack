@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, onRoomRestart } from "./run_state.js";
 import { currentStage, isMember } from "./mending_rescue.js";
 import { setGate, isGateWantedOpen } from "./gates.js";
 
@@ -129,3 +129,7 @@ system.runInterval(() => {
   setGate(STAGE, "back", true);
   tell(members, "§6The bars at the far wall rise.");
 }, CHECK_TICKS);
+
+// `jump 2`: start over. A timer from no run counts as leftovers, so the
+// next check clears the room (ladder down, timer off).
+onRoomRestart(STAGE, () => world.setDynamicProperty(TIMER, "-1:0"));

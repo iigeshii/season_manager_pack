@@ -1,6 +1,6 @@
 import { world, system, BlockPermutation, ItemStack } from "@minecraft/server";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode, extraCommands, onRunEnded } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, extraCommands, onRunEnded, onRoomRestart } from "./run_state.js";
 import { currentStage } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 import { spawnDungeonMob } from "./nether_rules.js";
@@ -416,4 +416,12 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     : "§7Room 3 isn't set up (the party isn't in Room 3).";
   if (source?.typeId === "minecraft:player") source.sendMessage(text);
   else console.warn(text);
+});
+
+// `jump 3`: start over. The setup is marked as from no run (keeping what was
+// placed, so it can be put back), so the next check clears the room and sets
+// up new counts.
+onRoomRestart(STAGE, () => {
+  const setup = getJsonProp(SETUP);
+  if (setup) world.setDynamicProperty(SETUP, JSON.stringify({ ...setup, run: -1 }));
 });

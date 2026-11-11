@@ -1210,9 +1210,12 @@ the dungeon changes. The structure must be placed unrotated.
   already checked. Starts a run if none is on (the party is everyone in
   the Nether plus whoever typed it, even from the Overworld), sets the
   airlock gates as if the party had just come through into that room,
-  and teleports the online party to its checkpoint. Rooms skipped over
-  aren't set up; a room's own setup (e.g. Room 3's counts) happens on
-  arrival as usual.
+  and teleports the online party to its checkpoint. The room jumped to
+  always starts over from scratch, even if the party is already in it
+  (e.g. `jump 6` from inside the maze puts back keys, altars and mobs and
+  hides fresh keys); it rebuilds on its next check, within a second. Rooms
+  skipped over aren't set up; a room's own setup (e.g. Room 3's counts)
+  happens on arrival as usual.
 
   inside the current zone. For checking the placement lines up.
 - No word — shows the run, stage, origin, checkpoint, portal switch and
@@ -1235,7 +1238,7 @@ row (about 2 seconds). The gate then stays open and lit.
   needs only 1 player instead of 4, Room 2's pity ladder comes after
   30 seconds instead of 10 minutes, and Room 3's guards are killed 3
   seconds after they appear, Room 5's mobs 5 seconds after they
-  appear, and the maze's mobs about 10 seconds after they're out. Turning it
+  appear, and each maze mob about 10 seconds after it appears. Turning it
   off makes the pads non-sticky again.
 - **At the seal** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
@@ -1353,15 +1356,19 @@ so respawned players can walk back in). `off` and `reset` close them all.
 - **Room 6** ([`room6.js`](season_manager/season_pack/scripts/dungeon/room6.js)),
   the three-floor maze. When the run reaches it, six keys — trial keys
   named "Key #1" to "Key #6", marked with the run number — are hidden in
-  six random maze barrels (of 30), and 24 mobs are scattered through the
+  six random maze barrels (of 30), and 24 mob spots are picked through the
   corridors: 8 per floor, at least 6 blocks apart (3 sword piglins, 2
   crossbow piglins, 2 pillagers, 1 brute each), no boss, never restocked.
   Spots come from `layout.js` (corridor floor cells away from the ladders,
-  the entrance and the key hall). Each mob patrols its own patch: it can
-  roam and chase within 10 blocks of its spot on its own floor, and is put
-  back on its spot (checked every second) if it strays further or drops to
-  another floor, so they stay spread out instead of piling up at the
-  ladders. In the key hall, putting a key in its own
+  the entrance and the key hall). Nothing spawns up front: each spot's
+  group of 2-3 mobs appears there at once, in a puff of smoke and with a
+  raid-horn alarm (heard within 32 blocks, at most one every 5 seconds),
+  the first time a player standing on that same floor comes within 8 blocks
+  of it (an ambush). A group is the spot's own mob from the mix above plus
+  1-2 extra piglins or pillagers (never an extra brute), so 48-72 mobs in
+  all. Players on the floors above or below, or on a ladder between floors,
+  don't set it off. Once out, a mob is free to roam and chase anywhere.
+  Groups not sprung yet survive a restart. In the key hall, putting a key in its own
   altar (barrel) consumes it and lights the altar's pedestal; anything else,
   including a key from an earlier run, is left alone. All six lit → the exit
   bars (Airlock 6's back gate) open. Keys are taken out of inventories the

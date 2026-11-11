@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, onRoomRestart } from "./run_state.js";
 import { currentStage, isMember } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 
@@ -386,3 +386,7 @@ system.runInterval(() => {
       return; // won: nothing more to do
   }
 }, TICKS);
+
+// `jump 4`: start over. Marked as set up for no run, so the next check
+// puts the room back and sets it up fresh.
+onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));
