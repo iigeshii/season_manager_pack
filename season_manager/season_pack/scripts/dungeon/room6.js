@@ -1,4 +1,4 @@
-import { world, system, BlockPermutation, ItemStack } from "@minecraft/server";
+import { world, system, BlockPermutation, ItemStack, MolangVariableMap } from "@minecraft/server";
 import { spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded, onRoomRestart } from "./run_state.js";
@@ -11,11 +11,11 @@ import { setGate } from "./gates.js";
 //  "Key #6", marked with this run's number) are hidden in six random maze
 //  barrels, and 24 mob spots are picked through the corridors — 8 per
 //  floor, spread out, no boss, never restocked. Nothing is spawned up
-//  front: each spot's group of 2-3 mobs appears there at once, in a puff of
+//  front: each spot's group of 1-3 mobs appears there at once, in a puff of
 //  smoke and with a raid-horn alarm, the first time a player standing on
 //  that same floor comes within TRIP_RADIUS blocks of it (an ambush; players
 //  on the floors above and below, or on a ladder between floors, don't set
-//  it off). A group is the spot's own mob from the floor mix plus 1-2 extra
+//  it off). A group is the spot's own mob from the floor mix plus 0-2 extra
 //  piglins or pillagers (never an extra brute). Once out, a mob is free to
 //  roam and chase anywhere. Groups not yet sprung survive a restart.
 //
@@ -42,6 +42,9 @@ const MOB_SPACING = 6; // blocks apart, at least, on the same floor
 const TRIP_RADIUS = 8; // a player this close to a spot (same floor) springs its mob
 const TRIP_SLACK = 1.5; // feet this far above or below a spot's floor still count as on it (a jump, not a ladder climb; floors are 4 apart)
 const SPAWN_PUFF = "minecraft:death_explosion_emitter"; // the white puff a mob leaves when it dies
+// That puff sizes itself from its mob's box (variable.aabb); with no mob
+// behind it, it's handed a piglin-sized one so it doesn't log Molang errors.
+const PUFF_BOX = { x: 0.6, y: 1.9, z: 0.6 };
 const ALARM_SOUND = "raid.horn";
 const ALARM_RADIUS = 32; // players this close to a sprung spot hear the alarm (any floor)
 const ALARM_GAP = 100; // ticks: one alarm at a time, even when several spots spring together
@@ -59,7 +62,7 @@ const SWORD = { type: "minecraft:piglin", weapon: "golden_sword" };
 const PILLAGER = { type: "minecraft:pillager" };
 const BRUTE = { type: "minecraft:piglin_brute" };
 const PER_FLOOR = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER, BRUTE]; // one per spot
-const EXTRAS = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER]; // 1-2 more per spot, drawn from these
+const EXTRAS = [SWORD, SWORD, SWORD, XBOW, XBOW, PILLAGER, PILLAGER]; // 0-2 more per spot, drawn from these
 // Where a group stands inside its spot's block, so they don't spawn stacked.
 const GROUP_OFFSETS = [
   [0.5, 0.5],
@@ -213,7 +216,7 @@ function planMobs() {
     }
     chosen.forEach((spot, i) => {
       const group = [PER_FLOOR[i]];
-      const extra = 1 + Math.floor(Math.random() * 2);
+      const extra = Math.floor(Math.random() * 3); // 0, 1 or 2
       for (let n = 0; n < extra; n++) group.push(EXTRAS[Math.floor(Math.random() * EXTRAS.length)]);
       plan.push({ group, spot });
     });
@@ -299,7 +302,9 @@ function placeMobs() {
     });
     const centre = { x: p.x + 0.5, y: p.y, z: p.z + 0.5 };
     try {
-      nether.spawnParticle(SPAWN_PUFF, { x: centre.x, y: centre.y + 1, z: centre.z });
+      const vars = new MolangVariableMap();
+      vars.setVector3("variable.aabb", PUFF_BOX);
+      nether.spawnParticle(SPAWN_PUFF, { x: centre.x, y: centre.y + 1, z: centre.z }, vars);
     } catch {
       // unknown particle: no puff
     }
