@@ -1357,12 +1357,19 @@ so respawned players can walk back in). `off` and `reset` close them all.
   corridors: 8 per floor, at least 6 blocks apart (3 sword piglins, 2
   crossbow piglins, 2 pillagers, 1 brute each), no boss, never restocked.
   Spots come from `layout.js` (corridor floor cells away from the ladders,
-  the entrance and the key hall). In the key hall, putting a key in its own
+  the entrance and the key hall). Each mob patrols its own patch: it can
+  roam and chase within 10 blocks of its spot on its own floor, and is put
+  back on its spot (checked every second) if it strays further or drops to
+  another floor, so they stay spread out instead of piling up at the
+  ladders. In the key hall, putting a key in its own
   altar (barrel) consumes it and lights the altar's pedestal; anything else,
   including a key from an earlier run, is left alone. All six lit → the exit
   bars (Airlock 6's back gate) open. Keys are taken out of inventories the
   moment a run ends and on login; keys in barrels, altars and on the floor,
   and leftover mobs, are cleared when the run moves past the maze or ends.
+  A maze mob seen at any other time (left in a chunk that wasn't loaded
+  when the room was cleared) is removed at once; the Gate Ring sits right
+  above the maze, and its mobs stop to stare down at strays.
 - **Room 7** ([`room7.js`](season_manager/season_pack/scripts/dungeon/room7.js)),
   the rune floor. Every block of the 23 x 23 floor is a rune tile; stepping
   onto a tile flips only that tile, dark to lit or lit to dark; every tile

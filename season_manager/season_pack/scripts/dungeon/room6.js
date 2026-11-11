@@ -10,7 +10,10 @@ import { setGate } from "./gates.js";
 //  When the run reaches the maze, six keys (trial keys named "Key #1" to
 //  "Key #6", marked with this run's number) are hidden in six random maze
 //  barrels, and 24 mobs are scattered through the corridors — 8 per floor,
-//  spread out, no boss, never restocked.
+//  spread out, no boss, never restocked. Each mob patrols its own patch: it
+//  can roam and chase within LEASH_RADIUS blocks of where it was placed, on
+//  its own floor, and is put back on its spot if it strays further or
+//  drops to another floor (so they don't all pile up at the ladders).
 //
 //  The key hall has six numbered altars (barrels). Putting a key in its own
 //  altar consumes it and lights the altar's pedestal; any other item is
@@ -21,7 +24,9 @@ import { setGate } from "./gates.js";
 //
 //  Keys left in barrels, altars, inventories or on the floor and leftover
 //  mobs are cleared when the run moves past the maze or ends; keys are
-//  taken out of inventories the moment a run ends, and on login.
+//  taken out of inventories the moment a run ends, and on login. Maze mobs
+//  found at any other time (left in a chunk that wasn't loaded when the
+//  room was cleared) are removed as soon as they're seen.
 // ─────────────────────────────────────────────
 
 const R = LAYOUT.room6;
@@ -30,6 +35,9 @@ const CHECK_TICKS = 20;
 const KEY_ITEM = "minecraft:trial_key";
 const MOB_TAG = "season:room6_mob";
 const MOB_SPACING = 6; // blocks apart, at least, on the same floor
+const HOME = "season:room6_home"; // entity property: the maze spot a mob patrols around (JSON [x, y, z])
+const LEASH_RADIUS = 10; // blocks a mob may roam from its spot, on its own floor
+const FLOOR_SLACK = 2; // blocks up or down from its spot's level before it counts as another floor
 const LIT = "minecraft:shroomlight";
 const ROOM_RADIUS = 40; // around the maze centre, for dropped keys
 
@@ -208,6 +216,7 @@ function placeMobs() {
     try {
       const mob = spawnDungeonMob(nether, spec.type, { x: p.x + 0.5, y: p.y, z: p.z + 0.5 });
       mob.addTag(MOB_TAG);
+      mob.setDynamicProperty(HOME, JSON.stringify(spot));
       if (spec.weapon) equip(mob, "slot.weapon.mainhand", spec.weapon);
       return false;
     } catch {
@@ -217,6 +226,31 @@ function placeMobs() {
   if (spawnPlan.length === 0) {
     world.setDynamicProperty(MOBS_DONE, currentRun());
     mobsPlacedAt = system.currentTick;
+  }
+}
+
+// Each mob stays on its own patch: past LEASH_RADIUS from its spot, or on
+// another floor, it's put back on its spot.
+function leashMobs() {
+  const o = origin();
+  for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) {
+    let home;
+    try {
+      home = JSON.parse(mob.getDynamicProperty(HOME) ?? "null");
+    } catch {
+      home = null;
+    }
+    if (!home) continue; // placed before patrol areas existed
+    const x = mob.location.x - o.x - 0.5;
+    const y = mob.location.y - o.y;
+    const z = mob.location.z - o.z - 0.5;
+    const away = Math.hypot(x - home[0], z - home[2]);
+    if (away <= LEASH_RADIUS && Math.abs(y - home[1]) <= FLOOR_SLACK) continue;
+    try {
+      mob.teleport({ x: o.x + home[0] + 0.5, y: o.y + home[1], z: o.z + home[2] + 0.5 });
+    } catch {
+      // spot not loaded: try again next check
+    }
   }
 }
 
@@ -267,6 +301,10 @@ system.runInterval(() => {
   const active = isEventOn() && currentStage() === STAGE;
   if (!active) {
     if (world.getDynamicProperty(RUN) !== undefined) clearRoom();
+    // Maze mobs left in a chunk that wasn't loaded when the room was
+    // cleared: gone as soon as they're seen. (The Gate Ring is right above
+    // the maze, and its mobs stop to stare at anything left down here.)
+    for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) mob.remove();
     return;
   }
   if (world.getDynamicProperty(RUN) !== currentRun()) {
@@ -282,6 +320,7 @@ system.runInterval(() => {
     if (placed > 0) world.setDynamicProperty(MOBS_DONE, currentRun());
   }
   if (spawnPlan.length > 0) placeMobs();
+  leashMobs();
   // Test mode: the maze mobs die off ~10 seconds after they're out (or as
   // soon as test mode is switched on, if that's later).
   if (isTestMode()) {
