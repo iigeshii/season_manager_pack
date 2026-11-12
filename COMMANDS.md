@@ -79,6 +79,7 @@ Run everything from chat.
 2. Players gather in Room 1 and open the gate: four players stand on the four corner pads at once. (Testing solo? `test_mode on` first: each pad stays lit.)
 3. Everyone walks through the gate into the first airlock. Once **every** player in the Nether is inside (at least 4) and they hold still for 3 seconds, the run starts on its own: the party is locked in, the gate closes behind them, the way into Room 2 opens and Nether portals close.
 4. At each later airlock, once every online party member is inside for 3 seconds, the run moves on to the next room on its own.
+   Late arrivals: anyone who goes through a Nether portal (or logs in inside the Nether) during the run joins the party at the current checkpoint, until the Room 8 scene starts. They can light a portal to get in.
 5. `/scriptevent season:mending_rescue off` — when the run is over. Anyone still in the dungeon is sent home, and the Room 1 gate resets.
 
 `/scriptevent season:mending_rescue` on its own shows where things stand. If anything gets stuck, `/scriptevent season:mending_rescue reset` puts it all back. If an airlock doesn't trigger, `seal` and `stage <n>` do the same by hand.

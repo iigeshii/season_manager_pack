@@ -66,6 +66,17 @@ export function restartRoom(stage) {
   roomRestarts.get(stage)?.();
 }
 
+// Whether someone arriving during a run may still join the party
+// (mending_rescue.js joinLate). A room can close it: Room 8 does once its
+// scene starts.
+const lateJoinChecks = [];
+export function onLateJoinCheck(check) {
+  lateJoinChecks.push(check);
+}
+export function lateJoinOpen() {
+  return lateJoinChecks.every((check) => check());
+}
+
 // Words of /scriptevent season:mending_rescue that room modules answer
 // themselves, so mending_rescue.js doesn't reply "unknown command".
 export const extraCommands = new Set();

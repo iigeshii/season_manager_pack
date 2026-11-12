@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, restartRoom } from "./run_state.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, restartRoom, lateJoinOpen } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
@@ -51,6 +51,12 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //  outside the current stage's zone (the room, plus the airlocks either
 //  side of it) is taken back to the checkpoint.
 //
+//  Late joiners: during a run, a non-operator outside the party who comes
+//  into the Nether (any portal, or logging in there) joins the party at
+//  the room it's on and is sent to the checkpoint, like a respawn. Portals
+//  can be lit for this while a run is on (main.js). Closed once Room 8's
+//  scene starts (room8.js).
+//
 //  Membership is stamped on each player as the run number it applies to,
 //  so starting a new run invalidates the last one without having to reach
 //  players who are offline.
@@ -83,8 +89,8 @@ export function isAllowedInNether(player) {
 }
 
 // Called by the Room 1 airlock (and the seal command): starts a new run
-// whose party is exactly the given players, at Room 2, and closes Nether
-// portals behind them so nobody else can follow.
+// whose party is the given players, at Room 2, and closes Nether portals
+// behind them. Anyone who comes in after joins the party (joinLate).
 export function sealParty(players) {
   const run = currentRun() + 1;
   world.setDynamicProperty(P + "run", run);
@@ -100,6 +106,30 @@ export function sealParty(players) {
 export function setStage(n) {
   world.setDynamicProperty(P + "stage", n);
   gatesForStage(n);
+}
+
+// ── Late joiners ────────────────────────────
+
+// Whether someone arriving now would join the party.
+export function canJoinLate() {
+  return isEventOn() && !!origin() && lateJoinOpen();
+}
+
+// A non-operator outside the party who has come into the Nether during a
+// run: joins the party and is sent to the checkpoint. Returns whether they
+// joined. Called by main.js's bounce-back and on login.
+export function joinLate(player) {
+  if (isOperator(player) || isMember(player) || !canJoinLate()) return false;
+  const stage = currentStage();
+  for (const other of world.getAllPlayers()) {
+    if (isMember(other)) other.sendMessage(`§7${player.name} has joined the party.`);
+  }
+  player.setDynamicProperty(P + "member", currentRun());
+  player.sendMessage(`§6You've joined the rescue party in Room ${stage}, ${LAYOUT.stages[stage].room}.`);
+  system.run(() => {
+    if (player.isValid()) sendTo(player, checkpoint());
+  });
+  return true;
 }
 
 // ── Places ──────────────────────────────────
@@ -247,6 +277,9 @@ world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   system.runTimeout(() => {
     if (!player.isValid()) return;
     const inNether = player.dimension.id === NETHER_ID;
+    // Logged in inside the Nether during a run they're not part of: they
+    // join it at the checkpoint.
+    if (inNether && joinLate(player)) return;
     // Logged out in the dungeon and came back when they're no longer
     // allowed there (run over, new run, portals closed): sent home rather
     // than left in a sealed room.

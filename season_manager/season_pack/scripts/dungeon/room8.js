@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { isOperator, spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, onRoomRestart } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, onRoomRestart, onLateJoinCheck } from "./run_state.js";
 import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.js";
 import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_rewards.js";
 
@@ -26,7 +26,8 @@ import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_re
 //
 //  Anyone stepping into the portal before he's gone is sent home rather
 //  than through it; after he's gone they're put back in the hall so they
-//  don't miss their rewards. Put back (bars, portal out, rails, chests and
+//  don't miss their rewards. Latecomers can join the party (see
+//  mending_rescue.js) until the scene starts. Put back (bars, portal out, rails, chests and
 //  leftovers gone) when the run moves past Room 8 or ends. A restart
 //  mid-finale ends the run.
 //
@@ -373,3 +374,6 @@ system.runInterval(() => {
 // `jump 8`: start over. Marked as set up for no run, so the next check
 // puts the room back and sets it up fresh.
 onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));
+
+// Latecomers can join until the scene starts; after that it's too late.
+onLateJoinCheck(() => currentStage() !== STAGE || !finale || finale.phase === "waiting");

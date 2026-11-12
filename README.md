@@ -986,7 +986,8 @@ picturing flint and steel.
 Operators (players tagged `season:operator`, see
 [Nether rules](#nether-rules)) may light Nether portals, to run the
 dungeon event. While the [Nether portal switch](#nether-portal-switch)
-is on, anyone may light a Nether portal. End portals stay locked for
+is on, or a [Mending Rescue](#mending-rescue-event) run is on that
+latecomers can still join, anyone may light a Nether portal. End portals stay locked for
 everyone. The lock isn't paused by `scriptevent season:toggle`.
 
 This only intercepts a *player* actually using the item — it hooks
@@ -1023,7 +1024,9 @@ it.
 Operators (players tagged `season:operator`) are not bounced from the
 Nether, nobody is while the [Nether portal switch](#nether-portal-switch)
 is on, and a sealed [Mending Rescue](#mending-rescue-event) party isn't
-either. The End stays sealed for everyone. The bounce-back isn't paused
+either. During a run, anyone else coming into the Nether joins the party
+at its checkpoint instead of being bounced, until the Room 8 scene starts.
+The End stays sealed for everyone. The bounce-back isn't paused
 by `scriptevent season:toggle`.
 
 The portal itself is left standing — an earlier version tried to destroy
@@ -1189,7 +1192,8 @@ the dungeon changes. The structure must be placed unrotated.
   offset). Saved with the world.
 - `seal` — starts a run. The party becomes exactly the players in the
   Nether right now, the run is at stage 2 (Room 2), and Nether portals
-  are switched off so nobody else can follow. Refused while a run is
+  are switched off (anyone who comes in later joins the party; see
+  **Late joiners** below). Refused while a run is
   already on. Type it once everyone is in the first airlock: right after
   it, anyone outside Room 2 and its airlocks is moved to the Room 2
   entrance. Party members who die
@@ -1409,8 +1413,9 @@ so respawned players can walk back in). `off` and `reset` close them all.
   ("Find me a library worthy of the old knowledge…"). The lines are in
   `SCENE` / `AFTER` at the top of `room8.js`, easy to edit. Anyone
   stepping into the portal before he's gone is sent home instead of
-  through it; after he's gone they're put back in the hall. A restart
-  mid-finale ends the run.
+  through it; after he's gone they're put back in the hall. Latecomers
+  can join the party until the scene starts. A restart mid-finale ends
+  the run.
 
   **Rewards** ([`room8_rewards.js`](season_manager/season_pack/scripts/dungeon/room8_rewards.js)).
   Eight seconds after he's gone, the portal closes and three chests appear
@@ -1475,8 +1480,20 @@ set spawn point), else the ground at world spawn.
 - A party member who logs back in outside the Nether during the run (for
   example, they quit on the death screen) is sent to the checkpoint.
 - Anyone who logs back in inside the Nether when they're no longer
-  allowed there (the run ended, a new run started without them, portals
-  are closed) is sent home with "The rescue run you were on has ended."
+  allowed there (the run ended, portals are closed) is sent home with
+  "The rescue run you were on has ended." If a run is on that can still
+  be joined, they join it instead (see **Late joiners**).
+
+**Late joiners.** While a run is on, a non-operator who isn't in the
+party and comes into the Nether, through any portal or by logging in
+there, joins the party. They're told which room it's on ("You've joined
+the rescue party in Room 5, …"), the party is told "<name> has joined the
+party.", and they're sent to the current checkpoint, the same place a
+party member respawns. From then on they're a full party member: airlocks
+and group puzzles wait for them too, and they get the Room 8 rewards.
+Nether portals can be lit while a run is on, so a latecomer can get in.
+Joining closes once the Room 8 scene starts; after that a latecomer is
+bounced as usual.
 
 Membership is stored on each player with the run number, so `seal`
 starting a new run cancels the last party, including players who are

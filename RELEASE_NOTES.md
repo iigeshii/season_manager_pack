@@ -239,5 +239,9 @@ regardless of when each piece was actually added:
   it opens), then picks 2 prizes from the
   chests in the hall: a diamond tool, a diamond armor piece, 3 Totems
   of Undying, a max-level enchanted book, or 8 enchanted golden apples.
+- **Late arrivals can join the rescue.** Go through a Nether portal
+  while a run is on and you join the party in whatever room it's in,
+  right up until the librarian's scene starts. You can light a portal to
+  get in.
 - **Improvements to the Rescue the Librarian challenge.**
 - **Mystic Library infrastructure added.** It isn't active yet.
