@@ -232,7 +232,7 @@ regardless of when each piece was actually added:
   Ingot in the middle, and Gold Ingot, Redstone Dust, Gold Ingot along
   the bottom.
 
-## Season Manager v2.0.134 — The Rescue Rewards
+## Season Manager v2.0.135 — The Rescue Rewards
 
 - **Rescue the Librarian now has rewards.** After the rescue, each
   party member gets an Overseer's Favor (for the Mystic Library, once
