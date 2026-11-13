@@ -1435,15 +1435,31 @@ so respawned players can walk back in). `off` and `reset` close them all.
   onto a tile flips only that tile, dark to lit or lit to dark; every tile
   lit opens the exit bars (Airlock 7's back gate). Nothing flips while the
   party walks in. Once every online non-operator party member is on the
-  floor, the entrance bars close, six random patterns flash (half a second
-  each, ticking) and the last one stays, about half the floor lit; a chime,
-  then tiles flip from each player's next step. A tile flips when a player
-  lands on it from a different tile — jumping in place doesn't count, and
-  two players stepping onto one tile together cancel out. Checked every
-  tick, so sprinting can't skip tiles. Anyone on the arrival ledge (e.g.
+  floor, the entrance bars close, five random patterns flash (half a
+  second each, ticking), then **the goal**: every tile lit and the exit
+  meter full for a second and a half, with a ding; then the starting
+  pattern (about half the floor lit) stays, a chime, and tiles flip from
+  each player's next step. A tile flips when a player steps onto it from a
+  different tile, or lands on it from a jump — so a full jump in place
+  flips the tile you're standing on, and a jump to another tile flips only
+  the one you land on. Two players landing on one tile together cancel
+  out. Checked every tick, so sprinting can't skip tiles.
+  **Lit is the goal**, shown three ways: the goal flash; the **exit
+  meter**, two rows of five blocks in the wall right above the exit bars
+  that light (shroomlight) one per 10% of the floor lit and go dark again
+  as tiles do, full only when every tile is lit (the wall blocks are saved
+  and put back on reset); and **sounds** at the tile, a bright ding when
+  it lights and a dull thud when it goes dark.
+  **Chickens:** the first time 90% of the floor is lit (477 of 529 tiles)
+  in a run, five chickens appear on random tiles, already hurt so they
+  panic, with Speed III and a random shove every second or so. They flip
+  tiles the same way players do; kill them to stop them. They're removed
+  when the floor is solved and when the room is reset (test mode: they
+  die after 10 seconds). They only come once per run.
+  Anyone on the arrival ledge (e.g.
   after respawning) gets the entrance opened so they can rejoin. Put back
-  (all dark, entrance open) when the run moves past Room 7 or ends; a
-  restart mid-puzzle keeps the floor as it is.
+  (all dark, meter dark, entrance open, chickens gone) when the run moves
+  past Room 7 or ends; a restart mid-puzzle keeps the floor as it is.
 - **Room 8** ([`room8.js`](season_manager/season_pack/scripts/dungeon/room8.js)),
   the finale. When the run reaches it, the librarian is in his cell: a
   librarian with **no trades** yet (`villager_v2` event
