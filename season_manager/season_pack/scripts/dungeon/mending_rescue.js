@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed, setRunOnlyCheck, describePortals } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, onRunEnded, restartRoom, lateJoinOpen } from "./run_state.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, onRunEnded, restartRoom, lateJoinOpen, lateJoinWaiting } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
@@ -253,6 +253,7 @@ system.runInterval(() => {
     // it's too late to join, go home. Done here rather than waiting for
     // the login check, so they're never walked to the dais first.
     if (running && !isMember(player)) {
+      if (lateJoinWaiting()) continue; // a room is still deciding: deal with them after
       if (joinLate(player)) continue;
       if (!isAllowedInNether(player)) {
         sendHome(player, "§7A rescue run is underway and it's too late to join. You've been sent home.");
@@ -305,8 +306,10 @@ function sendOutsidersHome(message) {
 }
 
 // Switching Nether portals off (by command, or the seal) clears the Nether
-// at once.
-onNetherPortalsClosed(() => sendOutsidersHome("§7Nether portals are closed. You've been sent home."));
+// at once. When it's because the run ended (resetEvent), they're told that
+// instead.
+let closingMessage;
+onNetherPortalsClosed(() => sendOutsidersHome(closingMessage ?? "§7Nether portals are closed. You've been sent home."));
 
 // Back to how the next group should find it, whatever state it's in:
 // run over, Room 1 gate and every airlock shut, Nether portals closed
@@ -320,7 +323,12 @@ export function resetEvent() {
   resetGate();
   closeAllAirlockGates();
   runEnded();
-  return setNetherPortalsOpen(false);
+  closingMessage = "§7The rescue run has ended. You've been sent home.";
+  try {
+    return setNetherPortalsOpen(false);
+  } finally {
+    closingMessage = undefined;
+  }
 }
 
 // ── Death and login ─────────────────────────
@@ -342,6 +350,9 @@ world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   system.runTimeout(() => {
     if (!player.isValid()) return;
     const inNether = player.dimension.id === NETHER_ID;
+    // A room is still deciding whether the run carries on (Room 8 after a
+    // restart): containment deals with them once it has.
+    if (inNether && isEventOn() && !isMember(player) && lateJoinWaiting()) return;
     // Logged in inside the Nether during a run they're not part of: they
     // join it at the checkpoint.
     if (inNether && joinLate(player)) return;

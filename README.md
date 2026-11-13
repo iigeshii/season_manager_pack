@@ -1478,7 +1478,11 @@ so respawned players can walk back in). `off` and `reset` close them all.
   stepping into the portal before he's gone is sent home instead of
   through it; after he's gone they're put back in the hall. Latecomers
   can join the party until the scene starts. A restart mid-finale ends
-  the run.
+  the run; a restart while he's still caged carries on. After a restart
+  the room waits until his cell has been loaded for 3 seconds before
+  deciding he's gone (he can load in a moment after the blocks), and
+  until it has decided, nobody outside the party is joined or turned
+  away (see **Late joiners**).
 
   **Rewards** ([`room8_rewards.js`](season_manager/season_pack/scripts/dungeon/room8_rewards.js)).
   Eight seconds after he's gone, the portal closes and three chests appear
@@ -1577,7 +1581,14 @@ party member respawns. From then on they're a full party member: airlocks
 and group puzzles wait for them too, and they get the Room 8 rewards.
 Nether portals can be lit while a run is on, so a latecomer can get in.
 Joining closes once the Room 8 scene starts; after that a latecomer is
-bounced as usual.
+bounced as usual. Right after a restart with the run on Room 8, joining
+waits until the room has worked out whether the run carries on: someone
+already in the Nether is left where they are until then, then joined or
+sent home; someone walking through a portal in those few seconds is
+bounced and can try again. When a run ends (`reset`, the finale, the
+last party member leaving, or Room 8 finding the run can't carry on
+after a restart), anyone sent home is told "The rescue run has ended."
+rather than that the portals closed.
 
 Membership is stored on each player with the run number, so `seal`
 starting a new run cancels the last party, including players who are

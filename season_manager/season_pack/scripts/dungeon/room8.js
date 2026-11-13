@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { isOperator, spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, onRoomRestart, onLateJoinCheck } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, onRoomRestart, onLateJoinCheck, onLateJoinWait } from "./run_state.js";
 import { currentStage, isMember, resetEvent, sendHome } from "./mending_rescue.js";
 import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_rewards.js";
 
@@ -29,7 +29,11 @@ import { openRewards, closeRewards, rewardsOpen, REWARD_PICKS } from "./room8_re
 //  don't miss their rewards. Latecomers can join the party (see
 //  mending_rescue.js) until the scene starts. Put back (bars, portal out, rails, chests and
 //  leftovers gone) when the run moves past Room 8 or ends. A restart
-//  mid-finale ends the run.
+//  mid-finale ends the run; a restart while he's still caged carries on.
+//  After a restart the room waits until his cell has been loaded for
+//  RESTART_GRACE before deciding he's gone (he can load a moment after the
+//  blocks), and until it has decided nobody outside the party is joined or
+//  turned away.
 //
 //  Bring him back to the village later with
 //    /function season/summon_rescued_librarian  (him, in a minecart)
@@ -62,6 +66,7 @@ const RIDE_TIMEOUT = 300; // vanish anyway if the cart hasn't arrived in 15 s
 const REWARDS_AT = 160; // ticks after he's gone: portal closes, chests appear
 const HALL_SPOT = [10, 1, 24]; // where someone stepping into the portal is put back
 const PUSH = 0.15; // minecart nudge per step when it slows down
+const RESTART_GRACE = 60; // ticks the cell must be loaded, after a restart, before he's taken as gone
 
 const TAG = "season:room8";
 const RUN = P + "room8_run";
@@ -79,6 +84,7 @@ function railDirection(i) {
 }
 
 let finale = undefined; // { phase, start, cart, librarian, rideStart, goneAt }
+let cellLoadedSince = undefined; // after a restart: tick the cell was first seen loaded
 
 // ── Helpers ─────────────────────────────────
 
@@ -262,13 +268,21 @@ system.runInterval(() => {
   }
   if (!finale) {
     // A restart mid-room: if he's still caged, carry on; otherwise end the
-    // run. Only decide once the cell is loaded (he can't be seen before).
-    if (!cellLoaded()) return;
-    if (findLibrarian() && blockAt(R.cell_door[0])?.typeId === "minecraft:iron_bars") finale = { phase: "waiting" };
-    else {
-      resetEvent();
+    // run. Only decide once the cell is loaded (he can't be seen before),
+    // and give him RESTART_GRACE to load in after the blocks do.
+    if (!cellLoaded()) {
+      cellLoadedSince = undefined;
       return;
     }
+    cellLoadedSince ??= system.currentTick;
+    if (findLibrarian() && blockAt(R.cell_door[0])?.typeId === "minecraft:iron_bars") {
+      finale = { phase: "waiting" };
+      cellLoadedSince = undefined;
+    } else if (system.currentTick - cellLoadedSince >= RESTART_GRACE) {
+      cellLoadedSince = undefined;
+      resetEvent();
+      return;
+    } else return;
   }
 
   // Nobody leaves through the portal: anyone stepping in is sent home, or,
@@ -376,4 +390,7 @@ system.runInterval(() => {
 onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));
 
 // Latecomers can join until the scene starts; after that it's too late.
-onLateJoinCheck(() => currentStage() !== STAGE || !finale || finale.phase === "waiting");
+// Until the room knows where it is (after a restart, or before it's set up)
+// it's neither: latecomers wait (onLateJoinWait).
+onLateJoinCheck(() => currentStage() !== STAGE || finale?.phase === "waiting");
+onLateJoinWait(() => isEventOn() && currentStage() === STAGE && !finale);

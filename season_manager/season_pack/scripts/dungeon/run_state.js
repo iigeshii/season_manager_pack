@@ -77,6 +77,18 @@ export function lateJoinOpen() {
   return lateJoinChecks.every((check) => check());
 }
 
+// Whether a room can't say yet whether the run carries on (Room 8 right
+// after a restart, until it has found the librarian or decided he's gone).
+// Meanwhile nobody outside the party is joined or turned away; they're
+// dealt with once it's decided.
+const lateJoinWaits = [];
+export function onLateJoinWait(check) {
+  lateJoinWaits.push(check);
+}
+export function lateJoinWaiting() {
+  return lateJoinWaits.some((check) => check());
+}
+
 // Words of /scriptevent season:mending_rescue that room modules answer
 // themselves, so mending_rescue.js doesn't reply "unknown command".
 export const extraCommands = new Set();
