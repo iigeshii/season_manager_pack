@@ -1343,7 +1343,11 @@ so respawned players can walk back in). `off` and `reset` close them all.
   room created (marked in its lore) is touched; players' own concrete is
   left alone. `answer` shows the counts, for testing.
 - **Room 4** ([`room4.js`](season_manager/season_pack/scripts/dungeon/room4.js)),
-  the collapsing glass floor. Once every online non-operator party member
+  the collapsing glass floor. The tiles are light blue stained glass
+  (built orange, which was too close to the red warning; the script turns
+  the arena's orange tiles light blue when it refills the floor, and the
+  fabricator build now uses light blue too). Once every online
+  non-operator party member
   is on the arena, the entrance bridge retracts, the entrance gate bars,
   and a 3-2-1 countdown starts the round. Tiles flash red for a
   second, then vanish — fast enough that 80% of the floor is gone about 20
@@ -1363,8 +1367,12 @@ so respawned players can walk back in). `off` and `reset` close them all.
   how far they got; the floor refills, the entrance bridge returns and
   the next round starts when everyone is back on the arena (its 3-2-1
   clears the red digits). A restart mid-
-  round counts as a lost round. The room is put back when the run moves
-  past Room 4 or ends.
+  round counts as a lost round. From the 10th lost round of a run on,
+  each loss takes 2 seconds off the round (58 s after the 10th, 56 s
+  after the 11th, ...), down to 20 seconds; the wall shows the new length
+  when the countdown ends. The count starts again each run and on
+  `jump 4`, and rounds lost to a restart don't count toward it. The room
+  is put back when the run moves past Room 4 or ends.
 - **Room 5** ([`room5.js`](season_manager/season_pack/scripts/dungeon/room5.js)),
   the gate ring, following Fredo's plan: twelve gates in three thirds of
   four, each third ending in a brute wave at gates 4, 8 and 12. Gates 1-3

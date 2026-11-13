@@ -7,7 +7,7 @@ import { setGate } from "./gates.js";
 
 // ─────────────────────────────────────────────
 //  ROOM 4: GLASS FURNACE (collapsing floor)
-//  An arena of orange glass over a basement 3 blocks down. Once every
+//  An arena of light blue glass over a basement 3 blocks down. Once every
 //  online non-operator party member is on the arena (and at least one
 //  party member), the entrance bridge retracts, the entrance gate bars, and
 //  a 3-2-1 countdown (on the wall timer) starts the round. Tiles flash red for a second, then
@@ -29,6 +29,17 @@ import { setGate } from "./gates.js";
 //  Everyone falls: the floor refills, the entrance bridge returns and its
 //  gate opens; the next round starts when everyone is back on the arena.
 //
+//  Shorter rounds: from the 10th lost round of a run on, each loss takes
+//  2 seconds off the round (58 s after the 10th, 56 s after the 11th, ...),
+//  down to 20 s. The count is saved with the world and starts again each
+//  run (and on `jump 4`). Rounds lost to a script restart don't count.
+//
+//  Tile colour: the arena was built in orange glass, which was too close to
+//  the red warning. The script uses light blue (TILE) and turns any orange
+//  tile light blue when it refills the floor, so the dungeon didn't have to
+//  be re-pasted. Only the arena's tile cells are touched; the orange glass
+//  lavafalls on the walls stay as they are.
+//
 //  Cleared (floor full, entrance bridge and gate open, exit bridge gone and
 //  its gate barred) when the run moves past Room 4 or ends.
 // ─────────────────────────────────────────────
@@ -47,8 +58,16 @@ const MAX_GONE = 0.8; // random collapse keeps the floor at most this far gone (
 const MAX_BURST = 10; // tiles at most per step when regrown tiles free up room
 const REFILL_PER_STEP = 30; // tiles restored per step while refilling (~2 s)
 
+const SHRINK_AFTER_LOSSES = 9; // the 10th loss is the first to shorten the round
+const SHRINK_SECONDS = 2; // per loss from then on
+const MIN_ROUND_SECONDS = 20;
+
+const TILE = "minecraft:light_blue_stained_glass";
+const OLD_TILE = R.tile_block; // orange, as built: replaced on refill
+
 const MODE = P + "room4_mode"; // "waiting" | "countdown" | "round" | "refill_won" | "refill_lost" | "won"
 const RUN = P + "room4_run"; // run the room was last set up for
+const LOSSES = P + "room4_losses"; // rounds lost this run
 
 const perms = new Map();
 const permOf = (name) => {
@@ -64,6 +83,7 @@ let round = undefined; // { startTick, endTick, intact: Set, pending, regrowing,
 // Tile index by its x,z (tiles are one layer), to find the tile under a player.
 const TILE_AT = new Map(R.tiles.map((p, i) => [`${p[0]},${p[2]}`, i]));
 let countdownStart = 0;
+let floorChecked = false; // floor checked for old-colour tiles this script load
 
 // ── Helpers ─────────────────────────────────
 
@@ -97,6 +117,13 @@ const onArena = (player) => inBox(player, R.platform_box);
 const mode = () => world.getDynamicProperty(MODE) ?? "waiting";
 const setMode = (m) => world.setDynamicProperty(MODE, m);
 const currentRun = () => world.getDynamicProperty(P + "run") ?? 0;
+const losses = () => world.getDynamicProperty(LOSSES) ?? 0;
+
+// The round's length after this run's losses so far.
+function roundSeconds() {
+  const cut = Math.max(0, losses() - SHRINK_AFTER_LOSSES) * SHRINK_SECONDS;
+  return Math.max(MIN_ROUND_SECONDS, R.round_seconds - cut);
+}
 
 function sound(players, id) {
   for (const player of players) {
@@ -182,16 +209,16 @@ function setBars(blocks, open) {
   }
 }
 
-// Restores up to `limit` missing or red tiles. Returns true once the whole
-// floor is back.
+// Restores up to `limit` missing, red or old-colour tiles. Returns true
+// once the whole floor is back.
 function refill(limit) {
   let done = 0;
   for (const p of R.tiles) {
     const block = blockAt(p);
-    if (!block || block.typeId === R.tile_block) continue;
-    if (block.typeId !== AIR && block.typeId !== R.warning_block) continue;
+    if (!block || block.typeId === TILE) continue;
+    if (block.typeId !== AIR && block.typeId !== R.warning_block && block.typeId !== OLD_TILE) continue;
     if (done >= limit) return false;
-    block.setPermutation(permOf(R.tile_block));
+    block.setPermutation(permOf(TILE));
     done++;
   }
   return true;
@@ -200,6 +227,7 @@ function refill(limit) {
 // How the next group finds the room.
 function resetRoom() {
   round = undefined;
+  world.setDynamicProperty(LOSSES, undefined);
   showTimer(undefined);
   refill(Infinity);
   setBridge(R.entrance_bridge, true);
@@ -221,7 +249,7 @@ function startCountdown(members) {
 }
 
 function startRound() {
-  const seconds = R.round_seconds;
+  const seconds = roundSeconds();
   round = {
     startTick: system.currentTick,
     endTick: system.currentTick + seconds * 20,
@@ -238,7 +266,7 @@ function startRound() {
 // Starts tile i going: red now, gone after the warning.
 function crack(i, now) {
   if (!round.intact.delete(i)) return;
-  swap(R.tiles[i], R.tile_block, R.warning_block);
+  swap(R.tiles[i], TILE, R.warning_block);
   round.pending.push({ i, at: now + WARN_TICKS });
 }
 
@@ -261,7 +289,7 @@ function stepRound(members) {
   // Vanished tiles grow back, so holes keep moving.
   round.regrowing = round.regrowing.filter(({ i, at: when }) => {
     if (when > now) return true;
-    swap(R.tiles[i], AIR, R.tile_block);
+    swap(R.tiles[i], AIR, TILE);
     round.intact.add(i);
     return false;
   });
@@ -271,6 +299,7 @@ function stepRound(members) {
   if (!members.some(onArena)) {
     const left = Math.max(0, Math.ceil((round.endTick - now) / 20));
     round = undefined;
+    world.setDynamicProperty(LOSSES, losses() + 1);
     showTimer(left, PIXEL_FAILED);
     setMode("refill_lost");
     sound(members, "note.bass");
@@ -338,6 +367,13 @@ system.runInterval(() => {
   const members = nether.getPlayers().filter(isMember);
   switch (mode()) {
     case "waiting": {
+      // Once per script load: an old-colour floor from before the change
+      // (the room set up earlier this run) is turned light blue first, so
+      // every tile can crack.
+      if (!floorChecked) {
+        floorChecked = refill(Infinity);
+        return;
+      }
       const everyone = members.filter((p) => !isOperator(p)).every(onArena);
       if (everyone && members.some(onArena)) startCountdown(members);
       return;
@@ -350,7 +386,7 @@ system.runInterval(() => {
       }
       if ((system.currentTick - countdownStart) % 20 < TICKS && elapsed > 0) {
         const left = COUNTDOWN_SECONDS - elapsed;
-        showTimer(left > 0 ? left : R.round_seconds);
+        showTimer(left > 0 ? left : roundSeconds());
         sound(members, left > 0 ? "note.pling" : "note.harp");
         if (left <= 0) startRound();
       }
