@@ -1,6 +1,6 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
-import { isAllowedInNether, canJoinLate, joinLate } from "./dungeon/mending_rescue.js";
+import { isAllowedInNether, joinLate } from "./dungeon/mending_rescue.js";
 import { netherPortalsOpen } from "./nether_portals.js";
 import "./dungeon/airlocks.js";
 import "./dungeon/leave.js";
@@ -174,16 +174,16 @@ const PORTAL_IGNITERS = [
   { item: "minecraft:ender_eye", block: "minecraft:end_portal_frame", label: "End portals" },
 ];
 
-// Not gated by `enabled`/season:toggle: Nether portals have their own
-// switch (nether_portals.js), and End portals stay locked regardless.
+// Not gated by `enabled`/season:toggle: Nether portals follow the Mending
+// Rescue phase (nether_portals.js), and End portals stay locked regardless.
 world.beforeEvents.itemUseOn.subscribe((event) => {
   const match = PORTAL_IGNITERS.find(
     (p) => p.item === event.itemStack?.typeId && p.block === event.block.typeId
   );
   if (!match) return;
-  // Nether portals: anyone while the switch is on or a Mending Rescue run
-  // can still be joined, operators always.
-  if (match.block === "minecraft:obsidian" && (netherPortalsOpen() || canJoinLate() || isOperator(event.source))) return;
+  // Nether portals: anyone while the rescue is gathering or running,
+  // operators always.
+  if (match.block === "minecraft:obsidian" && (netherPortalsOpen() || isOperator(event.source))) return;
   event.cancel = true;
   event.source.sendMessage(`§c${match.label} are currently disabled.`);
 });
@@ -228,12 +228,11 @@ function findSurfaceNear(dimension, x, z) {
 world.afterEvents.playerDimensionChange.subscribe((event) => {
   const { player, toDimension, fromDimension, fromLocation } = event;
   if (!DISABLED_DIMENSIONS.has(toDimension.id)) return;
-  // The Nether is open to operators always, to everyone while the Nether
-  // portal switch is on, and to a sealed Mending Rescue party (so dead
-  // members can be sent back to their checkpoint) — see
-  // dungeon/mending_rescue.js. During a run, anyone else coming in joins
-  // the party at its checkpoint (joinLate). The End stays sealed for
-  // everyone.
+  // The Nether is open to operators always, to everyone while the Mending
+  // Rescue is gathering, and to its party (so dead members can be sent back
+  // to their checkpoint) — see dungeon/mending_rescue.js. While it's
+  // running, anyone else coming in joins the party at its checkpoint
+  // (joinLate). The End stays sealed for everyone.
   if (toDimension.id === "minecraft:nether" && (joinLate(player) || isAllowedInNether(player))) return;
 
   const bounceCount = (bounceCounts.get(player.id) ?? 0) + 1;

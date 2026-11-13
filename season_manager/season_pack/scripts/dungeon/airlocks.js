@@ -13,15 +13,12 @@ import { isGateOpen } from "./room1_gate.js";
 //  open, every non-operator in the Nether must be inside the airlock, and
 //  there must be at least MIN_PARTY of them (1 in test mode). The party is
 //  everyone in the airlock, operators included — that's how an operator
-//  tests solo. Sealing closes the gate behind them, opens the way into
-//  Room 2 and closes Nether portals (see sealParty).
+//  tests solo. Starting the run closes the gate behind them and opens the
+//  way into Room 2 (see sealParty).
 //
 //  Airlocks 2-7: every online non-operator party member is inside airlock
 //  n, and at least one party member is → the run moves to room n+1 and the
-//  checkpoint to that airlock. (Each room's own gates come with its room
-//  code; until then this only moves the stage.)
-//
-//  Typed seal / stage commands still work as overrides.
+//  checkpoint to that airlock. Airlock 7 starts the finale (Room 8).
 // ─────────────────────────────────────────────
 
 const CHECK_TICKS = 20; // 1 second

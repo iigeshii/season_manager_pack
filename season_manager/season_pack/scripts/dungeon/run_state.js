@@ -28,7 +28,8 @@ export function origin() {
   return getJson("origin");
 }
 
-// A run is on from the seal until off.
+// A run is on from the first airlock until it ends (finale, last member
+// leaving, or reset): the running and finale phases (mending_rescue.js).
 export function isEventOn() {
   return world.getDynamicProperty(P + "on") === true;
 }
@@ -64,29 +65,6 @@ export function onRoomRestart(stage, handler) {
 }
 export function restartRoom(stage) {
   roomRestarts.get(stage)?.();
-}
-
-// Whether someone arriving during a run may still join the party
-// (mending_rescue.js joinLate). A room can close it: Room 8 does once its
-// scene starts.
-const lateJoinChecks = [];
-export function onLateJoinCheck(check) {
-  lateJoinChecks.push(check);
-}
-export function lateJoinOpen() {
-  return lateJoinChecks.every((check) => check());
-}
-
-// Whether a room can't say yet whether the run carries on (Room 8 right
-// after a restart, until it has found the librarian or decided he's gone).
-// Meanwhile nobody outside the party is joined or turned away; they're
-// dealt with once it's decided.
-const lateJoinWaits = [];
-export function onLateJoinWait(check) {
-  lateJoinWaits.push(check);
-}
-export function lateJoinWaiting() {
-  return lateJoinWaits.some((check) => check());
 }
 
 // Words of /scriptevent season:mending_rescue that room modules answer

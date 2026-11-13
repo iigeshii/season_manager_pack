@@ -985,10 +985,9 @@ picturing flint and steel.
 
 Operators (players tagged `season:operator`, see
 [Nether rules](#nether-rules)) may light Nether portals, to run the
-dungeon event. While the [Nether portal switch](#nether-portal-switch)
-is on, or a [Mending Rescue](#mending-rescue-event) run is on that
-latecomers can still join, anyone may light a Nether portal. End portals stay locked for
-everyone. The lock isn't paused by `scriptevent season:toggle`.
+dungeon event. While the [Mending Rescue](#mending-rescue-event) is
+gathering or running (see [Nether portals](#nether-portals)), anyone may
+light a Nether portal. End portals stay locked for everyone. The lock isn't paused by `scriptevent season:toggle`.
 
 This only intercepts a *player* actually using the item — it hooks
 `itemUseOn`, which never fires for a dispenser or hopper clock
@@ -1022,10 +1021,10 @@ reacts to the dimension change itself rather than the portal that caused
 it.
 
 Operators (players tagged `season:operator`) are not bounced from the
-Nether, nobody is while the [Nether portal switch](#nether-portal-switch)
-is on, and a sealed [Mending Rescue](#mending-rescue-event) party isn't
-either. During a run, anyone else coming into the Nether joins the party
-at its checkpoint instead of being bounced, until the Room 8 scene starts.
+Nether, nobody is while the [Mending Rescue](#mending-rescue-event) is
+gathering, and its party isn't either. While it's running (Rooms 2–7),
+anyone else coming into the Nether joins the party at its checkpoint
+instead of being bounced.
 The End stays sealed for everyone. The bounce-back isn't paused
 by `scriptevent season:toggle`.
 
@@ -1065,7 +1064,8 @@ pack is on 1.14.0). Tag yourself once:
 Operators may light Nether portals and enter the Nether (see
 [Portal lock](#portal-lock) and
 [Dimension bounce-back](#dimension-bounce-back)). Everyone else gets in
-in only while the [Nether portal switch](#nether-portal-switch) is on.
+in only while the [Mending Rescue](#mending-rescue-event) is gathering
+or running (see [Nether portals](#nether-portals)).
 
 **Game mode.** Operators keep whatever mode they're in. Everyone else is
 put in adventure while in the Nether and survival everywhere else — no
@@ -1149,44 +1149,32 @@ scriptevent season:entities
 None of the Nether rules are paused by `scriptevent season:toggle`: they
 protect the dungeon rather than being season restrictions.
 
-### Nether portal switch
+### Nether portals
 
-Opens or closes Nether portals for everyone, separately from
-`scriptevent season:toggle`. Code in
+Nether portals have no switch of their own: the
+[Mending Rescue](#mending-rescue-event) phase decides whether anyone but
+an operator may light or go through one. Open while it's **gathering** or
+**running**, closed while it's **closed** or in its **finale**. Closed,
+the [portal lock](#portal-lock) and [bounce-back](#dimension-bounce-back)
+keep everyone but operators out. The End stays sealed either way. Code in
 [`scripts/nether_portals.js`](season_manager/season_pack/scripts/nether_portals.js).
-Off by default, saved with the world:
 
 ```
-scriptevent season:nether_portals on
-scriptevent season:nether_portals off
 scriptevent season:nether_portals
 ```
 
-The last form reports what portals do right now, which is one of three
-states (also shown by `scriptevent season:mending_rescue` on its own):
-
-| State | When | Who can come through a portal |
-|---|---|---|
-| **open** | Switch on, no joinable run | Anyone (held to Room 1 to gather) |
-| **run only** | A [Mending Rescue](#mending-rescue-event) run is on, before the Room 8 scene | Anyone, and coming in adds them to the party at its checkpoint |
-| **closed** | Switch off and no run, or the Room 8 scene has started | Operators only |
-
-The switch turns off at the seal, so a run is **run only** until the Room 8
-scene starts, then **closed**. Off: the [portal lock](#portal-lock)
-and [bounce-back](#dimension-bounce-back) keep everyone but operators out
-of the Nether. Switching off also sends everyone already in the Nether
-home at once (bed spawn, else world spawn), except operators and the
-party of a running [Mending Rescue](#mending-rescue-event) run. On: anyone may light a Nether portal and travel normally.
-The End stays sealed either way.
+reports whether portals are open right now, and why. (The old `on` and
+`off` forms are gone; use `mending_rescue start` and `reset`.)
 
 ### Mending Rescue event
 
 Tracks a dungeon run: who's in the party, which room they're in, where
-dead party members respawn, and keeping the party in that room. Getting
-in is handled by the [Nether portal switch](#nether-portal-switch);
-a run is portals on, players gather and go in, `seal` (which starts the
-run and switches portals off again), `stage` as they go, `off` at the
-end. The step-by-step run sheet is in [COMMANDS.md](COMMANDS.md). Code in
+dead party members respawn, and keeping the party in that room. It also
+decides when [Nether portals](#nether-portals) are open. A run is
+`start`, players gather in Room 1 and go into the first airlock (which
+starts the run), the airlocks move it on room by room, and the finale
+ends it. Nothing else needs typing. The step-by-step run sheet is in
+[COMMANDS.md](COMMANDS.md). Code in
 [`scripts/dungeon/mending_rescue.js`](season_manager/season_pack/scripts/dungeon/mending_rescue.js).
 All commands are `scriptevent season:mending_rescue <word>`, run from
 chat. Quick list in [COMMANDS.md](COMMANDS.md).
@@ -1204,35 +1192,34 @@ belong to that airlock, so standing in an open doorway counts as inside. Boxes a
 structure's minimum corner. Don't edit it by hand; re-run the export if
 the dungeon changes. The structure must be placed unrotated.
 
+**Phases.** The event is always in one of four phases, in this order:
+
+| Phase | Starts when | Nether portals | A non-operator in the Nether |
+|---|---|---|---|
+| **closed** | The default; the finale is done; the last party member leaves; `reset` | Closed | Sent home |
+| **gathering** | `start` | Open | Held to Room 1 and its airlock |
+| **running** | The group gathers in Airlock 1 (Rooms 2–7) | Open | Party: held to the current room. Anyone else: joins the party at the checkpoint |
+| **finale** | The party goes through Airlock 7 into Room 8 | Closed | Party: held to Room 8. Anyone else: sent home |
+
+Operators are never held, moved or sent home by the phases; they're in
+the party only if they were in Airlock 1 when the run started.
+
 **Commands.**
 
 - `set_origin <x> <y> <z>` — once: the structure's minimum corner (the
   `/structure load` position, or a structure block's position plus its
   offset). Saved with the world.
-- `seal` — starts a run. The party becomes exactly the players in the
-  Nether right now, the run is at stage 2 (Room 2), and Nether portals
-  are switched off (anyone who comes in later joins the party; see
-  **Late joiners** below). Refused while a run is
-  already on. Type it once everyone is in the first airlock: right after
-  it, anyone outside Room 2 and its airlocks is moved to the Room 2
-  entrance. Party members who die
-  respawn at the checkpoint instead of staying in the Overworld (they
-  pass through it for a moment), and may be in the Nether even with
-  portals switched off.
-- `stage <2-8>` — the party has moved on to that room. The checkpoint
-  becomes the airlock just before it (or the room's entrance where that
-  airlock has no respawn point).
+- `start` — closed → gathering: Nether portals open, and the whole
+  server is told "The Mending Rescue is open! Light a Nether portal and
+  gather on the dais in Room 1." Refused while a run is still on (use
+  `reset` first). The run itself starts at the first airlock.
 - `leave <player>` — takes one player off the party and sends them home
   (for someone stuck or AFK). Name as shown in chat, any case. If that
   leaves nobody from the party online, the run ends and everything
   resets. See **Leaving a run** below.
-- `off` — ends the run. Everyone left in the Nether who isn't an
-  operator is sent home (unless portals are open), so nobody is stranded
-  in a sealed room.
-- `reset` — everything back for the next group, whatever state it's in:
-  ends any run, closes and darkens the Room 1 gate, closes Nether portals,
-  and sends everyone in the Nether home, operators included. Keeps the
-  origin and the test-mode setting.
+- `reset` — back to closed from any phase: ends any run, closes and
+  darkens the Room 1 gate, and sends everyone in the Nether home,
+  operators included. Keeps the origin and the test-mode setting.
 - `jump <2-8>` — testing: go straight to that room, skipping the ones
   already checked. Starts a run if none is on (the party is everyone in
   the Nether plus whoever typed it, even from the Overworld), sets the
@@ -1243,13 +1230,10 @@ the dungeon changes. The structure must be placed unrotated.
   hides fresh keys); it rebuilds on its next check, within a second. Rooms
   skipped over aren't set up; a room's own setup (e.g. Room 3's counts)
   happens on arrival as usual.
-
+- `where` — which room or airlock you're standing in, and whether that's
   inside the current zone. For checking the placement lines up.
-- No word — shows the run, stage, origin, checkpoint, portal switch and
-  the online party.
-
-`seal` and `stage` happen on their own at the airlocks (below); the typed
-commands are overrides.
+- No word — shows the phase, run, room, origin, checkpoint, portals, the
+  online party, and anyone else in the Nether (operators marked).
 
 **Room 1 gate.** Code in
 [`scripts/dungeon/room1_gate.js`](season_manager/season_pack/scripts/dungeon/room1_gate.js);
@@ -1267,9 +1251,9 @@ row (about 2 seconds). The gate then stays open and lit.
   seconds after they appear, Room 5's mobs 5 seconds after they
   appear, and each maze mob about 10 seconds after it appears. Turning it
   off makes the pads non-sticky again.
-- **At the seal** (Airlock 1): the outer portcullis closes behind the
+- **When the run starts** (Airlock 1): the outer portcullis closes behind the
   party, Room 1 goes dark, and the inner portcullis opens into Room 2.
-- **`off`** or **`reset_gate`**: both portcullises close and everything
+- **When the run ends**, or **`reset_gate`**: both portcullises close and everything
   goes dark, ready for the next group.
 
 Block changes only ever swap the exact block expected (dark ward ↔
@@ -1281,14 +1265,14 @@ alone.
 Checked once a second; the group must hold still for 3 seconds ("Everyone's
 in. Hold still...") before anything happens.
 
-- **Airlock 1** (the gate passage) starts the run — the same as typing
-  `seal` — when the gate is open, *every* non-operator in the Nether is
+- **Airlock 1** (the gate passage) starts the run when the gate is open, *every* non-operator in the Nether is
   inside the airlock, and there are at least 4 of them (1 in test mode).
   With 6 in Room 1 and 4 in the airlock, nothing happens until the other
   2 join them. The party is everyone in the airlock, operators included.
-- **Airlocks 2-7** move the run to the next room — the same as typing
-  `stage` — when every online, non-operator party member is inside the
-  airlock ahead. Players who are offline don't hold the group up.
+- **Airlocks 2-7** move the run to the next room when every online,
+  non-operator party member is inside the airlock ahead. Players who are
+  offline don't hold the group up. Airlock 7 starts the finale: anyone in
+  the party who is offline then is dropped from it.
 
 **Airlock gates.** Code in
 [`scripts/dungeon/gates.js`](season_manager/season_pack/scripts/dungeon/gates.js);
@@ -1298,7 +1282,7 @@ an iron hatch (Airlocks 2, 5 and 6) that flips open. A room's code opens
 its back gate when the room is solved. When the party gathers in the
 airlock, the back gate closes behind them, the front gate opens, and the
 previous airlock's front gate closes (it stays open while a room is played
-so respawned players can walk back in). `off` and `reset` close them all.
+so respawned players can walk back in). They all close when the run ends.
 
 - **Room 2** ([`room2.js`](season_manager/season_pack/scripts/dungeon/room2.js)):
   the exit bars (Airlock 2's back gate) rise once every online
@@ -1337,7 +1321,7 @@ so respawned players can walk back in). `off` and `reset` close them all.
   wrong and what they tried.
   Players may take concrete out of the barrels — the answer is fixed when
   the room is set up. Puzzle concrete is taken back out of every online
-  player's inventory the moment a run ends (`off`/`reset`), wherever they
+  player's inventory the moment a run ends (finale, `reset`), wherever they
   are, and from anyone who was offline when they next log in. Every time
   the room is set up, it first clears all puzzle concrete (display spots,
   barrels, inventories, floor) left by earlier setups. Placed concrete,
@@ -1487,13 +1471,13 @@ so respawned players can walk back in). `off` and `reset` close them all.
   ("Find me a library worthy of the old knowledge…"). The lines are in
   `SCENE` / `AFTER` at the top of `room8.js`, easy to edit. Anyone
   stepping into the portal before he's gone is sent home instead of
-  through it; after he's gone they're put back in the hall. Latecomers
-  can join the party until the scene starts. A restart mid-finale ends
-  the run; a restart while he's still caged carries on. After a restart
-  the room waits until his cell has been loaded for 3 seconds before
-  deciding he's gone (he can load in a moment after the blocks), and
-  until it has decided, nobody outside the party is joined or turned
-  away (see **Late joiners**).
+  through it; after he's gone they're put back in the hall. Nobody new
+  joins in Room 8 (the **finale** phase). A restart mid-scene ends the
+  run; a restart while he's still caged carries on. After a restart the
+  room waits until his cell has been loaded for 3 seconds before
+  deciding he's gone (he can load in a moment after the blocks). The run
+  ends once the last party member has picked their rewards and been sent
+  home, even though that leaves nobody in the Nether.
 
   **Rewards** ([`room8_rewards.js`](season_manager/season_pack/scripts/dungeon/room8_rewards.js)).
   Eight seconds after he's gone, the portal closes and three chests appear
@@ -1535,41 +1519,41 @@ retrain him with Mending later, swap his tag for
 `season:rescue_mending_librarian` and fire `season:become_mending_librarian`
 (the Mending event also removes the empty variant).
 
-**Containment.** While a run is on, once a second: a party member in the
-Nether outside the current stage's zone (its room plus the airlocks
-either side) is taken back to the checkpoint ("You were brought back to
-the checkpoint."). Anyone else in the Nether who isn't an operator joins
-the party (see **Late joiners**); if it's too late to join, they're sent
-home, unless Nether portals are open, in which case they're held to
-Room 1 and taken back to the dais ("You were brought back to the dais.").
+**Containment.** Once a second, for every non-operator in the Nether, by
+phase:
 
-Before a run, while Nether portals are open, the Nether is the gathering
-area and the same rule applies to every non-operator: anyone outside
-Room 1 and its airlock (for example, someone who lit their own portal and
-came out elsewhere in the Nether) is taken to the dais within a second.
-With portals closed and no run on there's nothing to hold, because
-closing portals already sends non-operators home.
+- **closed:** sent home ("The Nether is closed.").
+- **gathering:** anyone outside Room 1 and its airlock (for example,
+  someone who lit their own portal and came out elsewhere in the Nether)
+  is taken to the dais ("You were brought back to the dais.").
+- **running:** a party member outside the current stage's zone (its
+  room plus the airlocks either side) is taken back to the checkpoint
+  ("You were brought back to the checkpoint."). Anyone else joins the
+  party (see **Late joiners**).
+- **finale:** the party is held to Room 8 the same way. Anyone else is
+  sent home ("The rescue party has reached the Librarian's Cell, and it's
+  too late to join.").
 
 **Dropping out and coming back.** "Home" is the player's bed (or other
-set spawn point), else the ground at world spawn.
+set spawn point), else the ground at world spawn. Logging out keeps a
+player in the party.
 
-- A party member who logs back in inside the dungeon during the run is
-  moved to the current checkpoint by containment, however far the party
-  has got.
-- Someone from an earlier run who logs back in inside the dungeon while a
-  different group's run is on (they left in Room 4, say, and that run has
-  since ended) joins the new party at its checkpoint within a second. If
-  it's too late to join (the Room 8 scene has started) they're sent home
-  with "A rescue run is underway and it's too late to join." Leftover
-  Room 3 concrete and Room 6 keys are taken off them at login, same as
-  for anyone else who was offline when a run ended (unless the new run is
-  in that room right now).
-- A party member who logs back in outside the Nether during the run (for
-  example, they quit on the death screen) is sent to the checkpoint.
-- Anyone who logs back in inside the Nether when they're no longer
-  allowed there (the run ended, portals are closed) is sent home with
-  "The rescue run you were on has ended." If a run is on that can still
-  be joined, they join it instead (see **Late joiners**).
+- Back inside the dungeon while the run is still in Rooms 2–7: moved to
+  the current checkpoint by containment, however far the party has got.
+  Someone from an earlier run (they left in Room 4, say, and that run has
+  since ended) joins the current one the same way. Leftover Room 3
+  concrete and Room 6 keys are taken off them at login, same as for
+  anyone else who was offline when a run ended (unless the new run is in
+  that room right now).
+- Back outside the Nether while still in the party (for example, they
+  quit on the death screen): sent to the checkpoint.
+- Back after the party went into Room 8 without them: sent home ("The
+  rescue party has reached the Librarian's Cell, and it's too late to
+  join."). The finale party is whoever was online when it went through
+  Airlock 7, so someone who was in Room 8 and dropped is brought back to
+  the hall for their rewards.
+- Back after the run ended: sent home ("The rescue run you were on has
+  ended.").
 
 **Leaving a run** ([`leave.js`](season_manager/season_pack/scripts/dungeon/leave.js)).
 A party member who crouches inside any airlock for 5 seconds ("Keep
@@ -1583,34 +1567,28 @@ for 5 seconds to leave the rescue."). Someone who leaves can come back as
 a late joiner. If leaving (or the `leave` command) leaves nobody from the
 party online, the run ends and everything resets for the next group.
 
-**Late joiners.** While a run is on, a non-operator who isn't in the
-party and comes into the Nether, through any portal or by logging in
-there, joins the party. They're told which room it's on ("You've joined
-the rescue party in Room 5, …"), the party is told "<name> has joined the
-party.", and they're sent to the current checkpoint, the same place a
-party member respawns. From then on they're a full party member: airlocks
-and group puzzles wait for them too, and they get the Room 8 rewards.
-Nether portals can be lit while a run is on, so a latecomer can get in.
-Joining closes once the Room 8 scene starts; after that a latecomer is
-bounced as usual. Right after a restart with the run on Room 8, joining
-waits until the room has worked out whether the run carries on: someone
-already in the Nether is brought to the checkpoint outside Room 8 (which
-loads the room so it can decide), then joined or sent home; someone walking through a portal in those few seconds is
-bounced and can try again. When a run ends (`reset`, the finale, the
-last party member leaving, or Room 8 finding the run can't carry on
-after a restart), anyone sent home is told "The rescue run has ended."
-rather than that the portals closed.
+**Late joiners.** While the run is in Rooms 2–7 (the **running** phase),
+a non-operator who isn't in the party and comes into the Nether, through
+any portal or by logging in there, joins the party. They're told which
+room it's on ("You've joined the rescue party in Room 5, …"), the party
+is told "<name> has joined the party.", and they're sent to the current
+checkpoint, the same place a party member respawns. From then on they're
+a full party member: airlocks and group puzzles wait for them too, and
+they get the Room 8 rewards. Nether portals can be lit while the run is
+in Rooms 2–7, so a latecomer can get in. Joining closes once the party
+goes through Airlock 7 into Room 8. When a run ends (`reset`, the finale,
+or the last party member leaving), anyone in the Nether is told "The
+rescue run has ended."
 
-Membership is stored on each player with the run number, so `seal`
-starting a new run cancels the last party, including players who are
-offline.
+Membership is stored on each player with the run number, so starting a
+new run cancels the last party, including players who are offline.
 
 **Keep inventory.** The `keepinventory` game rule is on for the whole run
 and off otherwise, so a party member who dies respawns at the checkpoint
 with their gear and can go straight back in, and no Gravestone add-on
-graves are left in the dungeon. It's set at the seal, on every stage
-change (airlock, `stage`, `jump`), when the run ends (`off`, `reset`, the
-finale, or the last party member leaving), and on every script load.
+graves are left in the dungeon. It's set when the run starts, on every
+stage change (airlock, `jump`), when the run ends (`reset`, the finale,
+or the last party member leaving), and on every script load.
 It's a world-wide rule, so during a run it covers deaths anywhere,
 Overworld included; a `/gamerule keepinventory` typed by hand is
 overwritten at the next of those.
@@ -1869,8 +1847,8 @@ been discounted. Each purchase is noted in the content log.
 
 The cleanup sweep and banned-mob despawning can be toggled off without
 uninstalling the pack — handy for testing or if you need them back
-temporarily. Portals aren't affected; they have their own
-[switch](#nether-portal-switch). Toggle from a
+temporarily. Portals aren't affected; they follow the
+[Mending Rescue phase](#nether-portals). Toggle from a
 command block (no leading slash needed):
 
 ```
