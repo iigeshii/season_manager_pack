@@ -1594,8 +1594,8 @@ Nether portals can be lit while a run is on, so a latecomer can get in.
 Joining closes once the Room 8 scene starts; after that a latecomer is
 bounced as usual. Right after a restart with the run on Room 8, joining
 waits until the room has worked out whether the run carries on: someone
-already in the Nether is left where they are until then, then joined or
-sent home; someone walking through a portal in those few seconds is
+already in the Nether is brought to the checkpoint outside Room 8 (which
+loads the room so it can decide), then joined or sent home; someone walking through a portal in those few seconds is
 bounced and can try again. When a run ends (`reset`, the finale, the
 last party member leaving, or Room 8 finding the run can't carry on
 after a restart), anyone sent home is told "The rescue run has ended."

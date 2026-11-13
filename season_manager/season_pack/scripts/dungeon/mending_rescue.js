@@ -253,7 +253,17 @@ system.runInterval(() => {
     // it's too late to join, go home. Done here rather than waiting for
     // the login check, so they're never walked to the dais first.
     if (running && !isMember(player)) {
-      if (lateJoinWaiting()) continue; // a room is still deciding: deal with them after
+      // A room is still deciding whether the run can be joined (Room 8,
+      // after a restart). It can only decide once its blocks are loaded,
+      // so wait at the checkpoint, which loads it; then they join, or the
+      // run ends and they're sent home.
+      if (lateJoinWaiting()) {
+        if (!inStageZone(player.location)) {
+          sendTo(player, checkpoint());
+          player.sendMessage("§7A rescue run is underway. Wait here a moment.");
+        }
+        continue;
+      }
       if (joinLate(player)) continue;
       if (!isAllowedInNether(player)) {
         sendHome(player, "§7A rescue run is underway and it's too late to join. You've been sent home.");

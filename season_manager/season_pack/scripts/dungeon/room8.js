@@ -250,11 +250,25 @@ function putBack() {
   world.setDynamicProperty(RUN, undefined);
 }
 
+// The party have all picked and gone: everything back for the next group.
+// Blocks in unloaded chunks are tidied by putBack when someone next comes in.
+function endFinale() {
+  finale = { phase: "done" };
+  closeRewards();
+  resetEvent();
+}
+
 // ── Main loop ───────────────────────────────
 
 system.runInterval(() => {
   if (!origin()) return;
   const nether = world.getDimension(NETHER_ID);
+  // The last one to pick their rewards is sent home, which usually empties
+  // the Nether, so this is checked before the "nobody here" skip below.
+  if (finale?.phase === "farewell" && rewardsOpen() && partyHere().length === 0) {
+    endFinale();
+    return;
+  }
   if (nether.getPlayers().length === 0) return; // chunks likely unloaded
 
   const active = isEventOn() && currentStage() === STAGE;
@@ -373,11 +387,7 @@ system.runInterval(() => {
         return;
       }
       // No time limit: the event ends once everyone's picked and gone home (or left).
-      if (party.length === 0) {
-        finale = { phase: "done" };
-        closeRewards();
-        resetEvent(); // everyone home, everything back for the next group
-      }
+      if (party.length === 0) endFinale();
       return;
     }
     default:
