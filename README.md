@@ -1389,10 +1389,15 @@ so respawned players can walk back in). `off` and `reset` close them all.
   like a clock hand: 35 seconds to each next gate, but the moment every mob
   in the arena is dead it races on to the next one, and it pauses while
   more than 8 are alive. Win: gate 12 open and every mob dead → the exit
-  bars (Airlock 5's back gate) open. Test mode kills each gate's mobs 5
+  bars (Airlock 5's back gate) open, and a green light (verdant
+  froglight) runs across the floor in about 1.5 seconds from the centre
+  circle straight south to the exit doorway, so the way out stands out
+  from the orange-lit ring. The floor blocks it covers are saved and put
+  back when the room is reset; the ring track cell it crosses is left
+  alone. Test mode kills each gate's mobs 5
   seconds after they appear. A restart mid-fight starts the room over; it's
-  put back (gates barred, lights dark, mobs removed) when the run moves
-  past Room 5 or ends.
+  put back (gates barred, lights dark, exit path back to floor, mobs
+  removed) when the run moves past Room 5 or ends.
 - **Room 6** ([`room6.js`](season_manager/season_pack/scripts/dungeon/room6.js)),
   the three-floor maze. When the run reaches it, six keys — trial keys
   named "Key #1" to "Key #6", marked with the run number — are hidden in

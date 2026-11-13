@@ -24,7 +24,11 @@ import { setGate } from "./gates.js";
 //  after GATE_SECONDS — sooner the moment every mob in the arena is dead —
 //  and pausing while more than MAX_ALIVE are alive.
 //  Win: gate 12 open and every mob dead → the exit bars (Airlock 5's back
-//  gate) open.
+//  gate) open, and a green light (verdant froglight) runs across the floor
+//  from the centre circle straight to the exit doorway, so the way out is
+//  obvious in the lit-up arena. The floor blocks it replaces are saved
+//  (world property) and put back when the room is reset; ring track cells
+//  on the way are left alone.
 //  Test mode: each gate's mobs are killed 5 seconds after they appear.
 //
 //  The room is put back (gates barred, lights dark, mobs removed) when the
@@ -43,6 +47,9 @@ const MOB_TAG = "season:room5_mob";
 
 const MODE = P + "room5_mode"; // "waiting" | "running" | "won"
 const RUN = P + "room5_run";
+const EXIT_SAVED = P + "room5_exit_path"; // JSON [[x, y, z, type, states]]: floor under the exit path
+const EXIT_LIT = "minecraft:verdant_froglight";
+const EXIT_PATH_TICKS = 30; // the light takes 1.5 s to reach the exit
 
 // What comes out of each gate. weapon/armor are applied with replaceitem.
 const PILLAGER = { type: "minecraft:pillager" };
@@ -80,6 +87,31 @@ const PATH_DARK = R.path_dark;
 
 // Fight state lives in memory; a restart mid-fight resets the room.
 let fight = undefined; // { spoke, track, opened, startTick }
+let exitLit = 0; // exit path cells lit so far (in memory: after a restart it runs again)
+
+// Floor cells from the edge of the centre circle to the exit doorway (the
+// cell in front of Airlock 5's back bars), in order, skipping ring track
+// and spoke cells.
+const EXIT_PATH = (() => {
+  const bars = LAYOUT.airlocks[STAGE - 1].back.rows[0];
+  const door = bars[Math.floor(bars.length / 2)];
+  const [cx, cy, cz] = R.centre;
+  const dx = door[0] - cx;
+  const dz = door[2] - cz;
+  const length = Math.hypot(dx, dz);
+  const skip = new Set([...R.track, ...R.spoke].map((p) => `${p[0]},${p[2]}`));
+  const cells = [];
+  const seen = new Set();
+  for (let d = R.radius + 0.6; d < length - 0.5; d += 0.5) {
+    const x = Math.round(cx + (dx * d) / length);
+    const z = Math.round(cz + (dz * d) / length);
+    const key = `${x},${z}`;
+    if (seen.has(key) || skip.has(key)) continue;
+    seen.add(key);
+    cells.push([x, cy - 1, z]);
+  }
+  return cells;
+})();
 
 // ── Helpers ─────────────────────────────────
 
@@ -190,8 +222,52 @@ function lightPath(cells, upTo) {
   for (let i = 0; i < Math.min(upTo, cells.length); i++) swap(cells[i], PATH_DARK.type, LIT);
 }
 
+// ── Exit path ───────────────────────────────
+
+// Saves the floor under the exit path, once per win, before any of it is lit.
+function saveExitPath() {
+  if (world.getDynamicProperty(EXIT_SAVED) !== undefined) return true;
+  const saved = [];
+  for (const p of EXIT_PATH) {
+    const block = blockAt(p);
+    if (!block) return false; // not loaded: try again next check
+    if (block.typeId === EXIT_LIT) continue;
+    saved.push([...p, block.typeId, block.permutation.getAllStates()]);
+  }
+  world.setDynamicProperty(EXIT_SAVED, JSON.stringify(saved));
+  return true;
+}
+
+// Lights the path a cell or two per step, from the centre out to the exit.
+function stepExitPath() {
+  if (exitLit >= EXIT_PATH.length || !saveExitPath()) return;
+  const before = exitLit;
+  exitLit = Math.min(EXIT_PATH.length, exitLit + EXIT_PATH.length / (EXIT_PATH_TICKS / TICKS));
+  for (let i = Math.floor(before); i < Math.floor(exitLit); i++) {
+    const block = blockAt(EXIT_PATH[i]);
+    if (block && block.typeId !== EXIT_LIT) block.setPermutation(permOf(EXIT_LIT));
+  }
+}
+
+// Puts the saved floor back (only where the light still is).
+function clearExitPath() {
+  exitLit = 0;
+  let saved;
+  try {
+    saved = JSON.parse(world.getDynamicProperty(EXIT_SAVED) ?? "[]");
+  } catch {
+    saved = [];
+  }
+  for (const [x, y, z, type, states] of saved) {
+    const block = blockAt([x, y, z]);
+    if (block?.typeId === EXIT_LIT) block.setPermutation(permOf(type, states));
+  }
+  world.setDynamicProperty(EXIT_SAVED, undefined);
+}
+
 function resetRoom() {
   fight = undefined;
+  clearExitPath();
   for (const mob of aliveMobs()) mob.remove();
   for (const gate of R.gates) {
     for (const p of gate.bars) swap(p, AIR, BARS);
@@ -284,7 +360,8 @@ system.runInterval(() => {
       return;
     }
     default:
-      return; // won
+      stepExitPath(); // won: light the way out
+      return;
   }
 }, TICKS);
 
