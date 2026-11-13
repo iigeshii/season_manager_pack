@@ -25,10 +25,13 @@ import { setGate, isGateWantedOpen } from "./gates.js";
 //  Bar wall: the middle row's first platform (B1, top 6) and the corner
 //  landing (top 5) are close enough to the finish landing (top 3) that a
 //  sprint jump down clears the gap, skipping the whole south leg. So the
-//  landing's north edge is walled with iron bars from the landing up to
-//  the ceiling. The real route comes in from the west, so it's unaffected.
-//  Placed by the script (the dungeon was pasted before the wall existed),
-//  filling only air.
+//  landing's north edge is walled with solid polished blackstone bricks
+//  (the room's own walls) from the landing up to the ceiling. The real
+//  route comes in from the west, so it's unaffected. (It was iron bars at
+//  first, but bars are thin: they left a strip of landing in front of them
+//  to land on, and a gap round the west end to walk through.) Placed by the
+//  script (the dungeon was pasted before the wall existed), filling only
+//  air, and the old bars.
 // ─────────────────────────────────────────────
 
 const CHECK_TICKS = 10;
@@ -70,13 +73,14 @@ function onFinish(player) {
 // ── Bar wall ────────────────────────────────
 // Structure-relative: the finish landing's north row (z1), its full width,
 // from standing height on it (y1) up to the room's ceiling.
-const BARS_PERM = BlockPermutation.resolve("minecraft:iron_bars");
+const WALL_PERM = BlockPermutation.resolve("minecraft:polished_blackstone_bricks");
+const OLD_WALL = "minecraft:iron_bars"; // the first version of the wall
 const CEILING_Y = LAYOUT.spaces.room2.boxes[0][4]; // highest air row in the room
 
 let wallUp = false; // set once the whole wall has been checked this session
 
-// Fills any air in the wall with bars. Runs once per script load; a cell
-// in an unloaded chunk leaves it to the next check.
+// Fills any air (or old bars) in the wall with brick. Runs once per script
+// load; a cell in an unloaded chunk leaves it to the next check.
 function ensureWall() {
   if (wallUp) return;
   const o = origin();
@@ -94,7 +98,7 @@ function ensureWall() {
         complete = false;
         continue;
       }
-      if (block.isAir) block.setPermutation(BARS_PERM);
+      if (block.isAir || block.typeId === OLD_WALL) block.setPermutation(WALL_PERM);
     }
   }
   wallUp = complete;

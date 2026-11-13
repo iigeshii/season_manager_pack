@@ -1,7 +1,7 @@
 import { world, system, BlockPermutation, ItemStack, MolangVariableMap } from "@minecraft/server";
 import { spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded, onRoomRestart } from "./run_state.js";
+import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded, onRoomRestart, extraCommands } from "./run_state.js";
 import { currentStage, isMember, spacesAt } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 
@@ -26,6 +26,10 @@ import { setGate } from "./gates.js";
 //
 //  Test mode: each mob dies off about 10 seconds after it appears.
 //
+//  /scriptevent season:mending_rescue keys  lists where each of this run's
+//  keys not yet in its altar is: a barrel (floor and world position), a
+//  player's inventory, the wrong altar, or dropped on the floor.
+//
 //  Trail: wherever a party member walks in the maze, the corridor floor
 //  block under their feet (polished blackstone) turns into a glowing
 //  verdant froglight, so the group can see where they've already been. No
@@ -34,7 +38,10 @@ import { setGate } from "./gates.js";
 //  blackstone: when the maze is set up for a run (or `jump 6`) and when
 //  it's cleared.
 //
-//  Keys left in barrels, altars, inventories or on the floor and leftover
+//  Every maze barrel and key altar is emptied completely (not just keys:
+//  they're built empty, so anything in them was put there by players) when
+//  the maze is set up for a run (and on `jump 6`) and when it's cleared.
+//  Keys left in inventories or on the floor and leftover
 //  mobs are cleared when the run moves past the maze or ends; keys are
 //  taken out of inventories the moment a run ends, and on login. Maze mobs
 //  found at any other time (left in a chunk that wasn't loaded when the
@@ -177,6 +184,16 @@ function clearKeysEverywhere() {
     for (const drop of world.getDimension(NETHER_ID).getEntities({ type: "minecraft:item", location: centre, maxDistance: ROOM_RADIUS })) {
       if (isMazeKey(drop.getComponent("minecraft:item")?.itemStack)) drop.remove();
     }
+  }
+}
+
+// Every maze barrel and key altar emptied, whatever's in them (they're
+// built empty; anything else was put there by players).
+function emptyBarrels() {
+  for (const p of [...R.barrels, ...R.altars]) {
+    const container = containerAt(p);
+    if (!container) continue;
+    for (let slot = 0; slot < container.size; slot++) container.setItem(slot, undefined);
   }
 }
 
@@ -383,6 +400,7 @@ function clearTrail() {
 function setUp() {
   if (![...R.barrels, ...R.altars].every((p) => containerAt(p))) return false; // not loaded yet
   clearTrail();
+  emptyBarrels();
   clearKeysEverywhere();
   R.pedestals.forEach((p) => swap(p, LIT, R.pedestal_block));
   world.setDynamicProperty(ALTARS, JSON.stringify(R.altars.map(() => false)));
@@ -399,6 +417,7 @@ function clearRoom() {
   bornAt.clear();
   world.setDynamicProperty(PLAN, undefined);
   for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) mob.remove();
+  emptyBarrels();
   clearKeysEverywhere();
   clearTrail();
   R.pedestals.forEach((p) => swap(p, LIT, R.pedestal_block));
@@ -473,3 +492,73 @@ system.runInterval(() => {
 // `jump 6`: start over. Marked as set up for no run, so the next check
 // puts the room back and sets it up fresh.
 onRoomRestart(STAGE, () => world.setDynamicProperty(RUN, -1));
+
+// ── Command: where the keys are ─────────────
+//   /scriptevent season:mending_rescue keys
+
+extraCommands.add("keys");
+
+// Which of this run's keys an item is (0-5), or -1.
+function keyNumber(item) {
+  return R.key_names.findIndex((_, n) => isKeyFor(item, n));
+}
+
+// Floors by feet level, bottom first.
+const FLOOR_NAMES = ["bottom", "middle", "top"];
+const FLOOR_YS = [...new Set(R.mob_spots.map((p) => p[1]))].sort((a, b) => a - b);
+
+function floorOf(y) {
+  const i = FLOOR_YS.indexOf(y);
+  return i >= 0 ? `${FLOOR_NAMES[i] ?? `floor ${i + 1}`} floor` : `y ${y}`;
+}
+
+const fmt = (p) => `${Math.floor(p.x)} ${Math.floor(p.y)} ${Math.floor(p.z)}`;
+
+// n -> where key #n+1 is, for every key of this run found anywhere.
+function findKeys() {
+  const found = new Map();
+  const note = (item, where) => {
+    const n = keyNumber(item);
+    if (n >= 0) found.set(n, [...(found.get(n) ?? []), where]);
+  };
+  const scan = (container, where) => {
+    if (!container) return false;
+    for (let slot = 0; slot < container.size; slot++) note(container.getItem(slot), where);
+    return true;
+  };
+  let unloaded = 0;
+  for (const p of R.barrels) {
+    if (!scan(containerAt(p), `barrel on the ${floorOf(p[1])} at ${fmt(at(p))}`)) unloaded++;
+  }
+  R.altars.forEach((p, n) => {
+    if (!scan(containerAt(p), `altar #${n + 1} (wrong altar) at ${fmt(at(p))}`)) unloaded++;
+  });
+  for (const player of world.getAllPlayers()) {
+    scan(player.getComponent("minecraft:inventory")?.container, `${player.name}'s inventory`);
+  }
+  const centre = at(R.barrels[Math.floor(R.barrels.length / 2)]);
+  for (const drop of world.getDimension(NETHER_ID).getEntities({ type: "minecraft:item", location: centre, maxDistance: ROOM_RADIUS })) {
+    note(drop.getComponent("minecraft:item")?.itemStack, `dropped on the floor at ${fmt(drop.location)}`);
+  }
+  return { found, unloaded };
+}
+
+system.afterEvents.scriptEventReceive.subscribe((event) => {
+  if (event.id !== "season:mending_rescue" || event.message.trim().toLowerCase() !== "keys") return;
+  const source = event.sourceEntity?.typeId === "minecraft:player" ? event.sourceEntity : undefined;
+  const reply = (text) => (source ? source.sendMessage(text) : console.warn(text));
+  if (!origin()) return reply("§cThe dungeon's position isn't set.");
+  if (!isEventOn() || currentStage() !== STAGE || world.getDynamicProperty(RUN) !== currentRun()) {
+    return reply("§7The maze isn't set up (the run isn't in Room 6).");
+  }
+  const done = altarsDone();
+  const { found, unloaded } = findKeys();
+  const lines = [`§6Maze keys (run ${currentRun()}): ${done.filter(Boolean).length} of ${R.key_names.length} in their altars`];
+  R.key_names.forEach((name, n) => {
+    if (done[n]) return;
+    const where = found.get(n);
+    lines.push(`§7 ${name}: §f${where ? where.join("; ") : "not found (lost, or in a chunk that isn't loaded)"}`);
+  });
+  if (unloaded > 0) lines.push(`§8 (${unloaded} barrel${unloaded === 1 ? "" : "s"} not loaded, not checked)`);
+  reply(lines.join("\n"));
+});

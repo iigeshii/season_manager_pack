@@ -1313,8 +1313,11 @@ so respawned players can walk back in). `off` and `reset` close them all.
   Room 1's inner portcullis closes. **Bar wall:** the middle row's first
   platform and the corner landing are close enough above the finish
   landing to jump straight down onto it, skipping the south leg, so the
-  script walls the landing's north edge with iron bars from the landing up
-  to the ceiling.
+  script walls the landing's north edge with solid polished blackstone
+  bricks (the room's own walls) from the landing up to the ceiling. Iron
+  bars were tried first, but they're thin: they left a strip of landing in
+  front of them to land on and a gap round the west end to walk through.
+  Bars already placed are swapped for brick.
 - **Room 3** ([`room3.js`](season_manager/season_pack/scripts/dungeon/room3.js)),
   the counting puzzle. When the run reaches Room 3, each of the six
   counted colours gets a random count (1-8), split between concrete set
@@ -1419,8 +1422,16 @@ so respawned players can walk back in). `off` and `reset` close them all.
   altar (barrel) consumes it and lights the altar's pedestal; anything else,
   including a key from an earlier run, is left alone. All six lit → the exit
   bars (Airlock 6's back gate) open. Keys are taken out of inventories the
-  moment a run ends and on login; keys in barrels, altars and on the floor,
-  and leftover mobs, are cleared when the run moves past the maze or ends.
+  moment a run ends and on login; keys on the floor and leftover mobs are
+  cleared when the run moves past the maze or ends. Every maze barrel and
+  key altar is emptied completely — anything players left in them, not
+  just keys (they're built empty) — when the maze is set up for a run
+  (and on `jump 6`) and when it's cleared.
+  `scriptevent season:mending_rescue keys` lists where this run's keys
+  are, for any not yet in its altar: a barrel (which floor, world
+  position), a player's inventory, the wrong altar, or dropped on the
+  floor. Barrels in chunks that aren't loaded can't be checked and are
+  counted at the end.
   A maze mob seen at any other time (left in a chunk that wasn't loaded
   when the room was cleared) is removed at once; the Gate Ring sits right
   above the maze, and its mobs stop to stare down at strays. **Trail:**
