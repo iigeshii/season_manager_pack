@@ -7,11 +7,14 @@ import { world, system, GameMode } from "@minecraft/server";
 //  1. Game mode. Anyone tagged OPERATOR_TAG is left alone, in any mode,
 //     anywhere. Everyone else is in adventure while in the Nether and in
 //     survival everywhere else — no creative or spectator for non-operators.
-//     Exception: within a few blocks of a gravestone, survival, so the
-//     grave can be broken to collect it; nothing else can be broken there.
 //     Applied on dimension change, on spawn (login and respawn — dying in
 //     the Nether respawns you in the Overworld), and by a sweep as a
-//     backstop.
+//     backstop. Non-operators can't break blocks in the Nether either, as a
+//     second line behind adventure mode. (There used to be a survival
+//     exception next to Gravestone add-on graves so they could be broken;
+//     a run now has keep inventory on, so no graves are made in the
+//     dungeon, and the exception let tools that break extra blocks damage
+//     the building.)
 //
 //  2. Mobs. The only mobs in the Nether are ones the pack spawns. Anything
 //     the pack spawns goes through spawnDungeonMob(), which tags it
@@ -42,31 +45,16 @@ export function isOperator(player) {
 
 // ── Game mode ───────────────────────────────
 
-// Graves from the Gravestone add-on are collected by breaking them, which
-// adventure mode can't do. A non-operator standing near a grave gets
-// survival until they step away; the break guard below keeps them from
-// breaking anything else in the meantime.
-const GRAVE_TYPE = "darkosto_gravestone:gravestone";
-const GRAVE_NAMESPACE = "darkosto_gravestone:";
-const GRAVE_REACH = 4; // blocks
-
-function nearGrave(player) {
-  return player.dimension.getEntities({ type: GRAVE_TYPE, location: player.location, maxDistance: GRAVE_REACH }).length > 0;
-}
-
 function enforceGameMode(player) {
   if (!player.isValid() || isOperator(player)) return;
-  let wanted = GameMode.survival;
-  if (player.dimension.id === NETHER_ID) wanted = nearGrave(player) ? GameMode.survival : GameMode.adventure;
+  const wanted = player.dimension.id === NETHER_ID ? GameMode.adventure : GameMode.survival;
   if (player.getGameMode() !== wanted) player.setGameMode(wanted);
 }
 
-// In the Nether, non-operators may only break Gravestone add-on blocks
-// (relevant only while they're in survival next to a grave).
+// In the Nether, non-operators can't break anything (covers the moment
+// after arriving, before adventure mode is applied).
 world.beforeEvents.playerBreakBlock.subscribe((event) => {
-  const { player, block } = event;
-  if (player.dimension.id !== NETHER_ID || isOperator(player)) return;
-  if (block.typeId.startsWith(GRAVE_NAMESPACE)) return;
+  if (event.player.dimension.id !== NETHER_ID || isOperator(event.player)) return;
   event.cancel = true;
 });
 

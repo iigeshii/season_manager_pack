@@ -1070,12 +1070,14 @@ in only while the [Nether portal switch](#nether-portal-switch) is on.
 **Game mode.** Operators keep whatever mode they're in. Everyone else is
 put in adventure while in the Nether and survival everywhere else — no
 creative or spectator. Applied on dimension change, on login/respawn,
-and by a sweep every second. Exception: within 4 blocks of a gravestone
-(`darkosto_gravestone:gravestone`, from the Gravestone add-on) a player
-is switched to survival so they can break the grave to collect it, and
-back to adventure once they step away. In the Nether, non-operators can't
-break any block except the Gravestone add-on's, so that moment in
-survival can't be used to dig through the dungeon.
+and by a sweep every second. In the Nether, non-operators can't break
+any block either, which covers the moment after arriving before
+adventure is applied. There's no exception for Gravestone add-on graves
+any more: runs have keep inventory on (see **Keep inventory** under
+[Mending Rescue event](#mending-rescue-event)), so no graves are made in
+the dungeon, and the old survival window by a grave let tools that break
+extra blocks damage the building. A grave left in the Nether some other
+way has to be broken by an operator.
 
 **No beds or TNT.** Nobody, operators included, can place a bed (any
 colour), TNT or a TNT minecart in the dungeon or within 8 blocks of it
@@ -1545,6 +1547,16 @@ bounced as usual.
 Membership is stored on each player with the run number, so `seal`
 starting a new run cancels the last party, including players who are
 offline.
+
+**Keep inventory.** The `keepinventory` game rule is on for the whole run
+and off otherwise, so a party member who dies respawns at the checkpoint
+with their gear and can go straight back in, and no Gravestone add-on
+graves are left in the dungeon. It's set at the seal, on every stage
+change (airlock, `stage`, `jump`), when the run ends (`off`, `reset`, the
+finale, or the last party member leaving), and on every script load.
+It's a world-wide rule, so during a run it covers deaths anywhere,
+Overworld included; a `/gamerule keepinventory` typed by hand is
+overwritten at the next of those.
 
 ### Mystic Library tokens
 

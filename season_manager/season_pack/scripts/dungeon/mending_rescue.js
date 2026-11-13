@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
 import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed, setRunOnlyCheck, describePortals } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
-import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, restartRoom, lateJoinOpen } from "./run_state.js";
+import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, onRunEnded, restartRoom, lateJoinOpen } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
 import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 
@@ -62,6 +62,13 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //  Membership is stamped on each player as the run number it applies to,
 //  so starting a new run invalidates the last one without having to reach
 //  players who are offline.
+//
+//  Keep inventory: the keepinventory game rule is on while a run is on and
+//  off otherwise, so a party member who dies goes straight back into the
+//  fight with their gear, and no Gravestone add-on graves are left in the
+//  dungeon. It's a world-wide rule, so during a run it covers deaths
+//  anywhere. Put right on every script load, in case the world stopped
+//  mid-change.
 // ─────────────────────────────────────────────
 
 const EVENT_ID = "season:mending_rescue";
@@ -106,11 +113,29 @@ export function sealParty(players) {
   gateOnRunStarted();
 }
 
+// ── Keep inventory ──────────────────────────
+
+// Sets the game rule to match the run: on during a run, off otherwise.
+// Called on every stage change (the seal sets stage 2), at the end of a
+// run, and on load.
+function syncKeepInventory() {
+  const on = isEventOn();
+  try {
+    world.getDimension("minecraft:overworld").runCommand(`gamerule keepinventory ${on}`);
+  } catch (e) {
+    console.warn(`[Mending Rescue] couldn't set keepinventory ${on}: ${e}`);
+  }
+}
+
+onRunEnded(syncKeepInventory);
+system.run(syncKeepInventory);
+
 // Called by each airlock (and the stage command) as the party moves on to
 // room n: also sets the airlock gates for it (gates.js).
 export function setStage(n) {
   world.setDynamicProperty(P + "stage", n);
   gatesForStage(n);
+  syncKeepInventory();
 }
 
 // ── Late joiners ────────────────────────────

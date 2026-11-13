@@ -96,7 +96,7 @@ Run everything from chat.
 | Command | What it does |
 |---|---|
 | `/scriptevent season:mending_rescue set_origin <x> <y> <z>` | Once: where the structure was placed (its minimum corner, unrotated). Every room, airlock and checkpoint follows from it. |
-| `/scriptevent season:mending_rescue seal` | Override (normally automatic at the first airlock). Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. |
+| `/scriptevent season:mending_rescue seal` | Override (normally automatic at the first airlock). Starts a run: the party is whoever is in the Nether now, the run moves to Room 2 and Nether portals switch off. Dead party members respawn at the checkpoint, even with portals closed. Turns `keepinventory` on until the run ends (`off`, `reset`, the finale, or the last party member leaving), when it goes back off. |
 | `/scriptevent season:mending_rescue stage <2-8>` | Override (normally automatic at each airlock). The party has moved on to that room. The checkpoint becomes the airlock before it. |
 | `/scriptevent season:mending_rescue leave <player>` | Takes one player off the party and sends them home (stuck, AFK). If nobody from the party is left online, the run ends and everything resets. Players can also leave themselves by crouching in any airlock for 5 seconds. |
 | `/scriptevent season:mending_rescue off` | Ends the run. Sends anyone left in the Nether home (bed, else world spawn), except operators. |
@@ -140,5 +140,5 @@ Book names can be typed in any case, with or without spaces, or as the start of 
 
 - Banned mobs (iron golems, piglins, brutes, zombified piglins) removed on spawn.
 - Farm animal cap: 160 pigs, chickens, cows and sheep combined in the Overworld.
-- Nether: non-operators in adventure there (survival within 4 blocks of a gravestone, so it can be collected; nothing else can be broken) and survival elsewhere; any mob the pack didn't spawn is removed.
+- Nether: non-operators in adventure there (and can't break anything) and survival elsewhere; any mob the pack didn't spawn is removed.
 - Login message shows the pack version.
