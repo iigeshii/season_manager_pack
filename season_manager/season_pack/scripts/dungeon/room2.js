@@ -14,10 +14,21 @@ import { setGate, isGateWantedOpen } from "./gates.js";
 //
 //  Pity ladder: the first time any party member reaches the finish
 //  landing, a timer starts (10 minutes; 30 seconds in test mode). When it
-//  runs out, a ladder appears on the landing's north face so anyone still
-//  in the pit can climb up — nobody holds the group up for ever. The
-//  timer is saved with the world. The ladder is removed when the run
-//  moves past Room 2 or ends.
+//  runs out, a ladder appears on the landing's west face (the side the
+//  course comes in on), near its south end, so anyone still in the pit
+//  can climb up — nobody holds the group up for ever. The timer is saved
+//  with the world. The ladder is removed when the run moves past Room 2 or
+//  ends. (layout.js still lists the old spot on the north face, under the
+//  carved marker column; it's no longer used, now that the bar wall is
+//  there.)
+//
+//  Bar wall: the middle row's first platform (B1, top 6) and the corner
+//  landing (top 5) are close enough to the finish landing (top 3) that a
+//  sprint jump down clears the gap, skipping the whole south leg. So the
+//  landing's north edge is walled with iron bars from the landing up to
+//  the ceiling. The real route comes in from the west, so it's unaffected.
+//  Placed by the script (the dungeon was pasted before the wall existed),
+//  filling only air.
 // ─────────────────────────────────────────────
 
 const CHECK_TICKS = 10;
@@ -31,8 +42,15 @@ const WARNED = P + "room2_pity_warned";
 const LADDER_UP = P + "room2_pity_ladder";
 
 const [x1, y1, z1, x2, y2, z2] = LAYOUT.room2.finish_box;
-const LADDER = LAYOUT.room2.rescue_ladder;
-const LADDER_PERM = BlockPermutation.resolve(LADDER.type, LADDER.states);
+const LADDER_TYPE = "minecraft:ladder";
+// Structure-relative: against the landing's west face, one row in from its
+// south edge, from the pit floor (level with the bottom of the landing,
+// here) to the landing's top. Clear of C10's jump, which lands at the
+// north end of that face.
+const LADDER_BLOCKS = [1, 2, 3].map((d) => [x1 - 1, y1 - d, z2 - 1]);
+const LADDER_PERM = BlockPermutation.resolve(LADDER_TYPE, { facing_direction: 4 }); // facing west
+// The old spot on the north face, cleared too in case a ladder was left there.
+const OLD_LADDER_BLOCKS = LAYOUT.room2.rescue_ladder.blocks;
 const AIR_PERM = BlockPermutation.resolve("minecraft:air");
 
 function rel(player) {
@@ -47,6 +65,39 @@ function rel(player) {
 function onFinish(player) {
   const { x, y, z } = rel(player);
   return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
+}
+
+// ── Bar wall ────────────────────────────────
+// Structure-relative: the finish landing's north row (z1), its full width,
+// from standing height on it (y1) up to the room's ceiling.
+const BARS_PERM = BlockPermutation.resolve("minecraft:iron_bars");
+const CEILING_Y = LAYOUT.spaces.room2.boxes[0][4]; // highest air row in the room
+
+let wallUp = false; // set once the whole wall has been checked this session
+
+// Fills any air in the wall with bars. Runs once per script load; a cell
+// in an unloaded chunk leaves it to the next check.
+function ensureWall() {
+  if (wallUp) return;
+  const o = origin();
+  const nether = world.getDimension(NETHER_ID);
+  let complete = true;
+  for (let x = x1; x <= x2; x++) {
+    for (let y = y1; y <= CEILING_Y; y++) {
+      let block;
+      try {
+        block = nether.getBlock({ x: o.x + x, y: o.y + y, z: o.z + z1 });
+      } catch {
+        block = undefined;
+      }
+      if (!block) {
+        complete = false;
+        continue;
+      }
+      if (block.isAir) block.setPermutation(BARS_PERM);
+    }
+  }
+  wallUp = complete;
 }
 
 // When this run's timer started, or undefined. A timer left over from an
@@ -66,7 +117,8 @@ function tell(players, message) {
 function setLadder(up) {
   const o = origin();
   const nether = world.getDimension(NETHER_ID);
-  for (const [x, y, z] of LADDER.blocks) {
+  const blocks = up ? LADDER_BLOCKS : [...LADDER_BLOCKS, ...OLD_LADDER_BLOCKS];
+  for (const [x, y, z] of blocks) {
     let block;
     try {
       block = nether.getBlock({ x: o.x + x, y: o.y + y, z: o.z + z });
@@ -75,7 +127,7 @@ function setLadder(up) {
     }
     if (!block) continue;
     if (up && block.isAir) block.setPermutation(LADDER_PERM);
-    if (!up && block.typeId === LADDER.type) block.setPermutation(AIR_PERM);
+    if (!up && block.typeId === LADDER_TYPE) block.setPermutation(AIR_PERM);
   }
   world.setDynamicProperty(LADDER_UP, up);
 }
@@ -89,6 +141,7 @@ function clearRoom() {
 system.runInterval(() => {
   if (!origin()) return;
   if (world.getDimension(NETHER_ID).getPlayers().length === 0) return; // chunks likely unloaded
+  ensureWall();
 
   // Run moved past Room 2, or ended: tidy up once.
   if (!isEventOn() || currentStage() !== STAGE) {
@@ -115,7 +168,7 @@ system.runInterval(() => {
     const left = limit - (Date.now() - started);
     if (left <= 0) {
       setLadder(true);
-      tell(members, "§6A ladder has been lowered at the far wall.");
+      tell(members, "§6A ladder has been lowered at the west side of the far landing.");
     } else if (left <= WARN_MS && world.getDynamicProperty(WARNED) !== true && limit > WARN_MS) {
       world.setDynamicProperty(WARNED, true);
       tell(members, "§7One minute until the ladder is lowered.");

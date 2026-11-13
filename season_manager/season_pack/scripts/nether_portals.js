@@ -19,6 +19,21 @@ export function netherPortalsOpen() {
   return world.getDynamicProperty(PROPERTY) === true;
 }
 
+// What portals actually do right now, in one of three states:
+//   open      the switch is on: anyone may come in (held to Room 1 to gather)
+//   run only  a Mending Rescue run can be joined: anyone coming in joins
+//             the party at its checkpoint (mending_rescue.js says when)
+//   closed    operators only
+// "run only" wins over the switch, since joining happens first.
+let runOnly = () => false;
+export function setRunOnlyCheck(check) {
+  runOnly = check;
+}
+export function describePortals() {
+  if (runOnly()) return "run only (anyone coming in joins the rescue party at its checkpoint)";
+  return netherPortalsOpen() ? "open (anyone may come in)" : "closed (operators only)";
+}
+
 // Run whenever portals are switched off; each returns how many players it
 // moved. Mending Rescue registers the one that sends people out of the
 // Nether (it knows who's in a party).
@@ -40,7 +55,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
   const arg = event.message.trim().toLowerCase();
   const sent = arg === "on" || arg === "off" ? setNetherPortalsOpen(arg === "on") : 0;
   const moved = arg === "off" ? ` Sent ${sent} player${sent === 1 ? "" : "s"} out of the Nether.` : "";
-  const reply = `§6Nether portals: ${netherPortalsOpen() ? "open to everyone" : "closed (operators only)"}.${moved}`;
+  const reply = `§6Nether portals: ${describePortals()}. §7Switch: ${netherPortalsOpen() ? "on" : "off"}.${moved}`;
   const source = event.sourceEntity;
   if (source?.typeId === "minecraft:player") source.sendMessage(reply);
   else console.warn(reply);

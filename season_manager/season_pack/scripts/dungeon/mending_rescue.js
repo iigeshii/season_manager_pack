@@ -1,6 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { isOperator } from "./nether_rules.js";
-import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed } from "../nether_portals.js";
+import { netherPortalsOpen, setNetherPortalsOpen, onNetherPortalsClosed, setRunOnlyCheck, describePortals } from "../nether_portals.js";
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, getJson, setJson, origin, isEventOn, isTestMode, setTestMode, extraCommands, runEnded, restartRoom, lateJoinOpen } from "./run_state.js";
 import { gateOnRunStarted, resetGate, clearStickyPads, closeInnerPortcullis } from "./room1_gate.js";
@@ -29,13 +29,15 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //              checkpoint and may be in the Nether even with portals off.
 //    stage <n> moves the run to room n (2-8). The checkpoint becomes the
 //              airlock just before it.
+//    leave <player>  takes one player off the party and sends them home.
 //    off       ends the run and resets the Room 1 gate.
 //    test_mode on|off  group puzzles can be done solo: Room 1's pads
 //              stay lit, Airlock 1 needs 1 player, Room 2's pity ladder
 //              comes after 30 s instead of 10 min.
 //    reset     everything back for the next group: ends any run, resets
-//              the gate, closes Nether portals (sending non-operators
-//              home). Keeps the origin and test mode.
+//              the gate, closes Nether portals, and sends everyone in the
+//              Nether home, operators included. Keeps the origin and test
+//              mode.
 //    reset_gate  closes and darkens the Room 1 gate.
 //    jump <n>  testing: go straight to room n (2-8), starting a run if
 //              needed, with the gates set and the party at its checkpoint.
@@ -94,7 +96,10 @@ export function isAllowedInNether(player) {
 export function sealParty(players) {
   const run = currentRun() + 1;
   world.setDynamicProperty(P + "run", run);
-  for (const player of players) player.setDynamicProperty(P + "member", run);
+  for (const player of players) {
+    player.setDynamicProperty(P + "member", run);
+    player.sendMessage(LEAVE_HINT);
+  }
   world.setDynamicProperty(P + "on", true);
   setStage(2);
   setNetherPortalsOpen(false);
@@ -115,6 +120,9 @@ export function canJoinLate() {
   return isEventOn() && !!origin() && lateJoinOpen();
 }
 
+// While a run can be joined, portals are "run only" (nether_portals.js).
+setRunOnlyCheck(canJoinLate);
+
 // A non-operator outside the party who has come into the Nether during a
 // run: joins the party and is sent to the checkpoint. Returns whether they
 // joined. Called by main.js's bounce-back and on login.
@@ -126,9 +134,30 @@ export function joinLate(player) {
   }
   player.setDynamicProperty(P + "member", currentRun());
   player.sendMessage(`§6You've joined the rescue party in Room ${stage}, ${LAYOUT.stages[stage].room}.`);
+  player.sendMessage(LEAVE_HINT);
   system.run(() => {
     if (player.isValid()) sendTo(player, checkpoint());
   });
+  return true;
+}
+
+// ── Leaving ─────────────────────────────────
+// A party member can leave mid-run: crouching in an airlock (leave.js) or
+// an operator's leave command. They're taken off the party and sent home,
+// and could come back later as a late joiner. If that leaves nobody from
+// the party online, the run ends and everything resets for the next group.
+
+export const LEAVE_HINT = "§7Want out? Crouch in any airlock for 5 seconds to leave the rescue.";
+
+export function leaveRun(player) {
+  if (!isMember(player)) return false;
+  // Off the party first, so a later death or login doesn't bring them back.
+  player.setDynamicProperty(P + "member", undefined);
+  if (player.dimension.id === NETHER_ID) sendHome(player, "§7You've left the rescue party and been sent home.");
+  else player.sendMessage("§7You've left the rescue party.");
+  const rest = world.getAllPlayers().filter(isMember);
+  for (const other of rest) other.sendMessage(`§7${player.name} has left the party.`);
+  if (rest.length === 0) resetEvent();
   return true;
 }
 
@@ -194,6 +223,17 @@ system.runInterval(() => {
   if (!running && !netherPortalsOpen()) return; // portals closing already sends non-operators home
   for (const player of world.getDimension(NETHER_ID).getPlayers()) {
     if (isOperator(player)) continue;
+    // Someone outside the party in the Nether during a run (e.g. logged
+    // back in where an earlier run left them): they join this one, or, if
+    // it's too late to join, go home. Done here rather than waiting for
+    // the login check, so they're never walked to the dais first.
+    if (running && !isMember(player)) {
+      if (joinLate(player)) continue;
+      if (!isAllowedInNether(player)) {
+        sendHome(player, "§7A rescue run is underway and it's too late to join. You've been sent home.");
+        continue;
+      }
+    }
     const stage = running && isMember(player) ? currentStage() : 1;
     if (inStageZone(player.location, stage)) continue;
     sendTo(player, placed(LAYOUT.stages[stage].checkpoint));
@@ -317,7 +357,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       const party = world.getDimension(NETHER_ID).getPlayers();
       if (party.length === 0) return reply("§cNobody is in the Nether.");
       sealParty(party);
-      return reply(`§aRun ${currentRun()} started. Party of ${party.length}: ${party.map((p) => p.name).join(", ")}. Now in Room 2. Nether portals closed.`);
+      return reply(`§aRun ${currentRun()} started. Party of ${party.length}: ${party.map((p) => p.name).join(", ")}. Now in Room 2. Nether portals: ${describePortals()}.`);
     }
     case "stage": {
       const n = Number(args[0]);
@@ -350,6 +390,17 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       for (const player of members) sendTo(player, target);
       return reply(`§aJumped to Room ${n}, ${LAYOUT.stages[n].room} (starting over). Sent ${members.map((p) => p.name).join(", ")} to ${fmt(target)}.`);
     }
+    case "leave": {
+      // Takes one player off the party and sends them home (e.g. stuck or
+      // AFK). Name as shown in chat, any case.
+      const name = event.message.trim().split(/\s+/).slice(1).join(" ").replace(/^@|"/g, "").toLowerCase();
+      if (!isEventOn()) return reply("§7No run is on.");
+      if (!name) return reply("§cUse: leave <player>.");
+      const player = world.getAllPlayers().find((p) => p.name.toLowerCase() === name && isMember(p));
+      if (!player) return reply(`§cNo online party member called ${name}.`);
+      leaveRun(player);
+      return reply(`§aTook ${player.name} off the party${isEventOn() ? "" : ". Nobody from the party was left online, so the run ended and everything was reset"}.`);
+    }
     case "off": {
       if (!isEventOn()) return reply("§7No run is on.");
       world.setDynamicProperty(P + "on", false);
@@ -368,7 +419,12 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     }
     case "reset": {
       const wasOn = isEventOn();
-      const sent = resetEvent();
+      let sent = resetEvent();
+      // The command clears the Nether completely: operators go home too.
+      for (const player of world.getDimension(NETHER_ID).getPlayers()) {
+        sendHome(player, "§7The rescue has been reset. You've been sent home.");
+        sent++;
+      }
       return reply(
         `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +
           `Nether portals closed, ${sent} player${sent === 1 ? "" : "s"} sent home.`
@@ -396,7 +452,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
         isEventOn() ? `§7 stage: Room ${stage}, ${LAYOUT.stages[stage].room}` : undefined,
         `§7 origin: ${o ? fmt(o) : "not set"}`,
         o && isEventOn() ? `§7 checkpoint: ${fmt(checkpoint())}` : undefined,
-        `§7 Nether portals: ${netherPortalsOpen() ? "open" : "closed"}`,
+        `§7 Nether portals: ${describePortals()}`,
         isTestMode() ? "§e test mode: on" : undefined,
       ].filter(Boolean);
       if (isEventOn()) {
@@ -407,6 +463,6 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     }
     default:
       if (extraCommands.has(word)) return; // answered by a room module
-      return reply("§cUse: seal, stage <n>, jump <n>, off, reset, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
+      return reply("§cUse: seal, stage <n>, jump <n>, leave <player>, off, reset, test_mode on|off, reset_gate, where, set_origin <x> <y> <z>, or nothing for status.");
   }
 });

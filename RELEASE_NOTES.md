@@ -232,6 +232,9 @@ regardless of when each piece was actually added:
   while a run is on and you join the party in whatever room it's in,
   right up until the librarian's scene starts. You can light a portal to
   get in.
+- **You can leave the rescue partway.** Crouch in any airlock for 5
+  seconds and you'll be asked if you want to leave. Leaving sends you
+  home, and you give up the rewards.
 - **The Nether has its own rules.** Everyone is in Adventure mode
   there: no breaking or placing blocks. Nether mobs only appear where
   the event puts them. Nether portals open only for events. They stay

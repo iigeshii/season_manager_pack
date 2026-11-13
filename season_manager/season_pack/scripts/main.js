@@ -3,6 +3,8 @@ import { isOperator, DUNGEON_MOB_TAG } from "./dungeon/nether_rules.js";
 import { isAllowedInNether, canJoinLate, joinLate } from "./dungeon/mending_rescue.js";
 import { netherPortalsOpen } from "./nether_portals.js";
 import "./dungeon/airlocks.js";
+import "./dungeon/leave.js";
+import "./dungeon/no_explosives.js";
 import "./dungeon/room2.js";
 import "./dungeon/room3.js";
 import "./dungeon/room4.js";

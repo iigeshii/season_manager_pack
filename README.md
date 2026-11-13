@@ -1077,6 +1077,13 @@ back to adventure once they step away. In the Nether, non-operators can't
 break any block except the Gravestone add-on's, so that moment in
 survival can't be used to dig through the dungeon.
 
+**No beds or TNT.** Nobody, operators included, can place a bed (any
+colour), TNT or a TNT minecart in the dungeon or within 8 blocks of it
+(the structure's box from its origin and size in `layout.js`, plus 8 on
+every side). The placement is cancelled with "Beds and TNT can't be placed
+in the dungeon." Nothing happens until the dungeon's origin is set. Code
+in [`scripts/dungeon/no_explosives.js`](season_manager/season_pack/scripts/dungeon/no_explosives.js).
+
 **Mobs.** The only mobs allowed in the Nether are ones the pack spawns,
 which are tagged `season:dungeon_mob` (via `spawnDungeonMob()`). Any
 other mob — vanilla or from any add-on — is removed outright (no death
@@ -1153,7 +1160,17 @@ scriptevent season:nether_portals off
 scriptevent season:nether_portals
 ```
 
-The last form reports the setting. Off: the [portal lock](#portal-lock)
+The last form reports what portals do right now, which is one of three
+states (also shown by `scriptevent season:mending_rescue` on its own):
+
+| State | When | Who can come through a portal |
+|---|---|---|
+| **open** | Switch on, no joinable run | Anyone (held to Room 1 to gather) |
+| **run only** | A [Mending Rescue](#mending-rescue-event) run is on, before the Room 8 scene | Anyone, and coming in adds them to the party at its checkpoint |
+| **closed** | Switch off and no run, or the Room 8 scene has started | Operators only |
+
+The switch turns off at the seal, so a run is **run only** until the Room 8
+scene starts, then **closed**. Off: the [portal lock](#portal-lock)
 and [bounce-back](#dimension-bounce-back) keep everyone but operators out
 of the Nether. Switching off also sends everyone already in the Nether
 home at once (bed spawn, else world spawn), except operators and the
@@ -1203,13 +1220,17 @@ the dungeon changes. The structure must be placed unrotated.
 - `stage <2-8>` — the party has moved on to that room. The checkpoint
   becomes the airlock just before it (or the room's entrance where that
   airlock has no respawn point).
+- `leave <player>` — takes one player off the party and sends them home
+  (for someone stuck or AFK). Name as shown in chat, any case. If that
+  leaves nobody from the party online, the run ends and everything
+  resets. See **Leaving a run** below.
 - `off` — ends the run. Everyone left in the Nether who isn't an
   operator is sent home (unless portals are open), so nobody is stranded
   in a sealed room.
 - `reset` — everything back for the next group, whatever state it's in:
-  ends any run, closes and darkens the Room 1 gate, closes Nether portals
-  (sending non-operators in the Nether home). Keeps the origin and the
-  test-mode setting.
+  ends any run, closes and darkens the Room 1 gate, closes Nether portals,
+  and sends everyone in the Nether home, operators included. Keeps the
+  origin and the test-mode setting.
 - `jump <2-8>` — testing: go straight to that room, skipping the ones
   already checked. Starts a run if none is on (the party is everyone in
   the Nether plus whoever typed it, even from the Overworld), sets the
@@ -1283,10 +1304,15 @@ so respawned players can walk back in). `off` and `reset` close them all.
   make the jumps holds the group up for ever, the first party member to
   reach the landing starts a 10-minute timer (30 seconds in test mode;
   one-minute warning); when it runs out a pity ladder appears on the
-  landing's north face for anyone still in the pit. The ladder is removed
+  landing's west face (the side the course comes in on, near its south
+  end) for anyone still in the pit. The ladder is removed
   when the run moves past Room 2 or ends. In Airlock 2 the
   bars drop behind them, the hatch over the ladder to Room 3 opens, and
-  Room 1's inner portcullis closes.
+  Room 1's inner portcullis closes. **Bar wall:** the middle row's first
+  platform and the corner landing are close enough above the finish
+  landing to jump straight down onto it, skipping the south leg, so the
+  script walls the landing's north edge with iron bars from the landing up
+  to the ceiling.
 - **Room 3** ([`room3.js`](season_manager/season_pack/scripts/dungeon/room3.js)),
   the counting puzzle. When the run reaches Room 3, each of the six
   counted colours gets a random count (1-8), split between concrete set
@@ -1460,9 +1486,10 @@ retrain him with Mending later, swap his tag for
 **Containment.** While a run is on, once a second: a party member in the
 Nether outside the current stage's zone (its room plus the airlocks
 either side) is taken back to the checkpoint ("You were brought back to
-the checkpoint."). Anyone else in the Nether who isn't an operator or in
-the party is held to Room 1 and taken back to the dais ("You were brought
-back to the dais.").
+the checkpoint."). Anyone else in the Nether who isn't an operator joins
+the party (see **Late joiners**); if it's too late to join, they're sent
+home, unless Nether portals are open, in which case they're held to
+Room 1 and taken back to the dais ("You were brought back to the dais.").
 
 Before a run, while Nether portals are open, the Nether is the gathering
 area and the same rule applies to every non-operator: anyone outside
@@ -1477,12 +1504,32 @@ set spawn point), else the ground at world spawn.
 - A party member who logs back in inside the dungeon during the run is
   moved to the current checkpoint by containment, however far the party
   has got.
+- Someone from an earlier run who logs back in inside the dungeon while a
+  different group's run is on (they left in Room 4, say, and that run has
+  since ended) joins the new party at its checkpoint within a second. If
+  it's too late to join (the Room 8 scene has started) they're sent home
+  with "A rescue run is underway and it's too late to join." Leftover
+  Room 3 concrete and Room 6 keys are taken off them at login, same as
+  for anyone else who was offline when a run ended (unless the new run is
+  in that room right now).
 - A party member who logs back in outside the Nether during the run (for
   example, they quit on the death screen) is sent to the checkpoint.
 - Anyone who logs back in inside the Nether when they're no longer
   allowed there (the run ended, portals are closed) is sent home with
   "The rescue run you were on has ended." If a run is on that can still
   be joined, they join it instead (see **Late joiners**).
+
+**Leaving a run** ([`leave.js`](season_manager/season_pack/scripts/dungeon/leave.js)).
+A party member who crouches inside any airlock for 5 seconds ("Keep
+crouching to leave the rescue..." at 2 seconds) gets a "Leave the
+Rescue?" form: **Leave the rescue** or **Stay**. Leaving takes them off
+the party and sends them home, the party is told "<name> has left the
+party.", and they give up the Room 8 rewards. After the form closes they
+have to stand up before crouching counts again. Everyone is told how when
+the run starts and when they join late ("Want out? Crouch in any airlock
+for 5 seconds to leave the rescue."). Someone who leaves can come back as
+a late joiner. If leaving (or the `leave` command) leaves nobody from the
+party online, the run ends and everything resets for the next group.
 
 **Late joiners.** While a run is on, a non-operator who isn't in the
 party and comes into the Nether, through any portal or by logging in
