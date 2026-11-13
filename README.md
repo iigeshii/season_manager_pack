@@ -1073,9 +1073,9 @@ creative or spectator. Applied on dimension change, on login/respawn,
 and by a sweep every second. In the Nether, non-operators can't break
 any block either, which covers the moment after arriving before
 adventure is applied. There's no exception for Gravestone add-on graves
-any more: runs have keep inventory on (see **Keep inventory** under
-[Mending Rescue event](#mending-rescue-event)), so no graves are made in
-the dungeon, and the old survival window by a grave let tools that break
+any more: Rooms 2–7 have keep inventory on (see **Keep inventory** under
+[Mending Rescue event](#mending-rescue-event)), so no graves are made
+where the fighting is, and the old survival window by a grave let tools that break
 extra blocks damage the building. A grave left in the Nether some other
 way has to be broken by an operator.
 
@@ -1209,10 +1209,12 @@ the party only if they were in Airlock 1 when the run started.
 - `set_origin <x> <y> <z>` — once: the structure's minimum corner (the
   `/structure load` position, or a structure block's position plus its
   offset). Saved with the world.
-- `start` — closed → gathering: Nether portals open, and the whole
-  server is told "The Mending Rescue is open! Light a Nether portal and
-  gather on the dais in Room 1." Refused while a run is still on (use
-  `reset` first). The run itself starts at the first airlock.
+- `start` — a fresh event, from any phase. Does everything `reset` does
+  (ends any run, resets the gate, sends everyone in the Nether home,
+  operators included: "The rescue is starting over."), then opens
+  gathering: Nether portals open, and the whole server is told "The
+  Mending Rescue is open! Light a Nether portal and gather on the dais in
+  Room 1." The run itself starts at the first airlock.
 - `leave <player>` — takes one player off the party and sends them home
   (for someone stuck or AFK). Name as shown in chat, any case. If that
   leaves nobody from the party online, the run ends and everything
@@ -1583,13 +1585,15 @@ rescue run has ended."
 Membership is stored on each player with the run number, so starting a
 new run cancels the last party, including players who are offline.
 
-**Keep inventory.** The `keepinventory` game rule is on for the whole run
-and off otherwise, so a party member who dies respawns at the checkpoint
-with their gear and can go straight back in, and no Gravestone add-on
-graves are left in the dungeon. It's set when the run starts, on every
-stage change (airlock, `jump`), when the run ends (`reset`, the finale,
-or the last party member leaving), and on every script load.
-It's a world-wide rule, so during a run it covers deaths anywhere,
+**Keep inventory.** The `keepinventory` game rule is on in the
+**running** phase (from Airlock 1 through Room 7) and off otherwise, so
+a party member who dies respawns at the checkpoint with their gear and
+can go straight back in, and no Gravestone add-on graves are left in the
+dungeon. It goes off at Airlock 7, when the finale starts (Room 8 has
+nothing that kills). It's set when the run starts, on every stage change
+(airlock, `jump`), when the run ends (`reset`, `start`, the finale, or
+the last party member leaving), and on every script load.
+It's a world-wide rule, so while it's on it covers deaths anywhere,
 Overworld included; a `/gamerule keepinventory` typed by hand is
 overwritten at the next of those.
 

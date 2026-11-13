@@ -107,7 +107,7 @@ Operators are never held, moved or sent home by any of this. They're only in the
 | Command | What it does |
 |---|---|
 | `/scriptevent season:mending_rescue` | Status: the phase, run, room, origin, checkpoint, portals, the online party, and anyone else in the Nether (operators marked). |
-| `/scriptevent season:mending_rescue start` | closed → gathering: Nether portals open, and the whole server is told to light a portal and gather in Room 1. Refused while a run is still on (`reset` first). |
+| `/scriptevent season:mending_rescue start` | A fresh event, from any phase. Does everything `reset` does (ends any run, resets the gate, sends everyone in the Nether home, operators included), then opens gathering: Nether portals open, and the whole server is told to light a portal and gather in Room 1. |
 | `/scriptevent season:mending_rescue reset` | Back to closed from any phase: ends any run, closes and darkens the Room 1 gate, and sends everyone in the Nether home, operators included. Keeps the origin and test mode. |
 | `/scriptevent season:mending_rescue leave <player>` | Takes one player off the party and sends them home (stuck, AFK). If nobody from the party is left online, the run ends. Players can also leave themselves by crouching in any airlock for 5 seconds. |
 | `/scriptevent season:mending_rescue set_origin <x> <y> <z>` | Once: where the structure was placed (its minimum corner, unrotated). Every room, airlock and checkpoint follows from it. |
@@ -119,7 +119,7 @@ Operators are never held, moved or sent home by any of this. They're only in the
 | `/scriptevent season:mending_rescue keys` | While the run is in the maze (Room 6): how many keys are in their altars, and where each remaining key is: a barrel (which floor, world position), a player's inventory, the wrong altar, or dropped on the floor. |
 | `/scriptevent season:mending_rescue where` | Which room or airlock you're in, and whether that's inside the current zone. |
 
-While a run is on, a party member who leaves the current room (and the airlocks either side) is brought back to the checkpoint. `keepinventory` is on for the whole run and goes back off when it ends.
+While a run is on, a party member who leaves the current room (and the airlocks either side) is brought back to the checkpoint. `keepinventory` is on from Airlock 1 through Room 7 and goes back off at Airlock 7, when the finale starts.
 
 ## Mystic Library tokens
 

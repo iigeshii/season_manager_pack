@@ -32,7 +32,8 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //
 //  Commands (scriptevent season:mending_rescue <word>, from chat):
 //    set_origin <x> <y> <z>  where the structure was placed (once)
-//    start     closed → gathering.
+//    start     a fresh event from any phase: does everything reset does,
+//              then gathering.
 //    leave <player>  takes one player off the party and sends them home.
 //    test_mode on|off  group puzzles can be done solo: Room 1's pads
 //              stay lit, Airlock 1 needs 1 player, Room 2's pity ladder
@@ -67,10 +68,11 @@ import { gatesForStage, closeAllAirlockGates } from "./gates.js";
 //  so starting a new run invalidates the last one without having to reach
 //  players who are offline.
 //
-//  Keep inventory: the keepinventory game rule is on while a run is on and
-//  off otherwise, so a party member who dies goes straight back into the
-//  fight with their gear, and no Gravestone add-on graves are left in the
-//  dungeon. It's a world-wide rule, so during a run it covers deaths
+//  Keep inventory: the keepinventory game rule is on in the running phase
+//  (Rooms 2-7) and off otherwise, so a party member who dies goes straight
+//  back into the fight with their gear, and no Gravestone add-on graves
+//  are left in the dungeon. Off again from the finale (Room 8 has nothing
+//  that kills). It's a world-wide rule, so while on it covers deaths
 //  anywhere. Put right on every script load, in case the world stopped
 //  mid-change.
 // ─────────────────────────────────────────────
@@ -145,11 +147,11 @@ export function sealParty(players) {
 
 // ── Keep inventory ──────────────────────────
 
-// Sets the game rule to match the run: on during a run, off otherwise.
+// Sets the game rule to match the phase: on while running, off otherwise.
 // Called on every stage change (a run starts at stage 2), at the end of a
 // run, and on load.
 function syncKeepInventory() {
-  const on = isEventOn();
+  const on = phase() === "running";
   try {
     world.getDimension("minecraft:overworld").runCommand(`gamerule keepinventory ${on}`);
   } catch (e) {
@@ -325,7 +327,7 @@ export function sendHome(player, message) {
 // themselves back once they're loaded. Keeps the origin and the test-mode
 // setting. Used by the reset command, the end of the finale, and the last
 // party member leaving. Returns how many players were sent home.
-export function resetEvent() {
+export function resetEvent(message = "§7The rescue run has ended. You've been sent home.") {
   world.setDynamicProperty(P + "on", false);
   world.setDynamicProperty(GATHERING, undefined);
   setStage(1);
@@ -335,7 +337,19 @@ export function resetEvent() {
   let sent = 0;
   for (const player of world.getDimension(NETHER_ID).getPlayers()) {
     if (isOperator(player)) continue;
-    sendHome(player, "§7The rescue run has ended. You've been sent home.");
+    sendHome(player, message);
+    sent++;
+  }
+  return sent;
+}
+
+// The reset command, and the first half of start: resetEvent, then
+// operators sent home too, so the Nether is empty. Returns how many were
+// sent home.
+function clearAll(message) {
+  let sent = resetEvent(message);
+  for (const player of world.getDimension(NETHER_ID).getPlayers()) {
+    sendHome(player, message);
     sent++;
   }
   return sent;
@@ -395,16 +409,18 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
       return reply(`§aDungeon origin set: ${x} ${y} ${z}. Room 1 dais: ${fmt(placed(LAYOUT.arrival))}.`);
     }
     case "start": {
-      // Opens the event for a new group: portals on, and everyone told.
-      // The run itself starts at the first airlock.
+      // A fresh event for a new group, whatever phase it was in: everything
+      // reset and the Nether emptied (as reset), then gathering, and
+      // everyone told. The run itself starts at the first airlock.
       if (!origin()) return reply("§cSet the dungeon's position first: set_origin <x> <y> <z>.");
-      if (phase() === "gathering") return reply("§7The rescue is already open and gathering.");
-      if (isEventOn()) {
-        return reply(`§cRun ${currentRun()} is still on (Room ${currentStage()}, ${LAYOUT.stages[currentStage()].room}). Use reset first.`);
-      }
+      const wasOn = isEventOn();
+      const sent = clearAll("§7The rescue is starting over. You've been sent home.");
       world.setDynamicProperty(GATHERING, true);
       world.sendMessage("§6The Mending Rescue is open! §fLight a Nether portal and gather on the dais in Room 1.");
-      return reply(`§aMending Rescue open. Nether portals: ${describePortals()}.`);
+      return reply(
+        `§aMending Rescue started fresh${wasOn ? ` (run ${currentRun()} ended)` : ""}, ` +
+          `${sent} player${sent === 1 ? "" : "s"} sent home. Nether portals: ${describePortals()}.`
+      );
     }
     case "jump": {
       // Testing: skip rooms already checked. Starts a run if none is on
@@ -450,12 +466,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     }
     case "reset": {
       const wasOn = isEventOn();
-      let sent = resetEvent();
-      // The command clears the Nether completely: operators go home too.
-      for (const player of world.getDimension(NETHER_ID).getPlayers()) {
-        sendHome(player, "§7The rescue has been reset. You've been sent home.");
-        sent++;
-      }
+      const sent = clearAll("§7The rescue has been reset. You've been sent home.");
       return reply(
         `§aMending Rescue reset${wasOn ? ` (run ${currentRun()} ended)` : ""}: gate closed and dark, ` +
           `Nether portals closed, ${sent} player${sent === 1 ? "" : "s"} sent home.`
