@@ -297,6 +297,38 @@ system.runInterval(() => {
   }
 }, CONTAINMENT_TICKS);
 
+// ── Dropped items ───────────────────────────
+// Players drop mob junk wherever they are. Every few seconds, dropped
+// items in any room or airlock the party isn't in now are removed: behind
+// the party once it moves on, and everywhere once the run is over. The
+// current room (and the airlocks either side) is left alone, so puzzle
+// items in play (Room 6's keys, Room 3's concrete) aren't touched. Only
+// loaded chunks are swept; the rest are caught once someone is near.
+
+const ITEM_SWEEP_TICKS = 100; // 5 seconds
+
+system.runInterval(() => {
+  const o = origin();
+  if (!o) return;
+  const nether = world.getDimension(NETHER_ID);
+  if (nether.getPlayers().length === 0) return;
+  const now = phase();
+  const keepStage = now === "gathering" ? 1 : now === "closed" ? undefined : currentStage();
+  let items;
+  try {
+    const [x, y, z] = LAYOUT.size;
+    items = nether.getEntities({ type: "minecraft:item", location: o, volume: { x, y, z } });
+  } catch {
+    return;
+  }
+  for (const item of items) {
+    if (!item.isValid()) continue;
+    if (spacesAt(item.location).length === 0) continue; // not in the dungeon's rooms
+    if (keepStage !== undefined && inStageZone(item.location, keepStage)) continue;
+    item.remove();
+  }
+}, ITEM_SWEEP_TICKS);
+
 // ── Sending home ────────────────────────────
 
 // world.getDefaultSpawnLocation()'s Y can be a placeholder (~32000) if the

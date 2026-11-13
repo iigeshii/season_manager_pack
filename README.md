@@ -1299,11 +1299,13 @@ so respawned players can walk back in). They all close when the run ends.
   Room 1's inner portcullis closes. **Bar wall:** the middle row's first
   platform and the corner landing are close enough above the finish
   landing to jump straight down onto it, skipping the south leg, so the
-  script walls the landing's north edge with solid polished blackstone
-  bricks (the room's own walls) from the landing up to the ceiling. Iron
-  bars were tried first, but they're thin: they left a strip of landing in
-  front of them to land on and a gap round the west end to walk through.
-  Bars already placed are swapped for brick.
+  script walls off the row just north of the landing with solid polished
+  blackstone bricks (the room's own walls), across the landing's width,
+  from the pit floor up to the ceiling. Iron bars were tried first, but
+  they're thin: they left a strip of landing in front of them to land on
+  and a gap round the west end to walk through. Then bricks on the
+  landing's own north row, but their east end stood in front of the exit
+  bars. Earlier versions already placed are taken back out on load.
 - **Room 3** ([`room3.js`](season_manager/season_pack/scripts/dungeon/room3.js)),
   the counting puzzle. When the run reaches Room 3, each of the six
   counted colours gets a random count (1-8), split between concrete set
@@ -1535,6 +1537,15 @@ phase:
 - **finale:** the party is held to Room 8 the same way. Anyone else is
   sent home ("The rescue party has reached the Librarian's Cell, and it's
   too late to join.").
+
+**Dropped items.** Every 5 seconds, items lying on the floor in any
+room or airlock the party isn't in right now are removed (mob drops and
+other junk players throw down). That's everything behind the party once
+it moves on, and everything in the dungeon once the run is over. The
+current room and the airlocks either side are left alone, so puzzle items
+in play (Room 6's keys, Room 3's concrete) aren't touched; while
+gathering, that's Room 1. Only loaded chunks are swept; the rest are
+cleared once someone is nearby.
 
 **Dropping out and coming back.** "Home" is the player's bed (or other
 set spawn point), else the ground at world spawn. Logging out keeps a

@@ -25,13 +25,15 @@ import { setGate, isGateWantedOpen } from "./gates.js";
 //  Bar wall: the middle row's first platform (B1, top 6) and the corner
 //  landing (top 5) are close enough to the finish landing (top 3) that a
 //  sprint jump down clears the gap, skipping the whole south leg. So the
-//  landing's north edge is walled with solid polished blackstone bricks
-//  (the room's own walls) from the landing up to the ceiling. The real
-//  route comes in from the west, so it's unaffected. (It was iron bars at
-//  first, but bars are thin: they left a strip of landing in front of them
-//  to land on, and a gap round the west end to walk through.) Placed by the
-//  script (the dungeon was pasted before the wall existed), filling only
-//  air, and the old bars.
+//  row just north of the landing is walled with solid polished blackstone
+//  bricks (the room's own walls) from the pit floor up to the ceiling. The
+//  real route comes in from the west, so it's unaffected. (It was iron bars
+//  at first, but bars are thin: they left a strip of landing in front of
+//  them to land on, and a gap round the west end to walk through. Then
+//  bricks on the landing's own north row, but that put the east end in
+//  front of the exit bars.) Placed by the script (the dungeon was pasted
+//  before the wall existed), filling only air; the earlier versions are
+//  taken back out.
 // ─────────────────────────────────────────────
 
 const CHECK_TICKS = 10;
@@ -71,15 +73,32 @@ function onFinish(player) {
 }
 
 // ── Bar wall ────────────────────────────────
-// Structure-relative: the finish landing's north row (z1), its full width,
-// from standing height on it (y1) up to the room's ceiling.
+// Structure-relative: the row just north of the finish landing (z1 - 1),
+// across the landing's full width, from the pit floor up to the room's
+// ceiling. (It was on the landing's own north row at first, but its east
+// end stood in front of the exit bars' first column. That row was all air
+// in the build, so the old wall there is taken back out.)
 const WALL_PERM = BlockPermutation.resolve("minecraft:polished_blackstone_bricks");
-const OLD_WALL = "minecraft:iron_bars"; // the first version of the wall
+const WALL_TYPE = "minecraft:polished_blackstone_bricks";
+const WALL_Z = z1 - 1;
+const OLD_WALL_Z = z1; // where the earlier versions stood
+const OLD_BARS = "minecraft:iron_bars"; // the very first version
+const AIR = BlockPermutation.resolve("minecraft:air");
+const FLOOR_Y = LAYOUT.spaces.room2.boxes[0][1]; // lowest air row in the room (the pit)
 const CEILING_Y = LAYOUT.spaces.room2.boxes[0][4]; // highest air row in the room
 
 let wallUp = false; // set once the whole wall has been checked this session
 
-// Fills any air (or old bars) in the wall with brick. Runs once per script
+function wallBlock(nether, o, x, y, z) {
+  try {
+    return nether.getBlock({ x: o.x + x, y: o.y + y, z: o.z + z });
+  } catch {
+    return undefined; // chunk not loaded
+  }
+}
+
+// Fills any air in the wall with brick, and clears the old wall off the
+// landing (only the blocks the script put there). Runs once per script
 // load; a cell in an unloaded chunk leaves it to the next check.
 function ensureWall() {
   if (wallUp) return;
@@ -87,18 +106,15 @@ function ensureWall() {
   const nether = world.getDimension(NETHER_ID);
   let complete = true;
   for (let x = x1; x <= x2; x++) {
+    for (let y = FLOOR_Y; y <= CEILING_Y; y++) {
+      const block = wallBlock(nether, o, x, y, WALL_Z);
+      if (!block) complete = false;
+      else if (block.isAir) block.setPermutation(WALL_PERM);
+    }
     for (let y = y1; y <= CEILING_Y; y++) {
-      let block;
-      try {
-        block = nether.getBlock({ x: o.x + x, y: o.y + y, z: o.z + z1 });
-      } catch {
-        block = undefined;
-      }
-      if (!block) {
-        complete = false;
-        continue;
-      }
-      if (block.isAir || block.typeId === OLD_WALL) block.setPermutation(WALL_PERM);
+      const block = wallBlock(nether, o, x, y, OLD_WALL_Z);
+      if (!block) complete = false;
+      else if (block.typeId === WALL_TYPE || block.typeId === OLD_BARS) block.setPermutation(AIR);
     }
   }
   wallUp = complete;
