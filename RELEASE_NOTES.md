@@ -216,30 +216,34 @@ regardless of when each piece was actually added:
 - **New recipe: Rose Gold Ingot → 9 Nuggets**, the reverse of the
   existing Nuggets → Ingot recipe, matching vanilla gold's conversion.
 
-## Season Manager v2.0.100–v2.0.137 — The Librarian Rescue
+## Season Manager v2.0.100–v2.0.150 — The Librarian Rescue
 
 - **New event: Rescue the Librarian.** A librarian is held deep in a
   Nether fortress, and New Haven is going in after him. It's a group
   run through eight rooms: puzzles, parkour, a collapsing floor, an
   arena and a maze. It takes at least four players and opens only when
-  the event is running. Details are best discovered in person.
+  the event is running; everyone online is told when it opens. Details
+  are best discovered in person.
 - **Rescue rewards.** After the rescue, each party member gets an
   Overseer's Favor (for the Mystic Library, once it opens), then picks 2
   prizes from the chests in the hall: a diamond tool, a diamond armor
   piece, 3 Totems of Undying, a max-level enchanted book, or 8 enchanted
   golden apples.
+- **Keep inventory during the rescue.** From the first airlock through
+  Room 7, you respawn at the checkpoint with all your gear.
 - **Late arrivals can join the rescue.** Go through a Nether portal
   while a run is on and you join the party in whatever room it's in,
-  right up until the librarian's scene starts. You can light a portal to
-  get in.
+  until the party reaches Room 8. You can light a portal to get in. If
+  you log out mid-run, you rejoin at the checkpoint when you come back,
+  unless the party has reached Room 8 or the run is over.
 - **You can leave the rescue partway.** Crouch in any airlock for 5
   seconds and you'll be asked if you want to leave. Leaving sends you
   home, and you give up the rewards.
 - **The Nether has its own rules.** Everyone is in Adventure mode
-  there: no breaking or placing blocks. Nether mobs only appear where
-  the event puts them. Nether portals open only for events. They stay
-  closed the rest of the time. Anyone still in the Nether when they
-  close is sent home.
+  there: no breaking or placing blocks, and no beds or TNT. Nether mobs
+  only appear where the event puts them. Nether portals open only for
+  events. They stay closed the rest of the time. Anyone still in the
+  Nether when they close is sent home.
 - **Mystic Library infrastructure added.** It isn't active yet.
 - **New recipe: Bell.** 2 Stone and a Stick across the top, a Gold
   Ingot in the middle, and Gold Ingot, Redstone Dust, Gold Ingot along
