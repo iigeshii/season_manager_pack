@@ -1418,7 +1418,13 @@ so respawned players can walk back in). `off` and `reset` close them all.
   and leftover mobs, are cleared when the run moves past the maze or ends.
   A maze mob seen at any other time (left in a chunk that wasn't loaded
   when the room was cleared) is removed at once; the Gate Ring sits right
-  above the maze, and its mobs stop to stare down at strays.
+  above the maze, and its mobs stop to stare down at strays. **Trail:**
+  wherever a party member walks, the corridor floor block under their feet
+  (polished blackstone) turns into a glowing verdant froglight (green), so
+  the group can see where they've been and doesn't retrace paths. The
+  maze's build has no froglights, so the trail is wiped by turning every
+  froglight on the three floor slabs back into polished blackstone when
+  the maze is set up for a run (and on `jump 6`) and when it's cleared.
 - **Room 7** ([`room7.js`](season_manager/season_pack/scripts/dungeon/room7.js)),
   the rune floor. Every block of the 23 x 23 floor is a rune tile; stepping
   onto a tile flips only that tile, dark to lit or lit to dark; every tile

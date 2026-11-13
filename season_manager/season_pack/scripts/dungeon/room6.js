@@ -2,7 +2,7 @@ import { world, system, BlockPermutation, ItemStack, MolangVariableMap } from "@
 import { spawnDungeonMob } from "./nether_rules.js";
 import { LAYOUT } from "./layout.js";
 import { P, NETHER_ID, origin, isEventOn, isTestMode, onRunEnded, onRoomRestart } from "./run_state.js";
-import { currentStage } from "./mending_rescue.js";
+import { currentStage, isMember, spacesAt } from "./mending_rescue.js";
 import { setGate } from "./gates.js";
 
 // ─────────────────────────────────────────────
@@ -25,6 +25,14 @@ import { setGate } from "./gates.js";
 //  open.
 //
 //  Test mode: each mob dies off about 10 seconds after it appears.
+//
+//  Trail: wherever a party member walks in the maze, the corridor floor
+//  block under their feet (polished blackstone) turns into a glowing
+//  verdant froglight, so the group can see where they've already been. No
+//  froglights are used in the maze's build, so the trail is wiped by
+//  turning every froglight on the three floor slabs back into polished
+//  blackstone: when the maze is set up for a run (or `jump 6`) and when
+//  it's cleared.
 //
 //  Keys left in barrels, altars, inventories or on the floor and leftover
 //  mobs are cleared when the run moves past the maze or ends; keys are
@@ -50,6 +58,18 @@ const ALARM_RADIUS = 32; // players this close to a sprung spot hear the alarm (
 const ALARM_GAP = 100; // ticks: one alarm at a time, even when several spots spring together
 const LIT = "minecraft:shroomlight";
 const ROOM_RADIUS = 40; // around the maze centre, for dropped keys
+
+const TRAIL_TICKS = 4; // a sprinting player covers about a block in this time
+const TRAIL = "minecraft:verdant_froglight";
+const TRAIL_PERM = BlockPermutation.resolve(TRAIL);
+const CORRIDOR_FLOOR = "minecraft:polished_blackstone";
+const CORRIDOR_FLOOR_PERM = BlockPermutation.resolve(CORRIDOR_FLOOR);
+// Floor slabs, one below each floor's feet level (mob spots are at feet level).
+const SLAB_YS = [...new Set(R.mob_spots.map((p) => p[1] - 1))];
+// The maze's footprint (all its boxes), for wiping the trail.
+const MAZE_BOXES = LAYOUT.spaces.room6.boxes;
+const MAZE_X = [Math.min(...MAZE_BOXES.map((b) => b[0])), Math.max(...MAZE_BOXES.map((b) => b[3]))];
+const MAZE_Z = [Math.min(...MAZE_BOXES.map((b) => b[2])), Math.max(...MAZE_BOXES.map((b) => b[5]))];
 
 const RUN = P + "room6_run";
 const ALTARS = P + "room6_altars"; // JSON [6] booleans
@@ -322,10 +342,47 @@ function placeMobs() {
   if (spawnPlan.length === 0) world.setDynamicProperty(MOBS_DONE, currentRun());
 }
 
+// ── Trail ───────────────────────────────────
+
+// Lights the floor block under each party member walking the maze.
+system.runInterval(() => {
+  if (!origin() || !isEventOn() || currentStage() !== STAGE) return;
+  if (world.getDynamicProperty(RUN) !== currentRun()) return; // not set up (and wiped) yet
+  const o = origin();
+  const nether = world.getDimension(NETHER_ID);
+  for (const player of nether.getPlayers()) {
+    if (!isMember(player)) continue;
+    const below = { x: Math.floor(player.location.x), y: Math.floor(player.location.y) - 1, z: Math.floor(player.location.z) };
+    if (!SLAB_YS.includes(below.y - o.y)) continue; // not standing on a floor (climbing, jumping)
+    if (!spacesAt(player.location).includes("room6")) continue;
+    let block;
+    try {
+      block = nether.getBlock(below);
+    } catch {
+      continue; // not loaded
+    }
+    if (block?.typeId === CORRIDOR_FLOOR) block.setPermutation(TRAIL_PERM);
+  }
+}, TRAIL_TICKS);
+
+// Every trail block back to corridor floor. Cells in unloaded chunks are
+// left for the next wipe.
+function clearTrail() {
+  for (const y of SLAB_YS) {
+    for (let x = MAZE_X[0]; x <= MAZE_X[1]; x++) {
+      for (let z = MAZE_Z[0]; z <= MAZE_Z[1]; z++) {
+        const block = blockAt([x, y, z]);
+        if (block?.typeId === TRAIL) block.setPermutation(CORRIDOR_FLOOR_PERM);
+      }
+    }
+  }
+}
+
 // ── Set up and clear ────────────────────────
 
 function setUp() {
   if (![...R.barrels, ...R.altars].every((p) => containerAt(p))) return false; // not loaded yet
+  clearTrail();
   clearKeysEverywhere();
   R.pedestals.forEach((p) => swap(p, LIT, R.pedestal_block));
   world.setDynamicProperty(ALTARS, JSON.stringify(R.altars.map(() => false)));
@@ -343,6 +400,7 @@ function clearRoom() {
   world.setDynamicProperty(PLAN, undefined);
   for (const mob of world.getDimension(NETHER_ID).getEntities({ tags: [MOB_TAG] })) mob.remove();
   clearKeysEverywhere();
+  clearTrail();
   R.pedestals.forEach((p) => swap(p, LIT, R.pedestal_block));
   world.setDynamicProperty(ALTARS, undefined);
   world.setDynamicProperty(MOBS_DONE, undefined);
